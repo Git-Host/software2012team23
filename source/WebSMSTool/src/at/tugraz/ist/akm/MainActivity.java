@@ -13,9 +13,6 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
         Log.v("Activity", "Going to start web service");
-        this.startService(new Intent(this, WebSMSToolService.class));
-        
-        System.out.println("git is fürn orsch");
-        
+        this.startService(new Intent(this, WebSMSToolService.class));        
     }
 }
