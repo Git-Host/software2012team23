@@ -18,16 +18,16 @@ import org.apache.http.protocol.HttpService;
 import android.util.Log;
 import at.tugraz.ist.akm.webservice.handler.MyRequestHandler;
 
-public class SimpleWebServer extends Thread {
+public class SimpleWebServer implements Runnable {
 	ServerSocket serverSocket = null;
 
 	@Override
-	public void run() {
+	public synchronized void run() {
 
 		try {
 			serverSocket = new ServerSocket(8888);
 			serverSocket.setReuseAddress(true);
-			serverSocket.setSoTimeout(100);
+			//serverSocket.setSoTimeout(100);
 			
 			
 			Log.v("SimpleWebServer", "waiting for connection at "
@@ -38,7 +38,7 @@ public class SimpleWebServer extends Thread {
 
 				new Thread(
 					new Runnable() {
-						public void run(){
+						public synchronized void run(){
 							Log.v("SimpleWebServer", "get connection " + socket);
 							HttpProcessor httpProcessor = new BasicHttpProcessor();
 							BasicHttpContext httpContext = new BasicHttpContext();
