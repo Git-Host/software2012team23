@@ -7,19 +7,19 @@ import android.content.ContentProviderResult;
 import android.content.ContentResolver;
 import android.content.OperationApplicationException;
 import android.database.Cursor;
-import android.net.Uri;
 import android.os.RemoteException;
 import android.provider.ContactsContract;
 import android.provider.ContactsContract.RawContacts;
 import android.test.ActivityInstrumentationTestCase2;
-import android.util.Log;
 import at.tugraz.ist.akm.MainActivity;
+import at.tugraz.ist.akm.trace.Logable;
 
 public class ManipulateContactsTest extends
 		ActivityInstrumentationTestCase2<MainActivity> {
 
 	private ContentResolver mContentResolver = null;
 	private String[][] mTestContacts = null;
+	private Logable mLogger = new Logable("contacts");
 
 	public ManipulateContactsTest() {
 		super("at.tugraz.ist.akm", MainActivity.class);
@@ -152,9 +152,10 @@ public class ManipulateContactsTest extends
 		log("tearDown()");
 		removeContacts();
 	}
-
-	private void log(String message) {
-		Log.d("contacts", message);
+	
+	private void log(String message)
+	{
+		mLogger.log(message);
 	}
 
 }
