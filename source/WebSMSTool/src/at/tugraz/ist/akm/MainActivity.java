@@ -13,6 +13,8 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
         Log.v("Activity", "Going to start web service");
-        this.startService(new Intent(this, WebSMSToolService.class));        
+        this.startService(new Intent(this, WebSMSToolService.class)); 
+        
+        System.out.println("DICKE ZECHN");
     }
 }
