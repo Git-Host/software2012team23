@@ -2,5 +2,6 @@
 <webServerConfig>
   <requestHandler pattern="/" dataFile="index.html" contentType="text/html" class="at.tugraz.ist.akm.webservice.handler.FileRequestHandler"/>
   <requestHandler pattern="/api.html" class="at.tugraz.ist.akm.webservice.handler.APIRequestHandler"/>
-
+  <requestHandler pattern="/js/jquery.js" dataFile="js/jquery.js" contentType="text/javascript" class="at.tugraz.ist.akm.webservice.handler.FileRequestHandler"/>
+  <requestHandler pattern="/js/client.js" dataFile="js/client.js" contentType="text/javascript" class="at.tugraz.ist.akm.webservice.handler.FileRequestHandler"/>  
 </webServerConfig>
