@@ -31,7 +31,7 @@ public class ManipulateContactsTest extends
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
-		log("setUp() - adding som contacts");
+		log("setUp()");
 		mContentResolver = super.getActivity().getContentResolver();
 		assertNotNull(mContentResolver);
 
@@ -42,43 +42,53 @@ public class ManipulateContactsTest extends
 					+ record[2]);
 			insertContact(record);
 		}
+		log("setUp().return");
 	}
 
 	private void insertContact(String[] record) throws RemoteException,
 			OperationApplicationException {
 		ArrayList<ContentProviderOperation> ops = new ArrayList<ContentProviderOperation>();
-        int rawContactInsertIndex = ops.size();
- 
-        ops.add(ContentProviderOperation.newInsert(ContactsContract.RawContacts.CONTENT_URI)
-                .withValue(RawContacts.ACCOUNT_TYPE, null)
-                .withValue(RawContacts.ACCOUNT_NAME, null)
-                .build());
+		int rawContactInsertIndex = ops.size();
 
-        ops.add(ContentProviderOperation.newInsert(ContactsContract.Data.CONTENT_URI)
-                .withValueBackReference(ContactsContract.Data.RAW_CONTACT_ID,rawContactInsertIndex)
-                .withValue(ContactsContract.Data.MIMETYPE, ContactsContract.CommonDataKinds.StructuredName.CONTENT_ITEM_TYPE)
-                .withValue(ContactsContract.CommonDataKinds.StructuredName.DISPLAY_NAME, record[0] + " " + record[1])
-                .withValue(ContactsContract.CommonDataKinds.StructuredName.FAMILY_NAME, record[1])
-                .withValue(ContactsContract.CommonDataKinds.StructuredName.GIVEN_NAME, record[0])
-                .build());
+		ops.add(ContentProviderOperation
+				.newInsert(ContactsContract.RawContacts.CONTENT_URI)
+				.withValue(RawContacts.ACCOUNT_TYPE, null)
+				.withValue(RawContacts.ACCOUNT_NAME, null).build());
 
-        ops.add(ContentProviderOperation.newInsert(ContactsContract.Data.CONTENT_URI)
-                .withValueBackReference(ContactsContract.Data.RAW_CONTACT_ID,rawContactInsertIndex)
-                .withValue(ContactsContract.Data.MIMETYPE, ContactsContract.CommonDataKinds.Phone.CONTENT_ITEM_TYPE)
-                .withValue(ContactsContract.CommonDataKinds.Phone.NUMBER, record[2])
-                .build());
- 
-        ContentProviderResult [] res = mContentResolver.applyBatch(ContactsContract.AUTHORITY, ops);
-        if (res!=null) {
-//        	Uri newContactUri = res[0].uri;
-//        	log("URI added contact:"+ newContactUri);
-        }
-        else log("Contact not added.");
+		ops.add(ContentProviderOperation
+				.newInsert(ContactsContract.Data.CONTENT_URI)
+				.withValueBackReference(ContactsContract.Data.RAW_CONTACT_ID,
+						rawContactInsertIndex)
+				.withValue(
+						ContactsContract.Data.MIMETYPE,
+						ContactsContract.CommonDataKinds.StructuredName.CONTENT_ITEM_TYPE)
+				.withValue(
+						ContactsContract.CommonDataKinds.StructuredName.DISPLAY_NAME,
+						record[0] + " " + record[1])
+				.withValue(
+						ContactsContract.CommonDataKinds.StructuredName.FAMILY_NAME,
+						record[1])
+				.withValue(
+						ContactsContract.CommonDataKinds.StructuredName.GIVEN_NAME,
+						record[0]).build());
 
-        
+		ops.add(ContentProviderOperation
+				.newInsert(ContactsContract.Data.CONTENT_URI)
+				.withValueBackReference(ContactsContract.Data.RAW_CONTACT_ID,
+						rawContactInsertIndex)
+				.withValue(
+						ContactsContract.Data.MIMETYPE,
+						ContactsContract.CommonDataKinds.Phone.CONTENT_ITEM_TYPE)
+				.withValue(ContactsContract.CommonDataKinds.Phone.NUMBER,
+						record[2]).build());
+
+		ContentProviderResult[] res = mContentResolver.applyBatch(
+				ContactsContract.AUTHORITY, ops);
+
+		assertNotNull(res);
 	}
 
-	public void removeContacts() throws OperationApplicationException {
+	private void removeContacts() throws OperationApplicationException {
 		for (String[] record : mTestContacts) {
 			log("remove contact " + record[0] + "-" + record[1] + "-"
 					+ record[2]);
@@ -86,7 +96,7 @@ public class ManipulateContactsTest extends
 		}
 	}
 
-	public void removeContact(String[] record)
+	private void removeContact(String[] record)
 			throws OperationApplicationException {
 		String where = ContactsContract.Data.DISPLAY_NAME + " = ? ";
 		String[] params = new String[] { record[0] + " " + record[1] };
@@ -102,12 +112,12 @@ public class ManipulateContactsTest extends
 		}
 	}
 
-	public void testGetContacts() {
+	protected void testGetContacts() {
 		Cursor contactRecord = mContentResolver.query(
 				ContactsContract.Contacts.CONTENT_URI, null, null, null, null);
 		log("records found: " + contactRecord.getCount());
 		assertTrue(contactRecord.getCount() >= mTestContacts.length);
-		
+
 		while (contactRecord.moveToNext()) {
 			log(getContactDisplayName(contactRecord));
 			log(getContactPhones(contactRecord));
@@ -151,10 +161,11 @@ public class ManipulateContactsTest extends
 	protected void tearDown() throws Exception {
 		log("tearDown()");
 		removeContacts();
+		log("tearDown().return");
+		super.tearDown();
 	}
-	
-	private void log(String message)
-	{
+
+	private void log(String message) {
 		mLogger.log(message);
 	}
 
