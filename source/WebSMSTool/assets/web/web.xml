@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<webServerConfig>
+  <requestHandler pattern="/" htmlFile="index.html" class="at.tugraz.ist.akm.webservice.handler.DisplayWebSiteRequestHandler"/>
+
+</webServerConfig>
