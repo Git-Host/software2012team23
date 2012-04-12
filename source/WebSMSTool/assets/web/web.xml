@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <webServerConfig>
-  <requestHandler pattern="/" htmlFile="index.html" class="at.tugraz.ist.akm.webservice.handler.DisplayWebSiteRequestHandler"/>
+  <requestHandler pattern="/" dataFile="index.html" contentType="text/html" class="at.tugraz.ist.akm.webservice.handler.FileRequestHandler"/>
+  <requestHandler pattern="/api.html" class="at.tugraz.ist.akm.webservice.handler.APIRequestHandler"/>
 
 </webServerConfig>

@@ -18,6 +18,7 @@ public class XmlNode {
     }
 
     public String getAttributeValue(String attribute) {
-        return node.getAttributes().getNamedItem(attribute).getNodeValue();
+        Node attributeNode= node.getAttributes().getNamedItem(attribute);
+        return attributeNode != null ? attributeNode.getNodeValue() : null;
     }
 }

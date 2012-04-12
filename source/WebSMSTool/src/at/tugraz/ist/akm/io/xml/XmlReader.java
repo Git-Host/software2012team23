@@ -76,7 +76,9 @@ public class XmlReader {
      */
     public List<XmlNode> getNodes(String name) {
         List<XmlNode> nodes = new ArrayList<XmlNode>();
-
+        if(dom == null) {
+            return nodes;
+        }
         Element root = dom.getDocumentElement();
 
         NodeList childNodes = root.getChildNodes();

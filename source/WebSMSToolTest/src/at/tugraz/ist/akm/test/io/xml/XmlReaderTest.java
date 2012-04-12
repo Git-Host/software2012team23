@@ -3,11 +3,11 @@ package at.tugraz.ist.akm.test.io.xml;
 import java.util.List;
 
 import junit.framework.Assert;
-import android.test.InstrumentationTestCase;
+import junit.framework.TestCase;
 import at.tugraz.ist.akm.io.xml.XmlNode;
 import at.tugraz.ist.akm.io.xml.XmlReader;
 
-public class XmlReaderTest extends InstrumentationTestCase {
+public class XmlReaderTest extends TestCase {
 
     public void test() {
         String xmlData = "<config><requestHandler pattern=\"/\" htmlFile=\"index.html\" class=\"myClass\"/></config>";

@@ -1,6 +1,7 @@
 package at.tugraz.ist.akm.webservice.server;
 
 import java.io.IOException;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -54,7 +55,6 @@ public class SimpleWebServer implements Runnable {
         List<XmlNode> nodes = reader.getNodes("requestHandler");
         for (XmlNode node : nodes) {
             String className = node.getAttributeValue("class");
-            String htmlFile = node.getAttributeValue("htmlFile");
             String pattern = node.getAttributeValue("pattern");
 
             if (className == null) {
@@ -66,16 +66,14 @@ public class SimpleWebServer implements Runnable {
             HttpRequestHandler requestHandler = null;
             try {
                 Class<?> clazz = Class.forName(className);
-                if (htmlFile != null) {
-                    requestHandler = (HttpRequestHandler) clazz.getConstructor(Context.class,
-                            String.class).newInstance(context, htmlFile);
-                } else {
-                    requestHandler = (HttpRequestHandler) clazz.getConstructor(Context.class)
-                            .newInstance(context);
-                }
+
+                Constructor<?> constr = clazz.getConstructor(Context.class, XmlNode.class);
+                requestHandler = (HttpRequestHandler) constr.newInstance(context, node);
+
                 Log.i("SimpleWebServer", "register http request handler <"
                         + requestHandler.getClass().getSimpleName() + "> for pattern <" + pattern
                         + ">");
+
                 registry.register(pattern, requestHandler);
             } catch (IllegalArgumentException e) {
                 e.printStackTrace();

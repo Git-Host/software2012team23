@@ -9,12 +9,15 @@ import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpRequestHandler;
 
 import android.content.Context;
+import at.tugraz.ist.akm.io.xml.XmlNode;
 
 public abstract class AbstractHttpRequestHandler implements HttpRequestHandler {
     protected final Context context;
+    protected final XmlNode config;
 
-    public AbstractHttpRequestHandler(final Context context) {
+    public AbstractHttpRequestHandler(final Context context, final XmlNode config) {
         this.context = context;
+        this.config = config;
     }
 
     @Override
