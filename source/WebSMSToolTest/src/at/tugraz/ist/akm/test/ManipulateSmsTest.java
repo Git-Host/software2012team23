@@ -53,7 +53,7 @@ public class ManipulateSmsTest extends
 	}
 
 	public void testReadInboxSms() {
-		SmsRead smsSource = new SmsRead(mActivity);
+		SmsRead smsSource = new SmsRead(mContentResolver);
 		List<TextMessage> inbox = smsSource.getInbox();
 
 		int msgIdx = 0;
@@ -64,7 +64,7 @@ public class ManipulateSmsTest extends
 	}
 
 	public void testReadOutboxSms() {
-		SmsRead smsSource = new SmsRead(mActivity);
+		SmsRead smsSource = new SmsRead(mContentResolver);
 		List<TextMessage> outbox = smsSource.getOutbox();
 
 		int msgIdx = 0;
