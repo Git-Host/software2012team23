@@ -9,6 +9,7 @@ import org.apache.http.ParseException;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.message.BasicHttpEntityEnclosingRequest;
 import org.apache.http.protocol.HttpContext;
+import org.apache.http.protocol.HttpRequestHandlerRegistry;
 import org.apache.http.util.EntityUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -16,24 +17,27 @@ import org.json.JSONObject;
 import android.content.Context;
 import android.util.Log;
 import at.tugraz.ist.akm.io.xml.XmlNode;
-import at.tugraz.ist.akm.webservice.handler.AbstractHttpRequestHandler;
+import at.tugraz.ist.akm.webservice.handler.APIRequestHandler;
 
-public class MockAPIRequestHandler extends AbstractHttpRequestHandler {
+public class MockAPIRequestHandler extends APIRequestHandler {
 
-    public MockAPIRequestHandler(final Context context, final XmlNode config) {
-        super(context, config, null);
+    public MockAPIRequestHandler(final Context context, final XmlNode config,
+            final HttpRequestHandlerRegistry registry) {
+        super(context, config, registry);
     }
 
     @Override
     public void handle(HttpRequest httpRequest, HttpResponse httpResponse, HttpContext httpContext)
             throws HttpException, IOException {
-        Log.d("MockAPIRequestHandler", "called");
+        Log.d(getLogTag(), "called");
         if (httpRequest.getRequestLine().getMethod().equals("POST")) {
             BasicHttpEntityEnclosingRequest post = (BasicHttpEntityEnclosingRequest) httpRequest;
             JSONObject json;
             try {
                 json = new JSONObject(EntityUtils.toString(post.getEntity()));
                 httpResponse.setEntity(new StringEntity(json.toString()));
+                httpResponse.setHeader("Accept", "application/json");
+                httpResponse.setHeader("Content-type", "application/json");
             } catch (ParseException e) {
                 e.printStackTrace();
             } catch (JSONException e) {

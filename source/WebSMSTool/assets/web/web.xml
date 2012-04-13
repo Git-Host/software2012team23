@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <webServerConfig>
   <requestHandler  class="at.tugraz.ist.akm.webservice.handler.FileRequestHandler">
-    <request pattern="/" dataFile="web/index.html" contentType="text/html"/>
-    <request pattern="/js/jquery.js" dataFile="web/js/jquery.js" contentType="text/javascript"/>
-    <request pattern="/js/client.js" dataFile="web/js/client.js" contentType="text/javascript"/> 
+    <request uriPattern="/" dataFile="web/index.html" contentType="text/html"/>
+    <request uriPattern="/js/jquery.js" dataFile="web/js/jquery.js" contentType="text/javascript"/>
+    <request uriPattern="/js/client.js" dataFile="web/js/client.js" contentType="text/javascript"/> 
   </requestHandler>
-  <requestHandler pattern="/api.html" class="at.tugraz.ist.akm.webservice.handler.APIRequestHandler"/>
+  <requestHandler uriPattern="/api.html" class="at.tugraz.ist.akm.webservice.handler.APIRequestHandler"/>
 </webServerConfig>s

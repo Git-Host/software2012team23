@@ -19,15 +19,10 @@ import android.content.Context;
 import android.util.Log;
 import at.tugraz.ist.akm.io.FileReader;
 import at.tugraz.ist.akm.io.xml.XmlNode;
+import at.tugraz.ist.akm.webservice.WebServerConfig;
 
 public class FileRequestHandler extends AbstractHttpRequestHandler {
-    private final static String CFG_DATA_FILE = "dataFile";
-    private final static String CFG_CONTENT_TYPE = "contentType";
-    private final static String CFG_PATTERN = "pattern";
-
-    private final static String TAG_REQUEST = "request";
-
-    private HashMap<String, FileInfo> pattern2FileInfo = new HashMap<String, FileRequestHandler.FileInfo>();
+    private HashMap<String, FileInfo> uri2FileInfo = new HashMap<String, FileRequestHandler.FileInfo>();
 
     private static class FileInfo {
         final String contentType;
@@ -56,55 +51,58 @@ public class FileRequestHandler extends AbstractHttpRequestHandler {
         if (config == null) {
             return;
         }
-        List<XmlNode> childNodes = config.getChildNodes(TAG_REQUEST);
+        List<XmlNode> childNodes = config.getChildNodes(WebServerConfig.XML.TAG_REQUEST);
         for (XmlNode node : childNodes) {
-            String pattern = node.getAttributeValue(CFG_PATTERN);
-            if (pattern == null || pattern.trim().length() == 0) {
-                Log.e("FileRequestHandler", "no pattern found, ignore this request configuration");
+            String uri = node.getAttributeValue(WebServerConfig.XML.ATTRIBUTE_URI_PATTERN);
+            if (uri == null || uri.trim().length() == 0) {
+                Log.e(getLogTag(), "no uri configured, ignore this request configuration");
                 continue;
             }
-            String contentType = node.getAttributeValue(CFG_CONTENT_TYPE);
+            String contentType = node.getAttributeValue(WebServerConfig.XML.ATTRIBUTE_CONTENT_TYPE);
             if (contentType == null || contentType.trim().length() == 0) {
-                Log.e("FileRequestHandler", "no content type configured for pattern '" + pattern
-                        + "'");
+                Log.e(getLogTag(), "no content type configured for uri '" + uri + "'");
                 continue;
             }
-            String file = node.getAttributeValue(CFG_DATA_FILE);
+            String file = node.getAttributeValue(WebServerConfig.XML.ATTRIBUTE_DATA_FILE);
             if (file == null || file.trim().length() == 0) {
-                Log.e("FileRequestHandler", "no data file configured for pattern '" + pattern + "'");
+                Log.e(getLogTag(), "no data file configured for uri '" + uri + "'");
                 continue;
             }
-            pattern = pattern.trim();
+            uri = uri.trim();
 
             FileInfo fileInfo = new FileInfo(file.trim(), contentType.trim());
-            pattern2FileInfo.put(pattern, fileInfo);
-            Log.i("FileRequestHandler", "read mapping pattern '" + pattern + "' ==> " + fileInfo);
+            uri2FileInfo.put(uri, fileInfo);
+            Log.i(getLogTag(), "read mapping uri '" + uri + "' ==> " + fileInfo);
 
-            registry.register(pattern, this);
+            register(uri);
         }
     }
 
+    // TODO: error handling
     @Override
     public void handle(HttpRequest httpRequest, HttpResponse httpResponse, HttpContext httpContext)
             throws HttpException, IOException {
-        Log.v("FileRequestHandler", "handle request: " + httpRequest.getRequestLine().getUri());
+        Log.v(getLogTag(), "handle request '" + httpRequest.getRequestLine().getUri() + "'");
 
         String uri = httpRequest.getRequestLine().getUri();
-        final FileInfo fileInfo = pattern2FileInfo.get(uri);
+        final FileInfo fileInfo = uri2FileInfo.get(uri);
         if (fileInfo == null) {
-            Log.e("FileRequestHandler", "no mapping found for URI '" + uri + "'");
+            Log.e(getLogTag(), "no mapping found for uri '" + uri + "'");
             return;
         }
 
-        HttpEntity entity = new EntityTemplate(new ContentProducer() {
-            public void writeTo(final OutputStream outstream) throws IOException {
-                OutputStreamWriter writer = new OutputStreamWriter(outstream, "UTF-8");
-                String resp = new FileReader(context, fileInfo.file).read();
+        final String data = new FileReader(context, fileInfo.file).read();
 
-                writer.write(resp);
-                writer.flush();
+        HttpEntity entity = new EntityTemplate(new ContentProducer() {
+
+            @Override
+            public void writeTo(OutputStream outstream) throws IOException {
+                OutputStreamWriter writer = new OutputStreamWriter(outstream);
+                writer.write(data);
+                writer.close();
             }
         });
+
         httpResponse.setHeader("Content-Type", fileInfo.contentType);
         httpResponse.setEntity(entity);
     }

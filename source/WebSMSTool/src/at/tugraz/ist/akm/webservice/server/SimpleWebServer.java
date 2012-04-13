@@ -22,6 +22,7 @@ import android.content.Context;
 import android.util.Log;
 import at.tugraz.ist.akm.io.xml.XmlNode;
 import at.tugraz.ist.akm.io.xml.XmlReader;
+import at.tugraz.ist.akm.webservice.WebServerConfig;
 
 public class SimpleWebServer implements Runnable {
     private ServerSocket serverSocket = null;
@@ -50,10 +51,10 @@ public class SimpleWebServer implements Runnable {
     }
 
     private void readRequestHandlers() {
-        XmlReader reader = new XmlReader(context, "web/web.xml");
-        List<XmlNode> nodes = reader.getNodes("requestHandler");
+        XmlReader reader = new XmlReader(context, WebServerConfig.RES.WEB_XML);
+        List<XmlNode> nodes = reader.getNodes(WebServerConfig.XML.TAG_REQUEST_HANDLER);
         for (XmlNode node : nodes) {
-            String className = node.getAttributeValue("class");
+            String className = node.getAttributeValue(WebServerConfig.XML.ATTRIBUTE_CLASS);
 
             if (className == null) {
                 Log.e("SimpleWebServer", "request handler <" + node.getName()
