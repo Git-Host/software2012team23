@@ -10,11 +10,10 @@ public class MainActivityTest extends
 		ActivityInstrumentationTestCase2<MainActivity> {
 
 	private Solo mSolo;
-	private Logable mLogger = null;
+	private Logable mLog = new Logable(this.getClass().getName());
 
 	public MainActivityTest() {
 		super("at.tugraz.ist.akm", MainActivity.class);
-		mLogger = new Logable("this.getClass().getName()");
 		mSolo = new Solo(getInstrumentation(), getActivity());
 		getActivity().setContentView(R.layout.main);
 	}
@@ -36,7 +35,7 @@ public class MainActivityTest extends
 	}
 
 	private void log(String message) {
-		mLogger.log(message);
+		mLog.log(message);
 	}
 
 }

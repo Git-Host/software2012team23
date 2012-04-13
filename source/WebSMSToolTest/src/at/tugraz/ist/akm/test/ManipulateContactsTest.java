@@ -19,7 +19,7 @@ public class ManipulateContactsTest extends
 
 	private ContentResolver mContentResolver = null;
 	private String[][] mTestContacts = null;
-	private Logable mLogger = new Logable("contacts");
+	private Logable mLog = new Logable(getClass().getSimpleName());
 
 	public ManipulateContactsTest() {
 		super("at.tugraz.ist.akm", MainActivity.class);
@@ -166,7 +166,7 @@ public class ManipulateContactsTest extends
 	}
 
 	private void log(String message) {
-		mLogger.log(message);
+		mLog.log(message);
 	}
 
 }

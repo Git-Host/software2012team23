@@ -4,7 +4,7 @@ import android.util.Log;
 
 public class Logable {
 
-	private String mTag = null;
+	protected String mTag = null;
 
 	public Logable(String tag) {
 		mTag = new String(tag);
