@@ -21,7 +21,7 @@ import at.tugraz.ist.akm.webservice.handler.AbstractHttpRequestHandler;
 public class MockAPIRequestHandler extends AbstractHttpRequestHandler {
 
     public MockAPIRequestHandler(final Context context, final XmlNode config) {
-        super(context, config);
+        super(context, config, null);
     }
 
     @Override

@@ -15,7 +15,6 @@ import org.apache.http.params.BasicHttpParams;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.BasicHttpProcessor;
 import org.apache.http.protocol.HttpProcessor;
-import org.apache.http.protocol.HttpRequestHandler;
 import org.apache.http.protocol.HttpRequestHandlerRegistry;
 import org.apache.http.protocol.HttpService;
 
@@ -55,26 +54,18 @@ public class SimpleWebServer implements Runnable {
         List<XmlNode> nodes = reader.getNodes("requestHandler");
         for (XmlNode node : nodes) {
             String className = node.getAttributeValue("class");
-            String pattern = node.getAttributeValue("pattern");
 
             if (className == null) {
                 Log.e("SimpleWebServer", "request handler <" + node.getName()
                         + "> no corresponding class found");
                 continue;
             }
-
-            HttpRequestHandler requestHandler = null;
             try {
                 Class<?> clazz = Class.forName(className);
 
-                Constructor<?> constr = clazz.getConstructor(Context.class, XmlNode.class);
-                requestHandler = (HttpRequestHandler) constr.newInstance(context, node);
-
-                Log.i("SimpleWebServer", "register http request handler <"
-                        + requestHandler.getClass().getSimpleName() + "> for pattern <" + pattern
-                        + ">");
-
-                registry.register(pattern, requestHandler);
+                Constructor<?> constr = clazz.getConstructor(Context.class, XmlNode.class,
+                        HttpRequestHandlerRegistry.class);
+                constr.newInstance(context, node, registry);
             } catch (IllegalArgumentException e) {
                 e.printStackTrace();
             } catch (SecurityException e) {
@@ -91,8 +82,7 @@ public class SimpleWebServer implements Runnable {
                 e.printStackTrace();
             }
         }
-
-        Log.v("SimpleWebServer", "after registry");
+        Log.v("SimpleWebServer", "request handlers read from configuration");
     }
 
     @Override
