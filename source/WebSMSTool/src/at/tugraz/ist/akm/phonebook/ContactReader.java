@@ -11,12 +11,12 @@ import android.net.Uri;
 import android.provider.ContactsContract;
 import at.tugraz.ist.akm.trace.Logable;
 
-public class ContactsRead {
+public class ContactReader {
 
 	private ContentResolver mContentResolver = null;
 	private Logable mLog = new Logable(getClass().getSimpleName());
 
-	public ContactsRead(ContentResolver c) {
+	public ContactReader(ContentResolver c) {
 		mContentResolver = c;
 	}
 
@@ -26,7 +26,8 @@ public class ContactsRead {
 		List<Contact> contacts = new Vector<Contact>();
 		Uri select = ContactsContract.Contacts.CONTENT_URI;
 		String[] as = { ContactsContract.Contacts._ID,
-				ContactsContract.Contacts.DISPLAY_NAME };
+				ContactsContract.Contacts.DISPLAY_NAME,
+				ContactsContract.Contacts.STARRED };
 		String where = ContactsContract.Contacts.HAS_PHONE_NUMBER + " = ?";
 		String[] like = { "1" };
 
@@ -52,7 +53,7 @@ public class ContactsRead {
 				.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
 		boolean starred = Boolean.parseBoolean(person.getString(person
 				.getColumnIndex(ContactsContract.Contacts.STARRED)));
-		
+
 		contact.setDisplayName(displayName);
 		contact.setId(Integer.parseInt(contactId));
 		contact.setStarred(starred);
@@ -76,13 +77,20 @@ public class ContactsRead {
 		if (phoneNumbers != null) {
 			List<Contact.Number> phoneNumberList = new ArrayList<Contact.Number>();
 			while (phoneNumbers.moveToNext()) {
+
+				String phone = phoneNumbers
+						.getString(phoneNumbers
+								.getColumnIndex(ContactsContract.CommonDataKinds.Phone.TYPE));
+				if (phone == null) {
+					phone = new String("0");
+				}
+
 				phoneNumberList
 						.add(new Contact.Number(
 								phoneNumbers
 										.getString(phoneNumbers
-												.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER)),Integer.parseInt(
-								phoneNumbers.getString(phoneNumbers
-										.getColumnIndex(ContactsContract.CommonDataKinds.Phone.TYPE)))));
+												.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER)),
+								Integer.parseInt(phone)));
 
 			}
 			contact.setPhoneNumbers(phoneNumberList);

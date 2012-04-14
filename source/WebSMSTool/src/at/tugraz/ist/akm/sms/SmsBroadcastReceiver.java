@@ -3,6 +3,7 @@ package at.tugraz.ist.akm.sms;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.util.Log;
 
 public class SmsBroadcastReceiver extends BroadcastReceiver {
 
@@ -22,6 +23,10 @@ public class SmsBroadcastReceiver extends BroadcastReceiver {
 			mCallback.smsSentCallback(context, intent);
 		} else if (action.compareTo(ACTION_SMS_DELIVERED) == 0) {
 			mCallback.smsDeliveredCallback(context, intent);
+		} else {
+			Log.v(getClass().getSimpleName(), "unknown action received: "
+					+ action);
 		}
+
 	}
 };

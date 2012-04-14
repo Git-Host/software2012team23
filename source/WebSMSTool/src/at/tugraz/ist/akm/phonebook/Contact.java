@@ -3,6 +3,8 @@ package at.tugraz.ist.akm.phonebook;
 import java.util.List;
 
 import android.net.Uri;
+import android.provider.Contacts;
+import android.provider.ContactsContract;
 
 public class Contact {
 
@@ -12,6 +14,10 @@ public class Contact {
 
 		public Number(String number, int type) {
 			this.mNumber = number;
+			/**
+			 * Phone types are defined in 
+			 * ContactsContract.CommonDataKinds.Phone.TYPE_***
+			 */
 			this.mType = type;
 		}
 
