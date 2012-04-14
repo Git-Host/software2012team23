@@ -1,18 +1,14 @@
 package at.tugraz.ist.akm.test.sms;
 
 import java.io.Serializable;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
 
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.database.Cursor;
 import android.os.Bundle;
 import at.tugraz.ist.akm.sms.SmsBoxReader;
 import at.tugraz.ist.akm.sms.SmsBoxWriter;
-import at.tugraz.ist.akm.sms.SmsBridge;
 import at.tugraz.ist.akm.sms.SmsBroadcastReceiver;
 import at.tugraz.ist.akm.sms.SmsContent;
 import at.tugraz.ist.akm.sms.SmsSend;
@@ -27,33 +23,28 @@ public class ManipulateSmsTest extends WebSMSToolTestInstrumentation implements
 		super(ManipulateSmsTest.class.getSimpleName());
 	}
 
-	@Override
-	protected void setUp() throws Exception {
-		super.setUp();
-	}
-
 	/**
 	 * Prove existence of expected content provider uris
 	 */
 	public void testGetSmsContentProviderTables() {
 		try {
-			logCursor(mContentResolver.query(SmsContent.ContentUri.INBOX_URI,
+			SmsHelper.logCursor(mContentResolver.query(SmsContent.ContentUri.INBOX_URI,
 					null, null, null, null));
-			logCursor(mContentResolver.query(SmsContent.ContentUri.QUEUED_URI,
+			SmsHelper.logCursor(mContentResolver.query(SmsContent.ContentUri.QUEUED_URI,
 					null, null, null, null));
-			logCursor(mContentResolver.query(SmsContent.ContentUri.BASE_URI,
+			SmsHelper.logCursor(mContentResolver.query(SmsContent.ContentUri.BASE_URI,
 					null, null, null, null));
-			logCursor(mContentResolver.query(SmsContent.ContentUri.DRAFT_URI,
+			SmsHelper.logCursor(mContentResolver.query(SmsContent.ContentUri.DRAFT_URI,
 					null, null, null, null));
 
-			logCursor(mContentResolver.query(SmsContent.ContentUri.FAILED_URI,
+			SmsHelper.logCursor(mContentResolver.query(SmsContent.ContentUri.FAILED_URI,
 					null, null, null, null));
-			logCursor(mContentResolver.query(SmsContent.ContentUri.OUTBOX_URI,
+			SmsHelper.logCursor(mContentResolver.query(SmsContent.ContentUri.OUTBOX_URI,
 					null, null, null, null));
-			logCursor(mContentResolver.query(
+			SmsHelper.logCursor(mContentResolver.query(
 					SmsContent.ContentUri.UNDELIVERED_URI, null, null, null,
 					null));
-			logCursor(mContentResolver.query(SmsContent.ContentUri.SENT_URI,
+			SmsHelper.logCursor(mContentResolver.query(SmsContent.ContentUri.SENT_URI,
 					null, null, null, null));
 
 		} catch (Exception e) {
@@ -62,40 +53,9 @@ public class ManipulateSmsTest extends WebSMSToolTestInstrumentation implements
 		}
 	}
 
-	private void logCursor(Cursor table) {
-		table.moveToNext();
-		StringBuffer cols = new StringBuffer();
-		for (String col : table.getColumnNames()) {
-			cols.append(col + " ");
-		}
-		log("cursor has [" + table.getCount() + "] entries and ["
-				+ table.getColumnCount() + "] cols: " + cols.toString());
-	}
-
-	private void logTextMessage(TextMessage message) {
-		StringBuffer info = new StringBuffer();
-		info.append("address: " + message.getAddress());
-		info.append(" body: " + message.getBody());
-		info.append(" date: " + message.getDate());
-		info.append(" errorCode: " + message.getErrorCode());
-		info.append(" locked: " + message.getLocked());
-		info.append(" subject: " + message.getSubject());
-		info.append(" person: " + message.getPerson());
-		info.append(" protocol: " + message.getProtocol());
-		info.append(" read: " + message.getRead());
-		info.append(" replyPathPresent: " + message.getReplyPathPresent());
-		info.append(" seen: " + message.getSeen());
-		info.append(" serviceCenter: " + message.getServiceCenter());
-		info.append(" status: " + message.getStatus());
-		info.append(" id: " + message.getId());
-		info.append(" threadId: " + message.getThreadId());
-		info.append(" type: " + message.getType());
-		log("test message {" + info.toString() + "}");
-	}
-
 	public void testWriteSMSToOutbox() {
 		try {
-			TextMessage m = getDummyTextMessage();
+			TextMessage m = SmsHelper.getDummyTextMessage();
 			SmsBoxWriter smsWriter = new SmsBoxWriter(mContentResolver);
 			smsWriter.writeOutboxTextMessage(m);
 		} catch (Exception e) {
@@ -116,7 +76,7 @@ public class ManipulateSmsTest extends WebSMSToolTestInstrumentation implements
 					SmsBroadcastReceiver.ACTION_SMS_SENT));
 			mActivity.registerReceiver(deliveredReceiver, new IntentFilter(
 					SmsBroadcastReceiver.ACTION_SMS_DELIVERED));
-			smsSink.sendTextMessage(getDummyTextMessage());
+			smsSink.sendTextMessage(SmsHelper.getDummyTextMessage());
 			// wait until intent is (hopefully) broadcasted, else it won't
 			// trigger the desired callback
 			Thread.sleep(3000);
@@ -134,7 +94,7 @@ public class ManipulateSmsTest extends WebSMSToolTestInstrumentation implements
 			SmsBoxReader smsSource = new SmsBoxReader(mContentResolver);
 			List<TextMessage> inbox = smsSource.getInbox();
 			for (TextMessage m : inbox) {
-				logTextMessage(m);
+				SmsHelper.logTextMessage(m);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -147,7 +107,7 @@ public class ManipulateSmsTest extends WebSMSToolTestInstrumentation implements
 			SmsBoxReader smsSource = new SmsBoxReader(mContentResolver);
 			List<TextMessage> outbox = smsSource.getSentbox();
 			for (TextMessage m : outbox) {
-				logTextMessage(m);
+				SmsHelper.logTextMessage(m);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -155,34 +115,9 @@ public class ManipulateSmsTest extends WebSMSToolTestInstrumentation implements
 		}
 	}
 
-	public void testSmsBridgeSendSms() {
-		try {
-			SmsBridge s = new SmsBridge(mActivity);
-			s.sendTextMessage(getDummyTextMessage());
-			Thread.sleep(3000);
-		} catch (Exception e) {
-			e.printStackTrace();
-			assertTrue(false);
-		}
-	}
-
-	private String getDateNowString() {
-		Date dateNow = new Date();
-		SimpleDateFormat dateformat = new SimpleDateFormat("hh:mm dd.MM.yyyy");
-		StringBuilder now = new StringBuilder(dateformat.format(dateNow));
-		return now.toString();
-
-	}
-
-	private TextMessage getDummyTextMessage() {
-		String methodName = Thread.currentThread().getStackTrace()[3]
-				.getMethodName();
-		TextMessage m = new TextMessage();
-		m.setAddress("1357");
-		m.setBody(methodName + ": Dummy texting generated on "
-				+ getDateNowString() + ".");
-		m.setDate(Long.toString(new Date().getTime()));
-		return m;
+	@Override
+	protected void setUp() throws Exception {
+		super.setUp();
 	}
 
 	@Override
@@ -222,4 +157,5 @@ public class ManipulateSmsTest extends WebSMSToolTestInstrumentation implements
 		log("sms delivered (action: " + intent.getAction() + " )");
 
 	}
+
 }
