@@ -19,18 +19,18 @@ public class MainActivityTest extends
 	}
 
 	protected void test() {
-		 log("test(): running empty test");
+		log("test(): running empty test");
 	}
 
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
-		 log("setUp()");
+		log("setUp()");
 	}
 
 	@Override
 	protected void tearDown() throws Exception {
-		 log("tearDown()");
+		log("tearDown()");
 		mSolo.finishOpenedActivities();
 	}
 

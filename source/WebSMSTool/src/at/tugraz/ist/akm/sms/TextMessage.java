@@ -1,7 +1,6 @@
 package at.tugraz.ist.akm.sms;
 
 import java.io.Serializable;
-import java.text.SimpleDateFormat;
 
 public class TextMessage implements Serializable {
 

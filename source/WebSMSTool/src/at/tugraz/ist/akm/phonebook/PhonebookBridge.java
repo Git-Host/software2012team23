@@ -6,7 +6,6 @@ import android.database.ContentObserver;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.ContactsContract;
-import android.util.Log;
 import at.tugraz.ist.akm.trace.Logable;
 
 public class PhonebookBridge implements ContactChangedCallback {

@@ -1,7 +1,6 @@
 package at.tugraz.ist.akm.phonebook;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Vector;
 
@@ -10,12 +9,10 @@ import android.content.ContentUris;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.ContactsContract;
-import at.tugraz.ist.akm.trace.Logable;
 
 public class ContactReader {
 
 	private ContentResolver mContentResolver = null;
-	private Logable mLog = new Logable(getClass().getSimpleName());
 
 	public ContactReader(ContentResolver c) {
 		mContentResolver = c;
@@ -89,10 +86,11 @@ public class ContactReader {
 		}
 		// if set, put "with phone" predicate to query
 		if (filter.getIsWithPhoneActive()) {
-			if ( where.length() > 0 ) {
+			if (where.length() > 0) {
 				where.append(" AND");
 			}
-			where.append(" " + ContactsContract.Contacts.HAS_PHONE_NUMBER + " = ? ");
+			where.append(" " + ContactsContract.Contacts.HAS_PHONE_NUMBER
+					+ " = ? ");
 			if (filter.getWithPhone()) {
 				like.add("1");
 			} else {
@@ -212,9 +210,5 @@ public class ContactReader {
 			}
 		}
 		return photoUri;
-	}
-
-	private void log(final String m) {
-		mLog.log(m);
 	}
 }
