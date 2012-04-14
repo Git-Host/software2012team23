@@ -5,8 +5,6 @@ import android.content.Intent;
 
 public interface ContactChangedCallback {
 
-	public void contactModifiedCallback(Context context, Intent intent);
-
-	public void contactCreatedCallback(Context context, Intent intent);
+	public void contactModifiedCallback();
 
 }

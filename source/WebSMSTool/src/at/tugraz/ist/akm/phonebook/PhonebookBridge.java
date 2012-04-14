@@ -2,9 +2,11 @@ package at.tugraz.ist.akm.phonebook;
 
 import android.app.Activity;
 import android.content.ContentResolver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
+import android.database.ContentObserver;
+import android.database.Cursor;
+import android.net.Uri;
+import android.provider.ContactsContract;
+import android.util.Log;
 import at.tugraz.ist.akm.trace.Logable;
 
 public class PhonebookBridge implements ContactChangedCallback {
@@ -12,44 +14,73 @@ public class PhonebookBridge implements ContactChangedCallback {
 	private Logable mLog = new Logable(getClass().getSimpleName());
 	private Activity mActivity = null;
 	private ContentResolver mContentResolver = null;
-	private ContactBroadcastReceiver mContactBroadcastReceiver = null;
 	private ContactReader mContactReader = null;
+	private Cursor mContactContentCursor = null;
+	private ContactContentObserver mContactContentObserver = null;
+
+	private class ContactContentObserver extends ContentObserver {
+
+		private ContactChangedCallback mCallback = null;
+
+		public ContactContentObserver(ContactChangedCallback c) {
+			super(null);
+			mCallback = c;
+		}
+
+		@Override
+		public boolean deliverSelfNotifications() {
+			return true;
+		}
+
+		@Override
+		public void onChange(boolean selfChange) {
+			super.onChange(selfChange);
+			if (!selfChange) {
+				mCallback.contactModifiedCallback();
+			}
+		}
+	}
 
 	public PhonebookBridge(Activity a) {
 		mActivity = a;
 		mContentResolver = mActivity.getContentResolver();
 		mContactReader = new ContactReader(mContentResolver);
-		mContactBroadcastReceiver = new ContactBroadcastReceiver(this);
-		registerContactChangedListener();
+		mContactContentCursor = getContactCursor();
+		registerContactChangedObserver();
 	}
 
 	public void close() {
-		unregisterContactChangedListener();
+		unregisterContactChangedObserver();
 	}
 
-	public void fetchContacts() {
-		mContactReader.fetchContactsWithPhone();
+	public void fetchContacts(ContactReader.ContactFilter filter) {
+		mContactReader.fetchContacts(filter);
 	}
 
-	private void registerContactChangedListener() {
-		mActivity.registerReceiver(mContactBroadcastReceiver, new IntentFilter(
-				ContactBroadcastReceiver.ACTION_CONTACT_CREATED));
-		mActivity.registerReceiver(mContactBroadcastReceiver, new IntentFilter(
-				ContactBroadcastReceiver.ACTION_CONTACT_MODIFIED));
+	private Cursor getContactCursor() {
+		Uri select = ContactsContract.Contacts.CONTENT_URI;
+		String[] as = { ContactsContract.Contacts.DISPLAY_NAME,
+				ContactsContract.Contacts._ID };
+		String where = ContactsContract.Contacts.HAS_PHONE_NUMBER + " = ? ";
+		String[] like = { "1" };
+
+		return mActivity.managedQuery(select, as, where, like, null);
 	}
 
-	private void unregisterContactChangedListener() {
-		mActivity.unregisterReceiver(mContactBroadcastReceiver);
+	private void registerContactChangedObserver() {
+		mContactContentObserver = new ContactContentObserver(this);
+		mContactContentCursor.registerContentObserver(mContactContentObserver);
+	}
+
+	private void unregisterContactChangedObserver() {
+		mContactContentCursor
+				.unregisterContentObserver(mContactContentObserver);
+		mContactContentObserver = null;
 	}
 
 	@Override
-	public void contactModifiedCallback(Context context, Intent intent) {
-		log("contact modified callback triggered");
-	}
-
-	@Override
-	public void contactCreatedCallback(Context context, Intent intent) {
-		log("contact created callback triggered");
+	public void contactModifiedCallback() {
+		log("Contact modified callback triggered. Unfortunately we don't know which contact is involved");
 	}
 
 	private void log(final String m) {

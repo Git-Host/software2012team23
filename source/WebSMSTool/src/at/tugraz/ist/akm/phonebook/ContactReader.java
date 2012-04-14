@@ -1,6 +1,7 @@
 package at.tugraz.ist.akm.phonebook;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Vector;
 
@@ -20,18 +21,43 @@ public class ContactReader {
 		mContentResolver = c;
 	}
 
-	public List<Contact> fetchContactsWithPhone() {
-		log("perfom fetching contacts with phone");
+	public static class ContactFilter {
+		private boolean mStarred = false;
+		private boolean mIsStarredActive = false;
+		private boolean mWithPhone = false;
+		private boolean mIsWithPhoneActive = false;
+
+		public boolean getIsStarred() {
+			return mStarred;
+		}
+
+		public void setStarred(boolean mStarred) {
+			this.mStarred = mStarred;
+			this.mIsStarredActive = true;
+		}
+
+		public boolean getIsStarredActive() {
+			return mIsStarredActive;
+		}
+
+		public void setWithPhone(boolean mWithPhone) {
+			this.mWithPhone = mWithPhone;
+			this.mIsWithPhoneActive = true;
+		}
+
+		public boolean getWithPhone() {
+			return this.mWithPhone;
+		}
+
+		public boolean getIsWithPhoneActive() {
+			return mIsWithPhoneActive;
+		}
+	}
+
+	public List<Contact> fetchContacts(ContactFilter filter) {
 
 		List<Contact> contacts = new Vector<Contact>();
-		Uri select = ContactsContract.Contacts.CONTENT_URI;
-		String[] as = { ContactsContract.Contacts._ID,
-				ContactsContract.Contacts.DISPLAY_NAME,
-				ContactsContract.Contacts.STARRED };
-		String where = ContactsContract.Contacts.HAS_PHONE_NUMBER + " = ?";
-		String[] like = { "1" };
-
-		Cursor people = mContentResolver.query(select, as, where, like, null);
+		Cursor people = queryContacts(filter);
 
 		if (people != null) {
 			while (people.moveToNext()) {
@@ -40,8 +66,44 @@ public class ContactReader {
 			people.close();
 		}
 
-		log("fetched [" + contacts.size() + "] contacts with phone number(s)");
 		return contacts;
+	}
+
+	private Cursor queryContacts(ContactFilter filter) {
+
+		Uri select = ContactsContract.Contacts.CONTENT_URI;
+		String[] as = { ContactsContract.Contacts._ID,
+				ContactsContract.Contacts.DISPLAY_NAME,
+				ContactsContract.Contacts.STARRED };
+		StringBuffer where = new StringBuffer();
+		List<String> like = new ArrayList<String>();
+
+		// if set, put "starred" predicate to query
+		if (filter.getIsStarredActive()) {
+			where.append(ContactsContract.Contacts.STARRED + " = ? ");
+			if (filter.getIsStarred()) {
+				like.add("1");
+			} else {
+				like.add("0");
+			}
+		}
+		// if set, put "with phone" predicate to query
+		if (filter.getIsWithPhoneActive()) {
+			if ( where.length() > 0 ) {
+				where.append(" AND");
+			}
+			where.append(" " + ContactsContract.Contacts.HAS_PHONE_NUMBER + " = ? ");
+			if (filter.getWithPhone()) {
+				like.add("1");
+			} else {
+				like.add("0");
+			}
+		}
+
+		String[] likeArgs = new String[like.size()];
+		likeArgs = like.toArray(likeArgs);
+		return mContentResolver.query(select, as, where.toString(), likeArgs,
+				null);
 	}
 
 	private Contact parseToContact(Cursor person) {
@@ -51,8 +113,8 @@ public class ContactReader {
 				.getColumnIndex(ContactsContract.Contacts._ID));
 		String displayName = person.getString(person
 				.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
-		boolean starred = Boolean.parseBoolean(person.getString(person
-				.getColumnIndex(ContactsContract.Contacts.STARRED)));
+		boolean starred = (1 == Integer.parseInt(person.getString(person
+				.getColumnIndex(ContactsContract.Contacts.STARRED))));
 
 		contact.setDisplayName(displayName);
 		contact.setId(Integer.parseInt(contactId));
