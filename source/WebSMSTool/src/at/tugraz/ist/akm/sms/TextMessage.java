@@ -1,20 +1,52 @@
 package at.tugraz.ist.akm.sms;
 
-public class TextMessage {
+import java.io.Serializable;
+import java.text.SimpleDateFormat;
 
-	private String mId = null;
-	private String mThreadId = null;
-	private String mPerson = null;
-	private String mDate = null;
-	private String mAddress = null;
-	private String mSeen = null;
-	private String mRead = null;
-	private String mBody = null;
-	private String mProtocol = null;
-	private String mStatus = null;
-	private String mType = null;
-	private String mServiceCenter = null;
-	private String mLocked = null;
+public class TextMessage implements Serializable {
+
+	private static final long serialVersionUID = 6681600779409479945L;
+
+	private String mId = "";
+	private String mThreadId = "";
+	private String mPerson = "null";
+	private String mDate = "";
+	private String mAddress = "";
+	private String mSeen = "1";
+	private String mRead = "1";
+	private String mBody = "";
+	private String mProtocol = "null";
+	private String mStatus = "-1";
+	private String mType = "";
+	private String mServiceCenter = "null";
+	private String mLocked = "0";
+	private String mReplyPathPresent = "";
+	private String mSubject = "";
+	private String mErrorCode = "";
+
+	public String getReplyPathPresent() {
+		return mReplyPathPresent;
+	}
+
+	public void setReplyPathPresent(String replyPathPresent) {
+		this.mReplyPathPresent = replyPathPresent;
+	}
+
+	public String getSubject() {
+		return mSubject;
+	}
+
+	public void setSubject(String subject) {
+		this.mSubject = subject;
+	}
+
+	public String getErrorCode() {
+		return mErrorCode;
+	}
+
+	public void setErrorCode(String errorCode) {
+		this.mErrorCode = errorCode;
+	}
 
 	public String getId() {
 		return mId;
@@ -44,8 +76,8 @@ public class TextMessage {
 		return mDate;
 	}
 
-	public void setDate(String mDate) {
-		this.mDate = mDate;
+	public void setDate(String date) {
+		this.mDate = date;
 	}
 
 	public String getAddress() {

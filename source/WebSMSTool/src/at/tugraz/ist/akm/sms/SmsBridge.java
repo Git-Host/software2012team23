@@ -1,5 +1,6 @@
 package at.tugraz.ist.akm.sms;
 
+import java.io.Serializable;
 import java.util.List;
 
 import android.app.Activity;
@@ -7,29 +8,44 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.os.Bundle;
 import android.telephony.SmsManager;
 import at.tugraz.ist.akm.trace.Logable;
 
 public class SmsBridge implements SmsSendCallback {
 
 	private Activity mActivity = null;
-	private ContentResolver mContentResolver= null;
+	private ContentResolver mContentResolver = null;
 	private SmsBroadcastReceiver mSmsSendNotifier = new SmsBroadcastReceiver(
 			this);
 	private SmsSend mSmsSink = null;
-	private SmsRead mLocalSmsReader = null;
-	
+	private SmsBoxReader mSmsBoxReader = null;
+	private SmsBoxWriter mSmsBoxWriter = null;
+
 	private Logable mLog = new Logable(getClass().getSimpleName());
 
 	public SmsBridge(Activity a) {
 		mActivity = a;
 		mContentResolver = mActivity.getContentResolver();
 		mSmsSink = new SmsSend(mActivity);
-		mLocalSmsReader = new SmsRead(mContentResolver);
+		mSmsBoxReader = new SmsBoxReader(mContentResolver);
 		registerSmsSentNotification();
 		registerSmsDeliveredNotification();
+		mSmsBoxWriter = new SmsBoxWriter(mContentResolver);
 	}
 
+	public int sendTextMessage(TextMessage message) {
+		return mSmsSink.sendTextMessage(message);
+	}
+
+	public List<TextMessage> fetchInbox() {
+		return mSmsBoxReader.getInbox();
+	}
+
+	public List<TextMessage> fetchOutbox() {
+		return mSmsBoxReader.getSentbox();
+	}
+	
 	private void registerSmsSentNotification() {
 		mActivity.registerReceiver(mSmsSendNotifier, new IntentFilter(
 				SmsBroadcastReceiver.ACTION_SMS_SENT));
@@ -40,7 +56,7 @@ public class SmsBridge implements SmsSendCallback {
 				SmsBroadcastReceiver.ACTION_SMS_DELIVERED));
 	}
 
-	public void unregisterSmsNotifications() {
+	public void close() {
 		mActivity.unregisterReceiver(mSmsSendNotifier);
 		mSmsSendNotifier = null;
 	}
@@ -53,6 +69,7 @@ public class SmsBridge implements SmsSendCallback {
 		switch (mSmsSendNotifier.getResultCode()) {
 		case Activity.RESULT_OK:
 			verboseSentState = "Message sent.";
+			mSmsBoxWriter.writeOutboxTextMessage(parseToTextMessgae(intent));
 			sentSuccessfully = true;
 			break;
 
@@ -83,8 +100,6 @@ public class SmsBridge implements SmsSendCallback {
 
 	@Override
 	public void smsDeliveredCallback(Context context, Intent intent) {
-		// TODO: also set intent.putExtra() bevore so that we now have needed
-		// params available
 		String from = "";
 		String receiver = "";
 		String body = "";
@@ -93,18 +108,32 @@ public class SmsBridge implements SmsSendCallback {
 
 	}
 
-	public int sendTextMessage(TextMessage message) {
-		return mSmsSink.sendTextMessage(message);
+	private TextMessage parseToTextMessgae(Intent intent) {
+		try {
+			Bundle extrasBundle = intent.getExtras();
+			if (extrasBundle != null) {
+				Serializable serializedTextMessage = extrasBundle
+						.getSerializable(SmsBroadcastReceiver.EXTRA_BUNDLE_KEY_TEXTMESSAGE);
+
+				if (serializedTextMessage != null) {
+					TextMessage sentMessage = (TextMessage) serializedTextMessage;
+					StringBuffer infos = new StringBuffer();
+					infos.append("SMS to [" + sentMessage.getAddress()
+							+ "] sent on [" + sentMessage.getDate() + "] ("
+							+ sentMessage.getBody() + ")");
+					log(infos.toString());
+					return sentMessage;
+				}
+
+			} else {
+				log("couldn't find any text message infos at all :(");
+			}
+		} catch (Exception e) {
+			log("FAILED to gather text message extras from intent");
+		}
+		return null;
 	}
 
-	public List<TextMessage> fetchInbox() {
-		return mLocalSmsReader.getInbox();
-	}
-	
-	public List<TextMessage> fetchOutbox() {
-		return mLocalSmsReader.getOutbox();
-	}
-	
 	private void log(final String m) {
 		mLog.log(m);
 	}
