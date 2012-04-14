@@ -2,18 +2,12 @@ package at.tugraz.ist.akm.test.sms;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 
-import android.app.Activity;
-import android.content.ContentResolver;
-import android.test.ActivityInstrumentationTestCase2;
-import at.tugraz.ist.akm.MainActivity;
 import at.tugraz.ist.akm.sms.SmsRead;
 import at.tugraz.ist.akm.sms.SmsSend;
 import at.tugraz.ist.akm.sms.TextMessage;
 import at.tugraz.ist.akm.test.WebSMSToolTestInstrumentation;
-import at.tugraz.ist.akm.trace.Logable;
 
 public class ManipulateSmsTest extends WebSMSToolTestInstrumentation {
 
