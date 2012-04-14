@@ -1,4 +1,4 @@
-package at.tugraz.ist.akm.test;
+package at.tugraz.ist.akm.test.sms;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -12,28 +12,20 @@ import at.tugraz.ist.akm.MainActivity;
 import at.tugraz.ist.akm.sms.SmsRead;
 import at.tugraz.ist.akm.sms.SmsSend;
 import at.tugraz.ist.akm.sms.TextMessage;
+import at.tugraz.ist.akm.test.WebSMSToolTestInstrumentation;
 import at.tugraz.ist.akm.trace.Logable;
 
-public class ManipulateSmsTest extends
-		ActivityInstrumentationTestCase2<MainActivity> {
+public class ManipulateSmsTest extends WebSMSToolTestInstrumentation {
 
-	private Activity mActivity = null;
-	private ContentResolver mContentResolver = null;
-	private Logable mLogger = new Logable(this.getClass().getSimpleName());
 	private SmsSend mSmsSink = null;
 
 	public ManipulateSmsTest() {
-		super("at.tugraz.ist.akm", MainActivity.class);
+		super(ManipulateSmsTest.class.getSimpleName());
 	}
 
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
-		log(super.getName() + ".setUp()");
-
-		mActivity = getActivity();
-		mContentResolver = mActivity.getContentResolver();
-		assertNotNull(mContentResolver);
 		mSmsSink = new SmsSend(getActivity());
 	}
 
@@ -84,11 +76,6 @@ public class ManipulateSmsTest extends
 
 	@Override
 	protected void tearDown() throws Exception {
-		log(super.getName() + ".tearDown()");
 		super.tearDown();
-	}
-
-	private void log(String message) {
-		mLogger.log(message);
 	}
 }

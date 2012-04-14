@@ -1,4 +1,4 @@
-package at.tugraz.ist.akm.test;
+package at.tugraz.ist.akm.test.phonebook;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,18 +17,15 @@ import at.tugraz.ist.akm.MainActivity;
 import at.tugraz.ist.akm.phonebook.Contact;
 import at.tugraz.ist.akm.phonebook.ContactReader;
 import at.tugraz.ist.akm.phonebook.PhonebookBridge;
+import at.tugraz.ist.akm.test.WebSMSToolTestInstrumentation;
 import at.tugraz.ist.akm.trace.Logable;
 
-public class ManipulateContactsTest extends
-		ActivityInstrumentationTestCase2<MainActivity> {
+public class ManipulateContactsTest extends WebSMSToolTestInstrumentation {
 
-	private Activity mActivity = null;
-	private ContentResolver mContentResolver = null;
 	private String[][] mTestContacts = null;
-	private Logable mLog = new Logable(getClass().getSimpleName());
 
 	public ManipulateContactsTest() {
-		super("at.tugraz.ist.akm", MainActivity.class);
+		super(ManipulateContactsTest.class.getSimpleName());
 		mTestContacts = new String[][] { { "First", "Last", "123" },
 				{ "Senthon", "L", "12312323" }, { "Therock", "G", "0" },
 				{ "Speedy", "R", "0" }, { "", "Baz", "0" }, { "Bar", "", "0" } };
@@ -169,12 +166,8 @@ public class ManipulateContactsTest extends
 
 	@Override
 	protected void tearDown() throws Exception {
-		log(getName() + ".tearDown()");
 		super.tearDown();
 	}
 
-	private void log(String message) {
-		mLog.log(message);
-	}
 
 }
