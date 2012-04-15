@@ -1,0 +1,92 @@
+h1,h2,h3,h4,h5,h6,p {
+	margin: 0px;
+}
+
+p {
+	font-size: 10px;
+}
+
+body {
+	background-color: #E5E5E5;
+	border: 1px solid black;
+	box-shadow: 3px 3px 5px 6px #CCCCCC;
+	font-family: Helvetica, Arial, sans-serif;
+	margin: 10px;
+	text-shadow: 3px 3px 5px #C0C0C0;
+	width: 970px;
+}
+
+header {
+	height: 150px;
+}
+
+footer {
+	text-align: center;
+}
+
+.logo {
+	float: left;
+	width: 350px;
+}
+
+.status {
+	border: 1px solid black;
+	padding: 2px;
+	text-align: right;
+}
+
+.main {
+	border: 1px solid black;
+}
+
+#left_column {
+	width: 270px;
+	border-right: 1px solid black;
+	float: left;
+	height: 800px;
+}
+
+#left_column .list {
+	max-height: 790px;
+}
+
+.list {
+	margin: 5px;
+	overflow: auto;
+	border: 1px solid black;
+}
+
+.list .list_entry {
+	margin-top: 2px;
+	border: 1px solid black;
+	min-height: 50px;
+}
+
+.list .list_entry img {
+	float: left;
+}
+
+#right_column {
+	float: right;
+	width: 690px;
+}
+
+#right_column .list {
+	max-height: 450px;
+}
+
+input {
+	border: 2px solid #999;
+}
+
+input:focus {
+	border: 2px solid #6C6;
+}
+
+input:invalid {
+	border: 2px solid #F00;
+}
+
+.content {
+	margin: 10px;
+}
