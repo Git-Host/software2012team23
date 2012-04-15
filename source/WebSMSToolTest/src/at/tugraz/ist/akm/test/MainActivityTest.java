@@ -2,8 +2,7 @@ package at.tugraz.ist.akm.test;
 
 import com.jayway.android.robotium.solo.Solo;
 
-public class MainActivityTest extends
-		WebSMSToolTestInstrumentation {
+public class MainActivityTest extends WebSMSToolTestInstrumentation {
 
 	private Solo mSolo;
 

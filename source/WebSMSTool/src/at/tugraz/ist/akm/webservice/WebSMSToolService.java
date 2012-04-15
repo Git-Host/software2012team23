@@ -9,7 +9,15 @@ import at.tugraz.ist.akm.webservice.server.SimpleWebServer;
 
 public class WebSMSToolService extends Service {
 
-    SimpleWebServer mServer;
+    SimpleWebServer mServer = null;
+    private int mPort = 8887;
+    
+    public WebSMSToolService(){
+    }
+    
+    public WebSMSToolService(int port){
+    	mPort = port;
+    }
 
     public class LocalBinder extends Binder {
         WebSMSToolService getService() {
@@ -28,10 +36,8 @@ public class WebSMSToolService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        // TODO: retrieve web server parameters
-        int port = 8888;
         Log.v("WebService", "Try to start webserver.");
-        Thread serverThread = new Thread(new SimpleWebServer(this, port));
+        Thread serverThread = new Thread(new SimpleWebServer(this, mPort));
         serverThread.start();
         Log.v("WebService", "Webserver running.");
         return super.onStartCommand(intent, flags, startId);
