@@ -5,15 +5,15 @@ import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
-public class SmsBroadcastReceiver extends BroadcastReceiver {
+public class SmsSentBroadcastReceiver extends BroadcastReceiver {
 
 	public static final String ACTION_SMS_SENT = "at.tugraz.ist.akm.sms.SMS_SENT_ACTION";
 	public static final String ACTION_SMS_DELIVERED = "at.tugraz.ist.akm.sms.SMS_DELIVERED_ACTION";
 	public static final String EXTRA_BUNDLE_KEY_TEXTMESSAGE = "at.tugraz.ist.akm.sms.EXTRA_BUNDLE_TEXTMESSAGE_KEY";
 
-	private SmsSendCallback mCallback = null;
+	private SmsSentCallback mCallback = null;
 
-	public SmsBroadcastReceiver(SmsSendCallback s) {
+	public SmsSentBroadcastReceiver(SmsSentCallback s) {
 		mCallback = s;
 	}
 

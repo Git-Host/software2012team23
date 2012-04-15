@@ -1,31 +1,25 @@
 package at.tugraz.ist.akm.test;
 
-import android.test.ActivityInstrumentationTestCase2;
-import at.tugraz.ist.akm.MainActivity;
-import at.tugraz.ist.akm.trace.Logable;
-
 import com.jayway.android.robotium.solo.Solo;
 
 public class MainActivityTest extends
-		ActivityInstrumentationTestCase2<MainActivity> {
+		WebSMSToolTestInstrumentation {
 
 	private Solo mSolo;
-	private Logable mLog = new Logable(this.getClass().getName());
 
 	public MainActivityTest() {
-		super("at.tugraz.ist.akm", MainActivity.class);
+		super(MainActivityTest.class.getSimpleName());
 		mSolo = new Solo(getInstrumentation(), getActivity());
 		getActivity().setContentView(R.layout.main);
 	}
 
 	protected void test() {
-		log("test(): running empty test");
+		log("running empty test");
 	}
 
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
-		log("setUp()");
 	}
 
 	@Override
@@ -33,9 +27,4 @@ public class MainActivityTest extends
 		log("tearDown()");
 		mSolo.finishOpenedActivities();
 	}
-
-	private void log(String message) {
-		mLog.log(message);
-	}
-
 }

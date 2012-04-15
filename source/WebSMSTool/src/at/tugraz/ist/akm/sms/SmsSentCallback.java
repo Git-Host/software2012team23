@@ -3,7 +3,7 @@ package at.tugraz.ist.akm.sms;
 import android.content.Context;
 import android.content.Intent;
 
-public interface SmsSendCallback {
+public interface SmsSentCallback {
 
 	public void smsSentCallback(Context context, Intent intent);
 

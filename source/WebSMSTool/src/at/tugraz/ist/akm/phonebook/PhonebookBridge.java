@@ -1,5 +1,7 @@
 package at.tugraz.ist.akm.phonebook;
 
+import java.util.List;
+
 import android.app.Activity;
 import android.content.ContentResolver;
 import android.database.ContentObserver;
@@ -8,20 +10,23 @@ import android.net.Uri;
 import android.provider.ContactsContract;
 import at.tugraz.ist.akm.trace.Logable;
 
-public class PhonebookBridge implements ContactChangedCallback {
+public class PhonebookBridge implements ContactModifiedCallback {
 
-	private Logable mLog = new Logable(getClass().getSimpleName());
 	private Activity mActivity = null;
 	private ContentResolver mContentResolver = null;
+	private Logable mLog = new Logable(getClass().getSimpleName());
+
 	private ContactReader mContactReader = null;
+
 	private Cursor mContactContentCursor = null;
 	private ContactContentObserver mContactContentObserver = null;
+	private ContactModifiedCallback mExternalContactModifiedCallback = null;
 
 	private class ContactContentObserver extends ContentObserver {
 
-		private ContactChangedCallback mCallback = null;
+		private ContactModifiedCallback mCallback = null;
 
-		public ContactContentObserver(ContactChangedCallback c) {
+		public ContactContentObserver(ContactModifiedCallback c) {
 			super(null);
 			mCallback = c;
 		}
@@ -41,6 +46,7 @@ public class PhonebookBridge implements ContactChangedCallback {
 	}
 
 	public PhonebookBridge(Activity a) {
+		log("starting ...");
 		mActivity = a;
 		mContentResolver = mActivity.getContentResolver();
 		mContactReader = new ContactReader(mContentResolver);
@@ -52,8 +58,10 @@ public class PhonebookBridge implements ContactChangedCallback {
 		unregisterContactChangedObserver();
 	}
 
-	public void fetchContacts(ContactReader.ContactFilter filter) {
-		mContactReader.fetchContacts(filter);
+	public List<Contact> fetchContacts(ContactReader.ContactFilter filter) {
+		List<Contact> contacts = mContactReader.fetchContacts(filter);
+		log("fetched [" + contacts.size() + "] cntacts");
+		return contacts;
 	}
 
 	private Cursor getContactCursor() {
@@ -77,9 +85,16 @@ public class PhonebookBridge implements ContactChangedCallback {
 		mContactContentObserver = null;
 	}
 
+	public void setContactModifiedCallback(ContactModifiedCallback c) {
+		log("registered new [ContactModifiedCallback] callback");
+		mExternalContactModifiedCallback = c;
+	}
+
 	@Override
 	public void contactModifiedCallback() {
-		log("Contact modified callback triggered. Unfortunately we don't know which contact is involved");
+		if (mExternalContactModifiedCallback != null) {
+			mExternalContactModifiedCallback.contactModifiedCallback();
+		}
 	}
 
 	private void log(final String m) {

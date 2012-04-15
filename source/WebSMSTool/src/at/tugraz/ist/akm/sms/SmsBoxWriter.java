@@ -14,17 +14,32 @@ public class SmsBoxWriter extends Logable {
 		mContentResolver = c;
 	}
 
+	/**
+	 * Stores sms to SmsContent.ContentUri.OUTBOX_URI.
+	 * The OUTBOX_URI contains queued sms.
+	 * @param message
+	 * @return @see putTextMessageToUri
+	 */
 	public Uri writeOutboxTextMessage(TextMessage message) {
+		return putTextMessageToUri(message, SmsContent.ContentUri.OUTBOX_URI);
+	}
+	
+	/**
+	 * Stores sms to SmsContent.ContentUri.SENT_URI.
+	 * The SENT_URI contains sent sms.
+	 * @param message
+	 * @return @see putTextMessageToUri
+	 */
+	public Uri writeSentboxTextMessage(TextMessage message) {
 		return putTextMessageToUri(message, SmsContent.ContentUri.SENT_URI);
 	}
 
 	/**
 	 * stores a text message to Uri
-	 * 
 	 * @param message
 	 * @param destination
 	 *            to content://sms/*
-	 * @return the Uri to the newly inserted text message
+	 * @return the Uri pointing to the newly inserted text message
 	 */
 	public Uri putTextMessageToUri(TextMessage message, Uri destination) {
 		ContentValues values = new ContentValues();

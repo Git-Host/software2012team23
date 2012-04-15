@@ -25,15 +25,15 @@ public class SmsSend {
 
 		PendingIntent deliveredPIntent = PendingIntent.getBroadcast(mActivity
 				.getApplicationContext(), 0, new Intent(
-				SmsBroadcastReceiver.ACTION_SMS_DELIVERED), 0);
+				SmsSentBroadcastReceiver.ACTION_SMS_DELIVERED), 0);
 
 		for (String part : parts) {
 
 			Bundle smsBundle = new Bundle();
 			smsBundle.putSerializable(
-					SmsBroadcastReceiver.EXTRA_BUNDLE_KEY_TEXTMESSAGE, message);
+					SmsSentBroadcastReceiver.EXTRA_BUNDLE_KEY_TEXTMESSAGE, message);
 
-			Intent sentIntent = new Intent(SmsBroadcastReceiver.ACTION_SMS_SENT);
+			Intent sentIntent = new Intent(SmsSentBroadcastReceiver.ACTION_SMS_SENT);
 			sentIntent.putExtras(smsBundle);
 
 			PendingIntent sentPIntent = PendingIntent.getBroadcast(

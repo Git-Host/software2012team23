@@ -13,7 +13,7 @@ public class Contact {
 		public Number(String number, int type) {
 			this.mNumber = number;
 			/**
-			 * Phone types are defined in
+			 * phone types are defined in
 			 * ContactsContract.CommonDataKinds.Phone.TYPE_***
 			 */
 			this.mType = type;

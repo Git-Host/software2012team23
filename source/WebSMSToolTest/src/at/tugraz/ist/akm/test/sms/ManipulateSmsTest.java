@@ -9,15 +9,15 @@ import android.content.IntentFilter;
 import android.os.Bundle;
 import at.tugraz.ist.akm.sms.SmsBoxReader;
 import at.tugraz.ist.akm.sms.SmsBoxWriter;
-import at.tugraz.ist.akm.sms.SmsBroadcastReceiver;
+import at.tugraz.ist.akm.sms.SmsSentBroadcastReceiver;
 import at.tugraz.ist.akm.sms.SmsContent;
 import at.tugraz.ist.akm.sms.SmsSend;
-import at.tugraz.ist.akm.sms.SmsSendCallback;
+import at.tugraz.ist.akm.sms.SmsSentCallback;
 import at.tugraz.ist.akm.sms.TextMessage;
 import at.tugraz.ist.akm.test.WebSMSToolTestInstrumentation;
 
 public class ManipulateSmsTest extends WebSMSToolTestInstrumentation implements
-		SmsSendCallback {
+		SmsSentCallback {
 
 	public ManipulateSmsTest() {
 		super(ManipulateSmsTest.class.getSimpleName());
@@ -68,14 +68,14 @@ public class ManipulateSmsTest extends WebSMSToolTestInstrumentation implements
 	public void testSendSms() {
 		try {
 			SmsSend smsSink = new SmsSend(mActivity);
-			SmsBroadcastReceiver sentReceiver = new SmsBroadcastReceiver(this);
-			SmsBroadcastReceiver deliveredReceiver = new SmsBroadcastReceiver(
+			SmsSentBroadcastReceiver sentReceiver = new SmsSentBroadcastReceiver(this);
+			SmsSentBroadcastReceiver deliveredReceiver = new SmsSentBroadcastReceiver(
 					this);
 
 			mActivity.registerReceiver(sentReceiver, new IntentFilter(
-					SmsBroadcastReceiver.ACTION_SMS_SENT));
+					SmsSentBroadcastReceiver.ACTION_SMS_SENT));
 			mActivity.registerReceiver(deliveredReceiver, new IntentFilter(
-					SmsBroadcastReceiver.ACTION_SMS_DELIVERED));
+					SmsSentBroadcastReceiver.ACTION_SMS_DELIVERED));
 			smsSink.sendTextMessage(SmsHelper.getDummyTextMessage());
 			// wait until intent is (hopefully) broadcasted, else it won't
 			// trigger the desired callback
@@ -133,7 +133,7 @@ public class ManipulateSmsTest extends WebSMSToolTestInstrumentation implements
 			Bundle extrasBundle = intent.getExtras();
 			if (extrasBundle != null) {
 				Serializable serializedTextMessage = extrasBundle
-						.getSerializable(SmsBroadcastReceiver.EXTRA_BUNDLE_KEY_TEXTMESSAGE);
+						.getSerializable(SmsSentBroadcastReceiver.EXTRA_BUNDLE_KEY_TEXTMESSAGE);
 
 				if (serializedTextMessage != null) {
 					TextMessage sentMessage = (TextMessage) serializedTextMessage;

@@ -22,21 +22,73 @@ public class SmsContent {
 	}
 
 	public static class Content {
+		/**
+		 * column name
+		 */
 		public final static String ID = "_id";
+		/**
+		 * column name
+		 */
 		public final static String THREAD_ID = "thread_id";
+		/**
+		 * column name
+		 */
 		public final static String ADDRESS = "address";
+		/**
+		 * column name
+		 */
 		public final static String PERSON = "person";
+		/**
+		 * column name
+		 */
 		public final static String DATE = "date";
+		/**
+		 * column name
+		 */
 		public final static String PROTOCOL = "protocol";
+		/**
+		 * column name
+		 */
 		public final static String READ = "read";
+		/**
+		 * column name
+		 */
 		public final static String STATUS = "status";
+		/**
+		 * column name
+		 */
 		public final static String TYPE = "type";
+		/**
+		 * column value
+		 */
+		public final static String TYPE_SMS = "1";
+		/**
+		 * column name
+		 */
 		public final static String REPLY_PATH_PRESENT = "reply_path_present";
+		/**
+		 * column name
+		 */
 		public final static String SUBJECT = "subject";
+		/**
+		 * column name
+		 */
 		public final static String BODY = "body";
+		/**
+		 * column name
+		 */
 		public final static String SERVICE_CENTER = "service_center";
+		/**
+		 * column name
+		 */
 		public final static String LOCKED = "locked";
+		/**
+		 * column name
+		 */
 		public final static String ERROR_CODE = "error_code";
+		/**
+		 * column name
+		 */
 		public final static String SEEN = "seen";
 	}
 }
