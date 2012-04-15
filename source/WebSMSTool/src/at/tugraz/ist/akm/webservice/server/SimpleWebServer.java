@@ -133,7 +133,7 @@ public class SimpleWebServer implements Runnable {
             running = false;
             serverSocket.close();
         } catch (IOException e) {
-            e.printStackTrace();
+            ;
         }
     }
 

@@ -1,11 +1,15 @@
 package at.tugraz.ist.akm.webservice.handler;
 
 import java.io.IOException;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 
 import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.ParseException;
+import org.apache.http.entity.ContentProducer;
+import org.apache.http.entity.EntityTemplate;
 import org.apache.http.message.BasicHttpEntityEnclosingRequest;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpRequestHandlerRegistry;
@@ -18,11 +22,11 @@ import android.util.Log;
 import at.tugraz.ist.akm.io.xml.XmlNode;
 import at.tugraz.ist.akm.webservice.WebServerConfig;
 
-public class APIRequestHandler extends AbstractHttpRequestHandler {
+public class JsonAPIRequestHandler extends AbstractHttpRequestHandler {
     private final static String JSON_METHOD = "method";
     private final static String JSON_PARAMS = "params";
 
-    public APIRequestHandler(final Context context, final XmlNode config,
+    public JsonAPIRequestHandler(final Context context, final XmlNode config,
             final HttpRequestHandlerRegistry registry) {
         super(context, config, registry);
         String uri = config.getAttributeValue(WebServerConfig.XML.ATTRIBUTE_URI_PATTERN);
@@ -59,7 +63,18 @@ public class APIRequestHandler extends AbstractHttpRequestHandler {
         }
     }
 
-    private void sendResponse(HttpResponse httpResponse, JSONObject jsonResponse) {
+    private void sendResponse(HttpResponse httpResponse, final JSONObject jsonResponse) {
+        httpResponse.setEntity(new EntityTemplate(new ContentProducer() {
+            @Override
+            public void writeTo(OutputStream outstream) throws IOException {
+                OutputStreamWriter writer = new OutputStreamWriter(outstream);
+                writer.write(jsonResponse.toString());
+                writer.flush();
+                writer.close();
+            }
+        }));
+        httpResponse.setHeader(WebServerConfig.HTTP.KEY_CONTENT_TYPE,
+                WebServerConfig.HTTP.VALUE_CONTENT_TYPE_JSON);
     }
 
     private JSONObject processMethod(String method, JSONObject jsonParams) {

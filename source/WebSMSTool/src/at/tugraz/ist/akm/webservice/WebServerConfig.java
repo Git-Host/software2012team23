@@ -24,4 +24,9 @@ public class WebServerConfig {
         public final static String WEB_XML = BASE_PATH + "/web.xml";
     }
 
+    public final static class HTTP {
+        public final static String KEY_CONTENT_TYPE = "Content-Type";
+        public final static String VALUE_CONTENT_TYPE_JSON = "application/json";
+    }
+
 }

@@ -99,6 +99,7 @@ public class FileRequestHandler extends AbstractHttpRequestHandler {
             public void writeTo(OutputStream outstream) throws IOException {
                 OutputStreamWriter writer = new OutputStreamWriter(outstream);
                 writer.write(data);
+                writer.flush();
                 writer.close();
             }
         });
