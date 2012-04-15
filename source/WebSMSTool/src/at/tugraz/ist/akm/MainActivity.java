@@ -1,10 +1,7 @@
 package at.tugraz.ist.akm;
 
 import android.app.Activity;
-import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
-import at.tugraz.ist.akm.webservice.WebSMSToolService;
 
 public class MainActivity extends Activity {
 	/** Called when the activity is first created. */
