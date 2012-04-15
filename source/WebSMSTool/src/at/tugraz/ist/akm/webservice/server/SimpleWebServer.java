@@ -28,6 +28,7 @@ public class SimpleWebServer implements Runnable {
     private ServerSocket serverSocket = null;
     private final int port;
     private boolean running = true;
+    private boolean stopServer = false;
 
     BasicHttpContext httpContext = new BasicHttpContext();
     HttpRequestHandlerRegistry registry = new HttpRequestHandlerRegistry();
@@ -84,20 +85,21 @@ public class SimpleWebServer implements Runnable {
             }
         }
         Log.v("SimpleWebServer", "request handlers read from configuration");
+        running = false;
     }
 
     @Override
-    public synchronized void run() {
+    public void run() {
 
         try {
             serverSocket = new ServerSocket(port);
             serverSocket.setReuseAddress(true);
 
             Log.v("SimpleWebServer", "waiting for connection at " + serverSocket);
-
+            running = true;
             while (running) {
                 final Socket socket = serverSocket.accept();
-                if (!running) {
+                if (stopServer) {
                     break;
                 }
 
@@ -120,17 +122,21 @@ public class SimpleWebServer implements Runnable {
                     }
                 }).start();
             }
-
         } catch (IOException e) {
             e.printStackTrace();
         }
+        running = false;
         Log.i("SimpleWebServer", "Webserver stopped");
     }
 
+    public boolean isRunning() {
+        return running;
+    }
+
     public void stopServer() {
-        // TODO synchronize?
         try {
-            running = false;
+            Log.v("SimpleWebServer", "stopServer");
+            stopServer = true;
             serverSocket.close();
         } catch (IOException e) {
             ;

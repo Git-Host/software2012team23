@@ -19,16 +19,43 @@ import at.tugraz.ist.akm.webservice.server.SimpleWebServer;
 public class SimpleWebServerTest extends InstrumentationTestCase {
 
     private HttpClient httpClient;
-    private SimpleWebServer webserver;
-    
-    
-    protected void setUp() throws Exception {
+    private static SimpleWebServer webserver;
+
+    private void startServer() {
+        Log.d("SimpleWebServerTest", "start server!!!!");
         httpClient = new DefaultHttpClient();
         webserver = new SimpleWebServer(getInstrumentation().getContext(), 8888);
         new Thread(webserver).start();
-    };
+        while (!webserver.isRunning()) {
+            synchronized (SimpleWebServerTest.class) {
+                try {
+                    SimpleWebServerTest.class.wait(200);
+                } catch (InterruptedException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    private void stopServer() {
+        Log.d("SimpleWebServerTest", "stop server!!!!");
+        webserver.stopServer();
+        while (webserver.isRunning()) {
+            synchronized (SimpleWebServerTest.class) {
+                try {
+                    SimpleWebServerTest.class.wait(200);
+                } catch (InterruptedException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+            }
+        }
+
+    }
 
     public void testSimpleJsonRequest() {
+        startServer();
 
         Log.d("test", "testSimpleJsonRequest!!!!");
 
@@ -57,10 +84,11 @@ public class SimpleWebServerTest extends InstrumentationTestCase {
         } catch (Exception e) {
             Assert.fail(e.getMessage());
         }
+        stopServer();
     }
 
     public void testSimpleFileRequest() {
-
+        startServer();
         Log.d("test", "testSimpleFileRequest");
 
         HttpPost httppost = new HttpPost("http://localhost:8888/");
@@ -79,10 +107,7 @@ public class SimpleWebServerTest extends InstrumentationTestCase {
         } catch (Exception e) {
             Assert.fail(e.getMessage());
         }
+        stopServer();
     }
-    
-    @Override
-    protected void tearDown() throws Exception {
-        webserver.stopServer();
-    }
+
 }
