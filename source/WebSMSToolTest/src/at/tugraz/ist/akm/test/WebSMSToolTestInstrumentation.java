@@ -34,7 +34,7 @@ ActivityInstrumentationTestCase2<MainActivity> {
 	}
 
 	protected void log(final String m) {
-		mLog.log(m);
+		mLog.v(m);
 	}
 
 }

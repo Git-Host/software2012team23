@@ -69,7 +69,7 @@ public class SmsBoxReader {
 	}
 
 	private void log(final String m) {
-		mLog.log(m);
+		mLog.v(m);
 	}
 
 }

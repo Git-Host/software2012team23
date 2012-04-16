@@ -2,12 +2,10 @@ package at.tugraz.ist.akm.webservice.server;
 
 import java.io.IOException;
 import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.List;
 
-import org.apache.http.HttpException;
 import org.apache.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.http.impl.DefaultHttpResponseFactory;
 import org.apache.http.impl.DefaultHttpServerConnection;
@@ -22,33 +20,111 @@ import android.content.Context;
 import android.util.Log;
 import at.tugraz.ist.akm.io.xml.XmlNode;
 import at.tugraz.ist.akm.io.xml.XmlReader;
+import at.tugraz.ist.akm.trace.Logable;
 import at.tugraz.ist.akm.webservice.WebServerConfig;
 
-public class SimpleWebServer implements Runnable {
-    private ServerSocket serverSocket = null;
-    private final int port;
-    private boolean running = true;
-    private boolean stopServer = false;
+public class SimpleWebServer {
+    private final static Logable LOG = new Logable(SimpleWebServer.class.getSimpleName());
 
-    BasicHttpContext httpContext = new BasicHttpContext();
     HttpRequestHandlerRegistry registry = new HttpRequestHandlerRegistry();
+    private BasicHttpContext httpContext = new BasicHttpContext();
 
     // android context
     private final Context context;
 
-    public SimpleWebServer(Context context, int port) {
+    private ServerThread serverThread = null;
+
+    private static class WorkerThread extends Thread {
+        private final SimpleWebServer webServer;
+        private final Socket socket;
+
+        public WorkerThread(final SimpleWebServer webServer, final Socket socket) {
+            this.webServer = webServer;
+            this.socket = socket;
+        }
+
+        @Override
+        public void run() {
+            DefaultHttpServerConnection serverConn = new DefaultHttpServerConnection();
+            try {
+                serverConn.bind(socket, new BasicHttpParams());
+                HttpService httpService = webServer.initializeHTTPService();
+                httpService.handleRequest(serverConn, webServer.getHttpContext());
+            } catch (Exception e) {
+                LOG.e("Exception caught when processing HTTP client connection", e);
+            }
+        }
+    }
+
+    private static class ServerThread extends Thread {
+        private final SimpleWebServer webServer;
+        private final ServerSocket serverSocket;
+        private boolean running = false;
+        private boolean stopServerThread = false;
+
+        public ServerThread(final SimpleWebServer webServer, final ServerSocket serverSocket) {
+            this.webServer = webServer;
+            this.serverSocket = serverSocket;
+        }
+
+        @Override
+        public void run() {
+            running = true;
+            while (running) {
+
+                Socket socket = null;
+                //LOG.d("waiting for connection at " + serverSocket);
+                try {
+                    socket = serverSocket != null ? serverSocket.accept() : null;
+                } catch (IOException e) {
+                    //LOG.i("Exception caught while waiting for client connection", e);
+                }
+
+                if (stopServerThread) {
+                    break;
+                }
+                if (socket != null) {
+                    LOG.d("connection request from ip <" + socket.getInetAddress()
+                            + "> on port <" + socket.getPort() + ">");
+
+                    WorkerThread workerThread = new WorkerThread(webServer, socket);
+                    workerThread.setDaemon(true);
+                    workerThread.start();
+                }
+            }
+            running = false;
+            Log.i("SimpleWebServer", "Webserver stopped");
+        }
+
+        public void stopThread() {
+            stopServerThread = true;
+        }
+
+        public boolean isRunning() {
+            return running;
+        }
+
+        public int getPort() {
+            return serverSocket.getLocalPort();
+        }
+    }
+
+    public SimpleWebServer(Context context) {
         this.context = context;
-        this.port = port;
         readRequestHandlers();
     }
 
-    private HttpService initializeHTTPService() {
+    protected synchronized HttpService initializeHTTPService() {
         HttpProcessor httpProcessor = new BasicHttpProcessor();
         HttpService httpService = new HttpService(httpProcessor,
                 new DefaultConnectionReuseStrategy(), new DefaultHttpResponseFactory());
 
         httpService.setHandlerResolver(registry);
         return httpService;
+    }
+
+    protected BasicHttpContext getHttpContext() {
+        return httpContext;
     }
 
     private void readRequestHandlers() {
@@ -58,8 +134,8 @@ public class SimpleWebServer implements Runnable {
             String className = node.getAttributeValue(WebServerConfig.XML.ATTRIBUTE_CLASS);
 
             if (className == null) {
-                Log.e("SimpleWebServer", "request handler <" + node.getName()
-                        + "> no corresponding class found");
+                LOG.e("request handler <" + node.getName()
+                        + ">: no corresponding class to load found");
                 continue;
             }
             try {
@@ -68,78 +144,54 @@ public class SimpleWebServer implements Runnable {
                 Constructor<?> constr = clazz.getConstructor(Context.class, XmlNode.class,
                         HttpRequestHandlerRegistry.class);
                 constr.newInstance(context, node, registry);
-            } catch (IllegalArgumentException e) {
-                e.printStackTrace();
-            } catch (SecurityException e) {
-                e.printStackTrace();
-            } catch (InstantiationException e) {
-                e.printStackTrace();
-            } catch (IllegalAccessException e) {
-                e.printStackTrace();
-            } catch (InvocationTargetException e) {
-                e.printStackTrace();
-            } catch (NoSuchMethodException e) {
-                e.printStackTrace();
-            } catch (ClassNotFoundException e) {
-                e.printStackTrace();
+            } catch (Exception e) {
+                LOG.e("Loading of class <" + className + "> failed", e);
             }
         }
-        Log.v("SimpleWebServer", "request handlers read from configuration");
-        running = false;
-    }
-
-    @Override
-    public void run() {
-
-        try {
-            serverSocket = new ServerSocket(port);
-            serverSocket.setReuseAddress(true);
-
-            Log.v("SimpleWebServer", "waiting for connection at " + serverSocket);
-            running = true;
-            while (running) {
-                final Socket socket = serverSocket.accept();
-                if (stopServer) {
-                    break;
-                }
-
-                new Thread(new Runnable() {
-                    public synchronized void run() {
-                        Log.v("SimpleWebServer", "get connection " + socket);
-
-                        DefaultHttpServerConnection serverConn = new DefaultHttpServerConnection();
-                        try {
-                            serverConn.bind(socket, new BasicHttpParams());
-                            HttpService httpService = initializeHTTPService();
-                            Log.v("SimpleWebServer", "after bind");
-                            httpService.handleRequest(serverConn, httpContext);
-                            Log.v("SimpleWebServer", "after handleRequest");
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        } catch (HttpException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }).start();
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        running = false;
-        Log.i("SimpleWebServer", "Webserver stopped");
+        LOG.v("request handlers read from configuration");
     }
 
     public boolean isRunning() {
-        return running;
+        return serverThread != null;
+    }
+
+    public boolean startServer(int port) {
+        try {
+            synchronized (this) {
+                if (serverThread != null) {
+                    LOG.i("Web service is already running at port <" + serverThread.getPort() + ">");
+                    return false;
+                } else if (serverThread != null) {
+                    // kill old server thread
+                    serverThread.stopThread();
+                }
+                ServerSocket serverSocket = new ServerSocket(port);
+                serverSocket.setReuseAddress(true);
+                serverSocket.setSoTimeout(2000);
+
+                serverThread = new ServerThread(this, serverSocket);
+                serverThread.setDaemon(true);
+                serverThread.start();
+            }
+            return true;
+        } catch (IOException e) {
+            LOG.v("Cannot create server socket on port <" + port + ">", e);
+            return false;
+        }
     }
 
     public void stopServer() {
-        try {
-            Log.v("SimpleWebServer", "stopServer");
-            stopServer = true;
-            serverSocket.close();
-        } catch (IOException e) {
-            ;
+        synchronized (this) {
+            LOG.v("stop web server");
+            serverThread.stopThread();
+            while (serverThread.isRunning()) {
+                try {
+                    this.wait(200);
+                } catch (InterruptedException e) {
+                    ;
+                }
+            }
+            serverThread = null;
         }
     }
 

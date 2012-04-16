@@ -24,14 +24,14 @@ public class SimpleWebServerTest extends InstrumentationTestCase {
     private void startServer() {
         Log.d("SimpleWebServerTest", "start server!!!!");
         httpClient = new DefaultHttpClient();
-        webserver = new SimpleWebServer(getInstrumentation().getContext(), 8888);
-        new Thread(webserver).start();
+        webserver = new SimpleWebServer(getInstrumentation().getContext());
+        Assert.assertTrue(webserver.startServer(8888));
+        Assert.assertFalse(webserver.startServer(9999));
         while (!webserver.isRunning()) {
             synchronized (SimpleWebServerTest.class) {
                 try {
                     SimpleWebServerTest.class.wait(200);
                 } catch (InterruptedException e) {
-                    // TODO Auto-generated catch block
                     e.printStackTrace();
                 }
             }

@@ -18,7 +18,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.content.Context;
-import android.util.Log;
 import at.tugraz.ist.akm.io.xml.XmlNode;
 import at.tugraz.ist.akm.webservice.WebServerConfig;
 
@@ -31,7 +30,7 @@ public class JsonAPIRequestHandler extends AbstractHttpRequestHandler {
         super(context, config, registry);
         String uri = config.getAttributeValue(WebServerConfig.XML.ATTRIBUTE_URI_PATTERN);
         if (uri == null || uri.trim().length() == 0) {
-            Log.e(getLogTag(), "no uri configured");
+            LOG.e("no uri configured");
         } else {
             register(uri);
         }
@@ -52,7 +51,7 @@ public class JsonAPIRequestHandler extends AbstractHttpRequestHandler {
                     JSONObject jsonResponse = processMethod(method, jsonParams);
                     sendResponse(httpResponse, jsonResponse);
                 } else {
-                    Log.e(getLogTag(), "no method defined in JSON post request");
+                    LOG.e("no method defined in JSON post request ==> <" + json.toString() + ">");
                     return;
                 }
             } catch (ParseException e) {

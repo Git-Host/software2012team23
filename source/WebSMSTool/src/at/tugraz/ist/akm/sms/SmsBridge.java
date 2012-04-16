@@ -240,6 +240,6 @@ public class SmsBridge implements SmsSentCallback, SmsReceivedCallback {
 	}
 
 	private void log(final String m) {
-		mLog.log(m);
+		mLog.v(m);
 	}
 }
