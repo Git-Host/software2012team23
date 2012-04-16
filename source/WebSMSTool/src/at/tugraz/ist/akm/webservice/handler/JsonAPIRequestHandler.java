@@ -3,6 +3,7 @@ package at.tugraz.ist.akm.webservice.handler;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.util.List;
 
 import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;
@@ -20,10 +21,13 @@ import org.json.JSONObject;
 import android.content.Context;
 import at.tugraz.ist.akm.io.xml.XmlNode;
 import at.tugraz.ist.akm.webservice.WebServerConfig;
+import at.tugraz.ist.akm.webservice.protocol.json.JsonFactory;
 
 public class JsonAPIRequestHandler extends AbstractHttpRequestHandler {
     private final static String JSON_METHOD = "method";
     private final static String JSON_PARAMS = "params";
+
+    private JsonFactory jsonFactory = new JsonFactory();
 
     public JsonAPIRequestHandler(final Context context, final XmlNode config,
             final HttpRequestHandlerRegistry registry) {
@@ -77,6 +81,18 @@ public class JsonAPIRequestHandler extends AbstractHttpRequestHandler {
     }
 
     private JSONObject processMethod(String method, JSONObject jsonParams) {
-        throw new RuntimeException("Method not yet implemented");
+        // TODO: call any API class to either retrieved the desired data or
+        // executed an action
+
+        Object obj = new Object(); // this a place holder for any data retrieved
+                                   // from the API.
+
+        JSONObject resultObject = null;
+        if (obj instanceof List<?>) {
+            resultObject = jsonFactory.createJsonObjectFromList((List<?>) obj);
+        } else {
+            resultObject = jsonFactory.createJsonObject(obj);
+        }
+        return resultObject;
     }
 }
