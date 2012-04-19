@@ -3,6 +3,7 @@ package at.tugraz.ist.akm.sms;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.net.Uri;
+import at.tugraz.ist.akm.content.SmsContent;
 import at.tugraz.ist.akm.trace.Logable;
 
 public class SmsBoxWriter extends Logable {

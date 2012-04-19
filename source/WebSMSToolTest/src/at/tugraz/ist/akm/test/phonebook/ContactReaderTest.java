@@ -10,28 +10,57 @@ import android.net.Uri;
 import android.provider.ContactsContract;
 import android.provider.ContactsContract.PhoneLookup;
 import android.provider.ContactsContract.RawContacts;
+import at.tugraz.ist.akm.content.query.ContactFilter;
 import at.tugraz.ist.akm.phonebook.Contact;
 import at.tugraz.ist.akm.phonebook.ContactReader;
-import at.tugraz.ist.akm.phonebook.PhonebookBridge;
-import at.tugraz.ist.akm.test.WebSMSToolTestInstrumentation;
+import at.tugraz.ist.akm.test.WebSMSToolActivityTestcase2;
 
-public class ManipulateContactsTest extends WebSMSToolTestInstrumentation {
+public class ContactReaderTest extends WebSMSToolActivityTestcase2 {
 
 	private String[][] mTestContacts = null;
 
-	public ManipulateContactsTest() {
-		super(ManipulateContactsTest.class.getSimpleName());
+	public ContactReaderTest() {
+		super(ContactReaderTest.class.getSimpleName());
 		mTestContacts = new String[][] { { "First", "Last", "123" },
 				{ "Senthon", "L", "12312323" }, { "Therock", "G", "0" },
 				{ "Speedy", "R", "0" }, { "", "Baz", "0" }, { "Bar", "", "0" } };
 	}
 
-	@Override
-	protected void setUp() throws Exception {
-		super.setUp();
-		mActivity = super.getActivity();
-		mContentResolver = mActivity.getContentResolver();
-		assertNotNull(mContentResolver);
+	public void testFetchContacts() {
+		try {
+			storeTestContacts();
+			ContactReader contactReader = new ContactReader(mContentResolver);
+
+			log("get contacts with phone");
+			ContactFilter filterWithPhone = new ContactFilter();
+			filterWithPhone.setWithPhone(true);
+			List<Contact> contacts = contactReader
+					.fetchContacts(filterWithPhone);
+			logContacts(contacts);
+
+			log("get contacts with phone AND starred");
+			ContactFilter filterWithPhoneAndStarred = new ContactFilter();
+			filterWithPhoneAndStarred.setWithPhone(true);
+			filterWithPhoneAndStarred.setIsStarred(true);
+			contacts = contactReader.fetchContacts(filterWithPhoneAndStarred);
+			logContacts(contacts);
+
+			log("get starred contacts");
+			ContactFilter filterStarred = new ContactFilter();
+			filterStarred.setIsStarred(true);
+			contacts = contactReader.fetchContacts(filterStarred);
+			logContacts(contacts);
+
+			log("get contacts unfiltered");
+			ContactFilter noFilter= new ContactFilter();
+			contacts = contactReader.fetchContacts(noFilter);
+			logContacts(contacts);
+			
+			deleteTestContacts();
+		} catch (Throwable e) {
+			e.printStackTrace();
+			assertTrue(false);
+		}
 	}
 
 	private void storeTestContacts() throws Throwable {
@@ -90,7 +119,7 @@ public class ManipulateContactsTest extends WebSMSToolTestInstrumentation {
 		assertNotNull(res);
 	}
 
-	public void deleteContact(String phoneNumber, String displayName) {
+	private void deleteContact(String phoneNumber, String displayName) {
 		Uri select = Uri.withAppendedPath(PhoneLookup.CONTENT_FILTER_URI,
 				Uri.encode(phoneNumber));
 		String[] as = { PhoneLookup.DISPLAY_NAME,
@@ -114,43 +143,8 @@ public class ManipulateContactsTest extends WebSMSToolTestInstrumentation {
 		assertTrue(false);
 	}
 
-	public void testFetchContacts() {
-		try {
-			storeTestContacts();
-			ContactReader contactReader = new ContactReader(mContentResolver);
-
-			log("get contacts with phone");
-			ContactReader.ContactFilter filterWithPhone = new ContactReader.ContactFilter();
-			filterWithPhone.setWithPhone(true);
-			List<Contact> contacts = contactReader
-					.fetchContacts(filterWithPhone);
-			logContacts(contacts);
-
-			log("get contacts with phone AND starred");
-			ContactReader.ContactFilter filterWithPhoneAndStarred = new ContactReader.ContactFilter();
-			filterWithPhoneAndStarred.setWithPhone(true);
-			filterWithPhoneAndStarred.setStarred(true);
-			contacts = contactReader.fetchContacts(filterWithPhoneAndStarred);
-			logContacts(contacts);
-
-			log("get starred contacts");
-			ContactReader.ContactFilter filterStarred = new ContactReader.ContactFilter();
-			filterStarred.setStarred(true);
-			contacts = contactReader.fetchContacts(filterStarred);
-			logContacts(contacts);
-
-			log("get contacts unfiltered");
-			ContactReader.ContactFilter noFilter= new ContactReader.ContactFilter();
-			contacts = contactReader.fetchContacts(noFilter);
-			logContacts(contacts);
-			
-			deleteTestContacts();
-		} catch (Throwable e) {
-			e.printStackTrace();
-			assertTrue(false);
-		}
-	}
-
+	
+	
 	private void logContacts(List<Contact> contacts) {
 		for (Contact contact : contacts) {
 			StringBuffer details = new StringBuffer();
@@ -171,25 +165,5 @@ public class ManipulateContactsTest extends WebSMSToolTestInstrumentation {
 
 	}
 
-	public void testPhonebookBridgeContactChangedCallback() throws Throwable {
-		try {
-			PhonebookBridge phonebook = new PhonebookBridge(mActivity);
-			String[] mrFoo = { "Foo", "Bar", "01906666" };
-			Thread.sleep(1000);
-			storeContact(mrFoo);
-			Thread.sleep(1000);
-			deleteContact(mrFoo[2], mrFoo[0] + " " + mrFoo[1]);
-			Thread.sleep(1000);
-			phonebook.close();
-		} catch (Exception e) {
-			e.printStackTrace();
-			assertTrue(false);
-		}
-	}
-
-	@Override
-	protected void tearDown() throws Exception {
-		super.tearDown();
-	}
 
 }

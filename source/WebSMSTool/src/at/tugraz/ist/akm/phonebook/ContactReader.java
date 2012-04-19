@@ -9,6 +9,9 @@ import android.content.ContentUris;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.ContactsContract;
+import at.tugraz.ist.akm.content.query.ContactFilter;
+import at.tugraz.ist.akm.content.query.ContactQueryBuilder;
+import at.tugraz.ist.akm.content.query.ContentProviderQueryParameters;
 
 public class ContactReader {
 
@@ -16,39 +19,6 @@ public class ContactReader {
 
 	public ContactReader(ContentResolver c) {
 		mContentResolver = c;
-	}
-
-	public static class ContactFilter {
-		private boolean mStarred = false;
-		private boolean mIsStarredActive = false;
-		private boolean mWithPhone = false;
-		private boolean mIsWithPhoneActive = false;
-
-		public boolean getIsStarred() {
-			return mStarred;
-		}
-
-		public void setStarred(boolean mStarred) {
-			this.mStarred = mStarred;
-			this.mIsStarredActive = true;
-		}
-
-		public boolean getIsStarredActive() {
-			return mIsStarredActive;
-		}
-
-		public void setWithPhone(boolean mWithPhone) {
-			this.mWithPhone = mWithPhone;
-			this.mIsWithPhoneActive = true;
-		}
-
-		public boolean getWithPhone() {
-			return this.mWithPhone;
-		}
-
-		public boolean getIsWithPhoneActive() {
-			return mIsWithPhoneActive;
-		}
 	}
 
 	public List<Contact> fetchContacts(ContactFilter filter) {
@@ -62,46 +32,14 @@ public class ContactReader {
 			}
 			people.close();
 		}
-
 		return contacts;
 	}
 
 	private Cursor queryContacts(ContactFilter filter) {
-
-		Uri select = ContactsContract.Contacts.CONTENT_URI;
-		String[] as = { ContactsContract.Contacts._ID,
-				ContactsContract.Contacts.DISPLAY_NAME,
-				ContactsContract.Contacts.STARRED };
-		StringBuffer where = new StringBuffer();
-		List<String> like = new ArrayList<String>();
-
-		// if set, put "starred" predicate to query
-		if (filter.getIsStarredActive()) {
-			where.append(ContactsContract.Contacts.STARRED + " = ? ");
-			if (filter.getIsStarred()) {
-				like.add("1");
-			} else {
-				like.add("0");
-			}
-		}
-		// if set, put "with phone" predicate to query
-		if (filter.getIsWithPhoneActive()) {
-			if (where.length() > 0) {
-				where.append(" AND");
-			}
-			where.append(" " + ContactsContract.Contacts.HAS_PHONE_NUMBER
-					+ " = ? ");
-			if (filter.getWithPhone()) {
-				like.add("1");
-			} else {
-				like.add("0");
-			}
-		}
-
-		String[] likeArgs = new String[like.size()];
-		likeArgs = like.toArray(likeArgs);
-		return mContentResolver.query(select, as, where.toString(), likeArgs,
-				null);
+		ContactQueryBuilder qBuild= new ContactQueryBuilder(filter);
+		ContentProviderQueryParameters q = qBuild.getQueryArgs();
+		return mContentResolver.query(q.uri, q.as, q.where, q.like,
+				q.sortBy);
 	}
 
 	private Contact parseToContact(Cursor person) {

@@ -1,13 +1,19 @@
 package at.tugraz.ist.akm.test;
 
+import android.test.ActivityInstrumentationTestCase2;
+import at.tugraz.ist.akm.MainActivity;
+import at.tugraz.ist.akm.trace.Logable;
+
 import com.jayway.android.robotium.solo.Solo;
 
-public class MainActivityTest extends WebSMSToolTestInstrumentation {
+public class MainActivityTest extends
+		ActivityInstrumentationTestCase2<MainActivity> {
 
 	private Solo mSolo;
+	private Logable mLog = new Logable(getClass().getSimpleName());
 
 	public MainActivityTest() {
-		super(MainActivityTest.class.getSimpleName());
+		super("at.tugraz.ist.akm", MainActivity.class);
 		mSolo = new Solo(getInstrumentation(), getActivity());
 		getActivity().setContentView(R.layout.main);
 	}
@@ -25,5 +31,9 @@ public class MainActivityTest extends WebSMSToolTestInstrumentation {
 	protected void tearDown() throws Exception {
 		log("tearDown()");
 		mSolo.finishOpenedActivities();
+	}
+
+	private void log(final String m) {
+		mLog.log(m);
 	}
 }

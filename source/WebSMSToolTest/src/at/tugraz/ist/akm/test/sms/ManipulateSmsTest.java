@@ -7,16 +7,17 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import at.tugraz.ist.akm.content.SmsContent;
+import at.tugraz.ist.akm.content.query.TextMessageFilter;
 import at.tugraz.ist.akm.sms.SmsBoxReader;
 import at.tugraz.ist.akm.sms.SmsBoxWriter;
-import at.tugraz.ist.akm.sms.SmsSentBroadcastReceiver;
-import at.tugraz.ist.akm.sms.SmsContent;
 import at.tugraz.ist.akm.sms.SmsSend;
+import at.tugraz.ist.akm.sms.SmsSentBroadcastReceiver;
 import at.tugraz.ist.akm.sms.SmsSentCallback;
 import at.tugraz.ist.akm.sms.TextMessage;
-import at.tugraz.ist.akm.test.WebSMSToolTestInstrumentation;
+import at.tugraz.ist.akm.test.WebSMSToolActivityTestcase2;
 
-public class ManipulateSmsTest extends WebSMSToolTestInstrumentation implements
+public class ManipulateSmsTest extends WebSMSToolActivityTestcase2 implements
 		SmsSentCallback {
 
 	public ManipulateSmsTest() {
@@ -92,7 +93,9 @@ public class ManipulateSmsTest extends WebSMSToolTestInstrumentation implements
 	public void testReadInboxSms() {
 		try {
 			SmsBoxReader smsSource = new SmsBoxReader(mContentResolver);
-			List<TextMessage> inbox = smsSource.getInbox();
+			TextMessageFilter filter = new TextMessageFilter();
+			filter.setBox(SmsContent.ContentUri.INBOX_URI);
+			List<TextMessage> inbox = smsSource.getTextMessages(filter);
 			for (TextMessage m : inbox) {
 				SmsHelper.logTextMessage(m);
 			}
@@ -105,7 +108,9 @@ public class ManipulateSmsTest extends WebSMSToolTestInstrumentation implements
 	public void testReadOutboxSms() {
 		try {
 			SmsBoxReader smsSource = new SmsBoxReader(mContentResolver);
-			List<TextMessage> outbox = smsSource.getSentbox();
+			TextMessageFilter filter = new TextMessageFilter();
+			filter.setBox(SmsContent.ContentUri.OUTBOX_URI);
+			List<TextMessage> outbox = smsSource.getTextMessages(filter);
 			for (TextMessage m : outbox) {
 				SmsHelper.logTextMessage(m);
 			}

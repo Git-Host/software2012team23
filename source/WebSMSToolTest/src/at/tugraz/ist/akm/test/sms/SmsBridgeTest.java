@@ -2,22 +2,25 @@ package at.tugraz.ist.akm.test.sms;
 
 import java.util.List;
 
+import at.tugraz.ist.akm.content.SmsContent;
+import at.tugraz.ist.akm.content.query.TextMessageFilter;
 import at.tugraz.ist.akm.sms.SmsBridge;
 import at.tugraz.ist.akm.sms.TextMessage;
-import at.tugraz.ist.akm.test.WebSMSToolTestInstrumentation;
+import at.tugraz.ist.akm.test.WebSMSToolActivityTestcase2;
 
-public class SmsBridgeTest extends WebSMSToolTestInstrumentation  {
+public class SmsBridgeTest extends WebSMSToolActivityTestcase2 {
 
-	public SmsBridgeTest () {
+	public SmsBridgeTest() {
 		super(SmsBridgeTest.class.getSimpleName());
 	}
-	
+
 	public void testSmsBridgeSendSms() {
 		try {
 			SmsBridge s = new SmsBridge(mActivity);
+			s.start();
 			s.sendTextMessage(SmsHelper.getDummyTextMessage());
 			Thread.sleep(3000);
-			s.close();
+			s.stop();
 		} catch (Exception e) {
 			e.printStackTrace();
 			assertTrue(false);
@@ -27,36 +30,42 @@ public class SmsBridgeTest extends WebSMSToolTestInstrumentation  {
 	public void testSmsBridgeFetchInbox() {
 		try {
 			SmsBridge s = new SmsBridge(mActivity);
-			List<TextMessage> inMessages = s.fetchInbox();
+			s.start();
+			TextMessageFilter filter = new TextMessageFilter();
+			filter.setBox(SmsContent.ContentUri.INBOX_URI);
+			List<TextMessage> inMessages = s.fetchTextMessages(filter);
 			for (TextMessage m : inMessages) {
 				SmsHelper.logTextMessage(m);
 			}
-			s.close();
+			s.stop();
 		} catch (Exception e) {
 			e.printStackTrace();
 			assertTrue(false);
 		}
 	}
-	
+
 	public void testSmsBridgeFetchOutbox() {
 		try {
 			SmsBridge s = new SmsBridge(mActivity);
-			List<TextMessage> inMessages = s.fetchInbox();
+			s.start();
+			TextMessageFilter filter = new TextMessageFilter();
+			filter.setBox(SmsContent.ContentUri.OUTBOX_URI);
+			List<TextMessage> inMessages = s.fetchTextMessages(filter);
 			for (TextMessage m : inMessages) {
 				SmsHelper.logTextMessage(m);
 			}
-			s.close();
+			s.stop();
 		} catch (Exception e) {
 			e.printStackTrace();
 			assertTrue(false);
 		}
 	}
-	
+
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
 	}
-	
+
 	@Override
 	protected void tearDown() throws Exception {
 		super.tearDown();

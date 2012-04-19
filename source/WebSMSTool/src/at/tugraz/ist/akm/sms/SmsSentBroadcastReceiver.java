@@ -10,6 +10,7 @@ public class SmsSentBroadcastReceiver extends BroadcastReceiver {
 	public static final String ACTION_SMS_SENT = "at.tugraz.ist.akm.sms.SMS_SENT_ACTION";
 	public static final String ACTION_SMS_DELIVERED = "at.tugraz.ist.akm.sms.SMS_DELIVERED_ACTION";
 	public static final String EXTRA_BUNDLE_KEY_TEXTMESSAGE = "at.tugraz.ist.akm.sms.EXTRA_BUNDLE_TEXTMESSAGE_KEY";
+	public static final String EXTRA_BUNDLE_KEY_PART = "at.tugraz.ist.akm.sms.EXTRA_BUNDLE_PART_KEY";
 
 	private SmsSentCallback mCallback = null;
 

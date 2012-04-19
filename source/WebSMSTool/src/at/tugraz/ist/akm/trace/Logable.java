@@ -10,10 +10,6 @@ public class Logable {
 		mTag = new String(tag);
 	}
 
-	public Logable() {
-		mTag = new String("<notag>");
-	}
-
 	public void log(String message) {
 		Log.d(mTag, message);
 	}

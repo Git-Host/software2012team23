@@ -8,23 +8,27 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.database.ContentObserver;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.telephony.SmsManager;
+import at.tugraz.ist.akm.content.SmsContent;
+import at.tugraz.ist.akm.content.query.TextMessageFilter;
 import at.tugraz.ist.akm.trace.Logable;
 
-public class SmsBridge implements SmsSentCallback, SmsReceivedCallback {
+public class SmsBridge extends Logable implements SmsSentCallback,
+		SmsReceivedCallback {
 
 	private Activity mActivity = null;
 	private ContentResolver mContentResolver = null;
-	private Logable mLog = new Logable(getClass().getSimpleName());
 
-	private SmsSentBroadcastReceiver mSmsSendNotifier = new SmsSentBroadcastReceiver(
+	private SmsSentBroadcastReceiver mSmsSentNotifier = new SmsSentBroadcastReceiver(
+			this);
+	private SmsSentBroadcastReceiver mSmsDeliveredNotifier = new SmsSentBroadcastReceiver(
 			this);
 	private SmsReceivedContentObserver mSmsReceivedNotifier = new SmsReceivedContentObserver(
 			this);
+	private Uri mSmsInboxContentCursorUri = SmsContent.ContentUri.INBOX_URI;
 	private Cursor mSmsInboxContentCursor = null;
 
 	private SmsSend mSmsSink = null;
@@ -34,42 +38,13 @@ public class SmsBridge implements SmsSentCallback, SmsReceivedCallback {
 	private SmsReceivedCallback mExternalSmsReceivedCallback = null;
 	private SmsSentCallback mExternalSmsSentCallback = null;
 
-	private class SmsReceivedContentObserver extends ContentObserver {
-
-		private SmsReceivedCallback mCallback = null;
-
-		public SmsReceivedContentObserver(SmsReceivedCallback c) {
-			super(null);
-			mCallback = c;
-		}
-
-		@Override
-		public boolean deliverSelfNotifications() {
-			return true;
-		}
-
-		@Override
-		public void onChange(boolean selfChange) {
-			super.onChange(selfChange);
-			if (!selfChange) {
-				mCallback.smsReceivedCallback();
-			}
-		}
-	}
-
 	public SmsBridge(Activity a) {
-		log("starting ...");
+		super(SmsBridge.class.getSimpleName());
 		mActivity = a;
 		mContentResolver = mActivity.getContentResolver();
 		mSmsSink = new SmsSend(mActivity);
 		mSmsBoxReader = new SmsBoxReader(mContentResolver);
 		mSmsBoxWriter = new SmsBoxWriter(mContentResolver);
-
-		registerSmsSentNotification();
-		registerSmsDeliveredNotification();
-
-		mSmsInboxContentCursor = getSmsInboxCursor();
-		registerSmsReceivedObserver();
 	}
 
 	public int sendTextMessage(TextMessage message) {
@@ -77,16 +52,10 @@ public class SmsBridge implements SmsSentCallback, SmsReceivedCallback {
 		return mSmsSink.sendTextMessage(message);
 	}
 
-	public List<TextMessage> fetchInbox() {
-		List<TextMessage> inbox = mSmsBoxReader.getInbox();
-		log("fetched [" + inbox.size() + "] items from inbox");
-		return inbox;
-	}
-
-	public List<TextMessage> fetchOutbox() {
-		List<TextMessage> outbox = mSmsBoxReader.getSentbox();
-		log("fetched [" + outbox.size() + "] items from outbox");
-		return outbox;
+	public List<TextMessage> fetchTextMessages(TextMessageFilter filter) {
+		List<TextMessage> messages = mSmsBoxReader.getTextMessages(filter);
+		log("fetched [" + messages.size() + "] messages");
+		return messages;
 	}
 
 	public void setSmsSentCallback(SmsSentCallback c) {
@@ -99,41 +68,21 @@ public class SmsBridge implements SmsSentCallback, SmsReceivedCallback {
 		mExternalSmsReceivedCallback = c;
 	}
 
-	private void registerSmsSentNotification() {
-		mActivity.registerReceiver(mSmsSendNotifier, new IntentFilter(
-				SmsSentBroadcastReceiver.ACTION_SMS_SENT));
+	public void start() {
+		mSmsInboxContentCursor = getSmsInboxCursor();
+		registerSmsSentNotification();
+		registerSmsDeliveredNotification();
+		registerSmsReceivedObserver();
 	}
 
-	private void registerSmsDeliveredNotification() {
-		mActivity.registerReceiver(mSmsSendNotifier, new IntentFilter(
-				SmsSentBroadcastReceiver.ACTION_SMS_DELIVERED));
-	}
-
-	private void registerSmsReceivedObserver() {
-		mSmsInboxContentCursor.registerContentObserver(mSmsReceivedNotifier);
-	}
-
-	public void close() {
-		log("closing ...");
-		mActivity.unregisterReceiver(mSmsSendNotifier);
-		mSmsSendNotifier = null;
+	public void stop() {
+		mActivity.unregisterReceiver(mSmsSentNotifier);
+		mSmsSentNotifier = null;
+		mActivity.unregisterReceiver(mSmsDeliveredNotifier);
+		mSmsDeliveredNotifier = null;
 		mSmsInboxContentCursor.unregisterContentObserver(mSmsReceivedNotifier);
 		mSmsReceivedNotifier = null;
-	}
-
-	/**
-	 * returns a table cursor that is going to be observed later hence we need
-	 * no useful columns, just a table
-	 * 
-	 * @return
-	 */
-	private Cursor getSmsInboxCursor() {
-		Uri select = SmsContent.ContentUri.INBOX_URI;
-		String[] as = { SmsContent.Content.ID };
-		String where = SmsContent.Content.TYPE + " = ? ";
-		String[] like = { SmsContent.Content.TYPE_SMS };
-
-		return mActivity.managedQuery(select, as, where, like, null);
+		mSmsInboxContentCursor.close();
 	}
 
 	/**
@@ -146,7 +95,7 @@ public class SmsBridge implements SmsSentCallback, SmsReceivedCallback {
 		boolean sentSuccessfully = false;
 		TextMessage sentMessage = parseToTextMessgae(intent);
 
-		switch (mSmsSendNotifier.getResultCode()) {
+		switch (mSmsSentNotifier.getResultCode()) {
 		case Activity.RESULT_OK:
 			verboseSentState = "to address [" + sentMessage.getAddress()
 					+ "] on [" + sentMessage.getDate() + "] ("
@@ -204,6 +153,53 @@ public class SmsBridge implements SmsSentCallback, SmsReceivedCallback {
 		}
 	}
 
+	/**
+	 * simply bypass the callback to external listener
+	 */
+	@Override
+	public void smsReceivedCallback() {
+		if (mExternalSmsReceivedCallback != null) {
+			log("bypassing mExternalSmsReceivedCallback.smsReceivedCallback()");
+			mExternalSmsReceivedCallback.smsReceivedCallback();
+		} else {
+			log("no external callback [mExternalSmsReceivedCallback.smsReceivedCallback()] found - callback ends here");
+		}
+
+	}
+
+	private void registerSmsSentNotification() {
+		log("registered new IntentFilter [ACTION_SMS_SENT]");
+		mActivity.registerReceiver(mSmsSentNotifier, new IntentFilter(
+				SmsSentBroadcastReceiver.ACTION_SMS_SENT));
+	}
+
+	private void registerSmsDeliveredNotification() {
+		log("registered new IntentFilter [ACTION_SMS_DELIVERED]");
+		mActivity.registerReceiver(mSmsDeliveredNotifier, new IntentFilter(
+				SmsSentBroadcastReceiver.ACTION_SMS_DELIVERED));
+	}
+
+	private void registerSmsReceivedObserver() {
+		log("registered new ContentObserver ["
+				+ mSmsInboxContentCursorUri.toString() + "]");
+		mSmsInboxContentCursor.registerContentObserver(mSmsReceivedNotifier);
+	}
+
+	/**
+	 * returns a table cursor that is going to be observed later hence we need
+	 * no useful columns, just a table
+	 * 
+	 * @return
+	 */
+	private Cursor getSmsInboxCursor() {
+		Uri select = mSmsInboxContentCursorUri;
+		String[] as = { SmsContent.Content.ID };
+		String where = SmsContent.Content.TYPE + " = ? ";
+		String[] like = { SmsContent.Content.TYPE_SMS };
+
+		return mContentResolver.query(select, as, where, like, null);
+	}
+
 	private TextMessage parseToTextMessgae(Intent intent) {
 		try {
 			Bundle extrasBundle = intent.getExtras();
@@ -223,23 +219,5 @@ public class SmsBridge implements SmsSentCallback, SmsReceivedCallback {
 			log("FAILED to gather text message extras from intent");
 		}
 		return null;
-	}
-
-	/**
-	 * simply bypass the callback to external listener
-	 */
-	@Override
-	public void smsReceivedCallback() {
-		if (mExternalSmsReceivedCallback != null) {
-			log("bypassing mExternalSmsReceivedCallback.smsReceivedCallback()");
-			mExternalSmsReceivedCallback.smsReceivedCallback();
-		} else {
-			log("no external callback [mExternalSmsReceivedCallback.smsReceivedCallback()] found - callback ends here");
-		}
-
-	}
-
-	private void log(final String m) {
-		mLog.log(m);
 	}
 }

@@ -23,29 +23,45 @@ public class SmsSend {
 	public int sendTextMessage(TextMessage message) {
 		List<String> parts = mSmsManager.divideMessage(message.getBody());
 
-		PendingIntent deliveredPIntent = PendingIntent.getBroadcast(mActivity
-				.getApplicationContext(), 0, new Intent(
-				SmsSentBroadcastReceiver.ACTION_SMS_DELIVERED), 0);
-
 		for (String part : parts) {
-
-			Bundle smsBundle = new Bundle();
-			smsBundle.putSerializable(
-					SmsSentBroadcastReceiver.EXTRA_BUNDLE_KEY_TEXTMESSAGE, message);
-
-			Intent sentIntent = new Intent(SmsSentBroadcastReceiver.ACTION_SMS_SENT);
-			sentIntent.putExtras(smsBundle);
-
-			PendingIntent sentPIntent = PendingIntent.getBroadcast(
-					mActivity.getApplicationContext(), 0, sentIntent,
-					PendingIntent.FLAG_UPDATE_CURRENT);
-
+			PendingIntent sentPIntent = getSentPendingIntent(message, part);
+			PendingIntent deliveredPIntent = getDeliveredPendingIntent(message,
+					part);
 			mSmsManager.sendTextMessage(message.getAddress(), null, part,
 					sentPIntent, deliveredPIntent);
 		}
 		return parts.size();
 	}
 
-	public void finalize() {
+	private PendingIntent getSentPendingIntent(TextMessage message, String part) {
+		Intent sentIntent = new Intent(SmsSentBroadcastReceiver.ACTION_SMS_SENT);
+		sentIntent.putExtras(getBundle(message, part));
+		PendingIntent sentPIntent = PendingIntent.getBroadcast(
+				mActivity.getApplicationContext(), 0, sentIntent, 0);
+		
+		return sentPIntent;
 	}
+
+	private PendingIntent getDeliveredPendingIntent(TextMessage message,
+			String part) {
+		Intent deliveredIntent = new Intent(
+				SmsSentBroadcastReceiver.ACTION_SMS_DELIVERED);
+		deliveredIntent.putExtras(getBundle(message, part));
+
+		PendingIntent deliveredPIntent = PendingIntent.getBroadcast(
+				mActivity.getApplicationContext(), 0, deliveredIntent, 0);
+		
+		return deliveredPIntent;
+	}
+
+	private Bundle getBundle(TextMessage message, String part) {
+		Bundle smsBundle = new Bundle();
+		smsBundle.putSerializable(
+				SmsSentBroadcastReceiver.EXTRA_BUNDLE_KEY_TEXTMESSAGE, message);
+		smsBundle.putSerializable(
+				SmsSentBroadcastReceiver.EXTRA_BUNDLE_KEY_PART, part);
+		
+		return smsBundle;
+	}
+
 }

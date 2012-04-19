@@ -1,4 +1,4 @@
-package at.tugraz.ist.akm.sms;
+package at.tugraz.ist.akm.content;
 
 import android.net.Uri;
 
