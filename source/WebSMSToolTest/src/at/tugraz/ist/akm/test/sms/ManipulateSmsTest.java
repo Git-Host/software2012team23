@@ -6,6 +6,8 @@ import java.util.List;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import at.tugraz.ist.akm.content.SmsContent;
 import at.tugraz.ist.akm.content.query.TextMessageFilter;
@@ -29,24 +31,24 @@ public class ManipulateSmsTest extends WebSMSToolActivityTestcase2 implements
 	 */
 	public void testGetSmsContentProviderTables() {
 		try {
-			SmsHelper.logCursor(mContentResolver.query(SmsContent.ContentUri.INBOX_URI,
-					null, null, null, null));
-			SmsHelper.logCursor(mContentResolver.query(SmsContent.ContentUri.QUEUED_URI,
-					null, null, null, null));
-			SmsHelper.logCursor(mContentResolver.query(SmsContent.ContentUri.BASE_URI,
-					null, null, null, null));
-			SmsHelper.logCursor(mContentResolver.query(SmsContent.ContentUri.DRAFT_URI,
-					null, null, null, null));
+			SmsHelper.logCursor(mContentResolver.query(
+					SmsContent.ContentUri.INBOX_URI, null, null, null, null));
+			SmsHelper.logCursor(mContentResolver.query(
+					SmsContent.ContentUri.QUEUED_URI, null, null, null, null));
+			SmsHelper.logCursor(mContentResolver.query(
+					SmsContent.ContentUri.BASE_URI, null, null, null, null));
+			SmsHelper.logCursor(mContentResolver.query(
+					SmsContent.ContentUri.DRAFT_URI, null, null, null, null));
 
-			SmsHelper.logCursor(mContentResolver.query(SmsContent.ContentUri.FAILED_URI,
-					null, null, null, null));
-			SmsHelper.logCursor(mContentResolver.query(SmsContent.ContentUri.OUTBOX_URI,
-					null, null, null, null));
+			SmsHelper.logCursor(mContentResolver.query(
+					SmsContent.ContentUri.FAILED_URI, null, null, null, null));
+			SmsHelper.logCursor(mContentResolver.query(
+					SmsContent.ContentUri.OUTBOX_URI, null, null, null, null));
 			SmsHelper.logCursor(mContentResolver.query(
 					SmsContent.ContentUri.UNDELIVERED_URI, null, null, null,
 					null));
-			SmsHelper.logCursor(mContentResolver.query(SmsContent.ContentUri.SENT_URI,
-					null, null, null, null));
+			SmsHelper.logCursor(mContentResolver.query(
+					SmsContent.ContentUri.SENT_URI, null, null, null, null));
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -69,7 +71,8 @@ public class ManipulateSmsTest extends WebSMSToolActivityTestcase2 implements
 	public void testSendSms() {
 		try {
 			SmsSend smsSink = new SmsSend(mActivity);
-			SmsSentBroadcastReceiver sentReceiver = new SmsSentBroadcastReceiver(this);
+			SmsSentBroadcastReceiver sentReceiver = new SmsSentBroadcastReceiver(
+					this);
 			SmsSentBroadcastReceiver deliveredReceiver = new SmsSentBroadcastReceiver(
 					this);
 
@@ -99,6 +102,48 @@ public class ManipulateSmsTest extends WebSMSToolActivityTestcase2 implements
 			for (TextMessage m : inbox) {
 				SmsHelper.logTextMessage(m);
 			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			assertTrue(false);
+		}
+	}
+
+	/**
+	 * (1) write message somewhere to content://sms/* (2) let messaging tool
+	 * auto generate ID and THREAD_ID (3) read the newly generated IDs (4) write
+	 * some other values to the text message
+	 */
+	public void testUpdateSms() {
+		try {
+			SmsBoxWriter writer = new SmsBoxWriter(mContentResolver);
+			TextMessage message = SmsHelper.getDummyTextMessage();
+
+			// 1. and 2.
+			Uri directMessageUri = writer.writeOutboxTextMessage(message);
+			Cursor messageCursor = mContentResolver.query(directMessageUri,
+					null, null, null, null);
+			messageCursor.moveToNext();
+
+			// 3.
+			message.setId(messageCursor.getString(messageCursor
+					.getColumnIndex(SmsContent.Content.ID)));
+			message.setThreadId(messageCursor.getString(messageCursor
+					.getColumnIndex(SmsContent.Content.THREAD_ID)));
+
+			// 4.
+			message.setBody(message.getBody()
+					+ " - This message has been updated");
+			assertTrue(1 == writer.updateTextMessage(message));
+
+			// prove correctness of update
+			messageCursor = mContentResolver.query(directMessageUri, null,
+					null, null, null);
+			messageCursor.moveToNext();
+			String messageBodyFromContentprovider = messageCursor
+					.getString(messageCursor
+							.getColumnIndex(SmsContent.Content.BODY));
+			assertTrue(0 == messageBodyFromContentprovider.compareTo(message
+					.getBody()));
 		} catch (Exception e) {
 			e.printStackTrace();
 			assertTrue(false);

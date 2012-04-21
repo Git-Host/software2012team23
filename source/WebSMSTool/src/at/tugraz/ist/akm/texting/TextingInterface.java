@@ -13,10 +13,12 @@ public interface TextingInterface {
 	
 	public void stop();
 	
-	public abstract int sendTextMessage(TextMessage m);
+	public int sendTextMessage(TextMessage m);
 
-	public abstract List<TextMessage> fetchTextMessages(TextMessageFilter filter);
+	public List<TextMessage> fetchTextMessages(TextMessageFilter filter);
 	
-	public abstract List<Contact> fetchContacts(ContactFilter filter);
+	public int updateTextMessage(TextMessage message);
+	
+	public List<Contact> fetchContacts(ContactFilter filter);
 
 }

@@ -3,10 +3,12 @@ package at.tugraz.ist.akm.test.texting;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Bundle;
 import at.tugraz.ist.akm.content.SmsContent;
 import at.tugraz.ist.akm.content.query.TextMessageFilter;
 import at.tugraz.ist.akm.phonebook.ContactModifiedCallback;
 import at.tugraz.ist.akm.sms.SmsReceivedCallback;
+import at.tugraz.ist.akm.sms.SmsSentBroadcastReceiver;
 import at.tugraz.ist.akm.sms.SmsSentCallback;
 import at.tugraz.ist.akm.sms.TextMessage;
 import at.tugraz.ist.akm.test.WebSMSToolActivityTestcase2;
@@ -72,8 +74,14 @@ public class TextingAdapterTest extends WebSMSToolActivityTestcase2 implements
 	@Override
 	public void smsSentCallback(Context context, Intent intent) {
 		++mCountSent;
-		log("TODO Auto-generated method stub");
-
+		Bundle textMessageInfos = intent.getExtras();
+		String sentPart = textMessageInfos
+				.getString(SmsSentBroadcastReceiver.EXTRA_BUNDLE_KEY_PART);
+		TextMessage m = (TextMessage) textMessageInfos
+				.getSerializable(SmsSentBroadcastReceiver.EXTRA_BUNDLE_KEY_TEXTMESSAGE);
+		assertTrue(0 == sentPart.compareTo("foobar foo baz"));
+		assertTrue(0 == m.getAddress().compareTo("01234"));
+		assertTrue(0 == m.getBody().compareTo("foobar foo baz"));
 	}
 
 	@Override

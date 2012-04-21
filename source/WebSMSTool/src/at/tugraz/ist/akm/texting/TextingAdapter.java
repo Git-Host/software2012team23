@@ -118,4 +118,9 @@ public class TextingAdapter extends Logable implements TextingInterface, SmsRece
 		mPhoneBook
 				.setContactModifiedCallback(mExternalPhonebookModifiedCallback);
 	}
+
+	@Override
+	public int updateTextMessage(TextMessage message) {
+		return mSmsBridge.updateTextMessage(message);
+	}
 }

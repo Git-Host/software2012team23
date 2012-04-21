@@ -58,6 +58,10 @@ public class SmsBridge extends Logable implements SmsSentCallback,
 		return messages;
 	}
 
+	public int updateTextMessage(TextMessage message) {
+		return mSmsBoxWriter.updateTextMessage(message);
+	}
+
 	public void setSmsSentCallback(SmsSentCallback c) {
 		log("registered new [SmsSentCallback] callback");
 		mExternalSmsSentCallback = c;
@@ -69,7 +73,6 @@ public class SmsBridge extends Logable implements SmsSentCallback,
 	}
 
 	public void start() {
-		mSmsInboxContentCursor = getSmsInboxCursor();
 		registerSmsSentNotification();
 		registerSmsDeliveredNotification();
 		registerSmsReceivedObserver();
@@ -107,21 +110,29 @@ public class SmsBridge extends Logable implements SmsSentCallback,
 
 		case SmsManager.RESULT_ERROR_GENERIC_FAILURE:
 			verboseSentState = "Error.";
+			sentMessage.setLocked("");
+			sentMessage.setErrorCode("");
 			mSmsBoxWriter.writeOutboxTextMessage(sentMessage);
 			break;
 
 		case SmsManager.RESULT_ERROR_NO_SERVICE:
 			verboseSentState = "Error: No service.";
+			sentMessage.setLocked("");
+			sentMessage.setErrorCode("");
 			mSmsBoxWriter.writeOutboxTextMessage(sentMessage);
 			break;
 
 		case SmsManager.RESULT_ERROR_NULL_PDU:
 			verboseSentState = "Error: Null PDU.";
+			sentMessage.setLocked("");
+			sentMessage.setErrorCode("");
 			mSmsBoxWriter.writeOutboxTextMessage(sentMessage);
 			break;
 
 		case SmsManager.RESULT_ERROR_RADIO_OFF:
 			verboseSentState = "Error: Radio off.";
+			sentMessage.setLocked("");
+			sentMessage.setErrorCode("");
 			mSmsBoxWriter.writeOutboxTextMessage(sentMessage);
 			break;
 		}
@@ -160,7 +171,8 @@ public class SmsBridge extends Logable implements SmsSentCallback,
 	public void smsReceivedCallback() {
 		if (mExternalSmsReceivedCallback != null) {
 			log("bypassing mExternalSmsReceivedCallback.smsReceivedCallback()");
-			mExternalSmsReceivedCallback.smsReceivedCallback();
+			// TODO: need some idea how to check whether there is really a new message available or not.
+			
 		} else {
 			log("no external callback [mExternalSmsReceivedCallback.smsReceivedCallback()] found - callback ends here");
 		}
@@ -182,6 +194,7 @@ public class SmsBridge extends Logable implements SmsSentCallback,
 	private void registerSmsReceivedObserver() {
 		log("registered new ContentObserver ["
 				+ mSmsInboxContentCursorUri.toString() + "]");
+		mSmsInboxContentCursor = getSmsInboxCursor();
 		mSmsInboxContentCursor.registerContentObserver(mSmsReceivedNotifier);
 	}
 
@@ -193,11 +206,11 @@ public class SmsBridge extends Logable implements SmsSentCallback,
 	 */
 	private Cursor getSmsInboxCursor() {
 		Uri select = mSmsInboxContentCursorUri;
-		String[] as = { SmsContent.Content.ID };
+	//	String[] as = { SmsContent.Content.ID };
 		String where = SmsContent.Content.TYPE + " = ? ";
 		String[] like = { SmsContent.Content.TYPE_SMS };
 
-		return mContentResolver.query(select, as, where, like, null);
+		return mContentResolver.query(select, null, where, like, null);
 	}
 
 	private TextMessage parseToTextMessgae(Intent intent) {
