@@ -11,12 +11,11 @@ import at.tugraz.ist.akm.phonebook.Contact;
 import at.tugraz.ist.akm.phonebook.ContactModifiedCallback;
 import at.tugraz.ist.akm.phonebook.PhonebookBridge;
 import at.tugraz.ist.akm.sms.SmsBridge;
-import at.tugraz.ist.akm.sms.SmsReceivedCallback;
 import at.tugraz.ist.akm.sms.SmsSentCallback;
 import at.tugraz.ist.akm.sms.TextMessage;
 import at.tugraz.ist.akm.trace.Logable;
 
-public class TextingAdapter extends Logable implements TextingInterface, SmsReceivedCallback, SmsSentCallback,
+public class TextingAdapter extends Logable implements TextingInterface, SmsSentCallback,
 		ContactModifiedCallback {
 
 	private Activity mActivity = null;
@@ -25,16 +24,13 @@ public class TextingAdapter extends Logable implements TextingInterface, SmsRece
 	private PhonebookBridge mPhoneBook = null;
 	
 	private SmsSentCallback mExternalMessageSentCallback = null;
-	private SmsReceivedCallback mExternalMessageReceiedCallback = null;
 	private ContactModifiedCallback mExternalPhonebookModifiedCallback = null;
 
-	public TextingAdapter(Activity a, SmsSentCallback ms,
-			SmsReceivedCallback mr, ContactModifiedCallback cm) {
+	public TextingAdapter(Activity a, SmsSentCallback ms, ContactModifiedCallback cm) {
 		super(TextingAdapter.class.getSimpleName());
 		mActivity = a;
 		
 		mExternalMessageSentCallback = ms;
-		mExternalMessageReceiedCallback = mr;
 		mExternalPhonebookModifiedCallback = cm;
 		
 		mSmsBridge = new SmsBridge(mActivity);		
@@ -94,10 +90,10 @@ public class TextingAdapter extends Logable implements TextingInterface, SmsRece
 	}
 
 	@Override
-	public void smsReceivedCallback() {
+	public void smsReceivedCallback(Context context, Intent intent) {
 		log("sms received");
-		if (mExternalMessageReceiedCallback != null) {
-			mExternalMessageReceiedCallback.smsReceivedCallback();
+		if (mExternalMessageSentCallback != null) {
+			mExternalMessageSentCallback.smsReceivedCallback(context, intent);
 		}
 	}
 
@@ -110,7 +106,6 @@ public class TextingAdapter extends Logable implements TextingInterface, SmsRece
 	}
 
 	private void registerSmsCallbacks() {
-		mSmsBridge.setSmsReceivedCallback(this);
 		mSmsBridge.setSmsSentCallback(this);
 	}
 

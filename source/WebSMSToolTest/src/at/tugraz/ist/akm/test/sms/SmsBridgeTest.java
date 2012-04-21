@@ -15,11 +15,12 @@ public class SmsBridgeTest extends WebSMSToolActivityTestcase2 {
 	}
 
 	public void testSmsBridgeSendSms() {
+
 		try {
 			SmsBridge s = new SmsBridge(mActivity);
 			s.start();
 			s.sendTextMessage(SmsHelper.getDummyTextMessage());
-			Thread.sleep(3000);
+			Thread.sleep(1000);
 			s.stop();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -70,4 +71,5 @@ public class SmsBridgeTest extends WebSMSToolActivityTestcase2 {
 	protected void tearDown() throws Exception {
 		super.tearDown();
 	}
+
 }

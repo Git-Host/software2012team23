@@ -7,7 +7,6 @@ import android.os.Bundle;
 import at.tugraz.ist.akm.content.SmsContent;
 import at.tugraz.ist.akm.content.query.TextMessageFilter;
 import at.tugraz.ist.akm.phonebook.ContactModifiedCallback;
-import at.tugraz.ist.akm.sms.SmsReceivedCallback;
 import at.tugraz.ist.akm.sms.SmsSentBroadcastReceiver;
 import at.tugraz.ist.akm.sms.SmsSentCallback;
 import at.tugraz.ist.akm.sms.TextMessage;
@@ -17,7 +16,7 @@ import at.tugraz.ist.akm.texting.TextingAdapter;
 import at.tugraz.ist.akm.texting.TextingInterface;
 
 public class TextingAdapterTest extends WebSMSToolActivityTestcase2 implements
-		SmsSentCallback, SmsReceivedCallback, ContactModifiedCallback {
+		SmsSentCallback, ContactModifiedCallback {
 
 	private Activity mActivity = null;
 	private int mCountSent = 0;
@@ -30,8 +29,7 @@ public class TextingAdapterTest extends WebSMSToolActivityTestcase2 implements
 
 	public void testSendNoFail() throws Exception {
 		mIsTestcaseSendNoFail = true;
-		TextingInterface texting = new TextingAdapter(mActivity, this, this,
-				this);
+		TextingInterface texting = new TextingAdapter(mActivity, this, this);
 		texting.start();
 		TextMessage m = new TextMessage();
 		m.setAddress("01234");
@@ -44,8 +42,7 @@ public class TextingAdapterTest extends WebSMSToolActivityTestcase2 implements
 
 	public void testSendLongText() throws Exception {
 		mIsTestcaseSendLongText = true;
-		TextingInterface texting = new TextingAdapter(mActivity, this, this,
-				this);
+		TextingInterface texting = new TextingAdapter(mActivity, this, this);
 		texting.start();
 		TextMessage m = SmsHelper.getDummyMultiTextMessage();
 		texting.sendTextMessage(m);
@@ -55,8 +52,7 @@ public class TextingAdapterTest extends WebSMSToolActivityTestcase2 implements
 	}
 
 	public void testFetchContactsNoFail() {
-		TextingInterface texting = new TextingAdapter(mActivity, this, this,
-				this);
+		TextingInterface texting = new TextingAdapter(mActivity, this, this);
 		texting.start();
 		// ContactFilter filter = new ContactFilter();
 		// filter.setId(1L);
@@ -65,8 +61,7 @@ public class TextingAdapterTest extends WebSMSToolActivityTestcase2 implements
 	}
 
 	public void testFetchMessagesNoFail() {
-		TextingInterface texting = new TextingAdapter(mActivity, this, this,
-				this);
+		TextingInterface texting = new TextingAdapter(mActivity, this, this);
 		texting.start();
 		TextMessageFilter filter = new TextMessageFilter();
 		filter.setBox(SmsContent.ContentUri.INBOX_URI);
@@ -77,13 +72,13 @@ public class TextingAdapterTest extends WebSMSToolActivityTestcase2 implements
 
 	@Override
 	public void contactModifiedCallback() {
-		log("TODO Auto-generated method stub");
+		log("Auto-generated method stub");
 
 	}
 
 	@Override
-	public void smsReceivedCallback() {
-		log("TODO Auto-generated method stub");
+	public void smsReceivedCallback(Context context, Intent intent) {
+		log("Auto-generated method stub");
 
 	}
 
@@ -124,7 +119,7 @@ public class TextingAdapterTest extends WebSMSToolActivityTestcase2 implements
 
 	@Override
 	public void smsDeliveredCallback(Context context, Intent intent) {
-		log("TODO Auto-generated method stub");
+		log("Auto-generated method stub");
 
 	}
 

@@ -8,34 +8,22 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.database.Cursor;
-import android.net.Uri;
 import android.os.Bundle;
 import android.telephony.SmsManager;
-import at.tugraz.ist.akm.content.SmsContent;
 import at.tugraz.ist.akm.content.query.TextMessageFilter;
 import at.tugraz.ist.akm.trace.Logable;
 
-public class SmsBridge extends Logable implements SmsSentCallback,
-		SmsReceivedCallback {
+public class SmsBridge extends Logable implements SmsSentCallback {
 
 	private Activity mActivity = null;
 	private ContentResolver mContentResolver = null;
-
-	private SmsSentBroadcastReceiver mSmsSentNotifier = new SmsSentBroadcastReceiver(
-			this);
-	private SmsSentBroadcastReceiver mSmsDeliveredNotifier = new SmsSentBroadcastReceiver(
-			this);
-	private SmsReceivedContentObserver mSmsReceivedNotifier = new SmsReceivedContentObserver(
-			this);
-	private Uri mSmsInboxContentCursorUri = SmsContent.ContentUri.INBOX_URI;
-	private Cursor mSmsInboxContentCursor = null;
 
 	private SmsSend mSmsSink = null;
 	private SmsBoxReader mSmsBoxReader = null;
 	private SmsBoxWriter mSmsBoxWriter = null;
 
-	private SmsReceivedCallback mExternalSmsReceivedCallback = null;
+	private SmsSentBroadcastReceiver mSmsSentNotifier = new SmsSentBroadcastReceiver(
+			this);
 	private SmsSentCallback mExternalSmsSentCallback = null;
 
 	public SmsBridge(Activity a) {
@@ -67,25 +55,15 @@ public class SmsBridge extends Logable implements SmsSentCallback,
 		mExternalSmsSentCallback = c;
 	}
 
-	public void setSmsReceivedCallback(SmsReceivedCallback c) {
-		log("registered new [SmsReceivedCallback] callback");
-		mExternalSmsReceivedCallback = c;
-	}
-
 	public void start() {
 		registerSmsSentNotification();
 		registerSmsDeliveredNotification();
-		registerSmsReceivedObserver();
+		registerSmsReceivedNotification();
 	}
 
 	public void stop() {
 		mActivity.unregisterReceiver(mSmsSentNotifier);
 		mSmsSentNotifier = null;
-		mActivity.unregisterReceiver(mSmsDeliveredNotifier);
-		mSmsDeliveredNotifier = null;
-		mSmsInboxContentCursor.unregisterContentObserver(mSmsReceivedNotifier);
-		mSmsReceivedNotifier = null;
-		mSmsInboxContentCursor.close();
 	}
 
 	/**
@@ -93,7 +71,7 @@ public class SmsBridge extends Logable implements SmsSentCallback,
 	 * regardless of the state bypass the event to external audience
 	 */
 	@Override
-	public void smsSentCallback(Context context, Intent intent) { 
+	public void smsSentCallback(Context context, Intent intent) {
 		String verboseSentState = null;
 		boolean sentSuccessfully = false;
 		TextMessage sentMessage = parseToTextMessgae(intent);
@@ -167,11 +145,9 @@ public class SmsBridge extends Logable implements SmsSentCallback,
 	 * simply bypass the callback to external listener
 	 */
 	@Override
-	public void smsReceivedCallback() {
-		if (mExternalSmsReceivedCallback != null) {
+	public void smsReceivedCallback(Context context, Intent intent) {
+		if (mExternalSmsSentCallback != null) {
 			log("bypassing mExternalSmsReceivedCallback.smsReceivedCallback()");
-			// TODO: need some idea how to check whether there is really a new message available or not.
-			
 		} else {
 			log("no external callback [mExternalSmsReceivedCallback.smsReceivedCallback()] found - callback ends here");
 		}
@@ -186,30 +162,14 @@ public class SmsBridge extends Logable implements SmsSentCallback,
 
 	private void registerSmsDeliveredNotification() {
 		log("registered new IntentFilter [ACTION_SMS_DELIVERED]");
-		mActivity.registerReceiver(mSmsDeliveredNotifier, new IntentFilter(
+		mActivity.registerReceiver(mSmsSentNotifier, new IntentFilter(
 				SmsSentBroadcastReceiver.ACTION_SMS_DELIVERED));
 	}
 
-	private void registerSmsReceivedObserver() {
-		log("registered new ContentObserver ["
-				+ mSmsInboxContentCursorUri.toString() + "]");
-		mSmsInboxContentCursor = getSmsInboxCursor();
-		mSmsInboxContentCursor.registerContentObserver(mSmsReceivedNotifier);
-	}
-
-	/**
-	 * returns a table cursor that is going to be observed later hence we need
-	 * no useful columns, just a table
-	 * 
-	 * @return
-	 */
-	private Cursor getSmsInboxCursor() {
-		Uri select = mSmsInboxContentCursorUri;
-	//	String[] as = { SmsContent.Content.ID };
-		String where = SmsContent.Content.TYPE + " = ? ";
-		String[] like = { SmsContent.Content.TYPE_SMS };
-
-		return mContentResolver.query(select, null, where, like, null);
+	private void registerSmsReceivedNotification() {
+		log("registered new IntentFilter [ACTION_SMS_SENT]");
+		mActivity.registerReceiver(mSmsSentNotifier, new IntentFilter(
+				SmsSentBroadcastReceiver.ACTION_SMS_RECEIVED));
 	}
 
 	private TextMessage parseToTextMessgae(Intent intent) {

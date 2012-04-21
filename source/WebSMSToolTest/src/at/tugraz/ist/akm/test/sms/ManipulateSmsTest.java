@@ -208,4 +208,10 @@ public class ManipulateSmsTest extends WebSMSToolActivityTestcase2 implements
 
 	}
 
+	@Override
+	public void smsReceivedCallback(Context context, Intent intent) {
+		log("sms received (action: " + intent.getAction() + " )");
+		
+	}
+
 }

@@ -71,7 +71,7 @@ public class SmsBoxReader {
 		m.setStatus(sms.getString(sms.getColumnIndex(SmsContent.Content.STATUS)));
 		m.setThreadId(sms.getString(sms
 				.getColumnIndex(SmsContent.Content.THREAD_ID)));
-		m.setType(sms.getString(sms.getColumnIndex(SmsContent.Content.TYPE)));
+		m.setType(sms.getString(sms.getColumnIndex(SmsContent.Content.MESSAGE_TYPE)));
 		return m;
 	}
 	

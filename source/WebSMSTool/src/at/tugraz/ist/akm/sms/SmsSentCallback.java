@@ -8,5 +8,7 @@ public interface SmsSentCallback {
 	public void smsSentCallback(Context context, Intent intent);
 
 	public void smsDeliveredCallback(Context context, Intent intent);
+	
+	public void smsReceivedCallback(Context context, Intent intent);
 
 }
