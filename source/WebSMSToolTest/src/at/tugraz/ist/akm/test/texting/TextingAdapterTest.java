@@ -12,6 +12,7 @@ import at.tugraz.ist.akm.sms.SmsSentBroadcastReceiver;
 import at.tugraz.ist.akm.sms.SmsSentCallback;
 import at.tugraz.ist.akm.sms.TextMessage;
 import at.tugraz.ist.akm.test.WebSMSToolActivityTestcase2;
+import at.tugraz.ist.akm.test.sms.SmsHelper;
 import at.tugraz.ist.akm.texting.TextingAdapter;
 import at.tugraz.ist.akm.texting.TextingInterface;
 
@@ -20,12 +21,15 @@ public class TextingAdapterTest extends WebSMSToolActivityTestcase2 implements
 
 	private Activity mActivity = null;
 	private int mCountSent = 0;
+	private boolean mIsTestcaseSendNoFail = false;
+	private boolean mIsTestcaseSendLongText = false;
 
 	public TextingAdapterTest() {
 		super(TextingAdapterTest.class.getSimpleName());
 	}
 
 	public void testSendNoFail() throws Exception {
+		mIsTestcaseSendNoFail = true;
 		TextingInterface texting = new TextingAdapter(mActivity, this, this,
 				this);
 		texting.start();
@@ -35,6 +39,18 @@ public class TextingAdapterTest extends WebSMSToolActivityTestcase2 implements
 		texting.sendTextMessage(m);
 		Thread.sleep(1000);
 		assertTrue(mCountSent > 0);
+		texting.stop();
+	}
+
+	public void testSendLongText() throws Exception {
+		mIsTestcaseSendLongText = true;
+		TextingInterface texting = new TextingAdapter(mActivity, this, this,
+				this);
+		texting.start();
+		TextMessage m = SmsHelper.getDummyMultiTextMessage();
+		texting.sendTextMessage(m);
+		Thread.sleep(1000);
+		assertTrue(mCountSent >= 3);
 		texting.stop();
 	}
 
@@ -74,14 +90,36 @@ public class TextingAdapterTest extends WebSMSToolActivityTestcase2 implements
 	@Override
 	public void smsSentCallback(Context context, Intent intent) {
 		++mCountSent;
+
 		Bundle textMessageInfos = intent.getExtras();
 		String sentPart = textMessageInfos
 				.getString(SmsSentBroadcastReceiver.EXTRA_BUNDLE_KEY_PART);
 		TextMessage m = (TextMessage) textMessageInfos
 				.getSerializable(SmsSentBroadcastReceiver.EXTRA_BUNDLE_KEY_TEXTMESSAGE);
-		assertTrue(0 == sentPart.compareTo("foobar foo baz"));
-		assertTrue(0 == m.getAddress().compareTo("01234"));
-		assertTrue(0 == m.getBody().compareTo("foobar foo baz"));
+		log("sent part: " + sentPart);
+
+		if (mIsTestcaseSendNoFail) {
+			assertTrue(0 == sentPart.compareTo("foobar foo baz"));
+			assertTrue(0 == m.getAddress().compareTo("01234"));
+			assertTrue(0 == m.getBody().compareTo("foobar foo baz"));
+		} else if (mIsTestcaseSendLongText) {
+			assertTrue(0 == m.getAddress().compareTo("13570"));
+			if (mCountSent == 1) {
+				assertTrue(sentPart
+						.contains(". 123456789012345678901234567890123456789012345678901234567890123456789012345678901234567"));
+			} else if (mCountSent == 2) {
+				assertTrue(m
+						.getBody()
+						.contains(
+								"890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890"));
+			} else if (mCountSent == 3) {
+				assertTrue(m.getBody().contains("1234567890"));
+
+			} else
+				assertTrue(false);
+		} else {
+			assertTrue(false);
+		}
 	}
 
 	@Override

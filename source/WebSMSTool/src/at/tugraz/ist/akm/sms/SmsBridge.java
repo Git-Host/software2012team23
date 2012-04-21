@@ -93,11 +93,10 @@ public class SmsBridge extends Logable implements SmsSentCallback,
 	 * regardless of the state bypass the event to external audience
 	 */
 	@Override
-	public void smsSentCallback(Context context, Intent intent) {
+	public void smsSentCallback(Context context, Intent intent) { 
 		String verboseSentState = null;
 		boolean sentSuccessfully = false;
 		TextMessage sentMessage = parseToTextMessgae(intent);
-
 		switch (mSmsSentNotifier.getResultCode()) {
 		case Activity.RESULT_OK:
 			verboseSentState = "to address [" + sentMessage.getAddress()

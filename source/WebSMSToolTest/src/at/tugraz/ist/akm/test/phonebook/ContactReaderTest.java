@@ -1,15 +1,7 @@
 package at.tugraz.ist.akm.test.phonebook;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import android.content.ContentProviderOperation;
-import android.content.ContentProviderResult;
-import android.database.Cursor;
-import android.net.Uri;
-import android.provider.ContactsContract;
-import android.provider.ContactsContract.PhoneLookup;
-import android.provider.ContactsContract.RawContacts;
 import at.tugraz.ist.akm.content.query.ContactFilter;
 import at.tugraz.ist.akm.phonebook.Contact;
 import at.tugraz.ist.akm.phonebook.ContactReader;
@@ -28,7 +20,7 @@ public class ContactReaderTest extends WebSMSToolActivityTestcase2 {
 
 	public void testFetchContacts() {
 		try {
-			storeTestContacts();
+			PhonebookHelper.storeContacts(mTestContacts, mContentResolver);
 			ContactReader contactReader = new ContactReader(mContentResolver);
 
 			log("get contacts with phone");
@@ -36,134 +28,31 @@ public class ContactReaderTest extends WebSMSToolActivityTestcase2 {
 			filterWithPhone.setWithPhone(true);
 			List<Contact> contacts = contactReader
 					.fetchContacts(filterWithPhone);
-			logContacts(contacts);
+			PhonebookHelper.logContacts(contacts);
 
 			log("get contacts with phone AND starred");
 			ContactFilter filterWithPhoneAndStarred = new ContactFilter();
 			filterWithPhoneAndStarred.setWithPhone(true);
 			filterWithPhoneAndStarred.setIsStarred(true);
 			contacts = contactReader.fetchContacts(filterWithPhoneAndStarred);
-			logContacts(contacts);
+			PhonebookHelper.logContacts(contacts);
 
 			log("get starred contacts");
 			ContactFilter filterStarred = new ContactFilter();
 			filterStarred.setIsStarred(true);
 			contacts = contactReader.fetchContacts(filterStarred);
-			logContacts(contacts);
+			PhonebookHelper.logContacts(contacts);
 
 			log("get contacts unfiltered");
-			ContactFilter noFilter= new ContactFilter();
+			ContactFilter noFilter = new ContactFilter();
 			contacts = contactReader.fetchContacts(noFilter);
-			logContacts(contacts);
-			
-			deleteTestContacts();
+			PhonebookHelper.logContacts(contacts);
+
+			PhonebookHelper.deleteContacts(mTestContacts, mContentResolver);
 		} catch (Throwable e) {
 			e.printStackTrace();
 			assertTrue(false);
 		}
 	}
-
-	private void storeTestContacts() throws Throwable {
-		for (String[] c : mTestContacts) {
-			storeContact(c);
-		}
-	}
-
-	private void deleteTestContacts() {
-		for (String[] c : mTestContacts) {
-			deleteContact(c[2], c[0] + " " + c[1]);
-		}
-	}
-
-	private void storeContact(String[] record) throws Throwable {
-		// TODO: see also
-		// http://saigeethamn.blogspot.com/2009/09/android-developer-tutorial-part-10.html
-		ArrayList<ContentProviderOperation> ops = new ArrayList<ContentProviderOperation>();
-		int rawContactInsertIndex = ops.size();
-
-		ops.add(ContentProviderOperation
-				.newInsert(ContactsContract.RawContacts.CONTENT_URI)
-				.withValue(RawContacts.ACCOUNT_TYPE, null)
-				.withValue(RawContacts.ACCOUNT_NAME, null).build());
-
-		ops.add(ContentProviderOperation
-				.newInsert(ContactsContract.Data.CONTENT_URI)
-				.withValueBackReference(ContactsContract.Data.RAW_CONTACT_ID,
-						rawContactInsertIndex)
-				.withValue(
-						ContactsContract.Data.MIMETYPE,
-						ContactsContract.CommonDataKinds.StructuredName.CONTENT_ITEM_TYPE)
-				.withValue(
-						ContactsContract.CommonDataKinds.StructuredName.DISPLAY_NAME,
-						record[0] + " " + record[1])
-				.withValue(
-						ContactsContract.CommonDataKinds.StructuredName.FAMILY_NAME,
-						record[1])
-				.withValue(
-						ContactsContract.CommonDataKinds.StructuredName.GIVEN_NAME,
-						record[0]).build());
-
-		ops.add(ContentProviderOperation
-				.newInsert(ContactsContract.Data.CONTENT_URI)
-				.withValueBackReference(ContactsContract.Data.RAW_CONTACT_ID,
-						rawContactInsertIndex)
-				.withValue(
-						ContactsContract.Data.MIMETYPE,
-						ContactsContract.CommonDataKinds.Phone.CONTENT_ITEM_TYPE)
-				.withValue(ContactsContract.CommonDataKinds.Phone.NUMBER,
-						record[2]).build());
-
-		ContentProviderResult[] res = mContentResolver.applyBatch(
-				ContactsContract.AUTHORITY, ops);
-
-		assertNotNull(res);
-	}
-
-	private void deleteContact(String phoneNumber, String displayName) {
-		Uri select = Uri.withAppendedPath(PhoneLookup.CONTENT_FILTER_URI,
-				Uri.encode(phoneNumber));
-		String[] as = { PhoneLookup.DISPLAY_NAME,
-				ContactsContract.Contacts.LOOKUP_KEY };
-		String where = PhoneLookup.DISPLAY_NAME + " = '?' ";
-		String[] like = { displayName };
-		Cursor contact = mContentResolver.query(select, as, where, like, null);
-
-		if (contact != null) {
-			while (contact.moveToNext()) {
-				String lookupKey = contact.getString(contact
-						.getColumnIndex(ContactsContract.Contacts.LOOKUP_KEY));
-				Uri uri = Uri
-						.withAppendedPath(
-								ContactsContract.Contacts.CONTENT_LOOKUP_URI,
-								lookupKey);
-				mContentResolver.delete(uri, null, null);
-				return;
-			}
-		}
-		assertTrue(false);
-	}
-
-	
-	
-	private void logContacts(List<Contact> contacts) {
-		for (Contact contact : contacts) {
-			StringBuffer details = new StringBuffer();
-			StringBuffer numbers = new StringBuffer();
-
-			if (contact.getPhoneNumbers() != null) {
-				for (Contact.Number number : contact.getPhoneNumbers()) {
-					numbers.append(number.getNumber() + ":" + number.getType()
-							+ " ");
-				}
-			}
-			details.append("DName: " + contact.getDisplayName() + " FName: "
-					+ contact.getFamilyName() + " GName: " + contact.getName()
-					+ " PhotoUri: " + contact.getPhotoUri() + " IsStarred: "
-					+ contact.isStarred() + " Numbers: " + numbers.toString());
-			log(details.toString());
-		}
-
-	}
-
 
 }

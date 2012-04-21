@@ -68,7 +68,7 @@ public class ManipulateSmsTest extends WebSMSToolActivityTestcase2 implements
 
 	}
 
-	public void testSendSms() {
+	public void testSendExtremLongSms() {
 		try {
 			SmsSend smsSink = new SmsSend(mActivity);
 			SmsSentBroadcastReceiver sentReceiver = new SmsSentBroadcastReceiver(
@@ -80,10 +80,10 @@ public class ManipulateSmsTest extends WebSMSToolActivityTestcase2 implements
 					SmsSentBroadcastReceiver.ACTION_SMS_SENT));
 			mActivity.registerReceiver(deliveredReceiver, new IntentFilter(
 					SmsSentBroadcastReceiver.ACTION_SMS_DELIVERED));
-			smsSink.sendTextMessage(SmsHelper.getDummyTextMessage());
+			smsSink.sendTextMessage(SmsHelper.getDummyMultiTextMessage());
 			// wait until intent is (hopefully) broadcasted, else it won't
 			// trigger the desired callback
-			Thread.sleep(3000);
+			Thread.sleep(1000);
 
 			mActivity.unregisterReceiver(sentReceiver);
 			mActivity.unregisterReceiver(deliveredReceiver);
@@ -184,13 +184,13 @@ public class ManipulateSmsTest extends WebSMSToolActivityTestcase2 implements
 			if (extrasBundle != null) {
 				Serializable serializedTextMessage = extrasBundle
 						.getSerializable(SmsSentBroadcastReceiver.EXTRA_BUNDLE_KEY_TEXTMESSAGE);
-
+				String part = (String) extrasBundle.getSerializable(SmsSentBroadcastReceiver.EXTRA_BUNDLE_KEY_PART);
 				if (serializedTextMessage != null) {
 					TextMessage sentMessage = (TextMessage) serializedTextMessage;
 					StringBuffer infos = new StringBuffer();
 					infos.append("SMS to [" + sentMessage.getAddress()
-							+ "] sent on [" + sentMessage.getDate() + "] ("
-							+ sentMessage.getBody() + ")");
+							+ "] sent on [" + sentMessage.getDate() + "], part: ["+part+"], whole message was: ["
+							+ sentMessage.getBody() + "]");
 					log(infos.toString());
 				}
 
