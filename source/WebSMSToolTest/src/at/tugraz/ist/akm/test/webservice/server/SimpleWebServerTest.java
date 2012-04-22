@@ -22,7 +22,7 @@ public class SimpleWebServerTest extends InstrumentationTestCase {
     private static SimpleWebServer webserver;
 
     private void startServer() {
-        Log.d("SimpleWebServerTest", "start server!!!!");
+        Log.d("SimpleWebServerTest", "start server");
         httpClient = new DefaultHttpClient();
         webserver = new SimpleWebServer(getInstrumentation().getContext());
         Assert.assertTrue(webserver.startServer(8888));
@@ -39,7 +39,7 @@ public class SimpleWebServerTest extends InstrumentationTestCase {
     }
 
     private void stopServer() {
-        Log.d("SimpleWebServerTest", "stop server!!!!");
+        Log.d("SimpleWebServerTest", "stop server");
         webserver.stopServer();
         while (webserver.isRunning()) {
             synchronized (SimpleWebServerTest.class) {
@@ -57,7 +57,7 @@ public class SimpleWebServerTest extends InstrumentationTestCase {
     public void testSimpleJsonRequest() {
         startServer();
 
-        Log.d("test", "testSimpleJsonRequest!!!!");
+        Log.d("test", "testSimpleJsonRequest");
 
         HttpPost httppost = new HttpPost("http://localhost:8888/api.html");
         try {
