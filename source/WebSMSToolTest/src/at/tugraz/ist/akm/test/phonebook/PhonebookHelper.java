@@ -18,6 +18,7 @@ public class PhonebookHelper {
 
 	public static void storeContact(String[] record,
 			ContentResolver contentResolver) throws Throwable {
+		
 		// for a better solution see also:
 		// http://saigeethamn.blogspot.com/2009/09/android-developer-tutorial-part-10.html
 		ArrayList<ContentProviderOperation> ops = new ArrayList<ContentProviderOperation>();

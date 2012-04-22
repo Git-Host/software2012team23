@@ -11,11 +11,11 @@ import at.tugraz.ist.akm.phonebook.Contact;
 import at.tugraz.ist.akm.phonebook.ContactModifiedCallback;
 import at.tugraz.ist.akm.phonebook.PhonebookBridge;
 import at.tugraz.ist.akm.sms.SmsBridge;
-import at.tugraz.ist.akm.sms.SmsSentCallback;
+import at.tugraz.ist.akm.sms.SmsIOCallback;
 import at.tugraz.ist.akm.sms.TextMessage;
 import at.tugraz.ist.akm.trace.Logable;
 
-public class TextingAdapter extends Logable implements TextingInterface, SmsSentCallback,
+public class TextingAdapter extends Logable implements TextingInterface, SmsIOCallback,
 		ContactModifiedCallback {
 
 	private Activity mActivity = null;
@@ -23,14 +23,14 @@ public class TextingAdapter extends Logable implements TextingInterface, SmsSent
 	private SmsBridge mSmsBridge = null;
 	private PhonebookBridge mPhoneBook = null;
 	
-	private SmsSentCallback mExternalMessageSentCallback = null;
+	private SmsIOCallback mExternalTextMessageCallback = null;
 	private ContactModifiedCallback mExternalPhonebookModifiedCallback = null;
 
-	public TextingAdapter(Activity a, SmsSentCallback ms, ContactModifiedCallback cm) {
+	public TextingAdapter(Activity a, SmsIOCallback ms, ContactModifiedCallback cm) {
 		super(TextingAdapter.class.getSimpleName());
 		mActivity = a;
 		
-		mExternalMessageSentCallback = ms;
+		mExternalTextMessageCallback = ms;
 		mExternalPhonebookModifiedCallback = cm;
 		
 		mSmsBridge = new SmsBridge(mActivity);		
@@ -75,16 +75,16 @@ public class TextingAdapter extends Logable implements TextingInterface, SmsSent
 	@Override
 	public void smsSentCallback(Context context, Intent intent) {
 		log("sms sent");
-		if (mExternalMessageSentCallback != null) {
-			mExternalMessageSentCallback.smsSentCallback(context, intent);
+		if (mExternalTextMessageCallback != null) {
+			mExternalTextMessageCallback.smsSentCallback(context, intent);
 		}
 	}
 
 	@Override
 	public void smsDeliveredCallback(Context context, Intent intent) {
 		log("sms delivered");
-		if (mExternalMessageSentCallback != null) {
-			mExternalMessageSentCallback.smsDeliveredCallback(context, intent);
+		if (mExternalTextMessageCallback != null) {
+			mExternalTextMessageCallback.smsDeliveredCallback(context, intent);
 		}
 
 	}
@@ -92,8 +92,8 @@ public class TextingAdapter extends Logable implements TextingInterface, SmsSent
 	@Override
 	public void smsReceivedCallback(Context context, Intent intent) {
 		log("sms received");
-		if (mExternalMessageSentCallback != null) {
-			mExternalMessageSentCallback.smsReceivedCallback(context, intent);
+		if (mExternalTextMessageCallback != null) {
+			mExternalTextMessageCallback.smsReceivedCallback(context, intent);
 		}
 	}
 
@@ -117,5 +117,10 @@ public class TextingAdapter extends Logable implements TextingInterface, SmsSent
 	@Override
 	public int updateTextMessage(TextMessage message) {
 		return mSmsBridge.updateTextMessage(message);
+	}
+	
+	@Override
+	public List<Integer> fetchThreadIds(final String address) {
+		return mSmsBridge.fetchThreadIds(address);
 	}
 }

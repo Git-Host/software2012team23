@@ -14,9 +14,9 @@ public class SmsSentBroadcastReceiver extends BroadcastReceiver {
 	public static final String EXTRA_BUNDLE_KEY_TEXTMESSAGE = "at.tugraz.ist.akm.sms.EXTRA_BUNDLE_TEXTMESSAGE_KEY";
 	public static final String EXTRA_BUNDLE_KEY_PART = "at.tugraz.ist.akm.sms.EXTRA_BUNDLE_PART_KEY";
 
-	private SmsSentCallback mCallback = null;
+	private SmsIOCallback mCallback = null;
 
-	public SmsSentBroadcastReceiver(SmsSentCallback s) {
+	public SmsSentBroadcastReceiver(SmsIOCallback s) {
 		mCallback = s;
 	}
 

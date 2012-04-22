@@ -59,13 +59,24 @@ public class PhonebookBridge implements ContactModifiedCallback {
 
 	public void stop() {
 		unregisterContactChangedObserver();
-		mContactContentCursor.close();
 	}
 
 	public List<Contact> fetchContacts(ContactFilter filter) {
 		return mContactReader.fetchContacts(filter);
 	}
 
+	public void setContactModifiedCallback(ContactModifiedCallback c) {
+		log("registered new [ContactModifiedCallback] callback");
+		mExternalContactModifiedCallback = c;
+	}
+
+	@Override
+	public void contactModifiedCallback() {
+		if (mExternalContactModifiedCallback != null) {
+			mExternalContactModifiedCallback.contactModifiedCallback();
+		}
+	}
+	
 	private Cursor getContactCursor() {
 		Uri select = ContactsContract.Contacts.CONTENT_URI;
 		String[] as = { ContactsContract.Contacts.DISPLAY_NAME,
@@ -85,18 +96,7 @@ public class PhonebookBridge implements ContactModifiedCallback {
 		mContactContentCursor
 				.unregisterContentObserver(mContactContentObserver);
 		mContactContentObserver = null;
-	}
-
-	public void setContactModifiedCallback(ContactModifiedCallback c) {
-		log("registered new [ContactModifiedCallback] callback");
-		mExternalContactModifiedCallback = c;
-	}
-
-	@Override
-	public void contactModifiedCallback() {
-		if (mExternalContactModifiedCallback != null) {
-			mExternalContactModifiedCallback.contactModifiedCallback();
-		}
+		mContactContentCursor.close();
 	}
 
 	private void log(final String m) {

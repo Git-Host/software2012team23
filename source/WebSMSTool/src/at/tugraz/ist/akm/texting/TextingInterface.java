@@ -13,6 +13,9 @@ public interface TextingInterface {
 	
 	public void stop();
 	
+	
+	
+	
 	public int sendTextMessage(TextMessage m);
 
 	public List<TextMessage> fetchTextMessages(TextMessageFilter filter);
@@ -20,5 +23,8 @@ public interface TextingInterface {
 	public int updateTextMessage(TextMessage message);
 	
 	public List<Contact> fetchContacts(ContactFilter filter);
+	
+	public List<Integer> fetchThreadIds(final String address);
+	
 
 }

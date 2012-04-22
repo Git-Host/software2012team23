@@ -5,10 +5,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import at.tugraz.ist.akm.content.SmsContent;
+import at.tugraz.ist.akm.content.query.ContactFilter;
 import at.tugraz.ist.akm.content.query.TextMessageFilter;
 import at.tugraz.ist.akm.phonebook.ContactModifiedCallback;
 import at.tugraz.ist.akm.sms.SmsSentBroadcastReceiver;
-import at.tugraz.ist.akm.sms.SmsSentCallback;
+import at.tugraz.ist.akm.sms.SmsIOCallback;
 import at.tugraz.ist.akm.sms.TextMessage;
 import at.tugraz.ist.akm.test.WebSMSToolActivityTestcase2;
 import at.tugraz.ist.akm.test.sms.SmsHelper;
@@ -16,7 +17,7 @@ import at.tugraz.ist.akm.texting.TextingAdapter;
 import at.tugraz.ist.akm.texting.TextingInterface;
 
 public class TextingAdapterTest extends WebSMSToolActivityTestcase2 implements
-		SmsSentCallback, ContactModifiedCallback {
+		SmsIOCallback, ContactModifiedCallback {
 
 	private Activity mActivity = null;
 	private int mCountSent = 0;
@@ -25,19 +26,6 @@ public class TextingAdapterTest extends WebSMSToolActivityTestcase2 implements
 
 	public TextingAdapterTest() {
 		super(TextingAdapterTest.class.getSimpleName());
-	}
-
-	public void testSendNoFail() throws Exception {
-		mIsTestcaseSendNoFail = true;
-		TextingInterface texting = new TextingAdapter(mActivity, this, this);
-		texting.start();
-		TextMessage m = new TextMessage();
-		m.setAddress("01234");
-		m.setBody("foobar foo baz");
-		texting.sendTextMessage(m);
-		Thread.sleep(1000);
-		assertTrue(mCountSent > 0);
-		texting.stop();
 	}
 
 	public void testSendLongText() throws Exception {
@@ -51,16 +39,29 @@ public class TextingAdapterTest extends WebSMSToolActivityTestcase2 implements
 		texting.stop();
 	}
 
-	public void testFetchContactsNoFail() {
+	public void testSendNoException() throws Exception {
+		mIsTestcaseSendNoFail = true;
 		TextingInterface texting = new TextingAdapter(mActivity, this, this);
 		texting.start();
-		// ContactFilter filter = new ContactFilter();
-		// filter.setId(1L);
-		// texting.fetchContacts(filter);
+		TextMessage m = new TextMessage();
+		m.setAddress("01234");
+		m.setBody("foobar foo baz");
+		texting.sendTextMessage(m);
+		Thread.sleep(1000);
+		assertTrue(mCountSent > 0);
 		texting.stop();
 	}
 
-	public void testFetchMessagesNoFail() {
+	public void testFetchContactsNoException() {
+		TextingInterface texting = new TextingAdapter(mActivity, this, this);
+		texting.start();
+		ContactFilter filter = new ContactFilter();
+		filter.setId(1L);
+		texting.fetchContacts(filter);
+		texting.stop();
+	}
+
+	public void testFetchMessagesNoException() {
 		TextingInterface texting = new TextingAdapter(mActivity, this, this);
 		texting.start();
 		TextMessageFilter filter = new TextMessageFilter();

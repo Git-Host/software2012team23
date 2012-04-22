@@ -13,14 +13,14 @@ import at.tugraz.ist.akm.content.SmsContent;
 import at.tugraz.ist.akm.content.query.TextMessageFilter;
 import at.tugraz.ist.akm.sms.SmsBoxReader;
 import at.tugraz.ist.akm.sms.SmsBoxWriter;
-import at.tugraz.ist.akm.sms.SmsSend;
+import at.tugraz.ist.akm.sms.SmsIOCallback;
+import at.tugraz.ist.akm.sms.SmsSender;
 import at.tugraz.ist.akm.sms.SmsSentBroadcastReceiver;
-import at.tugraz.ist.akm.sms.SmsSentCallback;
 import at.tugraz.ist.akm.sms.TextMessage;
 import at.tugraz.ist.akm.test.WebSMSToolActivityTestcase2;
 
 public class ManipulateSmsTest extends WebSMSToolActivityTestcase2 implements
-		SmsSentCallback {
+		SmsIOCallback {
 
 	public ManipulateSmsTest() {
 		super(ManipulateSmsTest.class.getSimpleName());
@@ -70,7 +70,7 @@ public class ManipulateSmsTest extends WebSMSToolActivityTestcase2 implements
 
 	public void testSendExtremLongSms() {
 		try {
-			SmsSend smsSink = new SmsSend(mActivity);
+			SmsSender smsSink = new SmsSender(mActivity);
 			SmsSentBroadcastReceiver sentReceiver = new SmsSentBroadcastReceiver(
 					this);
 			SmsSentBroadcastReceiver deliveredReceiver = new SmsSentBroadcastReceiver(
@@ -165,6 +165,21 @@ public class ManipulateSmsTest extends WebSMSToolActivityTestcase2 implements
 		}
 	}
 
+	public void testReadThreadIdNoException() {
+		try {
+			SmsBoxReader smsSource = new SmsBoxReader(mContentResolver);
+			String address = "1357";
+			List<Integer> threadIDs = smsSource.getThreadIds(address);
+
+			for (Integer id : threadIDs) {
+				log("fetched sms thread-ID: [" + id + "] for address [" + address + "]");
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			assertTrue(false);
+		}
+	}
+
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
@@ -184,12 +199,14 @@ public class ManipulateSmsTest extends WebSMSToolActivityTestcase2 implements
 			if (extrasBundle != null) {
 				Serializable serializedTextMessage = extrasBundle
 						.getSerializable(SmsSentBroadcastReceiver.EXTRA_BUNDLE_KEY_TEXTMESSAGE);
-				String part = (String) extrasBundle.getSerializable(SmsSentBroadcastReceiver.EXTRA_BUNDLE_KEY_PART);
+				String part = (String) extrasBundle
+						.getSerializable(SmsSentBroadcastReceiver.EXTRA_BUNDLE_KEY_PART);
 				if (serializedTextMessage != null) {
 					TextMessage sentMessage = (TextMessage) serializedTextMessage;
 					StringBuffer infos = new StringBuffer();
 					infos.append("SMS to [" + sentMessage.getAddress()
-							+ "] sent on [" + sentMessage.getDate() + "], part: ["+part+"], whole message was: ["
+							+ "] sent on [" + sentMessage.getDate()
+							+ "], part: [" + part + "], whole message was: ["
 							+ sentMessage.getBody() + "]");
 					log(infos.toString());
 				}
@@ -211,7 +228,7 @@ public class ManipulateSmsTest extends WebSMSToolActivityTestcase2 implements
 	@Override
 	public void smsReceivedCallback(Context context, Intent intent) {
 		log("sms received (action: " + intent.getAction() + " )");
-		
+
 	}
 
 }

@@ -36,10 +36,9 @@ public class ContactReader {
 	}
 
 	private Cursor queryContacts(ContactFilter filter) {
-		ContactQueryBuilder qBuild= new ContactQueryBuilder(filter);
+		ContactQueryBuilder qBuild = new ContactQueryBuilder(filter);
 		ContentProviderQueryParameters q = qBuild.getQueryArgs();
-		return mContentResolver.query(q.uri, q.as, q.where, q.like,
-				q.sortBy);
+		return mContentResolver.query(q.uri, q.as, q.where, q.like, q.sortBy);
 	}
 
 	private Contact parseToContact(Cursor person) {
@@ -89,7 +88,6 @@ public class ContactReader {
 										.getString(phoneNumbers
 												.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER)),
 								Integer.parseInt(phone)));
-
 			}
 			contact.setPhoneNumbers(phoneNumberList);
 			phoneNumbers.close();
@@ -143,7 +141,7 @@ public class ContactReader {
 				Uri person = ContentUris.withAppendedId(
 						ContactsContract.Contacts.CONTENT_URI,
 						Long.parseLong(contactId));
-				return Uri.withAppendedPath(person,
+				photoUri = Uri.withAppendedPath(person,
 						ContactsContract.Contacts.Photo.CONTENT_DIRECTORY);
 			}
 		}

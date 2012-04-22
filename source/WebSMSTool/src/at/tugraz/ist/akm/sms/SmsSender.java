@@ -10,7 +10,7 @@ import android.os.Bundle;
 import android.telephony.SmsManager;
 import at.tugraz.ist.akm.trace.Logable;
 
-public class SmsSend extends Logable {
+public class SmsSender extends Logable {
 
 	private Activity mActivity = null;
 	protected ContentResolver mContentResolver = null;
@@ -19,8 +19,8 @@ public class SmsSend extends Logable {
 	private int mSentRequestCode = 0;
 	private int mDeliveredRequestCode = 0;
 
-	public SmsSend(Activity a) {
-		super(SmsSend.class.getSimpleName());
+	public SmsSender(Activity a) {
+		super(SmsSender.class.getSimpleName());
 		mActivity = a;
 		mContentResolver = mActivity.getContentResolver();
 	}

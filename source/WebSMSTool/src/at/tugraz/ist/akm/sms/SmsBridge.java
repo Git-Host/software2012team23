@@ -13,24 +13,24 @@ import android.telephony.SmsManager;
 import at.tugraz.ist.akm.content.query.TextMessageFilter;
 import at.tugraz.ist.akm.trace.Logable;
 
-public class SmsBridge extends Logable implements SmsSentCallback {
+public class SmsBridge extends Logable implements SmsIOCallback {
 
 	private Activity mActivity = null;
 	private ContentResolver mContentResolver = null;
 
-	private SmsSend mSmsSink = null;
+	private SmsSender mSmsSink = null;
 	private SmsBoxReader mSmsBoxReader = null;
 	private SmsBoxWriter mSmsBoxWriter = null;
 
 	private SmsSentBroadcastReceiver mSmsSentNotifier = new SmsSentBroadcastReceiver(
 			this);
-	private SmsSentCallback mExternalSmsSentCallback = null;
+	private SmsIOCallback mExternalSmsSentCallback = null;
 
 	public SmsBridge(Activity a) {
 		super(SmsBridge.class.getSimpleName());
 		mActivity = a;
 		mContentResolver = mActivity.getContentResolver();
-		mSmsSink = new SmsSend(mActivity);
+		mSmsSink = new SmsSender(mActivity);
 		mSmsBoxReader = new SmsBoxReader(mContentResolver);
 		mSmsBoxWriter = new SmsBoxWriter(mContentResolver);
 	}
@@ -50,7 +50,11 @@ public class SmsBridge extends Logable implements SmsSentCallback {
 		return mSmsBoxWriter.updateTextMessage(message);
 	}
 
-	public void setSmsSentCallback(SmsSentCallback c) {
+	public List<Integer> fetchThreadIds(final String address) {
+		return mSmsBoxReader.getThreadIds(address);
+	}
+	
+	public void setSmsSentCallback(SmsIOCallback c) {
 		log("registered new [SmsSentCallback] callback");
 		mExternalSmsSentCallback = c;
 	}

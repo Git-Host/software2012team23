@@ -5,6 +5,7 @@ import java.util.List;
 
 import android.content.ContentResolver;
 import android.database.Cursor;
+import android.net.Uri;
 import at.tugraz.ist.akm.content.SmsContent;
 import at.tugraz.ist.akm.content.query.ContentProviderQueryParameters;
 import at.tugraz.ist.akm.content.query.TextMessageFilter;
@@ -20,8 +21,30 @@ public class SmsBoxReader {
 		mContentResolver = c;
 	}
 
-	public List<TextMessage> getTextMessages(TextMessageFilter filter) throws NullPointerException {
+	public List<TextMessage> getTextMessages(TextMessageFilter filter)
+			throws NullPointerException {
 		return getSms(filter);
+	}
+
+	public List<Integer> getThreadIds(final String address) {
+		Uri select = SmsContent.ContentUri.BASE_URI;
+		String[] as = { SmsContent.Content.THREAD_ID };
+		String where = SmsContent.Content.ADDRESS
+				+ " = ? ) GROUP BY ( thread_id ";
+		String[] like = { address };
+		String sortBy = SmsContent.Content.DATE + " ASC";
+		Cursor threadIDs = mContentResolver.query(select, as, where, like,
+				sortBy);
+
+		List<Integer> threadIdList = new ArrayList<Integer>();
+		if (threadIDs != null) {
+			while (threadIDs.moveToNext()) {
+				threadIdList.add(Integer.parseInt(threadIDs.getString(threadIDs
+						.getColumnIndex(SmsContent.Content.THREAD_ID))));
+			}
+		}
+
+		return threadIdList;
 	}
 
 	/**
@@ -32,24 +55,26 @@ public class SmsBoxReader {
 	 * 
 	 * @return list of text messages
 	 */
-	private List<TextMessage> getSms(TextMessageFilter filter) throws NullPointerException {
+	private List<TextMessage> getSms(TextMessageFilter filter)
+			throws NullPointerException {
 		List<TextMessage> messages = new ArrayList<TextMessage>();
 		TextMessageQueryBuilder qBuild = new TextMessageQueryBuilder(filter);
 		ContentProviderQueryParameters qp = qBuild.getQueryArgs();
 
-		if ( qp.uri == null ) {
+		if (qp.uri == null) {
 			throw new NullPointerException("<null> is no valid URI");
 		}
-		Cursor inbox = mContentResolver.query(qp.uri, qp.as,
-				qp.where, qp.like, qp.sortBy);
+		Cursor inbox = mContentResolver.query(qp.uri, qp.as, qp.where, qp.like,
+				qp.sortBy);
 
 		if (inbox != null) {
 			while (inbox.moveToNext()) {
 				messages.add(parseToTextMessge(inbox));
 			}
 		}
-		
-		log("read [" + messages.size() + "] messages from [" + filter.getBox() + "]");
+
+		log("read [" + messages.size() + "] messages from [" + filter.getBox()
+				+ "]");
 		return messages;
 	}
 
@@ -71,10 +96,11 @@ public class SmsBoxReader {
 		m.setStatus(sms.getString(sms.getColumnIndex(SmsContent.Content.STATUS)));
 		m.setThreadId(sms.getString(sms
 				.getColumnIndex(SmsContent.Content.THREAD_ID)));
-		m.setType(sms.getString(sms.getColumnIndex(SmsContent.Content.MESSAGE_TYPE)));
+		m.setType(sms.getString(sms
+				.getColumnIndex(SmsContent.Content.MESSAGE_TYPE)));
 		return m;
 	}
-	
+
 	private void log(final String m) {
 		mLog.log(m);
 	}
