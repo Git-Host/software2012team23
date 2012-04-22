@@ -6,17 +6,17 @@ import android.test.ActivityInstrumentationTestCase2;
 import at.tugraz.ist.akm.trace.Logable;
 
 public class WebSMSToolActivityTestcase2 extends
-ActivityInstrumentationTestCase2<MainActivityTest> {
-	
+		ActivityInstrumentationTestCase2<MainActivityTest> {
+
 	protected Activity mActivity = null;
 	protected ContentResolver mContentResolver = null;
 	private Logable mLog = null;
-	
+
 	public WebSMSToolActivityTestcase2(final String logTag) {
-		 super(MainActivityTest.class);
+		super(MainActivityTest.class);
 		mLog = new Logable(logTag);
 	}
-	
+
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
@@ -25,7 +25,7 @@ ActivityInstrumentationTestCase2<MainActivityTest> {
 		mContentResolver = mActivity.getContentResolver();
 		assertTrue(mContentResolver != null);
 	}
-	
+
 	@Override
 	protected void tearDown() throws Exception {
 		log(getName() + ".tearDown()");

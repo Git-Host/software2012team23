@@ -15,7 +15,7 @@ public class Logable {
 	}
 
 	public void log(final String message) {
-		d(message);
+		v(message);
 	}
 	
 	public Logable(String tag) {
