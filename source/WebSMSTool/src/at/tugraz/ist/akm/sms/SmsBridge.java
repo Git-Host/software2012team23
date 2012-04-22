@@ -53,7 +53,7 @@ public class SmsBridge extends Logable implements SmsIOCallback {
 	public List<Integer> fetchThreadIds(final String address) {
 		return mSmsBoxReader.getThreadIds(address);
 	}
-	
+
 	public void setSmsSentCallback(SmsIOCallback c) {
 		log("registered new [SmsSentCallback] callback");
 		mExternalSmsSentCallback = c;

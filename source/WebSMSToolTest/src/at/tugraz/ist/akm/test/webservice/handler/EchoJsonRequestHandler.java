@@ -18,7 +18,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.content.Context;
-import android.util.Log;
 import at.tugraz.ist.akm.io.xml.XmlNode;
 import at.tugraz.ist.akm.webservice.handler.JsonAPIRequestHandler;
 
@@ -32,15 +31,15 @@ public class EchoJsonRequestHandler extends JsonAPIRequestHandler {
     @Override
     public void handle(HttpRequest httpRequest, HttpResponse httpResponse, HttpContext httpContext)
             throws HttpException, IOException {
-        Log.d(getLogTag(), "called");
+        LOG.d("called");
         if (httpRequest.getRequestLine().getMethod().equals("POST")) {
             BasicHttpEntityEnclosingRequest post = (BasicHttpEntityEnclosingRequest) httpRequest;
             final JSONObject json;
             try {
                 json = new JSONObject(EntityUtils.toString(post.getEntity()));
-                
+
                 httpResponse.setEntity(new EntityTemplate(new ContentProducer() {
-                    
+
                     @Override
                     public void writeTo(OutputStream arg0) throws IOException {
                         OutputStreamWriter writer = new OutputStreamWriter(arg0);

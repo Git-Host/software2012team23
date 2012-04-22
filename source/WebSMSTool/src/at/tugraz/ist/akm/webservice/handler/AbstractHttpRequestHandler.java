@@ -10,10 +10,11 @@ import org.apache.http.protocol.HttpRequestHandler;
 import org.apache.http.protocol.HttpRequestHandlerRegistry;
 
 import android.content.Context;
-import android.util.Log;
 import at.tugraz.ist.akm.io.xml.XmlNode;
+import at.tugraz.ist.akm.trace.Logable;
 
 public abstract class AbstractHttpRequestHandler implements HttpRequestHandler {
+    protected final Logable LOG = new Logable(getClass().getSimpleName());
     protected final Context context;
     protected final XmlNode config;
     protected final HttpRequestHandlerRegistry registry;
@@ -27,16 +28,11 @@ public abstract class AbstractHttpRequestHandler implements HttpRequestHandler {
 
     protected void register(String uri) {
         if (registry != null) {
-            Log.i(this.getClass().getSimpleName(), "register for uri '" + uri + "'");
+            LOG.i("register for uri '" + uri + "'");
             registry.register(uri, this);
         } else {
-            Log.w(this.getClass().getSimpleName(), "cannot register uri '" + uri
-                    + "' => no registry provided!");
+            LOG.w("cannot register uri '" + uri + "' => no registry provided!");
         }
-    }
-
-    protected String getLogTag() {
-        return this.getClass().getSimpleName();
     }
 
     @Override
