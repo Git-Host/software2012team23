@@ -1,6 +1,18 @@
 package at.tugraz.ist.akm.test.webservice.server;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.security.Key;
+import java.security.KeyPair;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.PrivateKey;
+import java.security.PublicKey;
+import java.security.UnrecoverableKeyException;
+import java.security.cert.Certificate;
+import java.security.cert.CertificateException;
 
 import junit.framework.Assert;
 
@@ -11,8 +23,10 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONObject;
 
+import android.content.Context;
 import android.test.InstrumentationTestCase;
 import android.util.Log;
+import at.tugraz.ist.akm.R;
 import at.tugraz.ist.akm.io.FileReader;
 import at.tugraz.ist.akm.webservice.server.SimpleWebServer;
 
@@ -80,7 +94,8 @@ public class SimpleWebServerTest extends InstrumentationTestCase {
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             response.getEntity().writeTo(baos);
 
-            Assert.assertEquals(requestJson.toString(), new String(baos.toByteArray()));
+            Assert.assertEquals(requestJson.toString(),
+                    new String(baos.toByteArray()));
         } catch (Exception e) {
             Assert.fail(e.getMessage());
         }
@@ -100,8 +115,8 @@ public class SimpleWebServerTest extends InstrumentationTestCase {
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             response.getEntity().writeTo(baos);
 
-            Assert.assertEquals(
-                    new FileReader(getInstrumentation().getContext(), "web/index.html").read(),
+            Assert.assertEquals(new FileReader(getInstrumentation()
+                    .getContext(), "web/index.html").read(),
                     new String(baos.toByteArray()));
 
         } catch (Exception e) {
@@ -110,4 +125,41 @@ public class SimpleWebServerTest extends InstrumentationTestCase {
         stopServer();
     }
 
+    public void testKeyStore() {
+        try {
+            KeyStore keystore = KeyStore.getInstance("BKS");
+            
+            Context context = this.getInstrumentation().getTargetContext().getApplicationContext();
+            InputStream is = context.getResources().openRawResource(R.raw.websms);
+            
+            keystore.load(is, "foobar64".toCharArray());
+    
+                        
+            String alias = "websms";
+    
+            Key key = keystore.getKey(alias, "foobar64".toCharArray());
+            if (key instanceof PrivateKey) {
+                // Get certificate of public key
+                Certificate cert = keystore.getCertificate(alias);
+    
+                // Get public key
+                //PublicKey publicKey = cert.getPublicKey();
+    
+                // Return a key pair
+                //new KeyPair(publicKey, (PrivateKey) key);
+            } else {
+                Assert.fail("Private key not found!");
+            }
+        } catch (KeyStoreException e) {
+            Assert.fail(e.getMessage());
+        } catch (NoSuchAlgorithmException e) {
+            Assert.fail(e.getMessage());
+        } catch (CertificateException e) {
+            Assert.fail(e.getMessage());
+        } catch (IOException e) {
+            Assert.fail(e.getMessage());
+        } catch (UnrecoverableKeyException e) {
+            Assert.fail(e.getMessage());
+        }
+    }
 }

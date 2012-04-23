@@ -8,8 +8,8 @@ public class MainActivityTest extends WebSMSToolTestInstrumentation {
 
 	public MainActivityTest() {
 		super(MainActivityTest.class.getSimpleName());
-		mSolo = new Solo(getInstrumentation(), getActivity());
-		getActivity().setContentView(R.layout.main);
+//		mSolo = new Solo(getInstrumentation(), getActivity());
+//		getActivity().setContentView(R.layout.main);
 	}
 
 	protected void test() {
