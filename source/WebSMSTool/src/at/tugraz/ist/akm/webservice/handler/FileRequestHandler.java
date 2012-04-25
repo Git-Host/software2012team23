@@ -24,18 +24,18 @@ public class FileRequestHandler extends AbstractHttpRequestHandler {
     private HashMap<String, FileInfo> uri2FileInfo = new HashMap<String, FileRequestHandler.FileInfo>();
 
     private static class FileInfo {
-        final String contentType;
-        final String file;
+        final String mContentType;
+        final String mFile;
 
         public FileInfo(final String file, final String contentType) {
-            this.file = file;
-            this.contentType = contentType;
+            this.mFile = file;
+            this.mContentType = contentType;
         }
 
         @Override
         public String toString() {
-            return new StringBuffer().append("dataFile '").append(file).append("' contentType '")
-                    .append(contentType).append("'").toString();
+            return new StringBuffer().append("dataFile '").append(mFile).append("' contentType '")
+                    .append(mContentType).append("'").toString();
         }
     }
 
@@ -90,7 +90,7 @@ public class FileRequestHandler extends AbstractHttpRequestHandler {
             return;
         }
 
-        final String data = new FileReader(context, fileInfo.file).read();
+        final String data = new FileReader(mContext, fileInfo.mFile).read();
 
         HttpEntity entity = new EntityTemplate(new ContentProducer() {
 
@@ -103,7 +103,7 @@ public class FileRequestHandler extends AbstractHttpRequestHandler {
             }
         });
 
-        httpResponse.setHeader("Content-Type", fileInfo.contentType);
+        httpResponse.setHeader("Content-Type", fileInfo.mContentType);
         httpResponse.setEntity(entity);
     }
 }

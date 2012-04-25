@@ -15,21 +15,21 @@ import at.tugraz.ist.akm.trace.Logable;
 
 public abstract class AbstractHttpRequestHandler implements HttpRequestHandler {
     protected final Logable LOG = new Logable(getClass().getSimpleName());
-    protected final Context context;
-    protected final XmlNode config;
-    protected final HttpRequestHandlerRegistry registry;
+    protected final Context mContext;
+    protected final XmlNode mConfig;
+    protected final HttpRequestHandlerRegistry mRegistry;
 
     public AbstractHttpRequestHandler(final Context context, final XmlNode config,
             final HttpRequestHandlerRegistry registry) {
-        this.context = context;
-        this.config = config;
-        this.registry = registry;
+        this.mContext = context;
+        this.mConfig = config;
+        this.mRegistry = registry;
     }
 
     protected void register(String uri) {
-        if (registry != null) {
+        if (mRegistry != null) {
             LOG.i("register for uri '" + uri + "'");
-            registry.register(uri, this);
+            mRegistry.register(uri, this);
         } else {
             LOG.w("cannot register uri '" + uri + "' => no registry provided!");
         }

@@ -8,12 +8,12 @@ import java.io.InputStreamReader;
 import android.content.Context;
 
 public class FileReader {
-    private final Context context;
-    private final String filePath;
+    private final Context mContext;
+    private final String mFilePath;
 
     public FileReader(final Context context, final String filePath) {
-        this.context = context;
-        this.filePath = filePath;
+        this.mContext = context;
+        this.mFilePath = filePath;
     }
 
     public String read() {
@@ -23,7 +23,7 @@ public class FileReader {
 
         StringBuilder builder = new StringBuilder();
         try {
-            is = context.getAssets().open(filePath);
+            is = mContext.getAssets().open(mFilePath);
             isr = new InputStreamReader(is);
             reader = new BufferedReader(isr);
 
