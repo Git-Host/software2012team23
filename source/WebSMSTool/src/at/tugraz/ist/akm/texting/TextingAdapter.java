@@ -13,6 +13,9 @@ import at.tugraz.ist.akm.phonebook.PhonebookBridge;
 import at.tugraz.ist.akm.sms.SmsBridge;
 import at.tugraz.ist.akm.sms.SmsIOCallback;
 import at.tugraz.ist.akm.sms.TextMessage;
+import at.tugraz.ist.akm.texting.reports.VolatileIncomingReport;
+import at.tugraz.ist.akm.texting.reports.VolatileOutgoingReport;
+import at.tugraz.ist.akm.texting.reports.VolatilePhonebookReport;
 import at.tugraz.ist.akm.trace.Logable;
 
 public class TextingAdapter extends Logable implements TextingInterface,
@@ -25,8 +28,10 @@ public class TextingAdapter extends Logable implements TextingInterface,
 
 	private SmsIOCallback mExternalTextMessageCallback = null;
 	private ContactModifiedCallback mExternalPhonebookModifiedCallback = null;
-	
-	private VolatileOutgoingReport mOutgoingStatistic = new VolatileOutgoingReport();
+
+	private VolatileOutgoingReport mOutgoingStatistics = new VolatileOutgoingReport();
+	private VolatileIncomingReport mIncomingStatistics = new VolatileIncomingReport();
+	private VolatilePhonebookReport mPhonebookStatistics = new VolatilePhonebookReport();
 
 	public TextingAdapter(Activity a, SmsIOCallback ms,
 			ContactModifiedCallback cm) {
@@ -63,7 +68,8 @@ public class TextingAdapter extends Logable implements TextingInterface,
 	 */
 	@Override
 	public int sendTextMessage(TextMessage m) {
-		mOutgoingStatistic.numPending++;
+		mOutgoingStatistics
+				.setNumPending(mOutgoingStatistics.getNumPending() + 1);
 		return mSmsBridge.sendTextMessage(m);
 	}
 
@@ -87,19 +93,21 @@ public class TextingAdapter extends Logable implements TextingInterface,
 	@Override
 	public void smsSentCallback(Context context, Intent intent) {
 		log("sms sent successfully");
+		mOutgoingStatistics
+				.setNumPending(mOutgoingStatistics.getNumPending() - 1);
 		if (mExternalTextMessageCallback != null) {
 			mExternalTextMessageCallback.smsSentCallback(context, intent);
 		}
-		mOutgoingStatistic.numPending--;
 	}
-	
+
 	@Override
 	public void smsSentErrorCallback(Context context, Intent intent) {
 		log("failed to send sms");
+		mOutgoingStatistics.setNumErroneous(mOutgoingStatistics
+				.getNumErroneous() + 1);
 		if (mExternalTextMessageCallback != null) {
 			mExternalTextMessageCallback.smsSentErrorCallback(context, intent);
 		}
-		mOutgoingStatistic.numErroneous++;
 	}
 
 	@Override
@@ -114,6 +122,8 @@ public class TextingAdapter extends Logable implements TextingInterface,
 	@Override
 	public void smsReceivedCallback(Context context, Intent intent) {
 		log("sms received");
+		mIncomingStatistics
+				.setNumReceived(mIncomingStatistics.getNumReceived() + 1);
 		if (mExternalTextMessageCallback != null) {
 			mExternalTextMessageCallback.smsReceivedCallback(context, intent);
 		}
@@ -122,6 +132,8 @@ public class TextingAdapter extends Logable implements TextingInterface,
 	@Override
 	public void contactModifiedCallback() {
 		log("contact modified");
+		mPhonebookStatistics
+				.setNumChanges(mPhonebookStatistics.getNumChanges() + 1);
 		if (mExternalPhonebookModifiedCallback != null) {
 			mExternalPhonebookModifiedCallback.contactModifiedCallback();
 		}
@@ -132,19 +144,50 @@ public class TextingAdapter extends Logable implements TextingInterface,
 		return mSmsBridge.updateTextMessage(message);
 	}
 
+	/**
+	 * return all tread IDs for the specified address
+	 * 
+	 * @param address
+	 *            the phone number
+	 */
 	@Override
 	public List<Integer> fetchThreadIds(final String address) {
 		return mSmsBridge.fetchThreadIds(address);
 	}
 
 	/**
+	 * This method call causes the internally statistics to be reset to start
+	 * values.
+	 * 
 	 * @return A brief information about the outgoing state.
 	 */
 	@Override
 	public VolatileOutgoingReport getOutgoingReport() {
-		return new VolatileOutgoingReport(mOutgoingStatistic);
+		return new VolatileOutgoingReport(mOutgoingStatistics);
 	}
-	
+
+	/**
+	 * This method call causes the internally statistics to be reset to start
+	 * values.
+	 * 
+	 * @return A brief information about the incoming state.
+	 */
+	@Override
+	public VolatileIncomingReport getIncomingReport() {
+		return new VolatileIncomingReport(mIncomingStatistics);
+	}
+
+	/**
+	 * This method call causes the internally statistics to be reset to start
+	 * values.
+	 * 
+	 * @return A brief information about the contact (changes, updated) state.
+	 */
+	@Override
+	public VolatilePhonebookReport getPhonebookReport() {
+		return new VolatilePhonebookReport(mPhonebookStatistics);
+	}
+
 	private void registerSmsCallbacks() {
 		mSmsBridge.setSmsSentCallback(this);
 	}
