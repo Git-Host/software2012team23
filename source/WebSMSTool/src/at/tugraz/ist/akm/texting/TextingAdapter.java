@@ -156,8 +156,8 @@ public class TextingAdapter extends Logable implements TextingInterface,
 	}
 
 	/**
-	 * This method call causes the internally statistics to be reset to start
-	 * values.
+	 * This method don't touches anything internally but gives you a new instance
+	 * you can do anything you want with.
 	 * 
 	 * @return A brief information about the outgoing state.
 	 */
@@ -167,8 +167,8 @@ public class TextingAdapter extends Logable implements TextingInterface,
 	}
 
 	/**
-	 * This method call causes the internally statistics to be reset to start
-	 * values.
+	 * This method don't touches anything internally but gives you a new instance
+	 * you can do anything you want with.
 	 * 
 	 * @return A brief information about the incoming state.
 	 */
@@ -178,8 +178,8 @@ public class TextingAdapter extends Logable implements TextingInterface,
 	}
 
 	/**
-	 * This method call causes the internally statistics to be reset to start
-	 * values.
+	 * This method don't touches anything internally but gives you a new instance
+	 * you can do anything you want with.
 	 * 
 	 * @return A brief information about the contact (changes, updated) state.
 	 */
