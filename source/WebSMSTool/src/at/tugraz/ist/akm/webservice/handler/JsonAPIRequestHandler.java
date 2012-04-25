@@ -15,11 +15,16 @@ import org.apache.http.message.BasicHttpEntityEnclosingRequest;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpRequestHandlerRegistry;
 import org.apache.http.util.EntityUtils;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.app.Activity;
 import android.content.Context;
+import at.tugraz.ist.akm.content.query.ContactFilter;
 import at.tugraz.ist.akm.io.xml.XmlNode;
+import at.tugraz.ist.akm.phonebook.Contact;
+import at.tugraz.ist.akm.texting.TextingAdapter;
 import at.tugraz.ist.akm.webservice.WebServerConfig;
 import at.tugraz.ist.akm.webservice.protocol.json.JsonFactory;
 
@@ -29,6 +34,8 @@ public class JsonAPIRequestHandler extends AbstractHttpRequestHandler {
 
     private JsonFactory jsonFactory = new JsonFactory();
 
+    private TextingAdapter mTextingAdapter;
+    
     public JsonAPIRequestHandler(final Context context, final XmlNode config,
             final HttpRequestHandlerRegistry registry) {
         super(context, config, registry);
@@ -38,6 +45,8 @@ public class JsonAPIRequestHandler extends AbstractHttpRequestHandler {
         } else {
             register(uri);
         }
+        
+        mTextingAdapter = new TextingAdapter((Activity)context, null, null);
     }
 
     @Override
@@ -51,7 +60,10 @@ public class JsonAPIRequestHandler extends AbstractHttpRequestHandler {
                 json = new JSONObject(EntityUtils.toString(post.getEntity()));
                 String method = json.getString(JSON_METHOD);
                 if (method != null && method.length() > 0) {
-                    JSONObject jsonParams = json.getJSONObject(JSON_PARAMS);
+                	JSONArray jsonParams = null;
+                	if(json.isNull(JSON_PARAMS) == false){
+                		jsonParams = json.getJSONArray(JSON_PARAMS);
+                	}
                     JSONObject jsonResponse = processMethod(method, jsonParams);
                     sendResponse(httpResponse, jsonResponse);
                 } else {
@@ -80,19 +92,54 @@ public class JsonAPIRequestHandler extends AbstractHttpRequestHandler {
                 WebServerConfig.HTTP.VALUE_CONTENT_TYPE_JSON);
     }
 
-    private JSONObject processMethod(String method, JSONObject jsonParams) {
+    private JSONObject processMethod(String method, JSONArray jsonParams) {
         // TODO: call any API class to either retrieved the desired data or
         // executed an action
-
-        Object obj = new Object(); // this a place holder for any data retrieved
-                                   // from the API.
-
-        JSONObject resultObject = null;
-        if (obj instanceof List<?>) {
-            resultObject = jsonFactory.createJsonObjectFromList((List<?>) obj);
+    	   	
+        JSONObject resultObject = new JSONObject();
+    	
+        if(jsonParams != null){
+        	LOG.i("No parameter for request "+method);
         } else {
-            resultObject = jsonFactory.createJsonObject(obj);
+        	LOG.i("Given parameters: "+jsonParams.toString());
         }
+        
+        
+    	if(method == "get_contacts"){
+    		LOG.i("Handle get_contacts request.");
+    		ContactFilter allFilter = new ContactFilter();
+    		List<Contact> contacts = mTextingAdapter.fetchContacts(allFilter);
+    		
+            JSONArray contactList = new JSONArray();
+    		for(int i = 0; i < contacts.size(); i++){
+    			contactList.put(jsonFactory.createJsonObject(contacts.get(i)));
+    		}
+            try {
+        		resultObject.put("state", "success");
+				resultObject.put("contacts", contactList);
+			} catch (JSONException e) {
+                LOG.e("Could not append contact list to json object.");
+				e.printStackTrace();
+			}
+    	} else {
+            LOG.w("No method found for given request method: "+method);
+    		try {
+				resultObject.put("state", "error");
+			} catch (JSONException e) {
+                LOG.e("Could not create default error object.");				
+				e.printStackTrace();
+			}
+    	}
+    	
+//        Object obj = new Object(); // this a place holder for any data retrieved
+//                                   // from the API.
+//
+//
+//        if (obj instanceof List<?>) {
+//            resultObject = jsonFactory.createJsonObjectFromList((List<?>) obj);
+//        } else {
+//            resultObject = jsonFactory.createJsonObject(obj);
+//        }
         return resultObject;
     }
 }
