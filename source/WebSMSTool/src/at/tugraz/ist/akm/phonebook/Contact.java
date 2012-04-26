@@ -33,6 +33,7 @@ public class Contact {
 	private String mFamilyName = null;
 	private String mDisplayName = null;
 	private Uri mPhotoUri = null;
+	private byte[] mPhotoBytes = null;
 	private List<Number> mPhoneNumbers = null;
 	private boolean mStarred = false;
 
@@ -85,6 +86,14 @@ public class Contact {
 
 	public void setPhotoUri(Uri photoUri) {
 		this.mPhotoUri = photoUri;
+	}
+
+	public byte[] getPhotoBytes() {
+		return mPhotoBytes;
+	}
+
+	public void setPhotoBytes(byte[] photo) {
+		mPhotoBytes = photo;
 	}
 
 	public List<Number> getPhoneNumbers() {

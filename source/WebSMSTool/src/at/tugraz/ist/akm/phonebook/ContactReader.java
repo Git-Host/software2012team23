@@ -1,5 +1,8 @@
 package at.tugraz.ist.akm.phonebook;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
@@ -54,7 +57,7 @@ public class ContactReader {
 		contact.setDisplayName(displayName);
 		contact.setId(Integer.parseInt(contactId));
 		contact.setStarred(starred);
-		contact.setPhotoUri(getPhotoUri(contactId));
+		collectPhotoData(contact, contactId);
 		collectPhoneNumberDetails(contact, contactId);
 		collectStructuredNameDetails(contact, contactId);
 
@@ -125,26 +128,55 @@ public class ContactReader {
 
 	}
 
-	private Uri getPhotoUri(String contactId) {
+	private void collectPhotoData(Contact contact, String contactId) {
 		Uri select = ContactsContract.Data.CONTENT_URI;
 		String[] as = { ContactsContract.Data.CONTACT_ID };
 		String where = ContactsContract.Data.CONTACT_ID + "= ? " + " AND "
 				+ ContactsContract.Data.MIMETYPE + " = ?";
-
 		String[] like = { contactId,
 				ContactsContract.CommonDataKinds.Photo.CONTENT_ITEM_TYPE };
 		Cursor cur = mContentResolver.query(select, as, where, like, null);
 
+		Uri person = ContentUris.withAppendedId(
+				ContactsContract.Contacts.CONTENT_URI,
+				Long.parseLong(contactId));
+
+		// get photo Uri
 		Uri photoUri = null;
 		if (cur != null) {
 			if (cur.moveToFirst()) {
-				Uri person = ContentUris.withAppendedId(
-						ContactsContract.Contacts.CONTENT_URI,
-						Long.parseLong(contactId));
+
 				photoUri = Uri.withAppendedPath(person,
 						ContactsContract.Contacts.Photo.CONTENT_DIRECTORY);
 			}
 		}
-		return photoUri;
+		contact.setPhotoUri(photoUri);
+		contact.setPhotoBytes(getPhotoBytes(person));
+	}
+
+	/**
+	 * @param person
+	 *            the contact uri
+	 * @return byte array of contacts picture
+	 */
+	private byte[] getPhotoBytes(Uri person) {
+		byte[] bytes = null;
+
+		InputStream iStream = ContactsContract.Contacts
+				.openContactPhotoInputStream(mContentResolver, person);
+		if (iStream != null) {
+			try {
+				ByteArrayOutputStream oStream = new ByteArrayOutputStream();
+				int c = 0;
+				while ((c = iStream.read()) != -1) {
+					oStream.write(c);
+				}
+				bytes = oStream.toByteArray();
+			} catch (IOException e) {
+				// If there is no picture I really don't care!
+			}
+		}
+
+		return bytes;
 	}
 }
