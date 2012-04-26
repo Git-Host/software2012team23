@@ -6,9 +6,9 @@ import at.tugraz.ist.akm.content.SmsContent;
 import at.tugraz.ist.akm.content.query.TextMessageFilter;
 import at.tugraz.ist.akm.sms.SmsBridge;
 import at.tugraz.ist.akm.sms.TextMessage;
-import at.tugraz.ist.akm.test.WebSMSToolActivityTestcase2;
+import at.tugraz.ist.akm.test.WebSMSToolActivityTestcase;
 
-public class SmsBridgeTest extends WebSMSToolActivityTestcase2 {
+public class SmsBridgeTest extends WebSMSToolActivityTestcase {
 
 	public SmsBridgeTest() {
 		super(SmsBridgeTest.class.getSimpleName());
@@ -17,7 +17,7 @@ public class SmsBridgeTest extends WebSMSToolActivityTestcase2 {
 	public void testSmsBridgeSendSms() {
 
 		try {
-			SmsBridge s = new SmsBridge(mActivity);
+			SmsBridge s = new SmsBridge(mContext);
 			s.start();
 			s.sendTextMessage(SmsHelper.getDummyTextMessage());
 			Thread.sleep(1000);
@@ -30,7 +30,7 @@ public class SmsBridgeTest extends WebSMSToolActivityTestcase2 {
 
 	public void testSmsBridgeFetchInbox() {
 		try {
-			SmsBridge s = new SmsBridge(mActivity);
+			SmsBridge s = new SmsBridge(mContext);
 			s.start();
 			TextMessageFilter filter = new TextMessageFilter();
 			filter.setBox(SmsContent.ContentUri.INBOX_URI);
@@ -47,7 +47,7 @@ public class SmsBridgeTest extends WebSMSToolActivityTestcase2 {
 
 	public void testSmsBridgeFetchOutbox() {
 		try {
-			SmsBridge s = new SmsBridge(mActivity);
+			SmsBridge s = new SmsBridge(mContext);
 			s.start();
 			TextMessageFilter filter = new TextMessageFilter();
 			filter.setBox(SmsContent.ContentUri.OUTBOX_URI);

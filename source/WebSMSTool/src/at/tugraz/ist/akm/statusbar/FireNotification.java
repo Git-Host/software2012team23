@@ -1,6 +1,5 @@
 package at.tugraz.ist.akm.statusbar;
 
-import android.app.Activity;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -17,13 +16,11 @@ public class FireNotification {
 	}
 
 	private static int NOTIFICATION_ID = 1;
-	private Activity mActivity = null;
 	private Context mContext = null;
 	private NotificationManager mNotificationManager = null;
 
-	public FireNotification(Activity a) {
-		mActivity = a;
-		mContext = mActivity.getBaseContext();
+	public FireNotification(Context c) {
+		mContext = c;
 		String ns = Context.NOTIFICATION_SERVICE;
 		mNotificationManager = (NotificationManager) mContext
 				.getSystemService(ns);
@@ -35,7 +32,6 @@ public class FireNotification {
 		long when = System.currentTimeMillis();
 		Notification notification = new Notification(icon, tickerText, when);
 
-
 		Intent notificationIntent = new Intent(mContext, MainActivity.class);
 		PendingIntent contentIntent = PendingIntent.getActivity(mContext, 0,
 				notificationIntent, 0);
@@ -45,7 +41,7 @@ public class FireNotification {
 		notification.flags = Notification.FLAG_NO_CLEAR;
 		mNotificationManager.notify(NOTIFICATION_ID, notification);
 	}
-	
+
 	public void cancelAll() {
 		mNotificationManager.cancelAll();
 	}

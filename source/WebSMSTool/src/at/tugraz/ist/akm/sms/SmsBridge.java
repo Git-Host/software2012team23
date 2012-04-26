@@ -15,7 +15,7 @@ import at.tugraz.ist.akm.trace.Logable;
 
 public class SmsBridge extends Logable implements SmsIOCallback {
 
-	private Activity mActivity = null;
+	private Context mContext = null;
 	private ContentResolver mContentResolver = null;
 
 	private SmsSender mSmsSink = null;
@@ -26,11 +26,11 @@ public class SmsBridge extends Logable implements SmsIOCallback {
 			this);
 	private SmsIOCallback mExternalSmsSentCallback = null;
 
-	public SmsBridge(Activity a) {
+	public SmsBridge(Context c) {
 		super(SmsBridge.class.getSimpleName());
-		mActivity = a;
-		mContentResolver = mActivity.getContentResolver();
-		mSmsSink = new SmsSender(mActivity);
+		mContext = c;
+		mContentResolver = mContext.getContentResolver();
+		mSmsSink = new SmsSender(mContext);
 		mSmsBoxReader = new SmsBoxReader(mContentResolver);
 		mSmsBoxWriter = new SmsBoxWriter(mContentResolver);
 	}
@@ -66,7 +66,7 @@ public class SmsBridge extends Logable implements SmsIOCallback {
 	}
 
 	public void stop() {
-		mActivity.unregisterReceiver(mSmsSentNotifier);
+		mContext.unregisterReceiver(mSmsSentNotifier);
 		mSmsSentNotifier = null;
 	}
 
@@ -134,19 +134,19 @@ public class SmsBridge extends Logable implements SmsIOCallback {
 
 	private void registerSmsSentNotification() {
 		log("registered new IntentFilter [ACTION_SMS_SENT]");
-		mActivity.registerReceiver(mSmsSentNotifier, new IntentFilter(
+		mContext.registerReceiver(mSmsSentNotifier, new IntentFilter(
 				SmsSentBroadcastReceiver.ACTION_SMS_SENT));
 	}
 
 	private void registerSmsDeliveredNotification() {
 		log("registered new IntentFilter [ACTION_SMS_DELIVERED]");
-		mActivity.registerReceiver(mSmsSentNotifier, new IntentFilter(
+		mContext.registerReceiver(mSmsSentNotifier, new IntentFilter(
 				SmsSentBroadcastReceiver.ACTION_SMS_DELIVERED));
 	}
 
 	private void registerSmsReceivedNotification() {
 		log("registered new IntentFilter [ACTION_SMS_SENT]");
-		mActivity.registerReceiver(mSmsSentNotifier, new IntentFilter(
+		mContext.registerReceiver(mSmsSentNotifier, new IntentFilter(
 				SmsSentBroadcastReceiver.ACTION_SMS_RECEIVED));
 	}
 

@@ -1,6 +1,5 @@
 package at.tugraz.ist.akm.test.texting;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -11,15 +10,14 @@ import at.tugraz.ist.akm.phonebook.ContactModifiedCallback;
 import at.tugraz.ist.akm.sms.SmsIOCallback;
 import at.tugraz.ist.akm.sms.SmsSentBroadcastReceiver;
 import at.tugraz.ist.akm.sms.TextMessage;
-import at.tugraz.ist.akm.test.WebSMSToolActivityTestcase2;
+import at.tugraz.ist.akm.test.WebSMSToolActivityTestcase;
 import at.tugraz.ist.akm.test.sms.SmsHelper;
 import at.tugraz.ist.akm.texting.TextingAdapter;
 import at.tugraz.ist.akm.texting.TextingInterface;
 
-public class TextingAdapterTest extends WebSMSToolActivityTestcase2 implements
+public class TextingAdapterTest extends WebSMSToolActivityTestcase implements
 		SmsIOCallback, ContactModifiedCallback {
 
-	private Activity mActivity = null;
 	private int mCountSent = 0;
 	private boolean mIsTestcaseSendNoFail = false;
 	private boolean mIsTestcaseSendLongText = false;
@@ -30,7 +28,7 @@ public class TextingAdapterTest extends WebSMSToolActivityTestcase2 implements
 
 	public void testSendLongText() throws Exception {
 		mIsTestcaseSendLongText = true;
-		TextingInterface texting = new TextingAdapter(mActivity, this, this);
+		TextingInterface texting = new TextingAdapter(mContext, this, this);
 		texting.start();
 		TextMessage m = SmsHelper.getDummyMultiTextMessage();
 		texting.sendTextMessage(m);
@@ -41,7 +39,7 @@ public class TextingAdapterTest extends WebSMSToolActivityTestcase2 implements
 
 	public void testSendNoException() throws Exception {
 		mIsTestcaseSendNoFail = true;
-		TextingInterface texting = new TextingAdapter(mActivity, this, this);
+		TextingInterface texting = new TextingAdapter(mContext, this, this);
 		texting.start();
 		TextMessage m = new TextMessage();
 		m.setAddress("01234");
@@ -53,7 +51,7 @@ public class TextingAdapterTest extends WebSMSToolActivityTestcase2 implements
 	}
 
 	public void testFetchContactsNoException() {
-		TextingInterface texting = new TextingAdapter(mActivity, this, this);
+		TextingInterface texting = new TextingAdapter(mContext, this, this);
 		texting.start();
 		ContactFilter filter = new ContactFilter();
 		filter.setId(1L);
@@ -62,7 +60,7 @@ public class TextingAdapterTest extends WebSMSToolActivityTestcase2 implements
 	}
 
 	public void testFetchMessagesNoException() {
-		TextingInterface texting = new TextingAdapter(mActivity, this, this);
+		TextingInterface texting = new TextingAdapter(mContext, this, this);
 		texting.start();
 		TextMessageFilter filter = new TextMessageFilter();
 		filter.setBox(SmsContent.ContentUri.INBOX_URI);
@@ -126,14 +124,4 @@ public class TextingAdapterTest extends WebSMSToolActivityTestcase2 implements
 		log("sms delivered (action: " + intent.getAction() + " )");
 	}
 
-	@Override
-	protected void setUp() throws Exception {
-		super.setUp();
-		mActivity = getActivity();
-	}
-
-	@Override
-	protected void tearDown() throws Exception {
-		super.tearDown();
-	}
 }

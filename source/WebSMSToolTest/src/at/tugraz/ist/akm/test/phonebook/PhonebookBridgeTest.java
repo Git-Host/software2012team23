@@ -1,9 +1,9 @@
 package at.tugraz.ist.akm.test.phonebook;
 
 import at.tugraz.ist.akm.phonebook.PhonebookBridge;
-import at.tugraz.ist.akm.test.WebSMSToolActivityTestcase2;
+import at.tugraz.ist.akm.test.WebSMSToolActivityTestcase;
 
-public class PhonebookBridgeTest extends WebSMSToolActivityTestcase2 {
+public class PhonebookBridgeTest extends WebSMSToolActivityTestcase {
 
 	public PhonebookBridgeTest() {
 		super(PhonebookBridgeTest.class.getSimpleName());
@@ -11,7 +11,7 @@ public class PhonebookBridgeTest extends WebSMSToolActivityTestcase2 {
 
 	public void testPhonebookBridgeContactChangedCallback() throws Throwable {
 		try {
-			PhonebookBridge phonebook = new PhonebookBridge(mActivity);
+			PhonebookBridge phonebook = new PhonebookBridge(mContext);
 			phonebook.start();
 			String[] mrFoo = { "Foo", "Bar", "01906666" };
 			Thread.sleep(1000);

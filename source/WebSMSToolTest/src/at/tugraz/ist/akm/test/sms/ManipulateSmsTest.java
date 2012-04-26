@@ -17,9 +17,9 @@ import at.tugraz.ist.akm.sms.SmsIOCallback;
 import at.tugraz.ist.akm.sms.SmsSender;
 import at.tugraz.ist.akm.sms.SmsSentBroadcastReceiver;
 import at.tugraz.ist.akm.sms.TextMessage;
-import at.tugraz.ist.akm.test.WebSMSToolActivityTestcase2;
+import at.tugraz.ist.akm.test.WebSMSToolActivityTestcase;
 
-public class ManipulateSmsTest extends WebSMSToolActivityTestcase2 implements
+public class ManipulateSmsTest extends WebSMSToolActivityTestcase implements
 		SmsIOCallback {
 
 	public ManipulateSmsTest() {
@@ -70,23 +70,23 @@ public class ManipulateSmsTest extends WebSMSToolActivityTestcase2 implements
 
 	public void testSendExtremLongSms() {
 		try {
-			SmsSender smsSink = new SmsSender(mActivity);
+			SmsSender smsSink = new SmsSender(mContext);
 			SmsSentBroadcastReceiver sentReceiver = new SmsSentBroadcastReceiver(
 					this);
 			SmsSentBroadcastReceiver deliveredReceiver = new SmsSentBroadcastReceiver(
 					this);
 
-			mActivity.registerReceiver(sentReceiver, new IntentFilter(
+			mContext.registerReceiver(sentReceiver, new IntentFilter(
 					SmsSentBroadcastReceiver.ACTION_SMS_SENT));
-			mActivity.registerReceiver(deliveredReceiver, new IntentFilter(
+			mContext.registerReceiver(deliveredReceiver, new IntentFilter(
 					SmsSentBroadcastReceiver.ACTION_SMS_DELIVERED));
 			smsSink.sendTextMessage(SmsHelper.getDummyMultiTextMessage());
 			// wait until intent is (hopefully) broadcasted, else it won't
 			// trigger the desired callback
 			Thread.sleep(1000);
 
-			mActivity.unregisterReceiver(sentReceiver);
-			mActivity.unregisterReceiver(deliveredReceiver);
+			mContext.unregisterReceiver(sentReceiver);
+			mContext.unregisterReceiver(deliveredReceiver);
 		} catch (Exception e) {
 			e.printStackTrace();
 			assertTrue(false);

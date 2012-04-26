@@ -1,6 +1,6 @@
 package at.tugraz.ist.akm.monitoring;
 
-import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.BatteryManager;
@@ -35,16 +35,16 @@ public class SystemMonitor extends Logable {
 		}
 	}
 
-	private Activity mActivity = null;
+	private Context mContext = null;
 
-	public SystemMonitor(Activity a) {
+	public SystemMonitor(Context c) {
 		super(SystemMonitor.class.getSimpleName());
-		mActivity = a;
+		mContext = c;
 	}
 
 	public BatteryStatus getBatteryStatus() {
 		IntentFilter filter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
-		Intent batteryStatus = mActivity.registerReceiver(null, filter);
+		Intent batteryStatus = mContext.registerReceiver(null, filter);
 		return new BatteryStatus(batteryStatus);
 	}
 }

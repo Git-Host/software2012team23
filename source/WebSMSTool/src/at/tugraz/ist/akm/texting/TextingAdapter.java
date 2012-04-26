@@ -2,7 +2,6 @@ package at.tugraz.ist.akm.texting;
 
 import java.util.List;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import at.tugraz.ist.akm.content.query.ContactFilter;
@@ -21,8 +20,7 @@ import at.tugraz.ist.akm.trace.Logable;
 public class TextingAdapter extends Logable implements TextingInterface,
 		SmsIOCallback, ContactModifiedCallback {
 
-	private Activity mActivity = null;
-
+	private Context mContext = null;
 	private SmsBridge mSmsBridge = null;
 	private PhonebookBridge mPhoneBook = null;
 
@@ -33,16 +31,16 @@ public class TextingAdapter extends Logable implements TextingInterface,
 	private VolatileIncomingReport mIncomingStatistics = new VolatileIncomingReport();
 	private VolatilePhonebookReport mPhonebookStatistics = new VolatilePhonebookReport();
 
-	public TextingAdapter(Activity a, SmsIOCallback ms,
+	public TextingAdapter(Context c, SmsIOCallback ms,
 			ContactModifiedCallback cm) {
 		super(TextingAdapter.class.getSimpleName());
-		mActivity = a;
+		mContext = c;
 
 		mExternalTextMessageCallback = ms;
 		mExternalPhonebookModifiedCallback = cm;
 
-		mSmsBridge = new SmsBridge(mActivity);
-		mPhoneBook = new PhonebookBridge(mActivity.getApplicationContext());
+		mSmsBridge = new SmsBridge(mContext);
+		mPhoneBook = new PhonebookBridge(mContext.getApplicationContext());
 	}
 
 	public void start() {
@@ -156,8 +154,8 @@ public class TextingAdapter extends Logable implements TextingInterface,
 	}
 
 	/**
-	 * This method don't touches anything internally but gives you a new instance
-	 * you can do anything you want with.
+	 * This method don't touches anything internally but gives you a new
+	 * instance you can do anything you want with.
 	 * 
 	 * @return A brief information about the outgoing state.
 	 */
@@ -167,8 +165,8 @@ public class TextingAdapter extends Logable implements TextingInterface,
 	}
 
 	/**
-	 * This method don't touches anything internally but gives you a new instance
-	 * you can do anything you want with.
+	 * This method don't touches anything internally but gives you a new
+	 * instance you can do anything you want with.
 	 * 
 	 * @return A brief information about the incoming state.
 	 */
@@ -178,8 +176,8 @@ public class TextingAdapter extends Logable implements TextingInterface,
 	}
 
 	/**
-	 * This method don't touches anything internally but gives you a new instance
-	 * you can do anything you want with.
+	 * This method don't touches anything internally but gives you a new
+	 * instance you can do anything you want with.
 	 * 
 	 * @return A brief information about the contact (changes, updated) state.
 	 */

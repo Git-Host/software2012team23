@@ -5,9 +5,9 @@ import java.util.List;
 import at.tugraz.ist.akm.content.query.ContactFilter;
 import at.tugraz.ist.akm.phonebook.Contact;
 import at.tugraz.ist.akm.phonebook.ContactReader;
-import at.tugraz.ist.akm.test.WebSMSToolActivityTestcase2;
+import at.tugraz.ist.akm.test.WebSMSToolActivityTestcase;
 
-public class ContactReaderTest extends WebSMSToolActivityTestcase2 {
+public class ContactReaderTest extends WebSMSToolActivityTestcase {
 
 	private String[][] mTestContacts = null;
 
