@@ -6,6 +6,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.util.Base64;
 import at.tugraz.ist.akm.phonebook.Contact;
 import at.tugraz.ist.akm.phonebook.Contact.Number;
 import at.tugraz.ist.akm.trace.Logable;
@@ -24,7 +25,7 @@ public class JsonContactBuilder implements IJsonBuilder {
             json.put("last_name", contact.getFamilyName());
             json.put("name", contact.getName());
             json.put("id", contact.getId());
-            json.put("image", contact.getPhotoBytes());       
+            json.put("image", Base64.encode(contact.getPhotoBytes(), Base64.URL_SAFE).toString());       
             json.put("phone_numers", buildPhoneNumbers(contact.getPhoneNumbers()));
            
             log.w("contact photo uri: "+contact.getPhotoUri());
