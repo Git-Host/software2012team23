@@ -1,11 +1,14 @@
 package at.tugraz.ist.akm.test.texting;
 
+import java.util.List;
+
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import at.tugraz.ist.akm.content.SmsContent;
 import at.tugraz.ist.akm.content.query.ContactFilter;
 import at.tugraz.ist.akm.content.query.TextMessageFilter;
+import at.tugraz.ist.akm.phonebook.Contact;
 import at.tugraz.ist.akm.phonebook.ContactModifiedCallback;
 import at.tugraz.ist.akm.sms.SmsIOCallback;
 import at.tugraz.ist.akm.sms.SmsSentBroadcastReceiver;
@@ -54,8 +57,14 @@ public class TextingAdapterTest extends WebSMSToolActivityTestcase implements
 		TextingInterface texting = new TextingAdapter(mContext, this, this);
 		texting.start();
 		ContactFilter filter = new ContactFilter();
-		filter.setId(1L);
-		texting.fetchContacts(filter);
+		filter.setId(437);
+		List<Contact> contacts = texting.fetchContacts(filter);
+		
+		assertTrue(contacts.size() == 1);
+//		Contact c = contacts.get(0);
+//		assertTrue(c.getPhotoBytes() != null);
+//		assertTrue(c.getPhotoUri() != null);
+		
 		texting.stop();
 	}
 
