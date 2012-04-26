@@ -26,7 +26,7 @@ public class SimpleWebServerTest extends InstrumentationTestCase {
         httpClient = new DefaultHttpClient();
         webserver = new SimpleWebServer(getInstrumentation().getContext());
         Assert.assertTrue(webserver.startServer(8888));
-        Assert.assertFalse(webserver.startServer(9999));
+        Assert.assertTrue(webserver.startServer(9999));
         while (!webserver.isRunning()) {
             synchronized (SimpleWebServerTest.class) {
                 try {
@@ -78,6 +78,7 @@ public class SimpleWebServerTest extends InstrumentationTestCase {
 
             HttpResponse response = httpClient.execute(httppost);
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            // TODO: the test case blocks here:
             response.getEntity().writeTo(baos);
 
             Assert.assertEquals(requestJson.toString(), new String(baos.toByteArray()));
