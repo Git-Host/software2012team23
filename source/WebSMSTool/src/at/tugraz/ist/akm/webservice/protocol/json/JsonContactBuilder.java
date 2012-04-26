@@ -8,22 +8,27 @@ import org.json.JSONObject;
 
 import at.tugraz.ist.akm.phonebook.Contact;
 import at.tugraz.ist.akm.phonebook.Contact.Number;
+import at.tugraz.ist.akm.trace.Logable;
 
 public class JsonContactBuilder implements IJsonBuilder {
 
     @Override
     public JSONObject build(Object data) {
+    	Logable log = new Logable();
+    	
         // TODO: check type compatibility
         Contact contact = (Contact) data;
         try {
             JSONObject json = new JSONObject();
             json.put("display_name", contact.getDisplayName());
-            json.put("family_name", contact.getFamilyName());
+            json.put("last_name", contact.getFamilyName());
             json.put("name", contact.getName());
             json.put("id", contact.getId());
-
+            json.put("image", contact.getPhotoUri());       
             json.put("phone_numers", buildPhoneNumbers(contact.getPhoneNumbers()));
-
+            
+            log.w("contact photo uri: "+contact.getPhotoUri());
+            log.i(json.toString());
             return json;
         } catch (JSONException e) {
             e.printStackTrace();

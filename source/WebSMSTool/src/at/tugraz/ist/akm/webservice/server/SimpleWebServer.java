@@ -157,24 +157,21 @@ public class SimpleWebServer {
         return mServerThread != null;
     }
 
-    public boolean startServer(int port) {
+    public synchronized boolean startServer(int port) {
         try {
-            synchronized (this) {
-                if (mServerThread != null) {
-                    LOG.i("Web service is already running at port <" + mServerThread.getPort() + ">");
-                    return false;
-                } else if (mServerThread != null) {
-                    // kill old server thread
-                    mServerThread.stopThread();
-                }
-                ServerSocket serverSocket = new ServerSocket(port);
-                serverSocket.setReuseAddress(true);
-                serverSocket.setSoTimeout(2000);
-
-                mServerThread = new ServerThread(this, serverSocket);
-                mServerThread.setDaemon(true);
-                mServerThread.start();
+            if (this.isRunning()) {
+                LOG.i("Web service is already running at port <" + mServerThread.getPort() + ">");
+                // kill old server thread
+                //mServerThread.stopThread();
+                return false;
             }
+            ServerSocket serverSocket = new ServerSocket(port);
+            serverSocket.setReuseAddress(true);
+            serverSocket.setSoTimeout(2000);
+
+            mServerThread = new ServerThread(this, serverSocket);
+            mServerThread.setDaemon(true);
+            mServerThread.start();
             return true;
         } catch (IOException e) {
             LOG.v("Cannot create server socket on port <" + port + ">", e);
@@ -182,19 +179,17 @@ public class SimpleWebServer {
         }
     }
 
-    public void stopServer() {
-        synchronized (this) {
-            LOG.v("stop web server");
-            mServerThread.stopThread();
-            while (mServerThread.isRunning()) {
-                try {
-                    this.wait(200);
-                } catch (InterruptedException e) {
-                    ;
-                }
+    public synchronized void stopServer() {
+        LOG.v("stop web server");
+        mServerThread.stopThread();
+        while (mServerThread.isRunning()) {
+            try {
+                this.wait(200);
+            } catch (InterruptedException e) {
+                ;
             }
-            mServerThread = null;
         }
+        mServerThread = null;
     }
 
 }
