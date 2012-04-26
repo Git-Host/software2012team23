@@ -22,7 +22,7 @@
     wstLog.log('Initialize wstAPI.');
     var wstAPI = {
         options : {
-            api_url : 'api.html',
+            api_url : 'api.html'
         },
 
         //API calls
@@ -53,8 +53,12 @@
               success: function(data){
             	  callback(data);
             	  //only for testing
-            	  if(data.image != null){
-            		  $('#testimg').attr('src', data.image);
+            	  var size = data.contacts.length;
+            	  for(var i = 0; i < size; i++){
+            		  if(data.contacts[i].image != null){
+            			  wstLog.log('Image found to replace test img.');
+                		  $('#testimg').attr('src', "data:image/jpeg;base64,"+data.contacts[i].image);            			  
+            		  }
             	  }
               },
               type: 'post',

@@ -27,5 +27,5 @@ test('asynchronous test', function() {
     	ok(data.state == 'success', 'Get Contacts successfully sent and received');
     });
     
-    setTimeout(function(){start();}, 2000);  
+    setTimeout(function(){start();}, 4000);  
 });

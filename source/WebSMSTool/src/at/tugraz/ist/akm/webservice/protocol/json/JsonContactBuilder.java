@@ -25,10 +25,16 @@ public class JsonContactBuilder implements IJsonBuilder {
             json.put("last_name", contact.getFamilyName());
             json.put("name", contact.getName());
             json.put("id", contact.getId());
-            json.put("image", Base64.encode(contact.getPhotoBytes(), Base64.URL_SAFE).toString());       
-            json.put("phone_numers", buildPhoneNumbers(contact.getPhoneNumbers()));
-           
-            log.w("contact photo uri: "+contact.getPhotoUri());
+            
+            byte[] imageBytes = contact.getPhotoBytes();
+            if(imageBytes != null){
+            	byte[] imageEncoded = Base64.encode(imageBytes, Base64.DEFAULT);
+                json.put("image", new String(imageEncoded));       
+            }
+            
+            json.put("phone_numbers", buildPhoneNumbers(contact.getPhoneNumbers()));
+            
+            
             log.i(json.toString());
             return json;
         } catch (JSONException e) {
