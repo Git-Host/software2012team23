@@ -17,6 +17,7 @@
     <uses-permission android:name="android.permission.WRITE_CONTACTS" />
     <uses-permission android:name="android.permission.RECEIVE_SMS" />
     <uses-permission android:name="android.permission.BROADCAST_SMS" />
+    <uses-permission android:name="android.permission.BATTERY_STATS"/>
 
     <application
         android:icon="@drawable/ic_launcher"
