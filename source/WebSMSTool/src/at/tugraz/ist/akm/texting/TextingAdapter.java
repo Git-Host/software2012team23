@@ -13,30 +13,38 @@ import at.tugraz.ist.akm.phonebook.PhonebookBridge;
 import at.tugraz.ist.akm.sms.SmsBridge;
 import at.tugraz.ist.akm.sms.SmsIOCallback;
 import at.tugraz.ist.akm.sms.TextMessage;
+import at.tugraz.ist.akm.texting.reports.VolatileIncomingReport;
+import at.tugraz.ist.akm.texting.reports.VolatileOutgoingReport;
+import at.tugraz.ist.akm.texting.reports.VolatilePhonebookReport;
 import at.tugraz.ist.akm.trace.Logable;
 
-public class TextingAdapter extends Logable implements TextingInterface, SmsIOCallback,
-		ContactModifiedCallback {
+public class TextingAdapter extends Logable implements TextingInterface,
+		SmsIOCallback, ContactModifiedCallback {
 
 	private Activity mActivity = null;
 
 	private SmsBridge mSmsBridge = null;
 	private PhonebookBridge mPhoneBook = null;
-	
+
 	private SmsIOCallback mExternalTextMessageCallback = null;
 	private ContactModifiedCallback mExternalPhonebookModifiedCallback = null;
 
-	public TextingAdapter(Activity a, SmsIOCallback ms, ContactModifiedCallback cm) {
+	private VolatileOutgoingReport mOutgoingStatistics = new VolatileOutgoingReport();
+	private VolatileIncomingReport mIncomingStatistics = new VolatileIncomingReport();
+	private VolatilePhonebookReport mPhonebookStatistics = new VolatilePhonebookReport();
+
+	public TextingAdapter(Activity a, SmsIOCallback ms,
+			ContactModifiedCallback cm) {
 		super(TextingAdapter.class.getSimpleName());
 		mActivity = a;
-		
+
 		mExternalTextMessageCallback = ms;
 		mExternalPhonebookModifiedCallback = cm;
-		
-		mSmsBridge = new SmsBridge(mActivity);		
+
+		mSmsBridge = new SmsBridge(mActivity);
 		mPhoneBook = new PhonebookBridge(mActivity.getApplicationContext());
 	}
- 
+
 	public void start() {
 		log("power up ...");
 		registerSmsCallbacks();
@@ -44,23 +52,33 @@ public class TextingAdapter extends Logable implements TextingInterface, SmsIOCa
 		mSmsBridge.start();
 		mPhoneBook.start();
 	}
-	
+
 	public void stop() {
 		log("power down ...");
 		mPhoneBook.stop();
 		mSmsBridge.stop();
 	}
-	
-	/* (non-Javadoc)
-	 * @see at.tugraz.ist.akm.texting.TextingInterface#sendTextMessage(at.tugraz.ist.akm.sms.TextMessage)
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * at.tugraz.ist.akm.texting.TextingInterface#sendTextMessage(at.tugraz.
+	 * ist.akm.sms.TextMessage)
 	 */
 	@Override
 	public int sendTextMessage(TextMessage m) {
+		mOutgoingStatistics
+				.setNumPending(mOutgoingStatistics.getNumPending() + 1);
 		return mSmsBridge.sendTextMessage(m);
 	}
 
-	/* (non-Javadoc)
-	 * @see at.tugraz.ist.akm.texting.TextingInterface#fetchTextMessages(at.tugraz.ist.akm.content.query.TextMessageFilter)
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * at.tugraz.ist.akm.texting.TextingInterface#fetchTextMessages(at.tugraz
+	 * .ist.akm.content.query.TextMessageFilter)
 	 */
 	@Override
 	public List<TextMessage> fetchTextMessages(TextMessageFilter filter) {
@@ -71,12 +89,24 @@ public class TextingAdapter extends Logable implements TextingInterface, SmsIOCa
 	public List<Contact> fetchContacts(ContactFilter filter) {
 		return mPhoneBook.fetchContacts(filter);
 	}
-	
+
 	@Override
 	public void smsSentCallback(Context context, Intent intent) {
-		log("sms sent");
+		log("sms sent successfully");
+		mOutgoingStatistics
+				.setNumPending(mOutgoingStatistics.getNumPending() - 1);
 		if (mExternalTextMessageCallback != null) {
 			mExternalTextMessageCallback.smsSentCallback(context, intent);
+		}
+	}
+
+	@Override
+	public void smsSentErrorCallback(Context context, Intent intent) {
+		log("failed to send sms");
+		mOutgoingStatistics.setNumErroneous(mOutgoingStatistics
+				.getNumErroneous() + 1);
+		if (mExternalTextMessageCallback != null) {
+			mExternalTextMessageCallback.smsSentErrorCallback(context, intent);
 		}
 	}
 
@@ -92,6 +122,8 @@ public class TextingAdapter extends Logable implements TextingInterface, SmsIOCa
 	@Override
 	public void smsReceivedCallback(Context context, Intent intent) {
 		log("sms received");
+		mIncomingStatistics
+				.setNumReceived(mIncomingStatistics.getNumReceived() + 1);
 		if (mExternalTextMessageCallback != null) {
 			mExternalTextMessageCallback.smsReceivedCallback(context, intent);
 		}
@@ -100,9 +132,60 @@ public class TextingAdapter extends Logable implements TextingInterface, SmsIOCa
 	@Override
 	public void contactModifiedCallback() {
 		log("contact modified");
+		mPhonebookStatistics
+				.setNumChanges(mPhonebookStatistics.getNumChanges() + 1);
 		if (mExternalPhonebookModifiedCallback != null) {
 			mExternalPhonebookModifiedCallback.contactModifiedCallback();
 		}
+	}
+
+	@Override
+	public int updateTextMessage(TextMessage message) {
+		return mSmsBridge.updateTextMessage(message);
+	}
+
+	/**
+	 * return all tread IDs for the specified address
+	 * 
+	 * @param address
+	 *            the phone number
+	 */
+	@Override
+	public List<Integer> fetchThreadIds(final String address) {
+		return mSmsBridge.fetchThreadIds(address);
+	}
+
+	/**
+	 * This method don't touches anything internally but gives you a new instance
+	 * you can do anything you want with.
+	 * 
+	 * @return A brief information about the outgoing state.
+	 */
+	@Override
+	public VolatileOutgoingReport getOutgoingReport() {
+		return new VolatileOutgoingReport(mOutgoingStatistics);
+	}
+
+	/**
+	 * This method don't touches anything internally but gives you a new instance
+	 * you can do anything you want with.
+	 * 
+	 * @return A brief information about the incoming state.
+	 */
+	@Override
+	public VolatileIncomingReport getIncomingReport() {
+		return new VolatileIncomingReport(mIncomingStatistics);
+	}
+
+	/**
+	 * This method don't touches anything internally but gives you a new instance
+	 * you can do anything you want with.
+	 * 
+	 * @return A brief information about the contact (changes, updated) state.
+	 */
+	@Override
+	public VolatilePhonebookReport getPhonebookReport() {
+		return new VolatilePhonebookReport(mPhonebookStatistics);
 	}
 
 	private void registerSmsCallbacks() {
@@ -114,13 +197,4 @@ public class TextingAdapter extends Logable implements TextingInterface, SmsIOCa
 				.setContactModifiedCallback(mExternalPhonebookModifiedCallback);
 	}
 
-	@Override
-	public int updateTextMessage(TextMessage message) {
-		return mSmsBridge.updateTextMessage(message);
-	}
-	
-	@Override
-	public List<Integer> fetchThreadIds(final String address) {
-		return mSmsBridge.fetchThreadIds(address);
-	}
 }

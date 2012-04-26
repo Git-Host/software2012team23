@@ -6,6 +6,8 @@ import android.content.Intent;
 public interface SmsIOCallback {
 
 	public void smsSentCallback(Context context, Intent intent);
+	
+	public void smsSentErrorCallback(Context context, Intent intent);
 
 	public void smsDeliveredCallback(Context context, Intent intent);
 	

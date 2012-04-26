@@ -172,7 +172,8 @@ public class ManipulateSmsTest extends WebSMSToolActivityTestcase2 implements
 			List<Integer> threadIDs = smsSource.getThreadIds(address);
 
 			for (Integer id : threadIDs) {
-				log("fetched sms thread-ID: [" + id + "] for address [" + address + "]");
+				log("fetched sms thread-ID: [" + id + "] for address ["
+						+ address + "]");
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -222,13 +223,16 @@ public class ManipulateSmsTest extends WebSMSToolActivityTestcase2 implements
 	@Override
 	public void smsDeliveredCallback(Context context, Intent intent) {
 		log("sms delivered (action: " + intent.getAction() + " )");
-
 	}
 
 	@Override
 	public void smsReceivedCallback(Context context, Intent intent) {
 		log("sms received (action: " + intent.getAction() + " )");
+	}
 
+	@Override
+	public void smsSentErrorCallback(Context context, Intent intent) {
+		log("sms sent erroneous (action: " + intent.getAction() + " )");
 	}
 
 }

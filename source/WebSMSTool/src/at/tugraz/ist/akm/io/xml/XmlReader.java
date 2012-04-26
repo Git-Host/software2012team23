@@ -19,7 +19,7 @@ import org.xml.sax.SAXException;
 import android.content.Context;
 
 public class XmlReader {
-    private Document dom = null;
+    private Document mDom = null;
 
     /**
      * 
@@ -59,7 +59,7 @@ public class XmlReader {
     private void read(final InputStream is) {
         try {
             DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-            dom = builder.parse(is);
+            mDom = builder.parse(is);
         } catch (IOException e) {
             e.printStackTrace();
         } catch (ParserConfigurationException e) {
@@ -76,10 +76,10 @@ public class XmlReader {
      */
     public List<XmlNode> getNodes(String name) {
         List<XmlNode> nodes = new ArrayList<XmlNode>();
-        if(dom == null) {
+        if(mDom == null) {
             return nodes;
         }
-        Element root = dom.getDocumentElement();
+        Element root = mDom.getDocumentElement();
 
         NodeList childNodes = root.getChildNodes();
         for (int i = 0; i < childNodes.getLength(); i++) {

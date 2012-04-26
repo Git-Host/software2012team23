@@ -71,65 +71,39 @@ public class SmsBridge extends Logable implements SmsIOCallback {
 	}
 
 	/**
-	 * 1. try to parse the TextMessage and store to content://sms/sent 2.
-	 * regardless of the state bypass the event to external audience
+	 * 1st: try to parse the TextMessage and store to content://sms/sent 2nd:
+	 * regardless of the state bypass the event to external audience but
+	 * separate erroneous states from good ones. Note, on
+	 * {@link SmsSentBroadcastReceiver.ACTION_SMS_SENT}: Since
+	 * SmsSentBroadcastReceiver never can get the result code (getResultCode()),
+	 * only this interface method will be ever called from
+	 * SmsSentBroadcastReceiver.
 	 */
 	@Override
 	public void smsSentCallback(Context context, Intent intent) {
-		String verboseSentState = null;
-		boolean sentSuccessfully = false;
-		TextMessage sentMessage = parseToTextMessgae(intent);
-		switch (mSmsSentNotifier.getResultCode()) {
-		case Activity.RESULT_OK:
-			verboseSentState = "to address [" + sentMessage.getAddress()
-					+ "] on [" + sentMessage.getDate() + "] ("
-					+ sentMessage.getBody() + ")";
-
-			mSmsBoxWriter.writeSentboxTextMessage(sentMessage);
-			sentSuccessfully = true;
-			break;
-
-		case SmsManager.RESULT_ERROR_GENERIC_FAILURE:
-			verboseSentState = "Error.";
-			sentMessage.setLocked("");
-			sentMessage.setErrorCode("");
-			mSmsBoxWriter.writeOutboxTextMessage(sentMessage);
-			break;
-
-		case SmsManager.RESULT_ERROR_NO_SERVICE:
-			verboseSentState = "Error: No service.";
-			sentMessage.setLocked("");
-			sentMessage.setErrorCode("");
-			mSmsBoxWriter.writeOutboxTextMessage(sentMessage);
-			break;
-
-		case SmsManager.RESULT_ERROR_NULL_PDU:
-			verboseSentState = "Error: Null PDU.";
-			sentMessage.setLocked("");
-			sentMessage.setErrorCode("");
-			mSmsBoxWriter.writeOutboxTextMessage(sentMessage);
-			break;
-
-		case SmsManager.RESULT_ERROR_RADIO_OFF:
-			verboseSentState = "Error: Radio off.";
-			sentMessage.setLocked("");
-			sentMessage.setErrorCode("");
-			mSmsBoxWriter.writeOutboxTextMessage(sentMessage);
-			break;
-		}
-
-		if (sentSuccessfully) {
-			log("saved message to outbox (" + verboseSentState + ")");
-		} else {
-			log(verboseSentState);
-		}
+		boolean sentSuccessfully = storeMessageToCorrectBox(intent);
 
 		if (mExternalSmsSentCallback != null) {
-			log("bypassing SmsSentCallback.smsSentCallback()");
-			mExternalSmsSentCallback.smsSentCallback(context, intent);
+
+			if (sentSuccessfully) {
+				log("bypassing SmsSentCallback.smsSentCallback()");
+				mExternalSmsSentCallback.smsSentCallback(context, intent);
+			} else {
+				log("bypassing SmsSendErrorCallback.smsSentCallback()");
+				mExternalSmsSentCallback.smsSentErrorCallback(context, intent);
+			}
 		} else {
 			log("no external callback [SmsSentCallback.smsSentCallback()] found - callback ends here");
 		}
+	}
+
+	/**
+	 * Note, on {@link SmsSentBroadcastReceiver.ACTION_SMS_SENT}: Since
+	 * SmsSentBroadcastReceiver never can get the result code (getResultCode()),
+	 * this interface method will be never called from SmsSentBroadcastReceiver.
+	 */
+	@Override
+	public void smsSentErrorCallback(Context context, Intent intent) {
 	}
 
 	/**
@@ -195,5 +169,67 @@ public class SmsBridge extends Logable implements SmsIOCallback {
 			log("FAILED to gather text message extras from intent");
 		}
 		return null;
+	}
+
+	/**
+	 * Is being called when the send state of a TextMessage is clear. If state
+	 * is OK, then store message to sent-box. On error place the TextMessage to
+	 * out-box (box for pending or not sent messages).
+	 * 
+	 * @param intent
+	 *            where to parse the TextMessage from
+	 * @return true if correctly sent else false
+	 */
+	private boolean storeMessageToCorrectBox(Intent intent) {
+		boolean isSuccessfullySent = false;
+		TextMessage sentMessage = parseToTextMessgae(intent);
+		String verboseSentState = null;
+
+		switch (mSmsSentNotifier.getResultCode()) {
+		case Activity.RESULT_OK:
+			verboseSentState = "to address [" + sentMessage.getAddress()
+					+ "] on [" + sentMessage.getDate() + "] ("
+					+ sentMessage.getBody() + ")";
+
+			mSmsBoxWriter.writeSentboxTextMessage(sentMessage);
+			isSuccessfullySent = true;
+			break;
+
+		case SmsManager.RESULT_ERROR_GENERIC_FAILURE:
+			verboseSentState = "Error.";
+			sentMessage.setLocked("");
+			sentMessage.setErrorCode("");
+			mSmsBoxWriter.writeOutboxTextMessage(sentMessage);
+			break;
+
+		case SmsManager.RESULT_ERROR_NO_SERVICE:
+			verboseSentState = "Error: No service.";
+			sentMessage.setLocked("");
+			sentMessage.setErrorCode("");
+			mSmsBoxWriter.writeOutboxTextMessage(sentMessage);
+			break;
+
+		case SmsManager.RESULT_ERROR_NULL_PDU:
+			verboseSentState = "Error: Null PDU.";
+			sentMessage.setLocked("");
+			sentMessage.setErrorCode("");
+			mSmsBoxWriter.writeOutboxTextMessage(sentMessage);
+			break;
+
+		case SmsManager.RESULT_ERROR_RADIO_OFF:
+			verboseSentState = "Error: Radio off.";
+			sentMessage.setLocked("");
+			sentMessage.setErrorCode("");
+			mSmsBoxWriter.writeOutboxTextMessage(sentMessage);
+			break;
+		}
+
+		if (isSuccessfullySent) {
+			log("text message sent successfully (" + verboseSentState + ")");
+		} else {
+			log(verboseSentState);
+		}
+
+		return isSuccessfullySent;
 	}
 }

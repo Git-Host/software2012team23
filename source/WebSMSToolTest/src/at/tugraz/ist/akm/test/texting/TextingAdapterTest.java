@@ -73,14 +73,12 @@ public class TextingAdapterTest extends WebSMSToolActivityTestcase2 implements
 
 	@Override
 	public void contactModifiedCallback() {
-		log("Auto-generated method stub");
-
+		log("contact modified");
 	}
 
 	@Override
 	public void smsReceivedCallback(Context context, Intent intent) {
-		log("Auto-generated method stub");
-
+		log("sms received (action: " + intent.getAction() + " )");
 	}
 
 	@Override
@@ -119,9 +117,13 @@ public class TextingAdapterTest extends WebSMSToolActivityTestcase2 implements
 	}
 
 	@Override
-	public void smsDeliveredCallback(Context context, Intent intent) {
-		log("Auto-generated method stub");
+	public void smsSentErrorCallback(Context context, Intent intent) {
+		log("sms sent erroneous (action: " + intent.getAction() + " )");
+	}
 
+	@Override
+	public void smsDeliveredCallback(Context context, Intent intent) {
+		log("sms delivered (action: " + intent.getAction() + " )");
 	}
 
 	@Override

@@ -83,18 +83,18 @@ public abstract class AbstractHttpRequestHandler implements HttpRequestHandler {
     
     
     public static class FileInfo {
-        final String contentType;
-        final String file;
+        final String mContentType;
+        final String mFile;
 
         public FileInfo(final String file, final String contentType) {
-            this.file = file;
-            this.contentType = contentType;
+            this.mFile = file;
+            this.mContentType = contentType;
         }
 
         @Override
         public String toString() {
-            return new StringBuffer().append("dataFile '").append(file).append("' contentType '")
-                    .append(contentType).append("'").toString();
+            return new StringBuffer().append("dataFile '").append(mFile).append("' contentType '")
+                    .append(mContentType).append("'").toString();
         }
     }  
 }
