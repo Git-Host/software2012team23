@@ -51,6 +51,7 @@ public class SimpleWebServer {
                 HttpService httpService = mWebServer.initializeHTTPService();
                 httpService.handleRequest(serverConn, mWebServer.getHttpContext());
             } catch (Exception e) {
+            	e.printStackTrace();
                 LOG.e("Exception caught when processing HTTP client connection", e);
             }
         }
@@ -145,6 +146,7 @@ public class SimpleWebServer {
                         HttpRequestHandlerRegistry.class);
                 constr.newInstance(mContext, node, mRegistry);
             } catch (Exception e) {
+            	e.printStackTrace();
                 LOG.e("Loading of class <" + className + "> failed", e);
             }
         }
@@ -155,24 +157,19 @@ public class SimpleWebServer {
         return mServerThread != null;
     }
 
-    public boolean startServer(int port) {
-        try {
-            synchronized (this) {
-                if (mServerThread != null) {
-                    LOG.i("Web service is already running at port <" + mServerThread.getPort() + ">");
-                    return false;
-                } else if (mServerThread != null) {
-                    // kill old server thread
-                    mServerThread.stopThread();
-                }
-                ServerSocket serverSocket = new ServerSocket(port);
-                serverSocket.setReuseAddress(true);
-                serverSocket.setSoTimeout(2000);
-
-                mServerThread = new ServerThread(this, serverSocket);
-                mServerThread.setDaemon(true);
-                mServerThread.start();
+    public synchronized boolean startServer(int port) {
+    	try {
+            if (this.isRunning()) {
+                LOG.i("Web service is already running at port <" + mServerThread.getPort() + ">");
+                return true;
             }
+            ServerSocket serverSocket = new ServerSocket(port);
+            serverSocket.setReuseAddress(true);
+            serverSocket.setSoTimeout(2000);
+
+            mServerThread = new ServerThread(this, serverSocket);
+            mServerThread.setDaemon(true);
+            mServerThread.start();
             return true;
         } catch (IOException e) {
             LOG.v("Cannot create server socket on port <" + port + ">", e);
@@ -180,19 +177,17 @@ public class SimpleWebServer {
         }
     }
 
-    public void stopServer() {
-        synchronized (this) {
-            LOG.v("stop web server");
-            mServerThread.stopThread();
-            while (mServerThread.isRunning()) {
-                try {
-                    this.wait(200);
-                } catch (InterruptedException e) {
-                    ;
-                }
+    public synchronized void stopServer() {
+        LOG.v("stop web server");
+        mServerThread.stopThread();
+        while (mServerThread.isRunning()) {
+            try {
+                this.wait(200);
+            } catch (InterruptedException e) {
+                ;
             }
-            mServerThread = null;
         }
+        mServerThread = null;
     }
 
 }
