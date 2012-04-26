@@ -3,7 +3,6 @@ package at.tugraz.ist.akm.webservice.handler;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
-import java.util.HashMap;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpException;
@@ -19,9 +18,7 @@ import at.tugraz.ist.akm.io.FileReader;
 import at.tugraz.ist.akm.io.xml.XmlNode;
 
 public class FileRequestHandler extends AbstractHttpRequestHandler {
-
-	private HashMap<String, FileInfo> mUri2FileInfo = new HashMap<String, FileRequestHandler.FileInfo>();
-   
+  
     public FileRequestHandler(final Context context, final XmlNode config,
             final HttpRequestHandlerRegistry registry) {
         super(context, config, registry);
