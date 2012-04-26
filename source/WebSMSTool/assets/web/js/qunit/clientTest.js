@@ -2,13 +2,13 @@
 module('WST-Object');
 
 test('object test', function() { 
-	notEqual(wstJS, null, 'wstJS is instantiated');
+	notEqual(wstAPI, null, 'wstAPI is instantiated');
 	ok(true, 'noch ein test');
 });
 
 
 test('settings', function() { 
-	notEqual(wstJS.options.api_url, '', 'API url is set');  
+	notEqual(wstAPI.options.api_url, '', 'API url is set');  
 });
 
 
@@ -23,12 +23,9 @@ test('asynchronous test', function() {
 //    	ok(state, 'Poll info successfully sent and received');
 //    });
 
-    wstJS.getContacts(function(state){
-    	ok(state, 'Get Contacts successfully sent and received');
+    wstAPI.getContacts(function(data){
+    	ok(data.state == 'success', 'Get Contacts successfully sent and received');
     });
-    
-
-    
     
     setTimeout(function(){start();}, 2000);  
 });

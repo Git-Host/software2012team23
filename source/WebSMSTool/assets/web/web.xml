@@ -9,7 +9,11 @@
 		<request uriPattern="/js/qunit/clientTest.js" dataFile="web/js/qunit/clientTest.js" contentType="text/javascript"/>
 		<request uriPattern="/js/qunit/qunit.js" dataFile="web/js/qunit/qunit.js" contentType="text/javascript"/>
 		<request uriPattern="/js/qunit/qunit.css" dataFile="web/js/qunit/qunit.css" contentType="text/css"/>     
-		<request uriPattern="/css/css.css" dataFile="web/css/css.css" contentType="text/css"/> 
+		<request uriPattern="/css/css.css" dataFile="web/css/css.css" contentType="text/css"/>
+
+		<request uriPattern="/js/wst/wstLog.js" dataFile="web/js/wst/wstLog.js" contentType="text/javascript"/>
+		<request uriPattern="/js/wst/wstAPI.js" dataFile="web/js/wst/wstAPI.js" contentType="text/javascript"/>
+		
 	</requestHandler>
     <requestHandler class="at.tugraz.ist.akm.webservice.handler.JsonAPIRequestHandler">
         <request uriPattern="/api.html" dataFile="web/api.html" contentType="text/html"/>
