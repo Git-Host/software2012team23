@@ -26,7 +26,7 @@ public class JsonContactBuilder implements IJsonBuilder {
             json.put("id", contact.getId());
             json.put("image", contact.getPhotoUri());       
             json.put("phone_numers", buildPhoneNumbers(contact.getPhoneNumbers()));
-            
+           
             log.w("contact photo uri: "+contact.getPhotoUri());
             log.i(json.toString());
             return json;

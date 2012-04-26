@@ -158,12 +158,10 @@ public class SimpleWebServer {
     }
 
     public synchronized boolean startServer(int port) {
-        try {
+    	try {
             if (this.isRunning()) {
                 LOG.i("Web service is already running at port <" + mServerThread.getPort() + ">");
-                // kill old server thread
-                //mServerThread.stopThread();
-                return false;
+                return true;
             }
             ServerSocket serverSocket = new ServerSocket(port);
             serverSocket.setReuseAddress(true);
