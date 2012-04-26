@@ -3,6 +3,7 @@ module('WST-Object');
 
 test('object test', function() { 
 	notEqual(wstJS, null, 'wstJS is instantiated');
+	ok(true, 'noch ein test');
 });
 
 

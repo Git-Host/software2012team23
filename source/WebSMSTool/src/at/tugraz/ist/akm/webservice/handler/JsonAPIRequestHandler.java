@@ -32,20 +32,14 @@ public class JsonAPIRequestHandler extends AbstractHttpRequestHandler {
     private final static String JSON_METHOD = "method";
     private final static String JSON_PARAMS = "params";
 
-    private JsonFactory jsonFactory = new JsonFactory();
+    private JsonFactory mJsonFactory = new JsonFactory();
 
     private TextingAdapter mTextingAdapter;
     
     public JsonAPIRequestHandler(final Context context, final XmlNode config,
             final HttpRequestHandlerRegistry registry) {
-        super(context, config, registry);
-        String uri = config.getAttributeValue(WebServerConfig.XML.ATTRIBUTE_URI_PATTERN);
-        if (uri == null || uri.trim().length() == 0) {
-            LOG.e("no uri configured");
-        } else {
-            register(uri);
-        }
-        
+    	
+        super(context, config, registry);        
         mTextingAdapter = new TextingAdapter((Activity)context, null, null);
     }
 
@@ -95,24 +89,24 @@ public class JsonAPIRequestHandler extends AbstractHttpRequestHandler {
     private JSONObject processMethod(String method, JSONArray jsonParams) {
         // TODO: call any API class to either retrieved the desired data or
         // executed an action
-    	   	
+    	LOG.i("Handle api request with given method: "+method);
+
         JSONObject resultObject = new JSONObject();
     	
-        if(jsonParams != null){
+        if(jsonParams == null){
         	LOG.i("No parameter for request "+method);
         } else {
         	LOG.i("Given parameters: "+jsonParams.toString());
         }
-        
-        
-    	if(method == "get_contacts"){
+                
+    	if(method.compareTo("get_contacts") == 0){
     		LOG.i("Handle get_contacts request.");
     		ContactFilter allFilter = new ContactFilter();
     		List<Contact> contacts = mTextingAdapter.fetchContacts(allFilter);
     		
             JSONArray contactList = new JSONArray();
     		for(int i = 0; i < contacts.size(); i++){
-    			contactList.put(jsonFactory.createJsonObject(contacts.get(i)));
+    			contactList.put(mJsonFactory.createJsonObject(contacts.get(i)));
     		}
             try {
         		resultObject.put("state", "success");

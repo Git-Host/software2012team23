@@ -38,6 +38,8 @@
             });
         },
         
+        
+        
         getContacts: function(callback){
             wstLog.log('getContacts called.');
             $.ajax({
@@ -45,6 +47,9 @@
               success: function(data){
             	  if(data.state == 'success'){
             		  callback(true);
+            		  
+            		  
+            		  
             	  } else {
             		  callback(false);
             	  }
@@ -55,7 +60,17 @@
               type: 'post',
               data : "{\"method\": \"get_contacts\"}"
             });
-        }        
+        }
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
     };
 
 

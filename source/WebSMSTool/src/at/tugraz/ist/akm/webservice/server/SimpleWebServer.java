@@ -51,6 +51,7 @@ public class SimpleWebServer {
                 HttpService httpService = webServer.initializeHTTPService();
                 httpService.handleRequest(serverConn, webServer.getHttpContext());
             } catch (Exception e) {
+            	e.printStackTrace();
                 LOG.e("Exception caught when processing HTTP client connection", e);
             }
         }
@@ -145,6 +146,7 @@ public class SimpleWebServer {
                         HttpRequestHandlerRegistry.class);
                 constr.newInstance(context, node, registry);
             } catch (Exception e) {
+            	e.printStackTrace();
                 LOG.e("Loading of class <" + className + "> failed", e);
             }
         }
