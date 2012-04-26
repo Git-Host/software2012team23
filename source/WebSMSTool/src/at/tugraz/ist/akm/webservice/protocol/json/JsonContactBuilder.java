@@ -15,7 +15,7 @@ public class JsonContactBuilder implements IJsonBuilder {
 
     @Override
     public JSONObject build(Object data) {
-    	Logable log = new Logable();
+    	Logable log = new Logable(this.getClass().getSimpleName());
     	
         // TODO: check type compatibility
         Contact contact = (Contact) data;
