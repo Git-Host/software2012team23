@@ -5,5 +5,7 @@
     <request uriPattern="/js/jquery.js" dataFile="web/js/jquery.js" contentType="text/javascript"/>
     <request uriPattern="/js/client.js" dataFile="web/js/client.js" contentType="text/javascript"/> 
   </requestHandler>
-  <requestHandler uriPattern="/api.html" class="at.tugraz.ist.akm.test.webservice.handler.EchoJsonRequestHandler"/>
-</webServerConfig>s
+  <requestHandler class="at.tugraz.ist.akm.test.webservice.handler.EchoJsonRequestHandler">
+      <request uriPattern="/api.html" contentType="text/html" dataFile="web/echo.html"/>
+  </requestHandler>
+</webServerConfig>
