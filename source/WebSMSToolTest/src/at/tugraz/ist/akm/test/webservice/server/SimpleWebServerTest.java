@@ -4,14 +4,11 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.Key;
-import java.security.KeyPair;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
-import java.security.PublicKey;
 import java.security.UnrecoverableKeyException;
-import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 
 import junit.framework.Assert;
@@ -133,21 +130,10 @@ public class SimpleWebServerTest extends InstrumentationTestCase {
             InputStream is = context.getResources().openRawResource(R.raw.websms);
             
             keystore.load(is, "foobar64".toCharArray());
-    
-                        
-            String alias = "websms";
+            String alias = "at.tugraz.ist.akm.websms";
     
             Key key = keystore.getKey(alias, "foobar64".toCharArray());
-            if (key instanceof PrivateKey) {
-                // Get certificate of public key
-                Certificate cert = keystore.getCertificate(alias);
-    
-                // Get public key
-                //PublicKey publicKey = cert.getPublicKey();
-    
-                // Return a key pair
-                //new KeyPair(publicKey, (PrivateKey) key);
-            } else {
+            if (!(key instanceof PrivateKey)) {
                 Assert.fail("Private key not found!");
             }
         } catch (KeyStoreException e) {
