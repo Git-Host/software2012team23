@@ -6,7 +6,7 @@ import android.util.Log;
 
 public class MainActivityTest extends Activity {
 
-    @Override
+	@Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(at.tugraz.ist.akm.test.R.layout.main);
