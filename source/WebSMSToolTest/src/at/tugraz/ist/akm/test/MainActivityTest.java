@@ -1,29 +1,15 @@
 package at.tugraz.ist.akm.test;
 
-import com.jayway.android.robotium.solo.Solo;
+import android.app.Activity;
+import android.os.Bundle;
+import android.util.Log;
 
-public class MainActivityTest extends WebSMSToolTestInstrumentation {
+public class MainActivityTest extends Activity {
 
-	private Solo mSolo;
-
-	public MainActivityTest() {
-		super(MainActivityTest.class.getSimpleName());
-//		mSolo = new Solo(getInstrumentation(), getActivity());
-//		getActivity().setContentView(R.layout.main);
-	}
-
-	protected void test() {
-		log("running empty test");
-	}
-
-	@Override
-	protected void setUp() throws Exception {
-		super.setUp();
-	}
-
-	@Override
-	protected void tearDown() throws Exception {
-		log("tearDown()");
-		mSolo.finishOpenedActivities();
-	}
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(at.tugraz.ist.akm.test.R.layout.main);
+        Log.v(MainActivityTest.class.getSimpleName(), "test activity started");
+    }
 }
