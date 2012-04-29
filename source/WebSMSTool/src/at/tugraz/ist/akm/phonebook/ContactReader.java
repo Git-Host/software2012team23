@@ -1,5 +1,8 @@
 package at.tugraz.ist.akm.phonebook;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
@@ -9,6 +12,9 @@ import android.content.ContentUris;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.ContactsContract;
+import at.tugraz.ist.akm.content.query.ContactFilter;
+import at.tugraz.ist.akm.content.query.ContactQueryBuilder;
+import at.tugraz.ist.akm.content.query.ContentProviderQueryParameters;
 
 public class ContactReader {
 
@@ -16,39 +22,6 @@ public class ContactReader {
 
 	public ContactReader(ContentResolver c) {
 		mContentResolver = c;
-	}
-
-	public static class ContactFilter {
-		private boolean mStarred = false;
-		private boolean mIsStarredActive = false;
-		private boolean mWithPhone = false;
-		private boolean mIsWithPhoneActive = false;
-
-		public boolean getIsStarred() {
-			return mStarred;
-		}
-
-		public void setStarred(boolean mStarred) {
-			this.mStarred = mStarred;
-			this.mIsStarredActive = true;
-		}
-
-		public boolean getIsStarredActive() {
-			return mIsStarredActive;
-		}
-
-		public void setWithPhone(boolean mWithPhone) {
-			this.mWithPhone = mWithPhone;
-			this.mIsWithPhoneActive = true;
-		}
-
-		public boolean getWithPhone() {
-			return this.mWithPhone;
-		}
-
-		public boolean getIsWithPhoneActive() {
-			return mIsWithPhoneActive;
-		}
 	}
 
 	public List<Contact> fetchContacts(ContactFilter filter) {
@@ -62,46 +35,13 @@ public class ContactReader {
 			}
 			people.close();
 		}
-
 		return contacts;
 	}
 
 	private Cursor queryContacts(ContactFilter filter) {
-
-		Uri select = ContactsContract.Contacts.CONTENT_URI;
-		String[] as = { ContactsContract.Contacts._ID,
-				ContactsContract.Contacts.DISPLAY_NAME,
-				ContactsContract.Contacts.STARRED };
-		StringBuffer where = new StringBuffer();
-		List<String> like = new ArrayList<String>();
-
-		// if set, put "starred" predicate to query
-		if (filter.getIsStarredActive()) {
-			where.append(ContactsContract.Contacts.STARRED + " = ? ");
-			if (filter.getIsStarred()) {
-				like.add("1");
-			} else {
-				like.add("0");
-			}
-		}
-		// if set, put "with phone" predicate to query
-		if (filter.getIsWithPhoneActive()) {
-			if (where.length() > 0) {
-				where.append(" AND");
-			}
-			where.append(" " + ContactsContract.Contacts.HAS_PHONE_NUMBER
-					+ " = ? ");
-			if (filter.getWithPhone()) {
-				like.add("1");
-			} else {
-				like.add("0");
-			}
-		}
-
-		String[] likeArgs = new String[like.size()];
-		likeArgs = like.toArray(likeArgs);
-		return mContentResolver.query(select, as, where.toString(), likeArgs,
-				null);
+		ContactQueryBuilder qBuild = new ContactQueryBuilder(filter);
+		ContentProviderQueryParameters q = qBuild.getQueryArgs();
+		return mContentResolver.query(q.uri, q.as, q.where, q.like, q.sortBy);
 	}
 
 	private Contact parseToContact(Cursor person) {
@@ -117,7 +57,7 @@ public class ContactReader {
 		contact.setDisplayName(displayName);
 		contact.setId(Integer.parseInt(contactId));
 		contact.setStarred(starred);
-		contact.setPhotoUri(getPhotoUri(contactId));
+		collectPhotoData(contact, contactId);
 		collectPhoneNumberDetails(contact, contactId);
 		collectStructuredNameDetails(contact, contactId);
 
@@ -151,7 +91,6 @@ public class ContactReader {
 										.getString(phoneNumbers
 												.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER)),
 								Integer.parseInt(phone)));
-
 			}
 			contact.setPhoneNumbers(phoneNumberList);
 			phoneNumbers.close();
@@ -189,26 +128,55 @@ public class ContactReader {
 
 	}
 
-	private Uri getPhotoUri(String contactId) {
+	private void collectPhotoData(Contact contact, String contactId) {
 		Uri select = ContactsContract.Data.CONTENT_URI;
 		String[] as = { ContactsContract.Data.CONTACT_ID };
 		String where = ContactsContract.Data.CONTACT_ID + "= ? " + " AND "
 				+ ContactsContract.Data.MIMETYPE + " = ?";
-
 		String[] like = { contactId,
 				ContactsContract.CommonDataKinds.Photo.CONTENT_ITEM_TYPE };
 		Cursor cur = mContentResolver.query(select, as, where, like, null);
 
+		Uri person = ContentUris.withAppendedId(
+				ContactsContract.Contacts.CONTENT_URI,
+				Long.parseLong(contactId));
+
+		// get photo Uri
 		Uri photoUri = null;
 		if (cur != null) {
 			if (cur.moveToFirst()) {
-				Uri person = ContentUris.withAppendedId(
-						ContactsContract.Contacts.CONTENT_URI,
-						Long.parseLong(contactId));
-				return Uri.withAppendedPath(person,
+
+				photoUri = Uri.withAppendedPath(person,
 						ContactsContract.Contacts.Photo.CONTENT_DIRECTORY);
 			}
 		}
-		return photoUri;
+		contact.setPhotoUri(photoUri);
+		contact.setPhotoBytes(getPhotoBytes(person));
+	}
+
+	/**
+	 * @param person
+	 *            the contact uri
+	 * @return byte array of contacts picture
+	 */
+	private byte[] getPhotoBytes(Uri person) {
+		byte[] bytes = null;
+
+		InputStream iStream = ContactsContract.Contacts
+				.openContactPhotoInputStream(mContentResolver, person);
+		if (iStream != null) {
+			try {
+				ByteArrayOutputStream oStream = new ByteArrayOutputStream();
+				int c = 0;
+				while ((c = iStream.read()) != -1) {
+					oStream.write(c);
+				}
+				bytes = oStream.toByteArray();
+			} catch (IOException e) {
+				// If there is no picture I really don't care!
+			}
+		}
+
+		return bytes;
 	}
 }

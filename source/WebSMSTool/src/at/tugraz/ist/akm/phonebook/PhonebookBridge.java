@@ -2,17 +2,18 @@ package at.tugraz.ist.akm.phonebook;
 
 import java.util.List;
 
-import android.app.Activity;
 import android.content.ContentResolver;
+import android.content.Context;
 import android.database.ContentObserver;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.ContactsContract;
+import at.tugraz.ist.akm.content.query.ContactFilter;
 import at.tugraz.ist.akm.trace.Logable;
 
 public class PhonebookBridge implements ContactModifiedCallback {
 
-	private Activity mActivity = null;
+	private Context mContext = null;
 	private ContentResolver mContentResolver = null;
 	private Logable mLog = new Logable(getClass().getSimpleName());
 
@@ -45,44 +46,23 @@ public class PhonebookBridge implements ContactModifiedCallback {
 		}
 	}
 
-	public PhonebookBridge(Activity a) {
-		log("starting ...");
-		mActivity = a;
-		mContentResolver = mActivity.getContentResolver();
+	public PhonebookBridge(Context c) {
+		mContext = c;
+		mContentResolver = mContext.getContentResolver();
 		mContactReader = new ContactReader(mContentResolver);
 		mContactContentCursor = getContactCursor();
+	}
+	
+	public void start() {
 		registerContactChangedObserver();
 	}
 
-	public void close() {
+	public void stop() {
 		unregisterContactChangedObserver();
 	}
 
-	public List<Contact> fetchContacts(ContactReader.ContactFilter filter) {
-		List<Contact> contacts = mContactReader.fetchContacts(filter);
-		log("fetched [" + contacts.size() + "] cntacts");
-		return contacts;
-	}
-
-	private Cursor getContactCursor() {
-		Uri select = ContactsContract.Contacts.CONTENT_URI;
-		String[] as = { ContactsContract.Contacts.DISPLAY_NAME,
-				ContactsContract.Contacts._ID };
-		String where = ContactsContract.Contacts.HAS_PHONE_NUMBER + " = ? ";
-		String[] like = { "1" };
-
-		return mActivity.managedQuery(select, as, where, like, null);
-	}
-
-	private void registerContactChangedObserver() {
-		mContactContentObserver = new ContactContentObserver(this);
-		mContactContentCursor.registerContentObserver(mContactContentObserver);
-	}
-
-	private void unregisterContactChangedObserver() {
-		mContactContentCursor
-				.unregisterContentObserver(mContactContentObserver);
-		mContactContentObserver = null;
+	public List<Contact> fetchContacts(ContactFilter filter) {
+		return mContactReader.fetchContacts(filter);
 	}
 
 	public void setContactModifiedCallback(ContactModifiedCallback c) {
@@ -95,6 +75,28 @@ public class PhonebookBridge implements ContactModifiedCallback {
 		if (mExternalContactModifiedCallback != null) {
 			mExternalContactModifiedCallback.contactModifiedCallback();
 		}
+	}
+	
+	private Cursor getContactCursor() {
+		Uri select = ContactsContract.Contacts.CONTENT_URI;
+		String[] as = { ContactsContract.Contacts.DISPLAY_NAME,
+				ContactsContract.Contacts._ID };
+		String where = ContactsContract.Contacts.HAS_PHONE_NUMBER + " = ? ";
+		String[] like = { "1" };
+
+		return mContentResolver.query(select, as, where, like, null);
+	}
+
+	private void registerContactChangedObserver() {
+		mContactContentObserver = new ContactContentObserver(this);
+		mContactContentCursor.registerContentObserver(mContactContentObserver);
+	}
+
+	private void unregisterContactChangedObserver() {
+		mContactContentCursor
+				.unregisterContentObserver(mContactContentObserver);
+		mContactContentObserver = null;
+		mContactContentCursor.close();
 	}
 
 	private void log(final String m) {
