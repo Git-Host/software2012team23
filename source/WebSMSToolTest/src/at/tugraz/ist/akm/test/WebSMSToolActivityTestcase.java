@@ -3,6 +3,7 @@ package at.tugraz.ist.akm.test;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.test.ActivityTestCase;
+import at.tugraz.ist.akm.test.trace.ThrowingLogable;
 import at.tugraz.ist.akm.trace.Logable;
 
 public class WebSMSToolActivityTestcase extends ActivityTestCase {
@@ -12,7 +13,7 @@ public class WebSMSToolActivityTestcase extends ActivityTestCase {
 	private Logable mLog = null;
 
 	public WebSMSToolActivityTestcase(final String logTag) {
-		mLog = new Logable(logTag);
+		mLog = new ThrowingLogable(logTag);
 	}
 
 	@Override
@@ -30,8 +31,36 @@ public class WebSMSToolActivityTestcase extends ActivityTestCase {
 		super.tearDown();
 	}
 
+	protected void log(final String m, Throwable t) {
+		mLog.v(m, t);
+	}
+	
 	protected void log(final String m) {
-		mLog.log(m);
+		mLog.v(m);
+	}
+	
+	protected void logd(final String m, Throwable t) {
+		mLog.d(m, t);
+	}
+	
+	protected void logd(final String m) {
+		mLog.d(m);
+	}
+	
+	protected void loge(final String m, Throwable t) {
+		mLog.e(m, t);
+	}
+	
+	protected void loge(final String m) {
+		mLog.e(m);
+	}
+	
+	protected void logi(final String m, Throwable t) {
+		mLog.i(m, t);
+	}
+	
+	protected void logi(final String m) {
+		mLog.i(m);
 	}
 
 }

@@ -13,10 +13,6 @@ public class Logable {
 	public Logable() {
 		mTag = new String("<notag>");
 	}
-
-	public void log(final String message) {
-		v(message);
-	}
 	
 	public Logable(String tag) {
 		mTag = new String(tag);

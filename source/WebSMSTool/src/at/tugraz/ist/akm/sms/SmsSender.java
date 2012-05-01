@@ -31,7 +31,7 @@ public class SmsSender extends Logable {
 
 		int partNum = 0;
 		for (String part : parts) {
-			log("sending part [" + partNum++ + "] to [" + message.getAddress()
+			v("sending part [" + partNum++ + "] to [" + message.getAddress()
 					+ "] (" + part + ")");
 			PendingIntent sentPIntent = getSentPendingIntent(message, part);
 			PendingIntent deliveredPIntent = getDeliveredPendingIntent(message,

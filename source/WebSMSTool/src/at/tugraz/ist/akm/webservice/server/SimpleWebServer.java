@@ -51,7 +51,7 @@ public class SimpleWebServer {
                 HttpService httpService = mWebServer.initializeHTTPService();
                 httpService.handleRequest(serverConn, mWebServer.getHttpContext());
             } catch (Exception e) {
-            	e.printStackTrace();
+                e.printStackTrace();
                 LOG.e("Exception caught when processing HTTP client connection", e);
             }
         }
@@ -74,19 +74,20 @@ public class SimpleWebServer {
             while (mRunning) {
 
                 Socket socket = null;
-                //LOG.d("waiting for connection at " + serverSocket);
+                // LOG.d("waiting for connection at " + serverSocket);
                 try {
                     socket = mServerSocket != null ? mServerSocket.accept() : null;
                 } catch (IOException e) {
-                    //LOG.i("Exception caught while waiting for client connection", e);
+                    // LOG.i("Exception caught while waiting for client connection",
+                    // e);
                 }
 
                 if (mStopServerThread) {
                     break;
                 }
                 if (socket != null) {
-                    LOG.d("connection request from ip <" + socket.getInetAddress()
-                            + "> on port <" + socket.getPort() + ">");
+                    LOG.d("connection request from ip <" + socket.getInetAddress() + "> on port <"
+                            + socket.getPort() + ">");
 
                     WorkerThread workerThread = new WorkerThread(mWebServer, socket);
                     workerThread.setDaemon(true);
@@ -146,8 +147,9 @@ public class SimpleWebServer {
                         HttpRequestHandlerRegistry.class);
                 constr.newInstance(mContext, node, mRegistry);
             } catch (Exception e) {
-            	e.printStackTrace();
+                e.printStackTrace();
                 LOG.e("Loading of class <" + className + "> failed", e);
+                stopServer();
             }
         }
         LOG.v("request handlers read from configuration");
@@ -158,7 +160,7 @@ public class SimpleWebServer {
     }
 
     public synchronized boolean startServer(int port) {
-    	try {
+        try {
             if (this.isRunning()) {
                 LOG.i("Web service is already running at port <" + mServerThread.getPort() + ">");
                 return true;
@@ -179,15 +181,18 @@ public class SimpleWebServer {
 
     public synchronized void stopServer() {
         LOG.v("stop web server");
-        mServerThread.stopThread();
-        while (mServerThread.isRunning()) {
-            try {
-                this.wait(200);
-            } catch (InterruptedException e) {
-                ;
+        if (mServerThread != null) {
+            mServerThread.stopThread();
+            while (mServerThread.isRunning()) {
+                try {
+                    this.wait(200);
+                } catch (InterruptedException e) {
+                    ;
+                }
             }
+
+            mServerThread = null;
         }
-        mServerThread = null;
     }
 
 }
