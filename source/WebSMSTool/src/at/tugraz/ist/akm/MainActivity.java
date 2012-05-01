@@ -12,8 +12,6 @@ public class MainActivity extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
-        // it would be good practice to check whether the service not
-        // running and then start it
         Log.v("Activity", "Going to start web service");
         this.startService(new Intent(this, WebSMSToolService.class));
     }
