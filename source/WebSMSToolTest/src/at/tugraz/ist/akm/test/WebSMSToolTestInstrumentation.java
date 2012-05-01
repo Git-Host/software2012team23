@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.ContentResolver;
 import android.test.ActivityInstrumentationTestCase2;
 import at.tugraz.ist.akm.MainActivity;
+import at.tugraz.ist.akm.test.trace.ThrowingLogable;
 import at.tugraz.ist.akm.trace.Logable;
 
 public class WebSMSToolTestInstrumentation extends
@@ -15,7 +16,7 @@ ActivityInstrumentationTestCase2<MainActivity> {
 	
 	public WebSMSToolTestInstrumentation(final String logTag) {
 		super("at.tugraz.ist.akm", MainActivity.class);
-		mLog = new Logable(logTag);
+		mLog = new ThrowingLogable(logTag);
 	}
 	
 	@Override

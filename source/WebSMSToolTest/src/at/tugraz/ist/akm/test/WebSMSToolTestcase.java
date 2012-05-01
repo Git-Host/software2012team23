@@ -2,6 +2,7 @@ package at.tugraz.ist.akm.test;
 
 import android.content.ContentResolver;
 import android.test.InstrumentationTestCase;
+import at.tugraz.ist.akm.test.trace.ThrowingLogable;
 import at.tugraz.ist.akm.trace.Logable;
 
 public class WebSMSToolTestcase extends InstrumentationTestCase {
@@ -10,7 +11,7 @@ public class WebSMSToolTestcase extends InstrumentationTestCase {
 	private Logable mLog = null;
 
 	public WebSMSToolTestcase(final String logTag) {
-		mLog = new Logable(logTag);
+		mLog = new ThrowingLogable(logTag);
 	}
 
 	@Override
@@ -30,7 +31,7 @@ public class WebSMSToolTestcase extends InstrumentationTestCase {
 	}
 
 	protected void log(final String m) {
-		mLog.log(m);
+		mLog.v(m);
 	}
 
 }

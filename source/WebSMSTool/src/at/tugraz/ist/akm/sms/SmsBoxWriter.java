@@ -85,7 +85,7 @@ public class SmsBoxWriter extends Logable {
 		int rows = mContentResolver.update(destination,
 				textMessageToValues(message), where.toString(), like);
 
-		log("Updated [" + rows + "] rows on [" + destination.toString() + "]");
+		v("Updated [" + rows + "] rows on [" + destination.toString() + "]");
 		return rows;
 	}
 
