@@ -60,7 +60,7 @@ public class JsonAPIRequestHandler extends AbstractHttpRequestHandler {
                     JSONObject jsonResponse = processMethod(method, jsonParams);
                     sendResponse(httpResponse, jsonResponse);
                 } else {
-                    LOG.e("no method defined in JSON post request ==> <" + json.toString() + ">");
+                    mLog.logE("no method defined in JSON post request ==> <" + json.toString() + ">");
                     return;
                 }
             } catch (ParseException e) {
@@ -88,18 +88,18 @@ public class JsonAPIRequestHandler extends AbstractHttpRequestHandler {
     private JSONObject processMethod(String method, JSONArray jsonParams) {
         // TODO: call any API class to either retrieved the desired data or
         // executed an action
-    	LOG.i("Handle api request with given method: "+method);
+    	mLog.logI("Handle api request with given method: "+method);
 
         JSONObject resultObject = new JSONObject();
     	
         if(jsonParams == null){
-        	LOG.i("No parameter for request "+method);
+        	mLog.logI("No parameter for request "+method);
         } else {
-        	LOG.i("Given parameters: "+jsonParams.toString());
+        	mLog.logI("Given parameters: "+jsonParams.toString());
         }
                 
     	if(method.compareTo("get_contacts") == 0){
-    		LOG.i("Handle get_contacts request.");
+    		mLog.logI("Handle get_contacts request.");
     		ContactFilter allFilter = new ContactFilter();
     		List<Contact> contacts = mTextingAdapter.fetchContacts(allFilter);
     		
@@ -111,15 +111,15 @@ public class JsonAPIRequestHandler extends AbstractHttpRequestHandler {
         		resultObject.put("state", "success");
 				resultObject.put("contacts", contactList);
 			} catch (JSONException e) {
-                LOG.e("Could not append contact list to json object.");
+                mLog.logE("Could not append contact list to json object.");
 				e.printStackTrace();
 			}
     	} else {
-            LOG.w("No method found for given request method: "+method);
+            mLog.logW("No method found for given request method: "+method);
     		try {
 				resultObject.put("state", "error");
 			} catch (JSONException e) {
-                LOG.e("Could not create default error object.");				
+                mLog.logE("Could not create default error object.");				
 				e.printStackTrace();
 			}
     	}

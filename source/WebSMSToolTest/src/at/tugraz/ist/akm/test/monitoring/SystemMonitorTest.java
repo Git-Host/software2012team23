@@ -24,7 +24,7 @@ public class SystemMonitorTest extends WebSMSToolActivityTestcase {
 	}
 
 	private void logBStats(BatteryStatus bStats) {
-		log(" BatteryStatus: batteryIconIdSmall [" + bStats.getBatteryIconId()
+		logV(" BatteryStatus: batteryIconIdSmall [" + bStats.getBatteryIconId()
 				+ "] isCharging [" + bStats.getIsCharging() + "] isFull["
 				+ bStats.getIsFull() + "] chargePlug[" + bStats.getChargePlug()
 				+ "]usbCharge [" + bStats.getIsUsbCharge() + "] acCharge["

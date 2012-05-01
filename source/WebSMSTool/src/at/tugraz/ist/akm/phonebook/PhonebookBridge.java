@@ -100,6 +100,6 @@ public class PhonebookBridge implements ContactModifiedCallback {
 	}
 
 	private void log(final String m) {
-		mLog.v(m);
+		mLog.logV(m);
 	}
 }

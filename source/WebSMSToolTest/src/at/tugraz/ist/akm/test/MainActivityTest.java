@@ -2,8 +2,9 @@ package at.tugraz.ist.akm.test;
 
 import android.test.ActivityInstrumentationTestCase2;
 import at.tugraz.ist.akm.MainActivity;
-import at.tugraz.ist.akm.test.trace.ThrowingLogable;
+import at.tugraz.ist.akm.test.trace.ThrowingLogSink;
 import at.tugraz.ist.akm.trace.Logable;
+import at.tugraz.ist.akm.trace.Logger;
 
 public class MainActivityTest extends
 		ActivityInstrumentationTestCase2<MainActivity> {
@@ -12,7 +13,8 @@ public class MainActivityTest extends
 
 	public MainActivityTest() {
 		super("at.tugraz.ist.akm", MainActivity.class);
-		mLog = new ThrowingLogable(MainActivityTest.class.getSimpleName());
+		Logger.setSink(new ThrowingLogSink());
+		mLog = new Logable(MainActivityTest.class.getSimpleName());
 	}
 
 	/**
@@ -35,7 +37,7 @@ public class MainActivityTest extends
 	}
 
 	protected void log(final String m) {
-		mLog.v(m);
+		mLog.logV(m);
 	}
 
 }
