@@ -1,14 +1,10 @@
 package at.tugraz.ist.akm.monitoring;
 
-import java.io.ByteArrayOutputStream;
-
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.os.BatteryManager;
 import at.tugraz.ist.akm.R;
+import at.tugraz.ist.akm.resource.DrawableResource;
 
 public class BatteryStatus {
 
@@ -52,22 +48,18 @@ public class BatteryStatus {
 
 	public byte[] getBatteryIconBytes() {
 
-		int batteryId = R.drawable.battery_level0;
+		int batteryIconId = R.drawable.battery_level0;
 		if (mBatteryLevel >= 80) {
-			batteryId = R.drawable.battery_level4;
+			batteryIconId = R.drawable.battery_level4;
 		} else if (mBatteryLevel >= 60) {
-			batteryId = R.drawable.battery_level3;
+			batteryIconId = R.drawable.battery_level3;
 		} else if (mBatteryLevel >= 40) {
-			batteryId = R.drawable.battery_level2;
+			batteryIconId = R.drawable.battery_level2;
 		} else if (mBatteryLevel >= 20) {
-			batteryId = R.drawable.battery_level1;
+			batteryIconId = R.drawable.battery_level1;
 		}
 
-		Drawable d = mContext.getResources().getDrawable(batteryId);
-		Bitmap b = ((BitmapDrawable) d).getBitmap();
-		ByteArrayOutputStream stream = new ByteArrayOutputStream();
-		b.compress(Bitmap.CompressFormat.JPEG, 100, stream);
-		return stream.toByteArray();
+		return new DrawableResource(mContext).getBase64EncodedBytes(batteryIconId);
 	}
 
 	public boolean getIsCharging() {

@@ -64,5 +64,13 @@ public class WebSMSToolActivityTestcase extends ActivityTestCase {
 	protected void logV(final String m) {
 		mLog.logV(m);
 	}
+	
+	protected void logW(final String m, Throwable t) {
+		mLog.logW(m, t);
+	}
+	
+	protected void logW(final String m) {
+		mLog.logW(m);
+	}
 
 }
