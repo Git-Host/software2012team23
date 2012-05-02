@@ -17,6 +17,7 @@ test('getContacts()', function() {
     stop();  
     expect(1);  
     wstAPI.getContacts(function(data){
+    	wstAPI.getContactsCallback(data);
     	ok(data.state == 'success', 'Get Contacts successfully sent and received');
     });
     setTimeout(function(){start();}, 4000);  
