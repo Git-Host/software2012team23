@@ -12,7 +12,7 @@ public class SmsHelper {
 	private static Logable mLog = new Logable(SmsHelper.class.getSimpleName());
 	
 	private static void log(final String m) {
-		mLog.v(m);
+		mLog.logV(m);
 	}
 	
 	public static String getDateNowString() {

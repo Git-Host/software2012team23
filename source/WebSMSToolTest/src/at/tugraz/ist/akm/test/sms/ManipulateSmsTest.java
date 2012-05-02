@@ -172,7 +172,7 @@ public class ManipulateSmsTest extends WebSMSToolActivityTestcase implements
 			List<Integer> threadIDs = smsSource.getThreadIds(address);
 
 			for (Integer id : threadIDs) {
-				log("fetched sms thread-ID: [" + id + "] for address ["
+				logV("fetched sms thread-ID: [" + id + "] for address ["
 						+ address + "]");
 			}
 		} catch (Exception e) {
@@ -193,7 +193,7 @@ public class ManipulateSmsTest extends WebSMSToolActivityTestcase implements
 
 	@Override
 	public void smsSentCallback(Context context, Intent intent) {
-		log("sms sent. unpacking text message extras ...");
+		logV("sms sent. unpacking text message extras ...");
 
 		try {
 			Bundle extrasBundle = intent.getExtras();
@@ -209,30 +209,30 @@ public class ManipulateSmsTest extends WebSMSToolActivityTestcase implements
 							+ "] sent on [" + sentMessage.getDate()
 							+ "], part: [" + part + "], whole message was: ["
 							+ sentMessage.getBody() + "]");
-					log(infos.toString());
+					logV(infos.toString());
 				}
 
 			} else {
-				log("couldn't find any text message infos at all :(");
+				logE("couldn't find any text message infos at all :(");
 			}
 		} catch (Exception e) {
-			log("FAILED to gather text message extras from intent");
+			logE("FAILED to gather text message extras from intent");
 		}
 	}
 
 	@Override
 	public void smsDeliveredCallback(Context context, Intent intent) {
-		log("sms delivered (action: " + intent.getAction() + " )");
+		logV("sms delivered (action: " + intent.getAction() + " )");
 	}
 
 	@Override
 	public void smsReceivedCallback(Context context, Intent intent) {
-		log("sms received (action: " + intent.getAction() + " )");
+		logV("sms received (action: " + intent.getAction() + " )");
 	}
 
 	@Override
 	public void smsSentErrorCallback(Context context, Intent intent) {
-		log("sms sent erroneous (action: " + intent.getAction() + " )");
+		logV("sms sent erroneous (action: " + intent.getAction() + " )");
 	}
 
 }

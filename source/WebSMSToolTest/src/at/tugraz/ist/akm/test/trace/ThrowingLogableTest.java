@@ -2,14 +2,21 @@ package at.tugraz.ist.akm.test.trace;
 
 import junit.framework.TestCase;
 import at.tugraz.ist.akm.trace.Logable;
+import at.tugraz.ist.akm.trace.Logger;
 
 public class ThrowingLogableTest extends TestCase {
 
-	protected Logable mLog = new ThrowingLogable(ThrowingLogable.class.getSimpleName());
+	protected Logable mLog = new Logable(ThrowingLogSink.class.getSimpleName());
+	
+	@Override
+	public void setUp() throws Exception {
+		super.setUp();
+		Logger.setSink(new ThrowingLogSink());
+	}
 	
 	public void testLogVerbose() {
 		try {
-			mLog.v("");
+			mLog.logV("testLogVerbose");
 		} catch (Exception e) {
 			assertTrue(false);
 		}
@@ -17,7 +24,7 @@ public class ThrowingLogableTest extends TestCase {
 	
 	public void testLogVerboseE() {
 		try {			
-			mLog.v("", null);
+			mLog.logV("testLogVerboseE", null);
 		} catch (Exception e) {
 			assertTrue(false);
 		}
@@ -25,7 +32,7 @@ public class ThrowingLogableTest extends TestCase {
 	
 	public void testLogDebug() {
 		try {
-			mLog.d("");
+			mLog.logD("testLogDebug");
 		} catch (Exception e) {
 			assertTrue(false);
 		}
@@ -33,7 +40,7 @@ public class ThrowingLogableTest extends TestCase {
 	
 	public void testLogDebugE() {
 		try {
-			mLog.d("", null);
+			mLog.logD("testLogDebugE", null);
 		} catch (Exception e) {
 			assertTrue(false);
 		}
@@ -41,9 +48,9 @@ public class ThrowingLogableTest extends TestCase {
 	
 	public void testLogError() {
 		try {
-			mLog.e("");
+			mLog.logE("testLogError");
 		} catch (Throwable e) {
-			// expect to throw
+			// ok
 			return;
 		}
 		assertTrue(false);
@@ -51,9 +58,9 @@ public class ThrowingLogableTest extends TestCase {
 	
 	public void testLogErrorE() {
 		try {
-			mLog.e("", null);
+			mLog.logE("testLogErrorE", null);
 		} catch (Throwable e) {
-			// expect to throw
+			// ok
 			return;
 		}
 		assertTrue(false);
@@ -61,7 +68,7 @@ public class ThrowingLogableTest extends TestCase {
 	
 	public void testLogInfo() {
 		try {
-			mLog.i("");
+			mLog.logI("testLogInfo");
 		} catch (Exception e) {
 			assertTrue(false);
 		}
@@ -69,7 +76,7 @@ public class ThrowingLogableTest extends TestCase {
 	
 	public void testLogInfoE() {
 		try {
-			mLog.i("", null);
+			mLog.logI("testLogInfoE", null);
 		} catch (Exception e) {
 			assertTrue(false);
 		}
@@ -77,7 +84,7 @@ public class ThrowingLogableTest extends TestCase {
 	
 	public void testLogWarn() {
 		try {
-			mLog.w("");
+			mLog.logW("testLogWarn");
 		} catch (Exception e) {
 			assertTrue(false);
 		}
@@ -85,7 +92,7 @@ public class ThrowingLogableTest extends TestCase {
 	
 	public void testLogWarnE() {
 		try {
-			mLog.w("", null);
+			mLog.logW("testLogWarnE", null);
 		} catch (Exception e) {
 			assertTrue(false);
 		}

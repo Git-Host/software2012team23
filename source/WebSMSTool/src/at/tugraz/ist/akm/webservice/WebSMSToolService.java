@@ -37,12 +37,12 @@ public class WebSMSToolService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        LOG.v("Try to start webserver.");
+        LOG.logV("Try to start webserver.");
         mServer = new SimpleWebServer(this);
         if (mServer.startServer(mPort)) {
-            LOG.i("Web service has been started on port <" + mPort + ">");
+            LOG.logI("Web service has been started on port <" + mPort + ">");
         } else {
-            LOG.w("Couldn't start web service on port <" + mPort + ">");
+            LOG.logW("Couldn't start web service on port <" + mPort + ">");
         }
         return super.onStartCommand(intent, flags, startId);
     }

@@ -21,7 +21,7 @@ public class JsonFactory {
         if (builder != null) {
             return builder.build(object);
         }
-        log.w("no json builder available for object <" + object.getClass() + ">");
+        log.logW("no json builder available for object <" + object.getClass() + ">");
         return null;
     }
 

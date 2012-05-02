@@ -19,7 +19,7 @@ public class JsonFactoryTest extends TestCase {
         Contact contact = new Contact();
         contact.setDisplayName("therock");
         contact.setName("Thomas");
-        contact.setFamilyName("Gödl");
+        contact.setFamilyName("Goedl");
 
         List<Contact.Number> phoneNumbers = new ArrayList<Contact.Number>();
 
@@ -35,7 +35,7 @@ public class JsonFactoryTest extends TestCase {
         contact.setPhoneNumbers(phoneNumbers);
 
         JSONObject createdObject = factory.createJsonObject(contact);
-        log.v("created object: " + createdObject.toString());
+        log.logV("created object: " + createdObject.toString());
     }
 
 }

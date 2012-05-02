@@ -35,7 +35,7 @@ public class JsonContactBuilder implements IJsonBuilder {
             json.put("phone_numbers", buildPhoneNumbers(contact.getPhoneNumbers()));
             
             
-            log.i(json.toString());
+            log.logI(json.toString());
             return json;
         } catch (JSONException e) {
             e.printStackTrace();
