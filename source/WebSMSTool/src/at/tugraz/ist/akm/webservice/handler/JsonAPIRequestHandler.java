@@ -3,6 +3,8 @@ package at.tugraz.ist.akm.webservice.handler;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import org.apache.http.HttpException;
@@ -20,15 +22,18 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.content.Context;
+import android.content.Intent;
 import at.tugraz.ist.akm.content.query.ContactFilter;
 import at.tugraz.ist.akm.io.xml.XmlNode;
 import at.tugraz.ist.akm.phonebook.Contact;
+import at.tugraz.ist.akm.phonebook.ContactModifiedCallback;
+import at.tugraz.ist.akm.sms.SmsIOCallback;
 import at.tugraz.ist.akm.sms.TextMessage;
 import at.tugraz.ist.akm.texting.TextingAdapter;
 import at.tugraz.ist.akm.webservice.WebServerConfig;
 import at.tugraz.ist.akm.webservice.protocol.json.JsonFactory;
 
-public class JsonAPIRequestHandler extends AbstractHttpRequestHandler {
+public class JsonAPIRequestHandler extends AbstractHttpRequestHandler implements SmsIOCallback, ContactModifiedCallback {
     private final static String JSON_METHOD = "method";
     private final static String JSON_PARAMS = "params";
     private final static String JSON_STATE_SUCCESS = "success";
@@ -37,6 +42,19 @@ public class JsonAPIRequestHandler extends AbstractHttpRequestHandler {
     private JsonFactory mJsonFactory = new JsonFactory();
 
     private TextingAdapter mTextingAdapter;
+
+    
+    /** members to represent a state */
+    private volatile boolean mSMSSentSuccessfully = false;
+    private volatile boolean mContactsChanged = false;
+    private volatile boolean mSMSReceived = false;
+    
+    private volatile HashMap<String,Integer> mWaitingSMSSentCallback = new HashMap<String, Integer>();
+    private volatile List<String> mSentSMS = new ArrayList<String>();
+    private volatile List<TextMessage> mReceivedSMSMessages = new ArrayList<TextMessage>();
+    
+    
+    
     
     public JsonAPIRequestHandler(final Context context, final XmlNode config,
             final HttpRequestHandlerRegistry registry) {
@@ -159,7 +177,7 @@ public class JsonAPIRequestHandler extends AbstractHttpRequestHandler {
     
     
     
-    private JSONObject getContacts(){
+    private synchronized JSONObject getContacts(){
     	JSONObject resultObject = new JSONObject();
 		mLog.logI("Handle get_contacts request.");
 		ContactFilter allFilter = new ContactFilter();
@@ -186,24 +204,20 @@ public class JsonAPIRequestHandler extends AbstractHttpRequestHandler {
     }
     
     
-    private JSONObject sendSMS(JSONArray params){
+    private synchronized JSONObject sendSMS(JSONArray params){
     	JSONObject resultObject = new JSONObject();
     	
-    	String adress = "";
+    	String address = "";
     	String message = "";
     	
     	int paramsLength = params.length();
     	try
     	{
-	    	if(paramsLength == 2){
-	    		//first item is the address/phone number
-	    		JSONObject jsonNumber = params.getJSONObject(0);
-	    		adress = (String)jsonNumber.get("adress");
-	
-	    		//second item is the message
-	    		JSONObject jsonMessage = params.getJSONObject(1);
-	    		message = (String) jsonMessage.getString("message");
-	    		
+	    	if(paramsLength == 1){
+	    		JSONObject jsonParams = params.getJSONObject(0);
+	    		address = jsonParams.getString("address");
+	    		message = jsonParams.getString("message");
+	    		mLog.logV("Fetch parameter adress: "+address+" and message: "+message+" from send sms request.");
 	    	} else {
 	    		this.setErrorState(resultObject, "Corrupt amount of parameters given to send sms.");
 	    		return resultObject;
@@ -212,9 +226,9 @@ public class JsonAPIRequestHandler extends AbstractHttpRequestHandler {
     		mLog.logE("Parameters for sending sms could not be fetched from the given api request.");
     	}
     	
-    	if(adress.length() > 0 && message.length() > 0){
+    	if(address.length() > 0 && message.length() > 0){
     		TextMessage sentMessage = new TextMessage();
-    		sentMessage.setAddress(adress);
+    		sentMessage.setAddress(address);
     		sentMessage.setBody(message);
     		int parts = mTextingAdapter.sendTextMessage(sentMessage);
     		//TODO create a map in the class to store send messages with parts as count
@@ -225,6 +239,37 @@ public class JsonAPIRequestHandler extends AbstractHttpRequestHandler {
     		this.setErrorState(resultObject, "One or all of the given parameters are empty or corrupt.");
     	}
 		return resultObject;
-    }    
+    }
+
+    
+	@Override
+	public void contactModifiedCallback() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void smsSentCallback(Context context, Intent intent) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void smsSentErrorCallback(Context context, Intent intent) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void smsDeliveredCallback(Context context, Intent intent) {
+		//not working so we do not bother about it
+		
+	}
+
+	@Override
+	public void smsReceivedCallback(Context context, Intent intent) {
+		// TODO Auto-generated method stub
+		
+	}
     
 }

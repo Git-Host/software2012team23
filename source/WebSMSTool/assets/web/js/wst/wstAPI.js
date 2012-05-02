@@ -51,9 +51,9 @@
         },
         
         
-        sendSMSMessage: function(adress, message, callback){
+        sendSMSMessage: function(address, message, callback){
         	wstLog.log('sendSMSMessage called.');
-        	var params = '[{"adresse":"'+adress+'","message":"'+message+'"}]';
+        	var params = '[{"address":"'+address+'","message":"'+message+'"}]';
         	this.sendRequest("send_sms_message",params,callback);
         },
         
