@@ -13,17 +13,19 @@ test('settings', function() {
 	notEqual(wstAPI.options.api_url, '', 'API url is set');  
 });
 
-test('getContacts()', function() {
+test('test api methods', function() {
     stop();  
-    expect(1);  
+    expect(2);  
     wstAPI.getContacts(function(data){
     	wstAPI.getContactsCallback(data);
     	ok(data.state == 'success', 'Get Contacts successfully sent and received');
     });
-    setTimeout(function(){start();}, 4000);  
+      
+    wstAPI.sendSMSMessage("1234567890","Das ist eine SMS Nachricht", function(data){
+    	ok(data.state == 'success', 'SMS successfully sent to phone application.');
+    });  
+    setTimeout(function(){start();}, 6000);  
 });
-
-
 
 
 module('wstTemplate');

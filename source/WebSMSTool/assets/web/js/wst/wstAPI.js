@@ -30,7 +30,7 @@
         	if(parameters.length == 0){
         		methodData = '{"method": "' + method + '"}';
         	} else {
-        		methodData = '{"method": "' + method + '","params": ' + parameters +'"}';
+        		methodData = '{"method": "' + method + '","params": ' + parameters +'}';
         	}
             $.ajax({
                 url: this.options.api_url,
@@ -53,7 +53,7 @@
         
         sendSMSMessage: function(adress, message, callback){
         	wstLog.log('sendSMSMessage called.');
-        	var params = '["adresse":"'+adress+'","message":"'+message+'"]';
+        	var params = '[{"adresse":"'+adress+'","message":"'+message+'"}]';
         	this.sendRequest("send_sms_message",params,callback);
         },
         
