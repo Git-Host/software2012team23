@@ -25,13 +25,13 @@ public class TelephonySignalStrength {
 		int signalStrength = getSignalStrength();
 		int mSignalIconId = R.drawable.signal_strength0;
 
-		if (signalStrength >= 80) {
+		if (signalStrength >= SIGNAL_STRENGTH_GREAT) {
 			mSignalIconId = R.drawable.signal_strength4;
-		} else if (signalStrength >= 60) {
+		} else if (signalStrength >= SIGNAL_STRENGTH_GOOD) {
 			mSignalIconId = R.drawable.signal_strength3;
-		} else if (signalStrength >= 40) {
+		} else if (signalStrength >= SIGNAL_STRENGTH_MODERATE) {
 			mSignalIconId = R.drawable.signal_strength2;
-		} else if (signalStrength >= 20) {
+		} else if (signalStrength >= SIGNAL_STRENGTH_POOR) {
 			mSignalIconId = R.drawable.signal_strength1;
 		}
 
