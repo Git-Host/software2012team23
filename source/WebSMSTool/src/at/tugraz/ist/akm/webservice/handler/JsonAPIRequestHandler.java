@@ -3,6 +3,7 @@ package at.tugraz.ist.akm.webservice.handler;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -23,11 +24,13 @@ import org.json.JSONObject;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.Bundle;
 import at.tugraz.ist.akm.content.query.ContactFilter;
 import at.tugraz.ist.akm.io.xml.XmlNode;
 import at.tugraz.ist.akm.phonebook.Contact;
 import at.tugraz.ist.akm.phonebook.ContactModifiedCallback;
 import at.tugraz.ist.akm.sms.SmsIOCallback;
+import at.tugraz.ist.akm.sms.SmsSentBroadcastReceiver;
 import at.tugraz.ist.akm.sms.TextMessage;
 import at.tugraz.ist.akm.texting.TextingAdapter;
 import at.tugraz.ist.akm.webservice.WebServerConfig;
@@ -138,8 +141,7 @@ public class JsonAPIRequestHandler extends AbstractHttpRequestHandler implements
 				resultObject.put("error_msg", logMsg);
 	    	}
 		} catch (JSONException e) {
-            mLog.logE("Could not create jsonobject for handling api request.");				
-			e.printStackTrace();
+            mLog.logE("Could not create jsonobject for handling api request.",e);
 		}
     	
 //        Object obj = new Object(); // this a place holder for any data retrieved
@@ -190,7 +192,7 @@ public class JsonAPIRequestHandler extends AbstractHttpRequestHandler implements
         try {
 			resultObject.put("contacts", contactList);
 		} catch (JSONException e) {
-            mLog.logE("Could not append contact list to json object.");
+            mLog.logE("Could not append contact list to json object.",e);
 			return new JSONObject();
 		}
         
@@ -223,7 +225,7 @@ public class JsonAPIRequestHandler extends AbstractHttpRequestHandler implements
 	    		return resultObject;
 	    	}
     	} catch(JSONException e){
-    		mLog.logE("Parameters for sending sms could not be fetched from the given api request.");
+    		mLog.logE("Parameters for sending sms could not be fetched from the given api request.",e);
     	}
     	
     	if(address.length() > 0 && message.length() > 0){
@@ -231,9 +233,15 @@ public class JsonAPIRequestHandler extends AbstractHttpRequestHandler implements
     		sentMessage.setAddress(address);
     		sentMessage.setBody(message);
     		int parts = mTextingAdapter.sendTextMessage(sentMessage);
-    		//TODO create a map in the class to store send messages with parts as count
-    		//TODO determine the sms io callback to count down the part message count in the map
-    		//TODO if part message count is zero set a variable or a map with stupid data which can be returned at the next poll request
+    		
+    		//store the part count or arrange an already set count for this specific address
+    		if(this.mWaitingSMSSentCallback.containsKey(address)){
+    			int tmpCount = this.mWaitingSMSSentCallback.get(address);
+    			this.mWaitingSMSSentCallback.put(address, (tmpCount+parts));
+    		} else {
+    			this.mWaitingSMSSentCallback.put(address, parts);
+    		}
+    		
     		this.setSuccessState(resultObject);
     	} else {
     		this.setErrorState(resultObject, "One or all of the given parameters are empty or corrupt.");
@@ -243,33 +251,72 @@ public class JsonAPIRequestHandler extends AbstractHttpRequestHandler implements
 
     
 	@Override
-	public void contactModifiedCallback() {
+	public synchronized void contactModifiedCallback() {
+		this.mContactsChanged = true;
+	}
+
+	@Override
+	public synchronized void smsSentCallback(Context context, Intent intent) {
+		TextMessage message = this.parseToTextMessgae(intent);
+		if(message != null){
+			String address = message.getAddress();
+			if(mWaitingSMSSentCallback.containsKey(address)){
+				int tmpCount = mWaitingSMSSentCallback.get(address);
+				tmpCount = tmpCount - 1;
+				
+				//if we received all callbacks for an specific address we can assume, that the sms was sent successfully and the count is 0
+				if(tmpCount == 0){ 
+					mSMSSentSuccessfully = true;  //poll will watch for this var to check the notificiation
+					mSentSMS.add(address);		//in this list all address the user will be notified are stored
+					mWaitingSMSSentCallback.remove(address);  //delete the address from the waiting map
+				} else {
+					mWaitingSMSSentCallback.put(address, tmpCount); //put back the count -1 in the map
+				}
+			}
+		} else {
+			mLog.logW("A received callback could not be converted to an TextMessage - Possible lost of sms notification to the webapp");
+		}
+	}
+
+	@Override
+	public synchronized void smsSentErrorCallback(Context context, Intent intent) {
 		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
-	public void smsSentCallback(Context context, Intent intent) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void smsSentErrorCallback(Context context, Intent intent) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void smsDeliveredCallback(Context context, Intent intent) {
+	public synchronized void smsDeliveredCallback(Context context, Intent intent) {
 		//not working so we do not bother about it
 		
 	}
 
 	@Override
-	public void smsReceivedCallback(Context context, Intent intent) {
+	public synchronized void smsReceivedCallback(Context context, Intent intent) {
 		// TODO Auto-generated method stub
 		
 	}
+	
+	
+	//TODO: This is copy and paste from SmsBridge.java - change it to public static in the bridge or think generally about it
+	private TextMessage parseToTextMessgae(Intent intent) {
+		try {
+			Bundle extrasBundle = intent.getExtras();
+			if (extrasBundle != null) {
+				Serializable serializedTextMessage = extrasBundle
+						.getSerializable(SmsSentBroadcastReceiver.EXTRA_BUNDLE_KEY_TEXTMESSAGE);
+
+				if (serializedTextMessage != null) {
+					TextMessage sentMessage = (TextMessage) serializedTextMessage;
+					return sentMessage;
+				}
+
+			} else {
+				mLog.logV("couldn't find any text message infos at all :(");
+			}
+		} catch (Exception e) {
+			mLog.logV("FAILED to gather text message extras from intent");
+		}
+		return null;
+	}	
     
 }
