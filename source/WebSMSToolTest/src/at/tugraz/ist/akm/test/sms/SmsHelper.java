@@ -30,7 +30,6 @@ public class SmsHelper {
 		m.setAddress("1357");
 		m.setBody(methodName + ": Dummy texting generated on "
 				+ getDateNowString() + ".");
-		m.setDate(Long.toString(new Date().getTime()));
 		return m;
 	}
 	
@@ -41,7 +40,6 @@ public class SmsHelper {
 		m.setAddress("13570");
 		m.setBody(methodName + ": Dummy texting generated on "
 				+ getDateNowString() + ". 1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890");
-		m.setDate(Long.toString(new Date().getTime()));
 		return m;
 	}
 	

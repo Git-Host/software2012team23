@@ -1,6 +1,7 @@
 package at.tugraz.ist.akm.sms;
 
 import java.io.Serializable;
+import java.util.Date;
 import java.util.List;
 
 import android.app.Activity;
@@ -37,6 +38,7 @@ public class SmsBridge extends Logable implements SmsIOCallback {
 
 	public int sendTextMessage(TextMessage message) {
 		logV("sending message to [" + message.getAddress() + "]");
+		message.setDate(Long.toString(new Date().getTime()));
 		return mSmsSink.sendTextMessage(message);
 	}
 
@@ -183,6 +185,7 @@ public class SmsBridge extends Logable implements SmsIOCallback {
 	private boolean storeMessageToCorrectBox(Intent intent) {
 		boolean isSuccessfullySent = false;
 		TextMessage sentMessage = parseToTextMessgae(intent);
+		
 		String verboseSentState = null;
 
 		switch (mSmsSentNotifier.getResultCode()) {
