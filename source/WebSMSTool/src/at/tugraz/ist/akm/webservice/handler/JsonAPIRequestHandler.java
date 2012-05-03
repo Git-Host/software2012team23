@@ -51,10 +51,12 @@ public class JsonAPIRequestHandler extends AbstractHttpRequestHandler implements
     private volatile boolean mSMSSentSuccessfully = false;
     private volatile boolean mContactsChanged = false;
     private volatile boolean mSMSReceived = false;
+    private volatile boolean mSMSSentError = false;
     
     private volatile HashMap<String,Integer> mWaitingSMSSentCallback = new HashMap<String, Integer>();
     private volatile List<String> mSentSMS = new ArrayList<String>();
     private volatile List<TextMessage> mReceivedSMSMessages = new ArrayList<TextMessage>();
+    private volatile List<TextMessage> mSMSSentErrorMessages = new ArrayList<TextMessage>();    
     
     
     
@@ -269,9 +271,13 @@ public class JsonAPIRequestHandler extends AbstractHttpRequestHandler implements
 					mSMSSentSuccessfully = true;  //poll will watch for this var to check the notificiation
 					mSentSMS.add(address);		//in this list all address the user will be notified are stored
 					mWaitingSMSSentCallback.remove(address);  //delete the address from the waiting map
+					mLog.logV("Received all sms callbacks for address "+address+" going to notify webapp.");					
 				} else {
 					mWaitingSMSSentCallback.put(address, tmpCount); //put back the count -1 in the map
+					mLog.logV("Received sms callback for address "+address+" - count is: "+tmpCount);
 				}
+			} else {
+				mLog.logE("Got a callback for address "+address+" but could not be found in waiting list!");
 			}
 		} else {
 			mLog.logW("A received callback could not be converted to an TextMessage - Possible lost of sms notification to the webapp");
@@ -280,8 +286,9 @@ public class JsonAPIRequestHandler extends AbstractHttpRequestHandler implements
 
 	@Override
 	public synchronized void smsSentErrorCallback(Context context, Intent intent) {
-		// TODO Auto-generated method stub
-		
+		this.mSMSSentError = true;
+		TextMessage message = this.parseToTextMessgae(intent);
+		this.mSMSSentErrorMessages.add(message);
 	}
 
 	@Override
@@ -292,8 +299,9 @@ public class JsonAPIRequestHandler extends AbstractHttpRequestHandler implements
 
 	@Override
 	public synchronized void smsReceivedCallback(Context context, Intent intent) {
-		// TODO Auto-generated method stub
-		
+		this.mSMSReceived = true;
+		TextMessage message = this.parseToTextMessgae(intent);
+		this.mReceivedSMSMessages.add(message);
 	}
 	
 	
