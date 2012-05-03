@@ -19,6 +19,7 @@ public class TelephonySignalStrength {
 
 	public TelephonySignalStrength(Context c, SignalStrength signalStrength) {
 		mContext = c;
+		mSignalStrength = signalStrength;
 	}
 
 	public byte[] getSignalStrengthIconBytes() {

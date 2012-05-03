@@ -13,17 +13,22 @@ test('settings', function() {
 	notEqual(wstAPI.options.api_url, '', 'API url is set');  
 });
 
-test('test api methods', function() {
+test('API - Test', function() {
     stop();  
-    expect(2);  
+    expect(3);  
     wstAPI.getContacts(function(data){
     	wstAPI.getContactsCallback(data);
-    	ok(data.state == 'success', 'Get Contacts successfully sent and received');
+    	ok(data.state == 'success', 'Get Contacts successfully received');
     });
-      
-    wstAPI.sendSMSMessage("1234567890","Das ist eine SMS Nachricht", function(data){
+    
+    wstAPI.sendSMSMessage("1234567890","This is an short message.", function(data){
     	ok(data.state == 'success', 'SMS successfully sent to phone application.');
-    });  
+    }); 
+    
+    wstAPI.pollInfo(function(data){
+    	ok(data.state == 'success', 'PollInfo request is working.');
+    });
+    
     setTimeout(function(){start();}, 6000);  
 });
 

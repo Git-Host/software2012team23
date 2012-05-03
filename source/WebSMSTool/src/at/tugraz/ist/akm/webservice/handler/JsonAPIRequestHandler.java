@@ -27,6 +27,9 @@ import android.content.Intent;
 import android.os.Bundle;
 import at.tugraz.ist.akm.content.query.ContactFilter;
 import at.tugraz.ist.akm.io.xml.XmlNode;
+import at.tugraz.ist.akm.monitoring.BatteryStatus;
+import at.tugraz.ist.akm.monitoring.SystemMonitor;
+import at.tugraz.ist.akm.monitoring.TelephonySignalStrength;
 import at.tugraz.ist.akm.phonebook.Contact;
 import at.tugraz.ist.akm.phonebook.ContactModifiedCallback;
 import at.tugraz.ist.akm.sms.SmsIOCallback;
@@ -45,18 +48,19 @@ public class JsonAPIRequestHandler extends AbstractHttpRequestHandler implements
     private JsonFactory mJsonFactory = new JsonFactory();
 
     private TextingAdapter mTextingAdapter;
+    private SystemMonitor mSystemMonitor;
 
     
     /** members to represent a state */
-    private volatile boolean mSMSSentSuccessfully = false;
+    private volatile boolean mSMSSentSuccess = false;
     private volatile boolean mContactsChanged = false;
     private volatile boolean mSMSReceived = false;
     private volatile boolean mSMSSentError = false;
     
-    private volatile HashMap<String,Integer> mWaitingSMSSentCallback = new HashMap<String, Integer>();
-    private volatile List<String> mSentSMS = new ArrayList<String>();
-    private volatile List<TextMessage> mReceivedSMSMessages = new ArrayList<TextMessage>();
-    private volatile List<TextMessage> mSMSSentErrorMessages = new ArrayList<TextMessage>();    
+    private volatile HashMap<String,Integer> mSMSWaitingForSentCallback = new HashMap<String, Integer>();
+    private volatile List<TextMessage> mSMSSentList = new ArrayList<TextMessage>();
+    private volatile List<TextMessage> mSMSReceivedList = new ArrayList<TextMessage>();
+    private volatile List<TextMessage> mSMSSentErrorList = new ArrayList<TextMessage>();    
     
     
     
@@ -65,8 +69,11 @@ public class JsonAPIRequestHandler extends AbstractHttpRequestHandler implements
             final HttpRequestHandlerRegistry registry) {
     	
         super(context, config, registry);        
-        mTextingAdapter = new TextingAdapter(context, null, null);
+        mTextingAdapter = new TextingAdapter(context, this, this);
         mTextingAdapter.start();
+        
+        mSystemMonitor = new SystemMonitor(context);
+        mSystemMonitor.start();
     }
 
     @Override
@@ -135,6 +142,10 @@ public class JsonAPIRequestHandler extends AbstractHttpRequestHandler implements
 	    	{
 	    		resultObject = this.sendSMS(jsonParams);
 	    	}
+	    	else if(method.compareTo("info") == 0)
+	    	{
+	    		resultObject = this.createPollingInfo();
+	    	}
 	    	else 
 	    	{
 	    		String logMsg = "No method found for given request method: "+method;
@@ -182,15 +193,9 @@ public class JsonAPIRequestHandler extends AbstractHttpRequestHandler implements
     
     
     private synchronized JSONObject getContacts(){
-    	JSONObject resultObject = new JSONObject();
 		mLog.logI("Handle get_contacts request.");
-		ContactFilter allFilter = new ContactFilter();
-		List<Contact> contacts = mTextingAdapter.fetchContacts(allFilter);
-		
-        JSONArray contactList = new JSONArray();
-		for(int i = 0; i < contacts.size(); i++){
-			contactList.put(mJsonFactory.createJsonObject(contacts.get(i)));
-		}
+		JSONObject resultObject = new JSONObject();	
+        JSONArray contactList = this.fetchContactsJsonArray();
         try {
 			resultObject.put("contacts", contactList);
 		} catch (JSONException e) {
@@ -202,10 +207,23 @@ public class JsonAPIRequestHandler extends AbstractHttpRequestHandler implements
 			this.setSuccessState(resultObject);
 		} else {
 			this.setErrorState(resultObject, "No contacts could be found on the device.");
-		}		
+		}
         
         return resultObject;
     }
+    
+    
+    
+    private JSONArray fetchContactsJsonArray(){
+    	ContactFilter allFilter = new ContactFilter();
+		List<Contact> contacts = mTextingAdapter.fetchContacts(allFilter);
+        JSONArray contactList = new JSONArray();
+		for(int i = 0; i < contacts.size(); i++){
+			contactList.put(mJsonFactory.createJsonObject(contacts.get(i)));
+		}
+        return contactList;
+    }
+    
     
     
     private synchronized JSONObject sendSMS(JSONArray params){
@@ -237,12 +255,13 @@ public class JsonAPIRequestHandler extends AbstractHttpRequestHandler implements
     		int parts = mTextingAdapter.sendTextMessage(sentMessage);
     		
     		//store the part count or arrange an already set count for this specific address
-    		if(this.mWaitingSMSSentCallback.containsKey(address)){
-    			int tmpCount = this.mWaitingSMSSentCallback.get(address);
-    			this.mWaitingSMSSentCallback.put(address, (tmpCount+parts));
+    		if(this.mSMSWaitingForSentCallback.containsKey(address)){
+    			int tmpCount = this.mSMSWaitingForSentCallback.get(address);
+    			this.mSMSWaitingForSentCallback.put(address, (tmpCount+parts));
     		} else {
-    			this.mWaitingSMSSentCallback.put(address, parts);
+    			this.mSMSWaitingForSentCallback.put(address, parts);
     		}
+    		mLog.logV("Message queued to waiting for sent list with address "+address+" and parts "+parts);
     		
     		this.setSuccessState(resultObject);
     	} else {
@@ -250,6 +269,93 @@ public class JsonAPIRequestHandler extends AbstractHttpRequestHandler implements
     	}
 		return resultObject;
     }
+    
+    
+    
+    /**
+     * Provide the following informations:
+     * --> Update of the statusbar
+     * --> Inform about contact changes and if true send whole contacts back.
+     * --> Inform about successfully sent sms and if true array of address which has been sent
+     * --> Inform about received sms and if true the return the textmessages as json
+     * @return
+     */
+    private synchronized JSONObject createPollingInfo() {
+    	JSONObject result = new JSONObject();
+    	mLog.logI("Create polling json object");
+		try {
+			
+			mLog.logV("Evaluate contact changed state.");
+			result.put("contact_changed", this.mContactsChanged);
+			if(this.mContactsChanged){
+	    		result.put("contacts",this.fetchContactsJsonArray());
+	    		this.mContactsChanged = false;
+	    	}
+			
+	    	
+
+			mLog.logV("Evaluate sms sent error.");
+	    	result.put("sms_sent_error", this.mSMSSentError);
+	    	if(this.mSMSSentError){
+	    		JSONArray errorList = new JSONArray();
+	    		for(int i = 0; i < mSMSSentErrorList.size(); i++){
+	    			errorList.put(mJsonFactory.createJsonObject(mSMSSentErrorList.get(i)));
+	    		}
+	    		result.put("sms_sent_error_messages", errorList);
+	    		this.mSMSSentError = false;
+	    	}
+	    	
+
+			mLog.logV("Evaluate sms sent success.");
+	    	result.put("sms_sent_success", this.mSMSSentSuccess);
+	    	if(this.mSMSSentSuccess){
+	    		JSONArray sentList = new JSONArray();
+	    		for(int i = 0; i < mSMSSentList.size(); i++){
+	    			sentList.put(mJsonFactory.createJsonObject(mSMSSentList.get(i)));
+	    		}
+	    		result.put("sms_sent_success_messages", sentList);
+	    		this.mSMSSentSuccess = false;
+	    	}
+	    	
+
+			mLog.logV("Evaluate sms received.");
+	    	result.put("sms_received", this.mSMSReceived);
+	    	if(this.mSMSSentSuccess){
+	    		JSONArray recvList = new JSONArray();
+	    		for(int i = 0; i < mSMSSentList.size(); i++){
+	    			recvList.put(mJsonFactory.createJsonObject(mSMSReceivedList.get(i)));
+	    		}
+	    		result.put("sms_received_messages", recvList);
+	    		this.mSMSReceived = false;
+	    	}
+	    	
+			mLog.logV("Clear temporary member lists.");
+	    	this.mSMSSentErrorList.clear();
+	    	this.mSMSSentList.clear();
+	    	this.mSMSReceivedList.clear();
+	    	
+	    	
+			mLog.logV("Evaluate actual telephone state.");
+	    	BatteryStatus status = this.mSystemMonitor.getBatteryStatus();
+	    	TelephonySignalStrength signal = this.mSystemMonitor.getSignalStrength();
+	    	if(status != null){
+	    		result.put("battery", mJsonFactory.createJsonObject(status));
+	    	}
+	    	if(signal != null){
+	    		result.put("signal", mJsonFactory.createJsonObject(signal));
+	    	}
+	    	
+	    	this.setSuccessState(result);
+		
+		} catch (JSONException e) {
+			mLog.logE("Could not create the polling json object",e);
+	    	this.setErrorState(result, "Could not create polling object");
+		}    	
+
+    	return result;
+    }
+    
+    
 
     
 	@Override
@@ -262,18 +368,19 @@ public class JsonAPIRequestHandler extends AbstractHttpRequestHandler implements
 		TextMessage message = this.parseToTextMessgae(intent);
 		if(message != null){
 			String address = message.getAddress();
-			if(mWaitingSMSSentCallback.containsKey(address)){
-				int tmpCount = mWaitingSMSSentCallback.get(address);
+			mLog.logV("Looking for address in waiting queue with :"+address);
+			if(mSMSWaitingForSentCallback.containsKey(address)){
+				int tmpCount = mSMSWaitingForSentCallback.get(address);
 				tmpCount = tmpCount - 1;
 				
 				//if we received all callbacks for an specific address we can assume, that the sms was sent successfully and the count is 0
 				if(tmpCount == 0){ 
-					mSMSSentSuccessfully = true;  //poll will watch for this var to check the notificiation
-					mSentSMS.add(address);		//in this list all address the user will be notified are stored
-					mWaitingSMSSentCallback.remove(address);  //delete the address from the waiting map
-					mLog.logV("Received all sms callbacks for address "+address+" going to notify webapp.");					
+					mSMSSentSuccess = true;  //poll will watch for this var to check the notificiation
+					mSMSSentList.add(message);		//in this list all address the user will be notified are stored
+					mSMSWaitingForSentCallback.remove(address);  //delete the address from the waiting map
+					mLog.logV("Received all sms callbacks for address "+address+" going to notify webapp.");
 				} else {
-					mWaitingSMSSentCallback.put(address, tmpCount); //put back the count -1 in the map
+					mSMSWaitingForSentCallback.put(address, tmpCount); //put back the count -1 in the map
 					mLog.logV("Received sms callback for address "+address+" - count is: "+tmpCount);
 				}
 			} else {
@@ -288,7 +395,7 @@ public class JsonAPIRequestHandler extends AbstractHttpRequestHandler implements
 	public synchronized void smsSentErrorCallback(Context context, Intent intent) {
 		this.mSMSSentError = true;
 		TextMessage message = this.parseToTextMessgae(intent);
-		this.mSMSSentErrorMessages.add(message);
+		this.mSMSSentErrorList.add(message);
 	}
 
 	@Override
@@ -301,7 +408,7 @@ public class JsonAPIRequestHandler extends AbstractHttpRequestHandler implements
 	public synchronized void smsReceivedCallback(Context context, Intent intent) {
 		this.mSMSReceived = true;
 		TextMessage message = this.parseToTextMessgae(intent);
-		this.mReceivedSMSMessages.add(message);
+		this.mSMSReceivedList.add(message);
 	}
 	
 	

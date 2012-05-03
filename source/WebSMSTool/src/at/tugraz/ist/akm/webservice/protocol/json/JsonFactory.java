@@ -5,7 +5,10 @@ import java.util.List;
 
 import org.json.JSONObject;
 
+import at.tugraz.ist.akm.monitoring.BatteryStatus;
+import at.tugraz.ist.akm.monitoring.TelephonySignalStrength;
 import at.tugraz.ist.akm.phonebook.Contact;
+import at.tugraz.ist.akm.sms.TextMessage;
 import at.tugraz.ist.akm.trace.Logable;
 
 public class JsonFactory {
@@ -14,6 +17,9 @@ public class JsonFactory {
 
     public JsonFactory() {
         jsonObjectBuilders.put(Contact.class, new JsonContactBuilder());
+        jsonObjectBuilders.put(TextMessage.class, new JsonTextMessageBuilder());
+        jsonObjectBuilders.put(TelephonySignalStrength.class, new JsonTelephonySignalStrengthBuilder());
+        jsonObjectBuilders.put(BatteryStatus.class, new JsonBatteryStatusBuilder());
     }
 
     public JSONObject createJsonObject(Object object) {

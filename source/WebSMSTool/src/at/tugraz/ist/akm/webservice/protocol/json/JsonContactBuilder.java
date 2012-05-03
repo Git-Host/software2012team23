@@ -38,7 +38,7 @@ public class JsonContactBuilder implements IJsonBuilder {
             log.logI(json.toString());
             return json;
         } catch (JSONException e) {
-            e.printStackTrace();
+			log.logE("Could not create jsonContact Object",e);
         }
         return null;
     }
