@@ -36,6 +36,7 @@ import at.tugraz.ist.akm.sms.SmsIOCallback;
 import at.tugraz.ist.akm.sms.SmsSentBroadcastReceiver;
 import at.tugraz.ist.akm.sms.TextMessage;
 import at.tugraz.ist.akm.texting.TextingAdapter;
+import at.tugraz.ist.akm.texting.TextingInterface;
 import at.tugraz.ist.akm.webservice.WebServerConfig;
 import at.tugraz.ist.akm.webservice.protocol.json.JsonFactory;
 
@@ -47,8 +48,8 @@ public class JsonAPIRequestHandler extends AbstractHttpRequestHandler implements
 
     private JsonFactory mJsonFactory = new JsonFactory();
 
-    private TextingAdapter mTextingAdapter;
-    private SystemMonitor mSystemMonitor;
+    private volatile TextingInterface mTextingAdapter;
+    private volatile SystemMonitor mSystemMonitor;
 
     
     /** members to represent a state */
@@ -77,7 +78,7 @@ public class JsonAPIRequestHandler extends AbstractHttpRequestHandler implements
     }
 
     @Override
-    public void handle(HttpRequest httpRequest, HttpResponse httpResponse, HttpContext httpContext)
+    public synchronized void handle(HttpRequest httpRequest, HttpResponse httpResponse, HttpContext httpContext)
             throws HttpException, IOException {
 
         if (httpRequest.getRequestLine().getMethod().equals("POST")) {
@@ -231,6 +232,7 @@ public class JsonAPIRequestHandler extends AbstractHttpRequestHandler implements
     	
     	String address = "";
     	String message = "";
+    	
     	
     	int paramsLength = params.length();
     	try
