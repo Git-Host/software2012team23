@@ -28,9 +28,9 @@
         sendRequest : function(method,parameters,callback){
         	var methodData = "";
         	if(parameters.length == 0){
-        		methodData = '{"method": "' + method + '"}';
+        		methodData = '{"method":"' + method + '"}';
         	} else {
-        		methodData = '{"method": "' + method + '","params": ' + parameters +'}';
+        		methodData = '{"method":"' + method + '","params": ' + parameters +'}';
         	}
             $.ajax({
                 url: this.options.api_url,
