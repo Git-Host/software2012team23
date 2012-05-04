@@ -19,9 +19,8 @@ import org.json.JSONObject;
 
 import android.content.Context;
 import at.tugraz.ist.akm.io.xml.XmlNode;
-import at.tugraz.ist.akm.webservice.handler.JsonAPIRequestHandler;
 
-public class EchoJsonRequestHandler extends JsonAPIRequestHandler {
+public class EchoJsonRequestHandler extends AbstractHttpRequestHandler {
 
     public EchoJsonRequestHandler(final Context context, final XmlNode config,
             final HttpRequestHandlerRegistry registry) {

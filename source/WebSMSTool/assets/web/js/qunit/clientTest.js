@@ -15,21 +15,21 @@ test('settings', function() {
 
 test('API - Test', function() {
     stop();  
-    expect(3);  
-    wstAPI.getContacts(function(data){
-    	wstAPI.getContactsCallback(data);
-    	ok(data.state == 'success', 'Get Contacts successfully received');
-    });
+    expect(1);  
+//    wstAPI.getContacts(function(data){
+//    	wstAPI.getContactsCallback(data);
+//    	ok(data.state == 'success', 'Get Contacts successfully received');
+//    });
     
     wstAPI.sendSMSMessage("1234567890","This is an short message.", function(data){
     	ok(data.state == 'success', 'SMS successfully sent to phone application.');
     }); 
     
-    wstAPI.pollInfo(function(data){
-    	ok(data.state == 'success', 'PollInfo request is working.');
-    });
+//    wstAPI.pollInfo(function(data){
+//    	ok(data.state == 'success', 'PollInfo request is working.');
+//    });
     
-    setTimeout(function(){start();}, 6000);  
+    setTimeout(function(){start();}, 2000);  
 });
 
 

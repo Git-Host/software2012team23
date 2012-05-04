@@ -232,8 +232,7 @@ public class JsonAPIRequestHandler extends AbstractHttpRequestHandler implements
     	
     	String address = "";
     	String message = "";
-    	
-    	
+    	    	
     	int paramsLength = params.length();
     	try
     	{
