@@ -14,10 +14,11 @@
 				 this.templateMap[name] = template;
 				 wstLog.log('Html compiled and added to map.');
     		},
-    		
     		init : function(){
     			wstLog.log('Init wst templating');
     			this.fetchTemplate('test');
+    			this.fetchTemplate('contact_entry');
+    			this.fetchTemplate('sms_thread_entry');
     		},
     		get : function(templateName, data){
     			wstLog.log('Try to return template '+templateName);
