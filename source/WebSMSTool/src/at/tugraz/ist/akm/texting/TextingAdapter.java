@@ -190,10 +190,9 @@ public class TextingAdapter extends Logable implements TextingInterface,
 		mSmsBridge.setSmsSentCallback(this);
 	}
 
-	//TODO: should this really be mExternal... and not this??
 	private void registerPhonebookCallbacks() {
 		mPhoneBook
-				.setContactModifiedCallback(mExternalPhonebookModifiedCallback);
+				.setContactModifiedCallback(this);
 	}
 
 }
