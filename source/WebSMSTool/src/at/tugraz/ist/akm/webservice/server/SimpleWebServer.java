@@ -49,13 +49,14 @@ import at.tugraz.ist.akm.trace.Logable;
 import at.tugraz.ist.akm.webservice.WebServerConfig;
 
 public class SimpleWebServer {
-    private final static Logable LOG = new Logable(SimpleWebServer.class.getSimpleName());
+	private final static Logable mLog = new Logable(
+			SimpleWebServer.class.getSimpleName());
 
-    HttpRequestHandlerRegistry mRegistry = new HttpRequestHandlerRegistry();
-    private BasicHttpContext mHttpContext = new BasicHttpContext();
+	HttpRequestHandlerRegistry mRegistry = new HttpRequestHandlerRegistry();
+	private BasicHttpContext mHttpContext = new BasicHttpContext();
 
-    // android context
-    private final Context mContext;
+	// android context
+	private final Context mContext;
 
     private ServerThread mServerThread = null;
     
@@ -86,7 +87,7 @@ public class SimpleWebServer {
                 httpService.handleRequest(serverConn, mWebServer.getHttpContext());
             } catch (Exception e) {
                 e.printStackTrace();
-                LOG.e("Exception caught when processing HTTP client connection", e);
+                mLog.logE("Exception caught when processing HTTP client connection", e);
             }
         }
     }
@@ -102,13 +103,12 @@ public class SimpleWebServer {
             this.mServerSocket = serverSocket;
         }
 
-        @Override
-        public void run() {
-            mRunning = true;
-            while (mRunning) {
-
+		@Override
+		public void run() {
+			mRunning = true;
+			while (mRunning) {
                 SSLSocket socket = null;
-                LOG.d("waiting for connection at " + mServerSocket);
+                mLog.logD("waiting for connection at " + mServerSocket);
                 try {
                     socket = mServerSocket != null ? (SSLSocket) mServerSocket.accept() : null;
                 } catch (IOException e) {
@@ -125,35 +125,35 @@ public class SimpleWebServer {
 //                    } catch (IOException e) {
 //                        Log.e("Error while handshake!", e.getMessage());
 //                    }
-                    LOG.d("connection request from ip <" + socket.getInetAddress() + "> on port <"
+                    mLog.logD("connection request from ip <" + socket.getInetAddress() + "> on port <"
                             + socket.getPort() + ">");
+					WorkerThread workerThread = new WorkerThread(mWebServer,
+							socket);
+					workerThread.setDaemon(true);
+					workerThread.start();
+				}
+			}
+			mRunning = false;
+			Log.i("SimpleWebServer", "Webserver stopped");
+		}
 
-                    WorkerThread workerThread = new WorkerThread(mWebServer, socket);
-                    workerThread.setDaemon(true);
-                    workerThread.start();
-                }
-            }
-            mRunning = false;
-            Log.i("SimpleWebServer", "Webserver stopped");
-        }
+		public void stopThread() {
+			mStopServerThread = true;
+		}
 
-        public void stopThread() {
-            mStopServerThread = true;
-        }
+		public boolean isRunning() {
+			return mRunning;
+		}
 
-        public boolean isRunning() {
-            return mRunning;
-        }
+		public int getPort() {
+			return mServerSocket.getLocalPort();
+		}
+	}
 
-        public int getPort() {
-            return mServerSocket.getLocalPort();
-        }
-    }
-
-    public SimpleWebServer(Context context) {
-        this.mContext = context;
-        readRequestHandlers();
-    }
+	public SimpleWebServer(Context context) {
+		this.mContext = context;
+		readRequestHandlers();
+	}
 
     protected synchronized HttpService initializeHTTPService() {
 //        HttpProcessor httpProcessor = new BasicHttpProcessor();
@@ -179,48 +179,47 @@ public class SimpleWebServer {
                 new DefaultHttpResponseFactory(),
                 mRegistry,
                 params);
-
         return httpService;
     }
 
-    protected BasicHttpContext getHttpContext() {
-        return mHttpContext;
-    }
+	protected BasicHttpContext getHttpContext() {
+		return mHttpContext;
+	}
 
-    private void readRequestHandlers() {
-        XmlReader reader = new XmlReader(mContext, WebServerConfig.RES.WEB_XML);
-        List<XmlNode> nodes = reader.getNodes(WebServerConfig.XML.TAG_REQUEST_HANDLER);
-        for (XmlNode node : nodes) {
-            String className = node.getAttributeValue(WebServerConfig.XML.ATTRIBUTE_CLASS);
+	private void readRequestHandlers() {
+		XmlReader reader = new XmlReader(mContext, WebServerConfig.RES.WEB_XML);
+		List<XmlNode> nodes = reader
+				.getNodes(WebServerConfig.XML.TAG_REQUEST_HANDLER);
+		for (XmlNode node : nodes) {
+			String className = node
+					.getAttributeValue(WebServerConfig.XML.ATTRIBUTE_CLASS);
 
-            if (className == null) {
-                LOG.e("request handler <" + node.getName()
-                        + ">: no corresponding class to load found");
-                continue;
-            }
-            try {
-                Class<?> clazz = Class.forName(className);
+			if (className == null) {
+				mLog.logE("request handler <" + node.getName()
+						+ ">: no corresponding class to load found");
+				continue;
+			}
+			try {
+				Class<?> clazz = Class.forName(className);
+				Constructor<?> constr = clazz.getConstructor(Context.class,
+						XmlNode.class, HttpRequestHandlerRegistry.class);
+				constr.newInstance(mContext, node, mRegistry);
+			} catch (Exception e) {
+				mLog.logE("Loading of class <" + className + "> failed");
+				stopServer();
+			}
+		}
+		mLog.logV("request handlers read from configuration");
+	}
 
-                Constructor<?> constr = clazz.getConstructor(Context.class, XmlNode.class,
-                        HttpRequestHandlerRegistry.class);
-                constr.newInstance(mContext, node, mRegistry);
-            } catch (Exception e) {
-                e.printStackTrace();
-                LOG.e("Loading of class <" + className + "> failed", e);
-                stopServer();
-            }
-        }
-        LOG.v("request handlers read from configuration");
-    }
-
-    public boolean isRunning() {
-        return mServerThread != null;
-    }
+	public boolean isRunning() {
+		return mServerThread != null;
+	}
 
     public synchronized boolean startServer(int port) {
         try {
             if (this.isRunning()) {
-              LOG.i("Web service is already running at port <" + mServerThread.getPort() + ">");
+                mLog.logI("Web service is already running at port <" + mServerThread.getPort() + ">");
               return true;
             }
             
@@ -240,8 +239,6 @@ public class SimpleWebServer {
             SSLServerSocket sslserversocket =
                     (SSLServerSocket) sslserversocketfactory.createServerSocket(port);
 //            SSLSocket sslsocket = (SSLSocket) sslserversocket.accept();
-
-            printServerSocketInfo(sslserversocket);
 //            
             mServerThread = new ServerThread(this, sslserversocket);
             mServerThread.setDaemon(true);
@@ -259,22 +256,22 @@ public class SimpleWebServer {
             
             return true;
         } catch (IOException e) {
-            LOG.v("Cannot create server socket on port <" + port + ">", e);
+            mLog.logE("Cannot create server socket on port <" + port + ">", e);
             return false;
         } catch (KeyStoreException e) {
-            LOG.v("Cannot create server socket on port <" + port + ">", e);
+            mLog.logE("Cannot create server socket on port <" + port + ">", e);
             return false;
         } catch (NoSuchAlgorithmException e) {
-            LOG.v("Cannot create server socket on port <" + port + ">", e);
+            mLog.logE("Cannot create server socket on port <" + port + ">", e);
             return false;
         } catch (CertificateException e) {
-            LOG.v("Cannot create server socket on port <" + port + ">", e);
+            mLog.logE("Cannot create server socket on port <" + port + ">", e);
             return false;
         } catch (UnrecoverableKeyException e) {
-            LOG.v("Cannot create server socket on port <" + port + ">", e);
+            mLog.logE("Cannot create server socket on port <" + port + ">", e);
             return false;
         } catch (KeyManagementException e) {
-            LOG.v("Cannot create server socket on port <" + port + ">", e);
+            mLog.logE("Cannot create server socket on port <" + port + ">", e);
             return false;
         }
         
@@ -296,35 +293,19 @@ public class SimpleWebServer {
 //            return false;
 //        }
     }
-    
-    private static void printServerSocketInfo(SSLServerSocket s) {
-        LOG.v("Server socket class: "+s.getClass());
-        LOG.v("   Socket address = "
-           +s.getInetAddress().toString());
-        LOG.v("   Socket port = "
-           +s.getLocalPort());
-        LOG.v("   Need client authentication = "
-           +s.getNeedClientAuth());
-        LOG.v("   Want client authentication = "
-           +s.getWantClientAuth());
-        LOG.v("   Use client mode = "
-           +s.getUseClientMode());
-     }
 
-    public synchronized void stopServer() {
-        LOG.v("stop web server");
-        if (mServerThread != null) {
-            mServerThread.stopThread();
-            while (mServerThread.isRunning()) {
-                try {
-                    this.wait(200);
-                } catch (InterruptedException e) {
-                    ;
-                }
-            }
-
-            mServerThread = null;
-        }
-    }
+	public synchronized void stopServer() {
+		mLog.logV("stop web server");
+		if (mServerThread != null) {
+			mServerThread.stopThread();
+			while (mServerThread.isRunning()) {
+				try {
+					this.wait(200);
+				} catch (InterruptedException e) {
+					;
+				}
+			}
+		}
+	}
 
 }

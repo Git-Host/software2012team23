@@ -104,7 +104,7 @@ public class TextMessageQueryBuilderTest extends WebSMSToolTestcase {
 		ContentProviderQueryParameters q = builder.getQueryArgs();
 
 		assertTrue(q.uri.equals(SmsContent.ContentUri.SENT_URI));
-		log(q.where + "|" + SmsContent.Content.ADDRESS + " = ?  AND " +
+		logV(q.where + "|" + SmsContent.Content.ADDRESS + " = ?  AND " +
 				SmsContent.Content.THREAD_ID + " = ?  AND " +
 				SmsContent.Content.ID + " = ?  AND " +
 				SmsContent.Content.PERSON + " = ?  AND " +

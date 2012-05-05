@@ -38,14 +38,14 @@ public class WebSMSToolService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        LOG.v("Try to start webserver.");
+        LOG.logV("Try to start webserver.");
         mServer = new SimpleWebServer(this);
 
         try {
             mServer.startServer(mPort);
-            LOG.i("Web service has been started on port <" + mPort + ">");
+            LOG.logI("Web service has been started on port <" + mPort + ">");
         } catch (Exception e) {
-            LOG.e("Couldn't start web service on port <" + mPort + ">", e);
+            LOG.logE("Couldn't start web service on port <" + mPort + ">", e);
         }
 
         // try {
@@ -80,7 +80,7 @@ public class WebSMSToolService extends Service {
         try {
             mServer.stopServer();
         } catch (Exception e) {
-            LOG.e("Error while stopping server!", e);
+            LOG.logE("Error while stopping server!", e);
         }
         super.onDestroy();
     }

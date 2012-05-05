@@ -20,7 +20,7 @@ import org.json.JSONObject;
 import android.content.Context;
 import at.tugraz.ist.akm.io.xml.XmlNode;
 
-public class EchoJsonRequestHandler extends JsonAPIRequestHandler {
+public class EchoJsonRequestHandler extends AbstractHttpRequestHandler {
 
     public EchoJsonRequestHandler(final Context context, final XmlNode config,
             final HttpRequestHandlerRegistry registry) {
@@ -30,7 +30,7 @@ public class EchoJsonRequestHandler extends JsonAPIRequestHandler {
     @Override
     public void handle(HttpRequest httpRequest, HttpResponse httpResponse, HttpContext httpContext)
             throws HttpException, IOException {
-        LOG.d("called");
+        mLog.logD("called");
         if (httpRequest.getRequestLine().getMethod().equals("POST")) {
             BasicHttpEntityEnclosingRequest post = (BasicHttpEntityEnclosingRequest) httpRequest;
             final JSONObject json;

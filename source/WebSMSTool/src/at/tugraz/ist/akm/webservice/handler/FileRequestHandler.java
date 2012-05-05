@@ -30,12 +30,12 @@ public class FileRequestHandler extends AbstractHttpRequestHandler {
     @Override
     public void handle(HttpRequest httpRequest, HttpResponse httpResponse, HttpContext httpContext)
             throws HttpException, IOException {
-        LOG.v("handle request <" + httpRequest.getRequestLine().getUri() + ">");
+        mLog.logV("handle request <" + httpRequest.getRequestLine().getUri() + ">");
 
         String uri = httpRequest.getRequestLine().getUri();
         final FileInfo fileInfo = mUri2FileInfo.get(uri);
         if (fileInfo == null) {
-            LOG.e("no mapping found for uri <" + uri + ">");
+            mLog.logV("no mapping found for uri <" + uri + ">");
             return;
         }
 

@@ -40,11 +40,11 @@ public class TextingAdapter extends Logable implements TextingInterface,
 		mExternalPhonebookModifiedCallback = cm;
 
 		mSmsBridge = new SmsBridge(mContext);
-		mPhoneBook = new PhonebookBridge(mContext.getApplicationContext());
+		mPhoneBook = new PhonebookBridge(mContext);
 	}
 
 	public void start() {
-		log("power up ...");
+		logV("power up ...");
 		registerSmsCallbacks();
 		registerPhonebookCallbacks();
 		mSmsBridge.start();
@@ -52,7 +52,7 @@ public class TextingAdapter extends Logable implements TextingInterface,
 	}
 
 	public void stop() {
-		log("power down ...");
+		logV("power down ...");
 		mPhoneBook.stop();
 		mSmsBridge.stop();
 	}
@@ -90,7 +90,7 @@ public class TextingAdapter extends Logable implements TextingInterface,
 
 	@Override
 	public void smsSentCallback(Context context, Intent intent) {
-		log("sms sent successfully");
+		logV("sms sent successfully");
 		mOutgoingStatistics
 				.setNumPending(mOutgoingStatistics.getNumPending() - 1);
 		if (mExternalTextMessageCallback != null) {
@@ -100,7 +100,7 @@ public class TextingAdapter extends Logable implements TextingInterface,
 
 	@Override
 	public void smsSentErrorCallback(Context context, Intent intent) {
-		log("failed to send sms");
+		logV("failed to send sms");
 		mOutgoingStatistics.setNumErroneous(mOutgoingStatistics
 				.getNumErroneous() + 1);
 		if (mExternalTextMessageCallback != null) {
@@ -110,7 +110,7 @@ public class TextingAdapter extends Logable implements TextingInterface,
 
 	@Override
 	public void smsDeliveredCallback(Context context, Intent intent) {
-		log("sms delivered");
+		logV("sms delivered");
 		if (mExternalTextMessageCallback != null) {
 			mExternalTextMessageCallback.smsDeliveredCallback(context, intent);
 		}
@@ -119,7 +119,7 @@ public class TextingAdapter extends Logable implements TextingInterface,
 
 	@Override
 	public void smsReceivedCallback(Context context, Intent intent) {
-		log("sms received");
+		logV("sms received");
 		mIncomingStatistics
 				.setNumReceived(mIncomingStatistics.getNumReceived() + 1);
 		if (mExternalTextMessageCallback != null) {
@@ -129,7 +129,7 @@ public class TextingAdapter extends Logable implements TextingInterface,
 
 	@Override
 	public void contactModifiedCallback() {
-		log("contact modified");
+		logV("contact modified");
 		mPhonebookStatistics
 				.setNumChanges(mPhonebookStatistics.getNumChanges() + 1);
 		if (mExternalPhonebookModifiedCallback != null) {
@@ -192,7 +192,7 @@ public class TextingAdapter extends Logable implements TextingInterface,
 
 	private void registerPhonebookCallbacks() {
 		mPhoneBook
-				.setContactModifiedCallback(mExternalPhonebookModifiedCallback);
+				.setContactModifiedCallback(this);
 	}
 
 }

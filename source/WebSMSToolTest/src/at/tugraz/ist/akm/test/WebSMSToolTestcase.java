@@ -2,7 +2,9 @@ package at.tugraz.ist.akm.test;
 
 import android.content.ContentResolver;
 import android.test.InstrumentationTestCase;
+import at.tugraz.ist.akm.test.trace.ThrowingLogSink;
 import at.tugraz.ist.akm.trace.Logable;
+import at.tugraz.ist.akm.trace.Logger;
 
 public class WebSMSToolTestcase extends InstrumentationTestCase {
 
@@ -10,13 +12,14 @@ public class WebSMSToolTestcase extends InstrumentationTestCase {
 	private Logable mLog = null;
 
 	public WebSMSToolTestcase(final String logTag) {
+		Logger.setSink(new ThrowingLogSink());
 		mLog = new Logable(logTag);
 	}
 
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
-		log(getName() + ".setUp()");
+		logV(getName() + ".setUp()");
 
 		mContentResolver = getInstrumentation().getContext()
 				.getContentResolver();
@@ -25,12 +28,40 @@ public class WebSMSToolTestcase extends InstrumentationTestCase {
 
 	@Override
 	protected void tearDown() throws Exception {
-		log(getName() + ".tearDown()");
+		logV(getName() + ".tearDown()");
 		super.tearDown();
 	}
 
-	protected void log(final String m) {
-		mLog.log(m);
+	protected void logD(final String m, Throwable t) {
+		mLog.logD(m, t);
+	}
+	
+	protected void logD(final String m) {
+		mLog.logD(m);
+	}
+	
+	protected void logE(final String m, Throwable t) {
+		mLog.logE(m, t);
+	}
+	
+	protected void logE(final String m) {
+		mLog.logE(m);
+	}
+	
+	protected void logI(final String m, Throwable t) {
+		mLog.logI(m, t);
+	}
+	
+	protected void logI(final String m) {
+		mLog.logI(m);
+	}
+	
+	protected void logV(final String m, Throwable t) {
+		mLog.logV(m, t);
+	}
+	
+	protected void logV(final String m) {
+		mLog.logV(m);
 	}
 
 }

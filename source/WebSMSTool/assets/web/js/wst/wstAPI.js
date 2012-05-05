@@ -25,45 +25,53 @@
             api_url : 'api.html'
         },
 
+        sendRequest : function(method,parameters,callback){
+        	var methodData = "";
+        	if(parameters.length == 0){
+        		methodData = '{"method": "' + method + '"}';
+        	} else {
+        		methodData = '{"method": "' + method + '","params": ' + parameters +'}';
+        	}
+            $.ajax({
+                url: this.options.api_url,
+                success: function(data){
+                  if(callback != null){
+                	  callback(data);
+                  }
+                },
+                type: 'post',
+                data : methodData,
+                dataType : "json"
+              });
+        },
+        
         //API calls
         pollInfo: function(callback){
-            wstLog.log('PollInfo called.');
-            $.ajax({
-              url: this.options.api_url,
-              success: function(data){
-            	  if(data.state == 'success'){
-            		  callback(true);
-            	  } else {
-            		  callback(false);
-            	  }
-              },
-              error: function(data){
-            	  callback(false);
-              },
-              type: 'post',
-              data : "{\"method\": \"info\",\"params\": [{\"id\": \"1\"}]}"
-            });
+        	this.sendRequest("info","",callback);
+        },
+        
+        
+        sendSMSMessage: function(address, message, callback){
+        	wstLog.log('sendSMSMessage called.');
+        	var params = '[{"address":"'+address+'","message":"'+message+'"}]';
+        	this.sendRequest("send_sms_message",params,callback);
         },
         
         
         getContacts: function(callback){
             wstLog.log('getContacts called.');
-            $.ajax({
-              url: this.options.api_url,
-              success: function(data){
-            	  callback(data);
-            	  //only for testing
-            	  var size = data.contacts.length;
-            	  for(var i = 0; i < size; i++){
-            		  if(data.contacts[i].image != null){
-            			  wstLog.log('Image found to replace test img.');
-                		  $('#testimg').attr('src', "data:image/jpeg;base64,"+data.contacts[i].image);            			  
-            		  }
-            	  }
-              },
-              type: 'post',
-              data : "{\"method\": \"get_contacts\"}"
-            });
+            this.sendRequest("get_contacts","",callback);
+        },
+        
+        //remains only for testing purpose in this object - will be moved to a more suitable one.
+        getContactsCallback: function(data){
+      	   var size = data.contacts.length;
+    	   for(var i = 0; i < size; i++){
+    		  if(data.contacts[i].image != null){
+    			  wstLog.log('Image found to replace test img.');
+        		  $('#testimg').attr('src', "data:image/jpeg;base64,"+data.contacts[i].image);            			  
+    		  }
+    	   }
         }
    
     };
