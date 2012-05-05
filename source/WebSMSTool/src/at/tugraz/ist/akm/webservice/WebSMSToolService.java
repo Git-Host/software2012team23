@@ -39,7 +39,7 @@ public class WebSMSToolService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         LOG.logV("Try to start webserver.");
-        mServer = new SimpleWebServer(this);
+        mServer = new SimpleWebServer(this, false);
 
         try {
             mServer.startServer(mPort);
@@ -48,30 +48,6 @@ public class WebSMSToolService extends Service {
             LOG.logE("Couldn't start web service on port <" + mPort + ">", e);
         }
 
-        // try {
-        // SSLContext sc = SSLContext.getInstance("TLS");
-        // KeyManagerFactory keyFactory =
-        // KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
-        // KeyStore kStore = KeyStore.getInstance(KeyStore.getDefaultType());
-        //
-        // InputStream is = this.getResources().openRawResource(R.raw.websms);
-        // kStore.load(is, "foobar64".toCharArray());
-        //
-        // keyFactory.init(kStore, "foobar64".toCharArray());
-        // KeyManager[] keyManager = keyFactory.getKeyManagers();
-        // sc.init(keyManager, null, new SecureRandom());
-        //
-        // mServer = new LocalTestServer(this, sc);
-        // } catch(Exception e) {
-        // LOG.e("Error creating sslsocket!", e);
-        // }
-        //
-        // try {
-        // mServer.start(mPort);
-        // LOG.i("Web service has been started on port <" + mPort + ">");
-        // } catch (Exception e) {
-        // LOG.e("Couldn't start web service on port <" + mPort + ">", e);
-        // }
         return super.onStartCommand(intent, flags, startId);
     }
 

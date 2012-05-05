@@ -12,12 +12,12 @@ import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
 
 import junit.framework.Assert;
-
 import my.org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpPost;
+import my.org.apache.http.client.HttpClient;
+import my.org.apache.http.client.methods.HttpPost;
 import my.org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.DefaultHttpClient;
+import my.org.apache.http.impl.client.DefaultHttpClient;
+
 import org.json.JSONObject;
 
 import android.content.Context;
@@ -35,7 +35,7 @@ public class SimpleWebServerTest extends InstrumentationTestCase {
     private void startServer() {
         Log.d("SimpleWebServerTest", "start server");
         httpClient = new DefaultHttpClient();
-        webserver = new SimpleWebServer(getInstrumentation().getContext());
+        webserver = new SimpleWebServer(getInstrumentation().getContext(), false);
         Assert.assertTrue(webserver.startServer(8888));
         Assert.assertTrue(webserver.startServer(9999));
         while (!webserver.isRunning()) {

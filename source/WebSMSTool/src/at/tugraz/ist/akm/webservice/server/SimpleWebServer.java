@@ -3,6 +3,8 @@ package at.tugraz.ist.akm.webservice.server;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Constructor;
+import java.net.ServerSocket;
+import java.net.Socket;
 import java.security.KeyManagementException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
@@ -15,9 +17,7 @@ import java.util.List;
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLServerSocket;
 import javax.net.ssl.SSLServerSocketFactory;
-import javax.net.ssl.SSLSocket;
 
 import my.org.apache.http.HttpResponseInterceptor;
 import my.org.apache.http.HttpVersion;
@@ -60,16 +60,19 @@ public class SimpleWebServer {
 
     private ServerThread mServerThread = null;
     
-    private SSLContext sc;  
-    private KeyManagerFactory keyFactory;  
-    private KeyManager[] keyManager;  
-    private KeyStore kStore; 
+    private boolean mHttps;
+    
+    // ssl and keystore
+    private SSLContext mSSLContext;
+    private KeyManagerFactory mKeyFactory;  
+    private KeyManager[] mKeyManager;  
+    private KeyStore mKeyStore; 
 
     private static class WorkerThread extends Thread {
         private final SimpleWebServer mWebServer;
-        private final SSLSocket mSocket;
+        private final Socket mSocket;
 
-        public WorkerThread(final SimpleWebServer webServer, final SSLSocket socket) {
+        public WorkerThread(final SimpleWebServer webServer, final Socket socket) {
             this.mWebServer = webServer;
             this.mSocket = socket;
         }
@@ -94,11 +97,11 @@ public class SimpleWebServer {
 
     private static class ServerThread extends Thread {
         private final SimpleWebServer mWebServer;
-        private final SSLServerSocket mServerSocket;
+        private final ServerSocket mServerSocket;
         private boolean mRunning = false;
         private boolean mStopServerThread = false;
 
-        public ServerThread(final SimpleWebServer webServer, final SSLServerSocket serverSocket) {
+        public ServerThread(final SimpleWebServer webServer, final ServerSocket serverSocket) {
             this.mWebServer = webServer;
             this.mServerSocket = serverSocket;
         }
@@ -107,24 +110,18 @@ public class SimpleWebServer {
 		public void run() {
 			mRunning = true;
 			while (mRunning) {
-                SSLSocket socket = null;
-                mLog.logD("waiting for connection at " + mServerSocket);
+                Socket socket = null;
+//                mLog.logD("waiting for connection at " + mServerSocket);
                 try {
-                    socket = mServerSocket != null ? (SSLSocket) mServerSocket.accept() : null;
+                    socket = mServerSocket != null ? mServerSocket.accept() : null;
                 } catch (IOException e) {
-                    // LOG.i("Exception caught while waiting for client connection",
-                    // e);
+                    //mLog.logE("Exception caught while waiting for client connection", e);
                 }
 
                 if (mStopServerThread) {
                     break;
                 }
                 if (socket != null) {
-//                    try {
-//                        socket.startHandshake();
-//                    } catch (IOException e) {
-//                        Log.e("Error while handshake!", e.getMessage());
-//                    }
                     mLog.logD("connection request from ip <" + socket.getInetAddress() + "> on port <"
                             + socket.getPort() + ">");
 					WorkerThread workerThread = new WorkerThread(mWebServer,
@@ -133,6 +130,7 @@ public class SimpleWebServer {
 					workerThread.start();
 				}
 			}
+			
 			mRunning = false;
 			Log.i("SimpleWebServer", "Webserver stopped");
 		}
@@ -150,9 +148,15 @@ public class SimpleWebServer {
 		}
 	}
 
-	public SimpleWebServer(Context context) {
+	public SimpleWebServer(Context context, final boolean https) {
 		this.mContext = context;
+		this.mHttps = https;
+		
 		readRequestHandlers();
+		
+		if (mHttps) {
+		    initSSLContext();
+		}
 	}
 
     protected synchronized HttpService initializeHTTPService() {
@@ -179,6 +183,7 @@ public class SimpleWebServer {
                 new DefaultHttpResponseFactory(),
                 mRegistry,
                 params);
+        
         return httpService;
     }
 
@@ -217,81 +222,33 @@ public class SimpleWebServer {
 	}
 
     public synchronized boolean startServer(int port) {
+        if (this.isRunning()) {
+            mLog.logI("Web service is already running at port <" + mServerThread.getPort() + ">");
+            return true;
+        }
+        
         try {
-            if (this.isRunning()) {
-                mLog.logI("Web service is already running at port <" + mServerThread.getPort() + ">");
-              return true;
+            ServerSocket serverSocket = null;
+            
+            if (mHttps) {
+                final SSLServerSocketFactory sslServerSocketFactory = mSSLContext.getServerSocketFactory();
+                serverSocket = sslServerSocketFactory.createServerSocket(port);
+            } else {
+                serverSocket = new ServerSocket(port);
             }
             
-            sc = SSLContext.getInstance("TLS");  
-            keyFactory = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());  
-            kStore = KeyStore.getInstance(KeyStore.getDefaultType());  
-            
-            InputStream is = mContext.getResources().openRawResource(R.raw.websms);
-            
-            kStore.load(is, "foobar64".toCharArray());
-            
-            keyFactory.init(kStore, "foobar64".toCharArray());  
-            keyManager = keyFactory.getKeyManagers();  
-            sc.init(keyManager, null, new SecureRandom());
-                
-            SSLServerSocketFactory sslserversocketfactory = sc.getServerSocketFactory();
-            SSLServerSocket sslserversocket =
-                    (SSLServerSocket) sslserversocketfactory.createServerSocket(port);
-//            SSLSocket sslsocket = (SSLSocket) sslserversocket.accept();
-//            
-            mServerThread = new ServerThread(this, sslserversocket);
+            serverSocket.setReuseAddress(true);
+            serverSocket.setSoTimeout(2000);
+
+            mServerThread = new ServerThread(this, serverSocket);
             mServerThread.setDaemon(true);
             mServerThread.start();
-            
-//            InputStream inputstream = sslsocket.getInputStream();
-//            InputStreamReader inputstreamreader = new InputStreamReader(inputstream);
-//            BufferedReader bufferedreader = new BufferedReader(inputstreamreader);
-//
-//            String string = null;
-//            while ((string = bufferedreader.readLine()) != null) {
-//                System.out.println("odpowiedz z servera: "+string);
-//                System.out.flush();
-//            }
             
             return true;
         } catch (IOException e) {
             mLog.logE("Cannot create server socket on port <" + port + ">", e);
             return false;
-        } catch (KeyStoreException e) {
-            mLog.logE("Cannot create server socket on port <" + port + ">", e);
-            return false;
-        } catch (NoSuchAlgorithmException e) {
-            mLog.logE("Cannot create server socket on port <" + port + ">", e);
-            return false;
-        } catch (CertificateException e) {
-            mLog.logE("Cannot create server socket on port <" + port + ">", e);
-            return false;
-        } catch (UnrecoverableKeyException e) {
-            mLog.logE("Cannot create server socket on port <" + port + ">", e);
-            return false;
-        } catch (KeyManagementException e) {
-            mLog.logE("Cannot create server socket on port <" + port + ">", e);
-            return false;
         }
-        
-//        try {
-//            if (this.isRunning()) {
-//                LOG.i("Web service is already running at port <" + mServerThread.getPort() + ">");
-//                return true;
-//            }
-//            ServerSocket serverSocket = new ServerSocket(port);
-//            serverSocket.setReuseAddress(true);
-//            serverSocket.setSoTimeout(2000);
-//
-//            mServerThread = new ServerThread(this, serverSocket);
-//            mServerThread.setDaemon(true);
-//            mServerThread.start();
-//            return true;
-//        } catch (IOException e) {
-//            LOG.v("Cannot create server socket on port <" + port + ">", e);
-//            return false;
-//        }
     }
 
 	public synchronized void stopServer() {
@@ -306,6 +263,35 @@ public class SimpleWebServer {
 				}
 			}
 		}
+		
+		mServerThread = null;
 	}
-
+	
+	private void initSSLContext() {
+	    try {
+    	    mSSLContext = SSLContext.getInstance("TLS");  
+            mKeyFactory = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());  
+            mKeyStore = KeyStore.getInstance(KeyStore.getDefaultType());  
+            
+            InputStream is = mContext.getResources().openRawResource(R.raw.websms);
+            
+            mKeyStore.load(is, "foobar64".toCharArray());
+            
+            mKeyFactory.init(mKeyStore, "foobar64".toCharArray());  
+            mKeyManager = mKeyFactory.getKeyManagers();  
+            mSSLContext.init(mKeyManager, null, new SecureRandom());
+	    } catch (IOException e) {
+            mLog.logE("Cannot read keystore!", e);
+        } catch (KeyStoreException e) {
+            mLog.logE("Error while loading keystore!", e);
+        } catch (NoSuchAlgorithmException e) {
+            mLog.logE("Wrong keystore algorithm!", e);
+        } catch (CertificateException e) {
+            mLog.logE("Error while loading certificate!", e);
+        } catch (UnrecoverableKeyException e) {
+            mLog.logE("Error while loading keystore", e);
+        } catch (KeyManagementException e) {
+            mLog.logE("Error while getting keymanagers!", e);
+        }
+	}
 }
