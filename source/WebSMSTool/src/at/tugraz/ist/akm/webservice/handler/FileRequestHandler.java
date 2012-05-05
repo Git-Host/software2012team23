@@ -4,14 +4,14 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpException;
-import org.apache.http.HttpRequest;
-import org.apache.http.HttpResponse;
-import org.apache.http.entity.ContentProducer;
-import org.apache.http.entity.EntityTemplate;
-import org.apache.http.protocol.HttpContext;
-import org.apache.http.protocol.HttpRequestHandlerRegistry;
+import my.org.apache.http.HttpEntity;
+import my.org.apache.http.HttpException;
+import my.org.apache.http.HttpRequest;
+import my.org.apache.http.HttpResponse;
+import my.org.apache.http.entity.ContentProducer;
+import my.org.apache.http.entity.EntityTemplate;
+import my.org.apache.http.protocol.HttpContext;
+import my.org.apache.http.protocol.HttpRequestHandlerRegistry;
 
 import android.content.Context;
 import at.tugraz.ist.akm.io.FileReader;

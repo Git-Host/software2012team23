@@ -4,12 +4,12 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 
-import org.apache.http.HttpException;
-import org.apache.http.HttpRequest;
-import org.apache.http.HttpResponse;
-import org.apache.http.protocol.HttpContext;
-import org.apache.http.protocol.HttpRequestHandler;
-import org.apache.http.protocol.HttpRequestHandlerRegistry;
+import my.org.apache.http.HttpException;
+import my.org.apache.http.HttpRequest;
+import my.org.apache.http.HttpResponse;
+import my.org.apache.http.protocol.HttpContext;
+import my.org.apache.http.protocol.HttpRequestHandler;
+import my.org.apache.http.protocol.HttpRequestHandlerRegistry;
 
 import android.content.Context;
 import at.tugraz.ist.akm.io.xml.XmlNode;

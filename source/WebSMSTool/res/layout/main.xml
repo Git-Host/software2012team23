@@ -9,34 +9,34 @@
         android:layout_height="wrap_content"
         android:text="@string/hello" />
 
-    <imageview
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:src="@drawable/battery_level0" >
-    </imageview>
+<!--     <imageview -->
+<!--         android:layout_width="wrap_content" -->
+<!--         android:layout_height="wrap_content" -->
+<!--         android:src="@drawable/battery_level0" > -->
+<!--     </imageview> -->
 
-    <imageview
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:src="@drawable/battery_level1" >
-    </imageview>
+<!--     <imageview -->
+<!--         android:layout_width="wrap_content" -->
+<!--         android:layout_height="wrap_content" -->
+<!--         android:src="@drawable/battery_level1" > -->
+<!--     </imageview> -->
 
-    <imageview
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:src="@drawable/battery_level2" >
-    </imageview>
+<!--     <imageview -->
+<!--         android:layout_width="wrap_content" -->
+<!--         android:layout_height="wrap_content" -->
+<!--         android:src="@drawable/battery_level2" > -->
+<!--     </imageview> -->
 
-    <imageview
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:src="@drawable/battery_level3" >
-    </imageview>
+<!--     <imageview -->
+<!--         android:layout_width="wrap_content" -->
+<!--         android:layout_height="wrap_content" -->
+<!--         android:src="@drawable/battery_level3" > -->
+<!--     </imageview> -->
 
-    <imageview 
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:src="@drawable/battery_level4" >
-    </imageview>
+<!--     <imageview  -->
+<!--         android:layout_width="wrap_content" -->
+<!--         android:layout_height="wrap_content" -->
+<!--         android:src="@drawable/battery_level4" > -->
+<!--     </imageview> -->
 
 </LinearLayout>

@@ -8,7 +8,8 @@ import at.tugraz.ist.akm.trace.Logable;
 import at.tugraz.ist.akm.webservice.server.SimpleWebServer;
 
 public class WebSMSToolService extends Service {
-    private final static Logable LOG = new Logable(WebSMSToolService.class.getSimpleName());
+    private final static Logable LOG = new Logable(
+            WebSMSToolService.class.getSimpleName());
 
     SimpleWebServer mServer = null;
     private int mPort = 8887;
@@ -39,17 +40,48 @@ public class WebSMSToolService extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         LOG.v("Try to start webserver.");
         mServer = new SimpleWebServer(this);
-        if (mServer.startServer(mPort)) {
+
+        try {
+            mServer.startServer(mPort);
             LOG.i("Web service has been started on port <" + mPort + ">");
-        } else {
-            LOG.w("Couldn't start web service on port <" + mPort + ">");
+        } catch (Exception e) {
+            LOG.e("Couldn't start web service on port <" + mPort + ">", e);
         }
+
+        // try {
+        // SSLContext sc = SSLContext.getInstance("TLS");
+        // KeyManagerFactory keyFactory =
+        // KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
+        // KeyStore kStore = KeyStore.getInstance(KeyStore.getDefaultType());
+        //
+        // InputStream is = this.getResources().openRawResource(R.raw.websms);
+        // kStore.load(is, "foobar64".toCharArray());
+        //
+        // keyFactory.init(kStore, "foobar64".toCharArray());
+        // KeyManager[] keyManager = keyFactory.getKeyManagers();
+        // sc.init(keyManager, null, new SecureRandom());
+        //
+        // mServer = new LocalTestServer(this, sc);
+        // } catch(Exception e) {
+        // LOG.e("Error creating sslsocket!", e);
+        // }
+        //
+        // try {
+        // mServer.start(mPort);
+        // LOG.i("Web service has been started on port <" + mPort + ">");
+        // } catch (Exception e) {
+        // LOG.e("Couldn't start web service on port <" + mPort + ">", e);
+        // }
         return super.onStartCommand(intent, flags, startId);
     }
 
     @Override
     public void onDestroy() {
-        mServer.stopServer();
+        try {
+            mServer.stopServer();
+        } catch (Exception e) {
+            LOG.e("Error while stopping server!", e);
+        }
         super.onDestroy();
     }
 }

@@ -4,22 +4,21 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 
-import org.apache.http.HttpException;
-import org.apache.http.HttpRequest;
-import org.apache.http.HttpResponse;
-import org.apache.http.ParseException;
-import org.apache.http.entity.ContentProducer;
-import org.apache.http.entity.EntityTemplate;
-import org.apache.http.message.BasicHttpEntityEnclosingRequest;
-import org.apache.http.protocol.HttpContext;
-import org.apache.http.protocol.HttpRequestHandlerRegistry;
-import org.apache.http.util.EntityUtils;
+import my.org.apache.http.HttpException;
+import my.org.apache.http.HttpRequest;
+import my.org.apache.http.HttpResponse;
+import my.org.apache.http.ParseException;
+import my.org.apache.http.entity.ContentProducer;
+import my.org.apache.http.entity.EntityTemplate;
+import my.org.apache.http.message.BasicHttpEntityEnclosingRequest;
+import my.org.apache.http.protocol.HttpContext;
+import my.org.apache.http.protocol.HttpRequestHandlerRegistry;
+import my.org.apache.http.util.EntityUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.content.Context;
 import at.tugraz.ist.akm.io.xml.XmlNode;
-import at.tugraz.ist.akm.webservice.handler.JsonAPIRequestHandler;
 
 public class EchoJsonRequestHandler extends JsonAPIRequestHandler {
 
