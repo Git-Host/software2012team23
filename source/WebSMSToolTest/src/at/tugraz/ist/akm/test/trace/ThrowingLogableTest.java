@@ -48,7 +48,7 @@ public class ThrowingLogableTest extends TestCase {
 	
 	public void testLogError() {
 		try {
-			mLog.logE("testLogError");
+			mLog.logE("testLogError: If you read this message don't panik - it's just a test!");
 		} catch (Throwable e) {
 			// ok
 			return;
@@ -58,7 +58,7 @@ public class ThrowingLogableTest extends TestCase {
 	
 	public void testLogErrorE() {
 		try {
-			mLog.logE("testLogErrorE", null);
+			mLog.logE("testLogErrorE: If you read this message don't panik - it's just a test!", null);
 		} catch (Throwable e) {
 			// ok
 			return;

@@ -24,7 +24,27 @@ public abstract class AbstractHttpRequestHandler implements HttpRequestHandler {
     
     protected HashMap<String, FileInfo> mUri2FileInfo = new HashMap<String, AbstractHttpRequestHandler.FileInfo>();
 
-    public AbstractHttpRequestHandler(final Context context, final XmlNode config,
+    private String mUriPattern = null;
+    
+    public static class FileInfo {
+	    final String mContentType;
+	    final String mFile;
+	
+	    public FileInfo(final String file, final String contentType) {
+	        this.mFile = file;
+	        this.mContentType = contentType;
+	    }
+	
+	    @Override
+	    public String toString() {
+	        return new StringBuffer().append("dataFile '").append(mFile).append("' contentType '")
+	                .append(mContentType).append("'").toString();
+	    }
+	}
+
+
+
+	public AbstractHttpRequestHandler(final Context context, final XmlNode config,
             final HttpRequestHandlerRegistry registry) {
         this.mContext = context;
         this.mConfig = config;
@@ -32,17 +52,6 @@ public abstract class AbstractHttpRequestHandler implements HttpRequestHandler {
         assignUriMappingToRegistry();
     }
 
-    protected void register(String uri) {
-        if (mRegistry != null) {
-            mLog.logI("register for uri '" + uri + "'");
-            mRegistry.register(uri, this);
-        } else {
-            mLog.logW("cannot register uri '" + uri + "' => no registry provided!");
-        }
-    }
-    
-    
-    
     private void assignUriMappingToRegistry() {
         if (mConfig == null) {
             return;
@@ -76,25 +85,28 @@ public abstract class AbstractHttpRequestHandler implements HttpRequestHandler {
     
     
 
-    @Override
+    protected void register(String uri) {
+	    if (mRegistry != null) {
+	        mLog.logI("register for uri '" + uri + "'");
+	        mUriPattern = uri;
+	        mRegistry.register(mUriPattern, this);
+	    } else {
+	        mLog.logW("cannot register uri '" + uri + "' => no registry provided!");
+	    }
+	}
+
+	@Override
     public abstract void handle(HttpRequest httpRequest, HttpResponse httpResponse,
             HttpContext httpContext) throws HttpException, IOException;
 
     
-    
-    public static class FileInfo {
-        final String mContentType;
-        final String mFile;
-
-        public FileInfo(final String file, final String contentType) {
-            this.mFile = file;
-            this.mContentType = contentType;
-        }
-
-        @Override
-        public String toString() {
-            return new StringBuffer().append("dataFile '").append(mFile).append("' contentType '")
-                    .append(mContentType).append("'").toString();
-        }
-    }  
+    /**
+	 * adapter: call it to ensure proper cleanup
+	 */
+	public void onClose() {
+		if (null != mRegistry) {
+			mLog.logI("close request handler for URI [" + mUriPattern + "]");
+			mRegistry.unregister(mUriPattern);
+		}
+	}
 }

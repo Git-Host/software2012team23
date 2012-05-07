@@ -5,6 +5,7 @@ import java.lang.reflect.Constructor;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.List;
+import java.util.Vector;
 
 import org.apache.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.http.impl.DefaultHttpResponseFactory;
@@ -22,6 +23,7 @@ import at.tugraz.ist.akm.io.xml.XmlNode;
 import at.tugraz.ist.akm.io.xml.XmlReader;
 import at.tugraz.ist.akm.trace.Logable;
 import at.tugraz.ist.akm.webservice.WebServerConfig;
+import at.tugraz.ist.akm.webservice.handler.AbstractHttpRequestHandler;
 
 public class SimpleWebServer {
 	private final static Logable mLog = new Logable(
@@ -30,10 +32,9 @@ public class SimpleWebServer {
 	HttpRequestHandlerRegistry mRegistry = new HttpRequestHandlerRegistry();
 	private BasicHttpContext mHttpContext = new BasicHttpContext();
 
-	// android context
 	private final Context mContext;
-
 	private ServerThread mServerThread = null;
+	private Vector<AbstractHttpRequestHandler> mHandlerReferenceListing = new Vector<AbstractHttpRequestHandler>();
 
 	private static class WorkerThread extends Thread {
 		private final SimpleWebServer mWebServer;
@@ -154,7 +155,8 @@ public class SimpleWebServer {
 				Class<?> clazz = Class.forName(className);
 				Constructor<?> constr = clazz.getConstructor(Context.class,
 						XmlNode.class, HttpRequestHandlerRegistry.class);
-				constr.newInstance(mContext, node, mRegistry);
+				AbstractHttpRequestHandler newHandler = (AbstractHttpRequestHandler) constr.newInstance(mContext, node, mRegistry);
+				mHandlerReferenceListing.add(newHandler);
 			} catch (Exception e) {
 				mLog.logE("Loading of class <" + className + "> failed");
 				stopServer();
@@ -201,6 +203,13 @@ public class SimpleWebServer {
 			}
 
 			mServerThread = null;
+		}
+		closeRegistry();
+	}
+	
+	private void closeRegistry() {
+		for ( AbstractHttpRequestHandler toBeCleanedUp : mHandlerReferenceListing) {
+			toBeCleanedUp.onClose();
 		}
 	}
 
