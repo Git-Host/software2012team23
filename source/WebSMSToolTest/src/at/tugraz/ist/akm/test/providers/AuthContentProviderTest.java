@@ -4,9 +4,9 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
 import at.tugraz.ist.akm.db.User.Users;
-import at.tugraz.ist.akm.test.WebSMSToolTestInstrumentation;
+import at.tugraz.ist.akm.test.WebSMSToolTestcase;
 
-public class AuthContentProviderTest extends WebSMSToolTestInstrumentation {
+public class AuthContentProviderTest extends WebSMSToolTestcase{
 
 	public AuthContentProviderTest() {
 		super(AuthContentProviderTest.class.getSimpleName());

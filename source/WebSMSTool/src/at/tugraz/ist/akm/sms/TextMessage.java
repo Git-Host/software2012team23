@@ -10,6 +10,9 @@ public class TextMessage implements Serializable {
 	private String mThreadId = "";
 	private String mPerson = "null";
 	private String mDate = "";
+	/**
+	 * usually the phone number
+	 */
 	private String mAddress = "";
 	private String mSeen = "1";
 	private String mRead = "1";

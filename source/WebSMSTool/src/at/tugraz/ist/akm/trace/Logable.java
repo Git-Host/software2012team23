@@ -1,92 +1,66 @@
 package at.tugraz.ist.akm.trace;
 
-import android.util.Log;
+public class Logable
+{
 
-public class Logable {
+	private String mTag = "<notag>";
 
-    private enum LogLevel {
-        ERROR, WARNING, INFO, DEBUG, VERBOSE
-    }
+	public Logable()
+	{
+	}
 
-    protected String mTag = null;
+	public Logable(String tag)
+	{
+		mTag = new String(tag);
+	}
 
-    public Logable(String tag) {
-        mTag = new String(tag);
-    }
+	public void logV(String message)
+	{
+		logV(message, null);
+	}
 
-    public Logable() {
-        mTag = new String("<notag>");
-    }
+	public void logV(String message, Throwable t)
+	{
+		Logger.log(Logger.LogLevel.VERBOSE, mTag, message, t);
+	}
 
-    public void v(String message) {
-        v(message, null);
-    }
+	public void logE(String message)
+	{
+		logE(message, null);
+	}
 
-    public void v(String message, Throwable t) {
-        log(LogLevel.VERBOSE, message, t);
-    }
+	public void logE(String message, Throwable t)
+	{
+		Logger.log(Logger.LogLevel.ERROR, mTag, message, t);
+	}
 
-    public void e(String message) {
-        v(message, null);
-    }
+	public void logW(String message)
+	{
+		logW(message, null);
+	}
 
-    public void e(String message, Throwable t) {
-        log(LogLevel.ERROR, message, t);
-    }
+	public void logW(String message, Throwable t)
+	{
+		Logger.log(Logger.LogLevel.WARNING, mTag, message, t);
+	}
 
-    public void w(String message) {
-        w(message, null);
-    }
+	public void logI(String message)
+	{
+		logI(message, null);
+	}
 
-    public void w(String message, Throwable t) {
-        log(LogLevel.WARNING, message, t);
-    }
+	public void logI(String message, Throwable t)
+	{
+		Logger.log(Logger.LogLevel.INFO, mTag, message, t);
+	}
 
-    public void i(String message) {
-        i(message, null);
-    }
+	public void logD(String message)
+	{
+		logD(message, null);
+	}
 
-    public void i(String message, Throwable t) {
-        log(LogLevel.INFO, message, t);
-    }
-
-    public void d(String message) {
-        d(message, null);
-    }
-
-    public void d(String message, Throwable t) {
-        log(LogLevel.DEBUG, message, t);
-    }
-
-    private void log(LogLevel level, String message, Throwable t) {
-        switch (level) {
-        case ERROR:
-            Log.e(mTag, getLogMessage(message, t));
-            break;
-        case WARNING:
-            Log.w(mTag, getLogMessage(message, t));
-            break;
-
-        case INFO:
-            Log.i(mTag, getLogMessage(message, t));
-            break;
-
-        case DEBUG:
-            Log.d(mTag, getLogMessage(message, t));
-            break;
-
-        case VERBOSE:
-            Log.v(mTag, getLogMessage(message, t));
-            break;
-        }
-    }
-
-    private String getLogMessage(String message, Throwable t) {
-        StringBuilder sb = new StringBuilder(message);
-        if (t != null) {
-            sb.append(" => ").append("exception <").append(t.getMessage()).append(">");
-        }
-        return sb.toString();
-    }
-
+	public void logD(String message, Throwable t)
+	{
+		Logger.log(Logger.LogLevel.DEBUG, mTag, message, t);
+	}
 }

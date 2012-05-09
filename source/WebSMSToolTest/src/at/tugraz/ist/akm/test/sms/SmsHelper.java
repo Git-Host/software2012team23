@@ -12,17 +12,17 @@ public class SmsHelper {
 	private static Logable mLog = new Logable(SmsHelper.class.getSimpleName());
 	
 	private static void log(final String m) {
-		mLog.v(m);
+		mLog.logV(m);
 	}
 	
 	public static String getDateNowString() {
 		Date dateNow = new Date();
-		SimpleDateFormat dateformat = new SimpleDateFormat("hh:mm dd.MM.yyyy");
+		SimpleDateFormat dateformat = new SimpleDateFormat("hh:mm:ss dd.MM.yyyy");
 		StringBuilder now = new StringBuilder(dateformat.format(dateNow));
 		return now.toString();
 
 	}
-
+	
 	public static TextMessage getDummyTextMessage() {
 		String methodName = Thread.currentThread().getStackTrace()[3]
 				.getMethodName();
@@ -30,7 +30,16 @@ public class SmsHelper {
 		m.setAddress("1357");
 		m.setBody(methodName + ": Dummy texting generated on "
 				+ getDateNowString() + ".");
-		m.setDate(Long.toString(new Date().getTime()));
+		return m;
+	}
+	
+	public static TextMessage getDummyMultiTextMessage() {
+		String methodName = Thread.currentThread().getStackTrace()[3]
+				.getMethodName();
+		TextMessage m = new TextMessage();
+		m.setAddress("13570");
+		m.setBody(methodName + ": Dummy texting generated on "
+				+ getDateNowString() + ". 1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890");
 		return m;
 	}
 	

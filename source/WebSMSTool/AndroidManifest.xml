@@ -11,11 +11,15 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.READ_CONTACTS" />
-    <uses-permission android:name="android.permission.WRITE_CONTACTS" />
     <uses-permission android:name="android.permission.READ_SMS" />
     <uses-permission android:name="android.permission.SEND_SMS" />
-    <uses-permission android:name="android.permission.WRITE_SMS"/>
-    
+    <uses-permission android:name="android.permission.WRITE_SMS" />
+    <uses-permission android:name="android.permission.WRITE_CONTACTS" />
+    <uses-permission android:name="android.permission.RECEIVE_SMS" />
+    <uses-permission android:name="android.permission.BROADCAST_SMS" />
+    <uses-permission android:name="android.permission.BATTERY_STATS"/>
+    <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
+
     <application
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name" >
@@ -30,6 +34,19 @@
         </activity>
         <service android:name=".webservice.WebSMSToolService"></service>
         <provider android:name=".providers.AuthContentProvider" android:authorities="at.tugraz.ist.akm.providers.AuthContentProvider"></provider>
+
+        <activity
+            android:name=".test.MainActivityTest"
+            android:label="@string/app_name" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <service android:name=".webservice.WebSMSToolService" >
+        </service>
     </application>
 
 </manifest>

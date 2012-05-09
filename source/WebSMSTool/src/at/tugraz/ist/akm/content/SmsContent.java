@@ -1,4 +1,4 @@
-package at.tugraz.ist.akm.sms;
+package at.tugraz.ist.akm.content;
 
 import android.net.Uri;
 
@@ -57,11 +57,18 @@ public class SmsContent {
 		/**
 		 * column name
 		 */
-		public final static String TYPE = "type";
+		public final static String MESSAGE_TYPE = "type";
 		/**
-		 * column value
+		 * column values
 		 */
-		public final static String TYPE_SMS = "1";
+        public static final String MESSAGE_TYPE_ALL    = "0";
+        public static final String MESSAGE_TYPE_INBOX  = "1";
+        public static final String MESSAGE_TYPE_SENT   = "2";
+        public static final String MESSAGE_TYPE_DRAFT  = "3";
+        public static final String MESSAGE_TYPE_OUTBOX = "4";
+        public static final String MESSAGE_TYPE_FAILED = "5"; // for failed outgoing messages
+        public static final String MESSAGE_TYPE_QUEUED = "6"; // for sms to send later
+        		
 		/**
 		 * column name
 		 */

@@ -1,6 +1,7 @@
 package at.tugraz.ist.akm.sms;
 
 import java.io.Serializable;
+import java.util.Date;
 import java.util.List;
 
 import android.app.Activity;
@@ -8,187 +9,103 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.database.ContentObserver;
-import android.database.Cursor;
-import android.net.Uri;
 import android.os.Bundle;
 import android.telephony.SmsManager;
+import at.tugraz.ist.akm.content.query.TextMessageFilter;
 import at.tugraz.ist.akm.trace.Logable;
 
-public class SmsBridge implements SmsSentCallback, SmsReceivedCallback {
+public class SmsBridge extends Logable implements SmsIOCallback {
 
-	private Activity mActivity = null;
+	private Context mContext = null;
 	private ContentResolver mContentResolver = null;
-	private Logable mLog = new Logable(getClass().getSimpleName());
 
-	private SmsSentBroadcastReceiver mSmsSendNotifier = new SmsSentBroadcastReceiver(
-			this);
-	private SmsReceivedContentObserver mSmsReceivedNotifier = new SmsReceivedContentObserver(
-			this);
-	private Cursor mSmsInboxContentCursor = null;
-
-	private SmsSend mSmsSink = null;
+	private SmsSender mSmsSink = null;
 	private SmsBoxReader mSmsBoxReader = null;
 	private SmsBoxWriter mSmsBoxWriter = null;
 
-	private SmsReceivedCallback mExternalSmsReceivedCallback = null;
-	private SmsSentCallback mExternalSmsSentCallback = null;
+	private SmsSentBroadcastReceiver mSmsSentNotifier = new SmsSentBroadcastReceiver(
+			this);
+	private SmsIOCallback mExternalSmsSentCallback = null;
 
-	private class SmsReceivedContentObserver extends ContentObserver {
-
-		private SmsReceivedCallback mCallback = null;
-
-		public SmsReceivedContentObserver(SmsReceivedCallback c) {
-			super(null);
-			mCallback = c;
-		}
-
-		@Override
-		public boolean deliverSelfNotifications() {
-			return true;
-		}
-
-		@Override
-		public void onChange(boolean selfChange) {
-			super.onChange(selfChange);
-			if (!selfChange) {
-				mCallback.smsReceivedCallback();
-			}
-		}
-	}
-
-	public SmsBridge(Activity a) {
-		log("starting ...");
-		mActivity = a;
-		mContentResolver = mActivity.getContentResolver();
-		mSmsSink = new SmsSend(mActivity);
+	public SmsBridge(Context c) {
+		super(SmsBridge.class.getSimpleName());
+		mContext = c;
+		mContentResolver = mContext.getContentResolver();
+		mSmsSink = new SmsSender(mContext);
 		mSmsBoxReader = new SmsBoxReader(mContentResolver);
 		mSmsBoxWriter = new SmsBoxWriter(mContentResolver);
-
-		registerSmsSentNotification();
-		registerSmsDeliveredNotification();
-
-		mSmsInboxContentCursor = getSmsInboxCursor();
-		registerSmsReceivedObserver();
 	}
 
 	public int sendTextMessage(TextMessage message) {
-		log("sending message to [" + message.getAddress() + "]");
+		logV("sending message to [" + message.getAddress() + "]");
+		message.setDate(Long.toString(new Date().getTime()));
 		return mSmsSink.sendTextMessage(message);
 	}
 
-	public List<TextMessage> fetchInbox() {
-		List<TextMessage> inbox = mSmsBoxReader.getInbox();
-		log("fetched [" + inbox.size() + "] items from inbox");
-		return inbox;
+	public List<TextMessage> fetchTextMessages(TextMessageFilter filter) {
+		List<TextMessage> messages = mSmsBoxReader.getTextMessages(filter);
+		logV("fetched [" + messages.size() + "] messages");
+		return messages;
 	}
 
-	public List<TextMessage> fetchOutbox() {
-		List<TextMessage> outbox = mSmsBoxReader.getSentbox();
-		log("fetched [" + outbox.size() + "] items from outbox");
-		return outbox;
+	public int updateTextMessage(TextMessage message) {
+		return mSmsBoxWriter.updateTextMessage(message);
 	}
 
-	public void setSmsSentCallback(SmsSentCallback c) {
-		log("registered new [SmsSentCallback] callback");
+	public List<Integer> fetchThreadIds(final String address) {
+		return mSmsBoxReader.getThreadIds(address);
+	}
+
+	public void setSmsSentCallback(SmsIOCallback c) {
+		logV("registered new [SmsSentCallback] callback");
 		mExternalSmsSentCallback = c;
 	}
 
-	public void setSmsReceivedCallback(SmsReceivedCallback c) {
-		log("registered new [SmsReceivedCallback] callback");
-		mExternalSmsReceivedCallback = c;
+	public void start() {
+		registerSmsSentNotification();
+		registerSmsDeliveredNotification();
+		registerSmsReceivedNotification();
 	}
 
-	private void registerSmsSentNotification() {
-		mActivity.registerReceiver(mSmsSendNotifier, new IntentFilter(
-				SmsSentBroadcastReceiver.ACTION_SMS_SENT));
-	}
-
-	private void registerSmsDeliveredNotification() {
-		mActivity.registerReceiver(mSmsSendNotifier, new IntentFilter(
-				SmsSentBroadcastReceiver.ACTION_SMS_DELIVERED));
-	}
-
-	private void registerSmsReceivedObserver() {
-		mSmsInboxContentCursor.registerContentObserver(mSmsReceivedNotifier);
-	}
-
-	public void close() {
-		log("closing ...");
-		mActivity.unregisterReceiver(mSmsSendNotifier);
-		mSmsSendNotifier = null;
-		mSmsInboxContentCursor.unregisterContentObserver(mSmsReceivedNotifier);
-		mSmsReceivedNotifier = null;
+	public void stop() {
+		mContext.unregisterReceiver(mSmsSentNotifier);
+		mSmsSentNotifier = null;
 	}
 
 	/**
-	 * returns a table cursor that is going to be observed later hence we need
-	 * no useful columns, just a table
-	 * 
-	 * @return
-	 */
-	private Cursor getSmsInboxCursor() {
-		Uri select = SmsContent.ContentUri.INBOX_URI;
-		String[] as = { SmsContent.Content.ID };
-		String where = SmsContent.Content.TYPE + " = ? ";
-		String[] like = { SmsContent.Content.TYPE_SMS };
-
-		return mActivity.managedQuery(select, as, where, like, null);
-	}
-
-	/**
-	 * 1. try to parse the TextMessage and store to content://sms/sent 2.
-	 * regardless of the state bypass the event to external audience
+	 * 1st: try to parse the TextMessage and store to content://sms/sent 2nd:
+	 * regardless of the state bypass the event to external audience but
+	 * separate erroneous states from good ones. Note, on
+	 * {@link SmsSentBroadcastReceiver.ACTION_SMS_SENT}: Since
+	 * SmsSentBroadcastReceiver never can get the result code (getResultCode()),
+	 * only this interface method will be ever called from
+	 * SmsSentBroadcastReceiver.
 	 */
 	@Override
 	public void smsSentCallback(Context context, Intent intent) {
-		String verboseSentState = null;
-		boolean sentSuccessfully = false;
-		TextMessage sentMessage = parseToTextMessgae(intent);
-
-		switch (mSmsSendNotifier.getResultCode()) {
-		case Activity.RESULT_OK:
-			verboseSentState = "to address [" + sentMessage.getAddress()
-					+ "] on [" + sentMessage.getDate() + "] ("
-					+ sentMessage.getBody() + ")";
-
-			mSmsBoxWriter.writeSentboxTextMessage(sentMessage);
-			sentSuccessfully = true;
-			break;
-
-		case SmsManager.RESULT_ERROR_GENERIC_FAILURE:
-			verboseSentState = "Error.";
-			mSmsBoxWriter.writeOutboxTextMessage(sentMessage);
-			break;
-
-		case SmsManager.RESULT_ERROR_NO_SERVICE:
-			verboseSentState = "Error: No service.";
-			mSmsBoxWriter.writeOutboxTextMessage(sentMessage);
-			break;
-
-		case SmsManager.RESULT_ERROR_NULL_PDU:
-			verboseSentState = "Error: Null PDU.";
-			mSmsBoxWriter.writeOutboxTextMessage(sentMessage);
-			break;
-
-		case SmsManager.RESULT_ERROR_RADIO_OFF:
-			verboseSentState = "Error: Radio off.";
-			mSmsBoxWriter.writeOutboxTextMessage(sentMessage);
-			break;
-		}
-
-		if (sentSuccessfully) {
-			log("saved message to outbox (" + verboseSentState + ")");
-		} else {
-			log(verboseSentState);
-		}
+		boolean sentSuccessfully = storeMessageToCorrectBox(intent);
 
 		if (mExternalSmsSentCallback != null) {
-			log("bypassing SmsSentCallback.smsSentCallback()");
-			mExternalSmsSentCallback.smsSentCallback(context, intent);
+
+			if (sentSuccessfully) {
+				logV("bypassing SmsSentCallback.smsSentCallback()");
+				mExternalSmsSentCallback.smsSentCallback(context, intent);
+			} else {
+				logV("bypassing SmsSendErrorCallback.smsSentCallback()");
+				mExternalSmsSentCallback.smsSentErrorCallback(context, intent);
+			}
 		} else {
-			log("no external callback [SmsSentCallback.smsSentCallback()] found - callback ends here");
+			logV("no external callback [SmsSentCallback.smsSentCallback()] found - callback ends here");
 		}
+	}
+
+	/**
+	 * Note, on {@link SmsSentBroadcastReceiver.ACTION_SMS_SENT}: Since
+	 * SmsSentBroadcastReceiver never can get the result code (getResultCode()),
+	 * this interface method will be never called from SmsSentBroadcastReceiver.
+	 */
+	@Override
+	public void smsSentErrorCallback(Context context, Intent intent) {
 	}
 
 	/**
@@ -197,11 +114,42 @@ public class SmsBridge implements SmsSentCallback, SmsReceivedCallback {
 	@Override
 	public void smsDeliveredCallback(Context context, Intent intent) {
 		if (mExternalSmsSentCallback != null) {
-			log("bypassing SmsSentCallback.smsDeliveredCallback()");
+			logV("bypassing SmsSentCallback.smsDeliveredCallback()");
 			mExternalSmsSentCallback.smsDeliveredCallback(context, intent);
 		} else {
-			log("no external callback [SmsSentCallback.smsDeliveredCallback()] found - callback ends here");
+			logV("no external callback [SmsSentCallback.smsDeliveredCallback()] found - callback ends here");
 		}
+	}
+
+	/**
+	 * simply bypass the callback to external listener
+	 */
+	@Override
+	public void smsReceivedCallback(Context context, Intent intent) {
+		if (mExternalSmsSentCallback != null) {
+			logV("bypassing mExternalSmsReceivedCallback.smsReceivedCallback()");
+		} else {
+			logV("no external callback [mExternalSmsReceivedCallback.smsReceivedCallback()] found - callback ends here");
+		}
+
+	}
+
+	private void registerSmsSentNotification() {
+		logV("registered new IntentFilter [ACTION_SMS_SENT]");
+		mContext.registerReceiver(mSmsSentNotifier, new IntentFilter(
+				SmsSentBroadcastReceiver.ACTION_SMS_SENT));
+	}
+
+	private void registerSmsDeliveredNotification() {
+		logV("registered new IntentFilter [ACTION_SMS_DELIVERED]");
+		mContext.registerReceiver(mSmsSentNotifier, new IntentFilter(
+				SmsSentBroadcastReceiver.ACTION_SMS_DELIVERED));
+	}
+
+	private void registerSmsReceivedNotification() {
+		logV("registered new IntentFilter [ACTION_SMS_SENT]");
+		mContext.registerReceiver(mSmsSentNotifier, new IntentFilter(
+				SmsSentBroadcastReceiver.ACTION_SMS_RECEIVED));
 	}
 
 	private TextMessage parseToTextMessgae(Intent intent) {
@@ -217,29 +165,74 @@ public class SmsBridge implements SmsSentCallback, SmsReceivedCallback {
 				}
 
 			} else {
-				log("couldn't find any text message infos at all :(");
+				logV("couldn't find any text message infos at all :(");
 			}
 		} catch (Exception e) {
-			log("FAILED to gather text message extras from intent");
+			logV("FAILED to gather text message extras from intent");
 		}
 		return null;
 	}
 
 	/**
-	 * simply bypass the callback to external listener
+	 * Is being called when the send state of a TextMessage is clear. If state
+	 * is OK, then store message to sent-box. On error place the TextMessage to
+	 * out-box (box for pending or not sent messages).
+	 * 
+	 * @param intent
+	 *            where to parse the TextMessage from
+	 * @return true if correctly sent else false
 	 */
-	@Override
-	public void smsReceivedCallback() {
-		if (mExternalSmsReceivedCallback != null) {
-			log("bypassing mExternalSmsReceivedCallback.smsReceivedCallback()");
-			mExternalSmsReceivedCallback.smsReceivedCallback();
-		} else {
-			log("no external callback [mExternalSmsReceivedCallback.smsReceivedCallback()] found - callback ends here");
+	private boolean storeMessageToCorrectBox(Intent intent) {
+		boolean isSuccessfullySent = false;
+		TextMessage sentMessage = parseToTextMessgae(intent);
+		
+		String verboseSentState = null;
+
+		switch (mSmsSentNotifier.getResultCode()) {
+		case Activity.RESULT_OK:
+			verboseSentState = "to address [" + sentMessage.getAddress()
+					+ "] on [" + sentMessage.getDate() + "] ("
+					+ sentMessage.getBody() + ")";
+
+			mSmsBoxWriter.writeSentboxTextMessage(sentMessage);
+			isSuccessfullySent = true;
+			break;
+
+		case SmsManager.RESULT_ERROR_GENERIC_FAILURE:
+			verboseSentState = "Error.";
+			sentMessage.setLocked("");
+			sentMessage.setErrorCode("");
+			mSmsBoxWriter.writeOutboxTextMessage(sentMessage);
+			break;
+
+		case SmsManager.RESULT_ERROR_NO_SERVICE:
+			verboseSentState = "Error: No service.";
+			sentMessage.setLocked("");
+			sentMessage.setErrorCode("");
+			mSmsBoxWriter.writeOutboxTextMessage(sentMessage);
+			break;
+
+		case SmsManager.RESULT_ERROR_NULL_PDU:
+			verboseSentState = "Error: Null PDU.";
+			sentMessage.setLocked("");
+			sentMessage.setErrorCode("");
+			mSmsBoxWriter.writeOutboxTextMessage(sentMessage);
+			break;
+
+		case SmsManager.RESULT_ERROR_RADIO_OFF:
+			verboseSentState = "Error: Radio off.";
+			sentMessage.setLocked("");
+			sentMessage.setErrorCode("");
+			mSmsBoxWriter.writeOutboxTextMessage(sentMessage);
+			break;
 		}
 
-	}
+		if (isSuccessfullySent) {
+			logV("text message sent successfully (" + verboseSentState + ")");
+		} else {
+			logV(verboseSentState);
+		}
 
-	private void log(final String m) {
-		mLog.v(m);
+		return isSuccessfullySent;
 	}
 }

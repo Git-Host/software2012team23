@@ -123,7 +123,7 @@ public class AuthContentProvider extends ContentProvider {
 			c.setNotificationUri(getContext().getContentResolver(), uri);
 		}
 		catch (Exception e) {
-			mLog.v("Query" + e.toString());
+			mLog.logV("Query" + e.toString());
 		}
 		return c;
 	}
