@@ -15,9 +15,7 @@
     <uses-permission android:name="android.permission.READ_SMS" />
     <uses-permission android:name="android.permission.SEND_SMS" />
     <uses-permission android:name="android.permission.WRITE_SMS"/>
-														
-    <provider android:name="at.tugraz.ist.akm.providers.AuthContentProvider"
-        android:authorities="at.tugraz.ist.akm.providers.AuthContentProvider" />
+    
     <application
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name" >
@@ -31,6 +29,7 @@
             </intent-filter>
         </activity>
         <service android:name=".webservice.WebSMSToolService"></service>
+        <provider android:name=".providers.AuthContentProvider" android:authorities="at.tugraz.ist.akm.providers.AuthContentProvider"></provider>
     </application>
 
 </manifest>

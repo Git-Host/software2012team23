@@ -15,49 +15,32 @@ import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 
 import at.tugraz.ist.akm.db.User.Users;
+import at.tugraz.ist.akm.trace.Logable;
 
 public class AuthContentProvider extends ContentProvider {
 
 	public static final String AUTHORITY = "at.tugraz.ist.akm.providers.AuthContentProvider";
+	private static String DATABASE_NAME = "AuthContent";
+	private static String USERS_TABLE_NAME = "users";
 	
-	private static UriMatcher mUriMatcher = null;
-	private static String DATABASE_NAME = "users";
-	private static String NOTES_TABLE_NAME = "usernames";
-	private DataBaseHelper mDataBaseHelper = null;
-	private static HashMap<String, String> mUsersMap = null;
-
-	public AuthContentProvider() {
-		mUriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
-		mUriMatcher.addURI("at.tugraz.ist.akm.auth", "users", 1);
-		mUsersMap = new HashMap<String, String>();
-	}
-
-	private static class DataBaseHelper extends SQLiteOpenHelper {
-		DataBaseHelper(Context context) {
-			super(context, DATABASE_NAME, null, 1);
-		}
-
-		@Override
-		public void onCreate(SQLiteDatabase db) {
-			db.execSQL("CREATE TABLE " + NOTES_TABLE_NAME + " ("
-					+ Users.USER_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
-					+ Users.USERNAME + " VARCHAR(255)" + ");");
-		}
-
-		@Override
-		public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-			db.execSQL("DROP TABLE IF EXISTS " + NOTES_TABLE_NAME);
-			onCreate(db);
-		}
-	}
-
+	private static final UriMatcher uriMatcher;
+	private static HashMap<String, String> usersMap;
+	private DataBaseHelper dbHelper;
+	
+	private Logable mLog = new Logable(getClass().getSimpleName());
+	
 	@Override
 	public int delete(Uri uri, String selection, String[] selectionArgs) {
-		SQLiteDatabase db = mDataBaseHelper.getWritableDatabase();
-		int count;
-		switch (mUriMatcher.match(uri)) {
+		SQLiteDatabase db = dbHelper.getWritableDatabase();
+		int count = 0;
+		switch (uriMatcher.match(uri)) {
 		case 1:
-			count = db.delete(NOTES_TABLE_NAME, selection, selectionArgs);
+			try {
+			count = db.delete(USERS_TABLE_NAME, selection + "=?", selectionArgs);
+			}
+			catch (Exception e) {
+				
+			}
 			break;
 		default:
 			throw new IllegalArgumentException("Unknown URI " + uri);
@@ -69,13 +52,18 @@ public class AuthContentProvider extends ContentProvider {
 
 	@Override
 	public String getType(Uri uri) {
-		// TODO Auto-generated method stub
-		return null;
+		switch (uriMatcher.match(uri)) {
+		case 1:
+			return Users.CONTENT_TYPE;
+		
+		default: 
+			throw new IllegalArgumentException("unknown URI" + uri);
+		}
 	}
 
 	@Override
 	public Uri insert(Uri uri, ContentValues initialValues) {
-		if (mUriMatcher.match(uri) != 1) {
+		if (uriMatcher.match(uri) != 1) {
 			throw new IllegalArgumentException("Unknown URI " + uri);
 		}
 
@@ -86,8 +74,8 @@ public class AuthContentProvider extends ContentProvider {
 			values = new ContentValues();
 		}
 
-		SQLiteDatabase db = mDataBaseHelper.getWritableDatabase();
-		long rowId = db.insert(NOTES_TABLE_NAME, Users.USERNAME, values);
+		SQLiteDatabase db = dbHelper.getWritableDatabase();
+		long rowId = db.insert(USERS_TABLE_NAME, Users.USERNAME, values);
 		if (rowId > 0) {
 			Uri noteUri = ContentUris.withAppendedId(Users.CONTENT_URI, rowId);
 			getContext().getContentResolver().notifyChange(noteUri, null);
@@ -99,8 +87,8 @@ public class AuthContentProvider extends ContentProvider {
 
 	@Override
 	public boolean onCreate() {
-		mDataBaseHelper = new DataBaseHelper(getContext());
-		return mDataBaseHelper != null;
+		dbHelper = new DataBaseHelper(getContext());
+		return true;
 	}
 
 	@Override
@@ -108,33 +96,53 @@ public class AuthContentProvider extends ContentProvider {
 			String[] selectionArgs, String sortOrder) {
 		SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
 
-		switch (mUriMatcher.match(uri)) {
+		switch (uriMatcher.match(uri)) {
 		case 1:
-			qb.setTables(NOTES_TABLE_NAME);
-			qb.setProjectionMap(mUsersMap);
+			try {
+				qb.setTables(USERS_TABLE_NAME);
+				qb.setProjectionMap(usersMap);
+			
+			}
+			catch (Exception e) {
+				
+			}
 			break;
 
 		default:
 			throw new IllegalArgumentException("Unknown URI " + uri);
 		}
 
-		SQLiteDatabase db = mDataBaseHelper.getReadableDatabase();
-		Cursor c = qb.query(db, projection, selection, selectionArgs, null,
-				null, sortOrder);
-
-		c.setNotificationUri(getContext().getContentResolver(), uri);
+		SQLiteDatabase db = dbHelper.getReadableDatabase();
+		Cursor c = null;
+		
+		try {
+			c = qb.query(db, projection, selection + "=?", selectionArgs, null,
+					null, sortOrder);
+			
+	
+			c.setNotificationUri(getContext().getContentResolver(), uri);
+		}
+		catch (Exception e) {
+			mLog.v("Query" + e.toString());
+		}
 		return c;
 	}
 
 	@Override
 	public int update(Uri uri, ContentValues values, String selection,
 			String[] selectionArgs) {
-		SQLiteDatabase db = mDataBaseHelper.getWritableDatabase();
-		int count;
-		switch (mUriMatcher.match(uri)) {
+		SQLiteDatabase db = dbHelper.getWritableDatabase();
+		int count = 0;
+		switch (uriMatcher.match(uri)) {
 		case 1:
-			count = db.update(NOTES_TABLE_NAME, values, selection, selectionArgs);
+			try {
+			count = db.update(USERS_TABLE_NAME, values, selection + "=?", selectionArgs);
+			}
+			catch (Exception e) {
+				
+			}
 			break;
+			
 
 		default:
 			throw new IllegalArgumentException("Unknown URI " + uri);
@@ -142,5 +150,35 @@ public class AuthContentProvider extends ContentProvider {
 
 		getContext().getContentResolver().notifyChange(uri, null);
 		return count;
+	}
+	
+	static {
+		uriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
+		uriMatcher.addURI(AUTHORITY, USERS_TABLE_NAME, 1);
+		
+		usersMap = new HashMap<String, String>();
+		usersMap.put(Users.USER_ID, Users.USER_ID);
+		usersMap.put(Users.USERNAME, Users.USERNAME);
+		usersMap.put(Users.PASSWORD, Users.PASSWORD);
+	}
+	
+	private static class DataBaseHelper extends SQLiteOpenHelper {
+		DataBaseHelper(Context context) {
+			super(context, DATABASE_NAME, null, 1);
+		}
+
+		@Override
+		public void onCreate(SQLiteDatabase db) {
+			db.execSQL("CREATE TABLE " + USERS_TABLE_NAME + " ("
+					+ Users.USER_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
+					+ Users.USERNAME + " VARCHAR(255),"
+					+ Users.PASSWORD + " VARCHAR(255)" + ");");
+		}
+
+		@Override
+		public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+			db.execSQL("DROP TABLE IF EXISTS " + USERS_TABLE_NAME);
+			onCreate(db);
+		}
 	}
 }

@@ -1,15 +1,15 @@
 package at.tugraz.ist.akm.test.providers;
 
+import android.content.ContentValues;
+import android.database.Cursor;
 import android.net.Uri;
-import at.tugraz.ist.akm.providers.AuthContentProvider;
+import at.tugraz.ist.akm.db.User.Users;
 import at.tugraz.ist.akm.test.WebSMSToolTestInstrumentation;
 
 public class AuthContentProviderTest extends WebSMSToolTestInstrumentation {
 
-	private AuthContentProvider mAuthContentProvider = null;
 	public AuthContentProviderTest() {
 		super(AuthContentProviderTest.class.getSimpleName());
-		mAuthContentProvider = new AuthContentProvider();
 	}
 	
 	@Override
@@ -22,19 +22,53 @@ public class AuthContentProviderTest extends WebSMSToolTestInstrumentation {
 		super.tearDown();
 	}
 	
-	public void testDelete() {
-		assertTrue("no users deleted", mAuthContentProvider.delete(Uri.parse("content://websmstool/settings/users"), null, null) != 0);
+	public void testInsert() {
+		Uri uri = Uri.parse("content://at.tugraz.ist.akm.providers.AuthContentProvider/users");
+
+		ContentValues values = new ContentValues();
+		values.put(Users.USERNAME, "bla");
+		values.put(Users.PASSWORD, "bla");
+		assertTrue("values not inserted", !(mContentResolver.insert(uri, values) == null));
+	}
+
+	public void testInsert2() {
+		Uri uri = Uri.parse("content://at.tugraz.ist.akm.providers.AuthContentProvider/users");
+
+		ContentValues values = new ContentValues();
+		values.put(Users.USERNAME, "bla");
+		values.put(Users.PASSWORD, "bla");
+		assertTrue("values not inserted", !(mContentResolver.insert(uri, values) == null));
 	}
 	
-	public void testInsert() {
-		assertTrue("values not inserted", !(mAuthContentProvider.insert(null, null) == null));
+	public void testDelete() {
+		Uri uri = Uri.parse("content://at.tugraz.ist.akm.providers.AuthContentProvider/users");
+		String[] names = {"bla"};
+		
+		assertTrue("no users deleted", mContentResolver.delete(uri, Users.USERNAME, names) != 0);
 	}
 	
 	public void testQuery() {
-		assertTrue("no values found", !(mAuthContentProvider.query(null, null, null, null, null) == null));
+		try {
+			Uri uri = Uri.parse("content://at.tugraz.ist.akm.providers.AuthContentProvider/users");
+			
+			String[] names = {"bla"};
+			Cursor c = mContentResolver.query(uri, null, Users.USERNAME, names, null);
+			assertTrue("no values found", !(c==null));
+			c.close();
+			Thread.sleep(1000);
+		} catch (Exception t) {
+			assertTrue(false);
+		}
 	}
 
 	public void testUpdate() {
-		assertTrue("no values updated", mAuthContentProvider.update(null, null, null, null) != 0);
+		Uri uri = Uri.parse("content://at.tugraz.ist.akm.providers.AuthContentProvider/users");
+		
+		ContentValues values = new ContentValues();
+		values.put(Users.USERNAME, "bla2");
+		
+		String[] names = {"bla"};
+		
+		assertTrue("no values updated", mContentResolver.update(uri, values, Users.USERNAME, names) != 0);
 	}
 }
