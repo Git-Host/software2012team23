@@ -35,8 +35,12 @@
             $.ajax({
                 url: this.options.api_url,
                 success: function(data){
-                  if(callback != null){
+                  if(callback != null && data.state == 'success'){
                 	  callback(data);
+                  } else if(data.state == 'error') {
+                	  wstLog.log(data);
+                  } else {
+                	  wstLog.log('ERROR wstAPI.');
                   }
                 },
                 type: 'post',

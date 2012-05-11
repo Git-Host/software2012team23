@@ -1,5 +1,5 @@
-<div class="list_entry">
-<img src="{{image}}" alt="{{name}} {{last_name}}" />
+<div id="contact_entry_{{id}}" data-contact-id="{{this}}" class="list_entry contact_entry">
+<img src="data:image/jpeg;base64,{{image}}" alt="{{name}} {{last_name}}" />
 <h4>{{name}} {{last_name}}</h4>
 {{#each phone_numbers}}<p>{{this.number}}</p>{{/each}}
 </div>

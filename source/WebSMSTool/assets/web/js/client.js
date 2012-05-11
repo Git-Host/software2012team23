@@ -9,12 +9,27 @@ $.ajaxSetup({cache: false, async: true });
 
 
 (function(){
-	
-	wstLog.log('Test');
-	
 	$('#tabs').wstTab();
-	
 	$('#test_button').on('click',function(){
 		$('#tabs').wstTab('add',12,'name','html');
 	});
+	
+	wstAPI.getContacts(generate_contact_list);
+	
+	
+	function generate_contact_list(json){
+		wstLog.log(json);
+		if(json != null){
+			var cl_length = json.contacts.length;
+			if(cl_length > 0){
+				var html = '';
+				for(var i = 0; i < cl_length; i++){
+					html += wstTemplate.get('contact_entry', json.contacts[i])+'\n';
+				}
+				$('#contact_list').html(html);
+				return true;
+			}
+		}
+		return false;
+	}
 })();

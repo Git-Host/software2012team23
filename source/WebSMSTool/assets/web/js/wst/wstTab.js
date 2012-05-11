@@ -2,8 +2,6 @@
 	var settings = {};
 	var methods = {
 		init : function(options){
-			
-			console.log(this);
 			settings = $.extend( {
 				  'id_prefix' : 'contact_tab_'
 				}, options); 
@@ -12,10 +10,7 @@
 			$('ul li:first',this).addClass('active');
 			
 			$('ul',this).on('click','li a',null,function(){
-
-				console.log(this);
 				var ul = $(this).parent().parent();
-				console.log(ul);
 			    $('li',ul).removeClass('active');
 			    
 			    $(this).parent().addClass('active');
@@ -27,10 +22,7 @@
 		},
 		
 		add: function(id,name,div_html){
-			
 			var ul = $('ul',this);
-			console.log(ul);
-			console.log('<li id="li_'+id+'"><a href="#'+settings.id_prefix+id+'">'+name+'</a><li>');
 			ul.append('<li id="li_'+id+'"><a href="#'+settings.id_prefix+id+'">'+name+'</a></li>');
 			
 			var new_tab_div = document.createElement('div');
