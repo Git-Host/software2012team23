@@ -152,26 +152,14 @@ public class JsonAPIRequestHandler extends AbstractHttpRequestHandler implements
 				// assume, that the sms was sent successfully and the count is 0
 				if (tmpCount == 0)
 				{
-					mSMSSentSuccess = true; // poll will watch for this var to
-											// check the notificiation
-					mSMSSentList.add(message); // in this list all address the
-												// user will be notified are
-												// stored
-					mSMSWaitingForSentCallback.remove(address); // delete the
-																// address from
-																// the waiting
-																// map
+					mSMSSentSuccess = true; 
+					mSMSSentList.add(message);
+					mSMSWaitingForSentCallback.remove(address);
 					mLog.logV("Received all sms callbacks for address " + address + " going to notify webapp.");
 				}
 				else
 				{
-					mSMSWaitingForSentCallback.put(address, tmpCount); // put
-																		// back
-																		// the
-																		// count
-																		// -1 in
-																		// the
-																		// map
+					mSMSWaitingForSentCallback.put(address, tmpCount);
 					mLog.logV("Received sms callback for address " + address + " - count is: " + tmpCount);
 				}
 			}

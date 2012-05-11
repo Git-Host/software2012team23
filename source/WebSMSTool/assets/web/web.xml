@@ -15,6 +15,8 @@
 		<request uriPattern="/js/wst/wstAPI.js" dataFile="web/js/wst/wstAPI.js" contentType="text/javascript"/>
 		<request uriPattern="/js/handlebars.js" dataFile="web/js/handlebars.js" contentType="text/javascript"/>
 		<request uriPattern="/js/wst/wstTemplate.js" dataFile="web/js/wst/wstTemplate.js" contentType="text/javascript"/>
+        <request uriPattern="/js/wst/wstTab.js" dataFile="web/js/wst/wstTab.js" contentType="text/javascript"/>
+        <request uriPattern="/css/wstTab.css" dataFile="web/css/wstTab.css" contentType="text/css"/>        		
 		<request uriPattern="/js/wst/templates/test.html" dataFile="web/js/wst/templates/test.html" contentType="text/html"/>
 		<request uriPattern="/js/wst/templates/contact_entry.html" dataFile="web/js/wst/templates/contact_entry.html" contentType="text/html"/>
 		<request uriPattern="/js/wst/templates/sms_thread_entry.html" dataFile="web/js/wst/templates/sms_thread_entry.html" contentType="text/html"/>

@@ -22,6 +22,7 @@ public class JsonTextMessageBuilder implements IJsonBuilder {
 			json.put("date", message.getDate());
 			json.put("person", message.getPerson());
 			json.put("status", message.getStatus());
+			json.put("seen", message.getSeen());
 		} catch (JSONException e) {
 			log.logE("Could not create jsonTextMessage Object",e);
 		}

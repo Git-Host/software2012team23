@@ -3,9 +3,8 @@
   <head>
 	<meta charset="UTF-8" />  
 	<title>WebSMSTool</title>
-	<script src="js/jquery.js"></script>
-  	<script src="js/client.js"></script>
 	<link rel="stylesheet" type="text/css" href="css/css.css" />
+    <link rel="stylesheet" type="text/css" href="css/wstTab.css" />	
 	<meta name="description" content="WEB SMS TOOL" />	
   </head>
   <body>
@@ -24,9 +23,9 @@
   <div class="main">
   
 	<div id="left_column">
-		<div class="list">
+		<div id="contact_list" class="list">
 		
-			<div class="list_entry">
+			<div id="1contact" data-contact-id="1" class="list_entry">
 			<img src="http://placehold.it/50x50" alt="Name des Kontaktes" />
 			<h4>Vorname Nachname</h4>
 			<p>Infos zum Kontakt</p>
@@ -138,6 +137,14 @@
 	
 	
 	<div id="right_column">
+	
+	   <div id="tabs">
+	   <ul><li><a href="#some">Some</a></li><li><a href="#other">other</a></li></ul>
+	   <div id="some">TEst some</div>
+	   <div id="other">Test other</div>
+	   </div>
+	   <button id="test_button">Add</button>
+	
 		<div class="content">
 			<form>
 			<label for="number">Number:</label><br>
@@ -199,6 +206,8 @@
 
   <footer><p>Some infos about us</p></footer>
   
-
+  
+   <script src="js/jquery.js"></script>
+   <script src="js/client.js"></script>
   </body>
 </html>
