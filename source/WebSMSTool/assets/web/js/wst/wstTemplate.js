@@ -32,4 +32,16 @@
     
     wstTemplate.init();
     window.wstTemplate = wstTemplate;
+    
+    
+    
+    
+	Handlebars.registerHelper('json_string', function(full_json) {
+		  return JSON.stringify(full_json);
+	});	
+	
+	Handlebars.registerHelper('full_name', function(person) {
+		  return person.name+' '+person.last_name;
+	});	    
+    
 })(window);
