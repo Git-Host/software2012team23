@@ -9,6 +9,17 @@ $.ajaxSetup({cache: false, async: true });
 
 
 (function(){
+	
+	
+	Handlebars.registerHelper('json_string', function(full_json) {
+		  return JSON.stringify(full_json);
+	});	
+	
+	Handlebars.registerHelper('full_name', function(person) {
+		  return person.name+' '+person.last_name;
+	});		
+	
+	
 	$('#tabs').wstTab();
 	$('#test_button').on('click',function(){
 		$('#tabs').wstTab('add',12,'name','html');
