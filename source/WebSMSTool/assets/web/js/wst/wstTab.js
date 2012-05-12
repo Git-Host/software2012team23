@@ -28,6 +28,7 @@
 		    $('div.contact_tab',$(settings.tab_selector)).hide();
 		    //$(currentTab+' div').show();
 		    $(currentTab).show();
+		    return true;
 		},
 		
 		add: function(id, name, div_html){
@@ -43,6 +44,15 @@
 			
 			this.append(new_tab_div);
 			methods.show_tab(id);
+			return true;
+		},
+		
+		remove: function(id){
+			var ul = $('ul',this);
+			$('#li_'+id).remove();
+			$('#'+settings.id_prefix+id).remove();			
+			methods.show_tab(0);
+			return true;
 		}
 	}
 	
