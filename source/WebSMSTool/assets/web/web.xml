@@ -20,6 +20,7 @@
 		<request uriPattern="/js/wst/templates/test.html" dataFile="web/js/wst/templates/test.html" contentType="text/html"/>
 		<request uriPattern="/js/wst/templates/contact_entry.html" dataFile="web/js/wst/templates/contact_entry.html" contentType="text/html"/>
 		<request uriPattern="/js/wst/templates/sms_thread_entry.html" dataFile="web/js/wst/templates/sms_thread_entry.html" contentType="text/html"/>
+        <request uriPattern="/js/wst/templates/contact_tab.html" dataFile="web/js/wst/templates/contact_tab.html" contentType="text/html"/>		
 		
 	</requestHandler>
     <requestHandler class="at.tugraz.ist.akm.webservice.handler.JsonAPIRequestHandler">

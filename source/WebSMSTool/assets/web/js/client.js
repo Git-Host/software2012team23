@@ -10,12 +10,37 @@ $.ajaxSetup({cache: false, async: true });
 
 (function(){
 	
-	$('#tabs').wstTab();
+	var tab_div = $('#tabs');
+	
+	//init tabbing
+	tab_div.wstTab();
 	$('#test_button').on('click',function(){
-		$('#tabs').wstTab('add',12,'name','html');
+		tab_div.wstTab('add',12,'name','html');
 	});
 	
 	wstAPI.getContacts(generate_contact_list);
+	
+	$('#contact_list').on('click','div',function(){
+		var contact = $(this).data('contactFull');
+		organize_contact_tab(contact);
+		return false;
+	});
+	
+	
+	
+	function organize_contact_tab(contact_json){
+		var contact_tab = $('#contact_tab_'+contact_json.id);
+		if(contact_tab.length) { //legal js way to evaluate element exists
+			tab_div.wstTab('show_tab',contact_json.id)
+		} else {
+			var contact_name = contact_json.name+' '+contact_json.last_name;
+			var html = wstTemplate.get('contact_tab',contact_json);
+			tab_div.wstTab('add',contact_json.id,contact_name,html);
+		}
+	}
+	
+	
+	
 	
 	function generate_contact_list(json){
 		if(json != null){

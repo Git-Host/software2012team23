@@ -9,6 +9,7 @@
     margin-right: 10px;
     padding-left: 0;
     padding-top: 4px;   
+    padding-right:8px;
 }
 
 #tabs li {
@@ -39,20 +40,19 @@
 	color: #333333;
 }
 
-#tabs div {
+#tabs div.contact_tab {
 	background: #CEE1EF;
 	clear: both;
 	padding: 20px;
-	min-height: 200px;
 	margin-right:10px;
 }
 
-#tabs div h3 {
+#tabs div.contact_tab h3 {
 	text-transform: uppercase;
 	margin-bottom: 10px;
 	letter-spacing: 1px;
 }
 
-#tabs div p {
+#tabs div.contact_tab p {
 	line-height: 150%;
 }
