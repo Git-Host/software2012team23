@@ -26,8 +26,7 @@ $.ajaxSetup({cache: false, async: true });
 		return false;
 	});
 	
-	
-	
+		
 	function organize_contact_tab(contact_json){
 		var contact_tab = $('#contact_tab_'+contact_json.id);
 		if(contact_tab.length) { //legal js way to evaluate element exists
