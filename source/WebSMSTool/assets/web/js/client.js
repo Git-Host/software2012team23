@@ -13,15 +13,22 @@ $.ajaxSetup({cache: false, async: true });
 	
 	
 	/** GENERAL INITIALIZATION */
-	var tab_div = $('#tabs');
-	
+
 	//init tabbing
+	var tab_div = $('#tabs');
 	tab_div.wstTab();
 	$('#test_button').on('click',function(){
 		tab_div.wstTab('add',12,'name','html');
 	});
 	
+	//initialize the contact list
 	wstAPI.getContacts(generate_contact_list);
+		
+	//create the interval for updating the webapp
+	this.timerId = setInterval(function(){
+		var inst = this;
+		wstAPI.pollInfo(update_webapp);
+	},4000);
 	
 	
 	
@@ -41,8 +48,19 @@ $.ajaxSetup({cache: false, async: true });
 	
 	
 	
+	function update_webapp(json){
+		
+		if(json.contact_changed === true){
+			wstLog.log('Contacts changed - updating contact list.');
+			generate_contact_list(json);
+		}
+		
+		wstLog.log('Updating webapp');
+	}
 	
-	/** FRONTEND METHODS */	
+	
+	
+	
 	function organize_contact_tab(contact_json){
 		var contact_tab = $('#contact_tab_'+contact_json.id);
 		if(contact_tab.length) { //legal js way to evaluate element exists
@@ -64,11 +82,14 @@ $.ajaxSetup({cache: false, async: true });
 					html += wstTemplate.get('contact_entry', json.contacts[i])+'\n';
 				}
 				$('#contact_list').html(html);
-				wstLog.success('Contact-List successfully loaded.');
+				wstLog.success('Contact-List successfully updated.');
 				return true;
 			}
 		}
 		wstLog.warn('Contact-List could not be loaded.');
 		return false;
 	}
+
+	
+	
 })();
