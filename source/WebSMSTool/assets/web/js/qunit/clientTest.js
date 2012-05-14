@@ -88,7 +88,6 @@ setTimeout(function(){
 		});    
 	    
 	    wstAPI.getContacts(function(data){
-	    	wstAPI.getContactsCallback(data);
 	    	ok(data.state == 'success', 'Get Contacts successfully received');
 	    });
 	    
@@ -100,30 +99,56 @@ setTimeout(function(){
 	    	ok(data.state == 'success', 'SMS Thread successfully fetched.');
 	    });
 	    
+	    
 	    setTimeout(function(){start();}, 1000);  
 	});
-},2000);
 
-
-
-
-
-setTimeout(function(){
-	module('wstAPI');
-test('API - Test sms sent notficiation', function(){
-	stop();
-	expect(4);
 	
-	wstAPI.pollInfo(function(data){
-		ok(data.sms_sent_success == true, 'SMS sent success returned true.');
-		ok(data.sms_sent_success_messages.length > 0, 'SMS success messages are set.');
-		var msg = data.sms_sent_success_messages[0];
-		equal(msg.body,short_test_message, 'SMS sent body is eqal to webapp body sent.');
-		equal(msg.address,message_address, 'SMS sent address is eqal to webapp address sent.');
+	test('API - Fetch sms thread delivers non "null" person', function() {
+	    stop();  
+	    expect(2);  
+		    
+	    wstAPI.fetchSMSThread(1, function(data){
+	    	ok(data.state == 'success', 'SMS Thread successfully fetched.');
+	    	
+	    	var success = true;
+	    	for(var i = 0; i < data.thread_messages.length; i++){
+	    		if(data.thread_messages[i].person == "null"){
+	    			success = false;
+	    			break;
+	    		}
+	    	}
+	    	ok(success === true, 'No SMS Messages without person attribute == null found.');
+	    });
+	    
+	    
+	    setTimeout(function(){start();}, 1000);  
 	});
-    setTimeout(function(){start();}, 1000);  
-});
+	
+	
+	
 },3000);
+
+
+
+
+
+//setTimeout(function(){
+//	module('wstAPI');
+//test('API - Test sms sent notficiation', function(){
+//	stop();
+//	expect(4);
+//	
+//	wstAPI.pollInfo(function(data){
+//		ok(data.sms_sent_success == true, 'SMS sent success returned true.');
+//		ok(data.sms_sent_success_messages.length > 0, 'SMS success messages are set.');
+//		var msg = data.sms_sent_success_messages[0];
+//		equal(msg.body,short_test_message, 'SMS sent body is eqal to webapp body sent.');
+//		equal(msg.address,message_address, 'SMS sent address is eqal to webapp address sent.');
+//	});
+//    setTimeout(function(){start();}, 1000);  
+//});
+//},4000);
 
 
 
@@ -141,28 +166,28 @@ test('API - Test long text sms', function() {
     setTimeout(function(){start();}, 1000);
     
 });
-},5000);
+},6000);
 
 
-setTimeout(function(){
-	module('wstAPI');
-	test('API - Test long text sms sent notification', function() {
-	    stop();   
-	    expect(4);
-    
-	    
-		wstAPI.pollInfo(function(data){
-				ok(data.sms_sent_success == true, 'SMS sent success returned true.');
-				ok(data.sms_sent_success_messages.length > 0, 'SMS success messages are set.');
-				var msg = data.sms_sent_success_messages[0];
-				equal(msg.body,long_test_message, 'SMS sent body is eqal to webapp body sent.');
-				equal(msg.address,message_address, 'SMS sent address is eqal to webapp address sent.');
-		});
-		
-	    setTimeout(function(){start();}, 1000);
-	    
-	});
-},7000);
+//setTimeout(function(){
+//	module('wstAPI');
+//	test('API - Test long text sms sent notification', function() {
+//	    stop();   
+//	    expect(4);
+//    
+//	    
+//		wstAPI.pollInfo(function(data){
+//				ok(data.sms_sent_success == true, 'SMS sent success returned true.');
+//				ok(data.sms_sent_success_messages.length > 0, 'SMS success messages are set.');
+//				var msg = data.sms_sent_success_messages[0];
+//				equal(msg.body,long_test_message, 'SMS sent body is eqal to webapp body sent.');
+//				equal(msg.address,message_address, 'SMS sent address is eqal to webapp address sent.');
+//		});
+//		
+//	    setTimeout(function(){start();}, 1000);
+//	    
+//	});
+//},8000);
 
 
 
