@@ -16,7 +16,7 @@ public class JsonTelephonySignalStrengthBuilder implements IJsonBuilder {
         try {
             JSONObject json = new JSONObject();
             json.put("signal_strength", signal.getSignalStrength());
-            json.put("signal_icon", signal.getSignalStrengthIconBytes());
+            json.put("signal_icon", new String(signal.getSignalStrengthIconBytes()));
             json.put("level", signal.getLevel());
             json.put("cdma_level", signal.getCdmaLevel());
             json.put("gsm_level", signal.getGsmLevel());
