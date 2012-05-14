@@ -28,6 +28,7 @@ import org.json.JSONObject;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import at.tugraz.ist.akm.content.SmsContent;
 import at.tugraz.ist.akm.content.query.ContactFilter;
 import at.tugraz.ist.akm.content.query.TextMessageFilter;
 import at.tugraz.ist.akm.io.xml.XmlNode;
@@ -236,14 +237,14 @@ public class JsonAPIRequestHandler extends AbstractHttpRequestHandler implements
 	private class TextMessageThreadSort implements Comparator<TextMessage> {
 	    @Override
 	    public int compare(TextMessage o1, TextMessage o2) {
-	    	Date m1 = new Date(o1.getDate());
-	    	Date m2 = new Date(o2.getDate());
+	    	Date m1 = new Date(Long.parseLong(o1.getDate()));
+	    	Date m2 = new Date(Long.parseLong(o2.getDate()));
 	    	return m1.compareTo(m2);
 	    }
 	}
 
 	
-	private JSONObject fetchSMSThread(JSONArray params) {
+	private synchronized JSONObject fetchSMSThread(JSONArray params) {
 		JSONObject resultObject = new JSONObject();
 		String contact_id = "";
 		int paramsLength = params.length();
@@ -260,18 +261,25 @@ public class JsonAPIRequestHandler extends AbstractHttpRequestHandler implements
 				conFilter.setId(Integer.parseInt(contact_id));
 				List<Contact> contact = mTextingAdapter
 						.fetchContacts(conFilter);
+				mLog.logV("Found contact - list size:  "+ contact.size());				
 				if (contact.size() == 1) {
 					Contact con = contact.get(0);
 					List<Contact.Number> phoneNumbers = con.getPhoneNumbers();
 					for(Contact.Number entry : phoneNumbers){
-						String number = entry.getNumber();
+						//TODO determine if numbers are always stored in "123-456-7897987979" form if their is a clean way to get numbers as string of 1234567890
+						//clean the phone number from "-" in it.
+						String number = entry.getNumber().replaceAll("-", "");
+						mLog.logV("Fetch SMS Thread with number: "+ entry.getNumber()+" replaced to: "+number);
 						List<Integer> threadIds = mTextingAdapter.fetchThreadIds(number);
 						for(Integer threadId : threadIds){
 							TextMessageFilter msgFilter = new TextMessageFilter();
 							msgFilter.setThreadId(threadId.longValue());
+							msgFilter.setBox(SmsContent.ContentUri.BASE_URI);
+							mLog.logV("Fetch SMS Thread with threadID: "+ threadId);
 							List<TextMessage> threadMessages = mTextingAdapter.fetchTextMessages(msgFilter);
 							for(TextMessage msg : threadMessages){
 								threadList.add(msg);
+								mLog.logV("Adding sms to thread list with id: "+ msg.getId());
 							}
 							
 						}
