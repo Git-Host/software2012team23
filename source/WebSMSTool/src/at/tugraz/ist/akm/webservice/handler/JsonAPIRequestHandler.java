@@ -291,9 +291,9 @@ public class JsonAPIRequestHandler extends AbstractHttpRequestHandler implements
 					for(TextMessage msg : threadList){
 						thread_messages.put(mJsonFactory.createJsonObject(msg));
 					}
-					resultObject.put("thread_messages", thread_messages);
 					setSuccessState(resultObject);
-					
+					resultObject.put("thread_messages", thread_messages);
+					resultObject.put("contact_id", contact_id);
 				} else {
 					mLog.logW("Contact with given id " + contact_id
 							+ " could not be found or is ambigious.");

@@ -70,7 +70,31 @@ $.ajaxSetup({cache: false, async: true });
 			var contact_name = contact_json.name+' '+contact_json.last_name;
 			var html = wstTemplate.get('contact_tab',contact_json);
 			tab_div.wstTab('add',contact_json.id,contact_name,html);
+			wstAPI.fetchSMSThread(contact_json.id, generate_sms_thread_list);
 		}
+	}
+	
+	
+	function generate_sms_thread_list(json){
+		if(json != null){
+			var contact_id = json.contact_id;
+			var thread_length = json.thread_messages.length;
+			if(thread_length > 0){
+				var html = '';
+				for(var i = 0; i < thread_length; i++){
+					html += wstTemplate.get('sms_thread_entry', json.thread_messages[i])+'\n';
+				}
+				$('#sms_thread_'+contact_id).html(html);
+				wstLog.success('Thread-List successfully loaded.');
+				return true;
+			} else {
+				wstLog.info('No sms stored for this contact.');
+				$('#sms_thread_'+contact_id).html("");
+				return true;
+			}
+		}
+		wstLog.warn('SMS-Thread-List could not be loaded.');
+		return false;
 	}
 	
 	
