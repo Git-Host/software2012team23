@@ -26,6 +26,13 @@ public class Contact {
 		public int getType() {
 			return mType;
 		}
+		
+		
+		public String getCleanedUpNumber(){
+			String number = this.getNumber().replaceAll("-", "");
+			number = number.replaceAll("^[+]", "00");
+			return number;
+		}
 	};
 
 	private long mId = 0;

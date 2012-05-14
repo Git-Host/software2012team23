@@ -266,9 +266,7 @@ public class JsonAPIRequestHandler extends AbstractHttpRequestHandler implements
 					Contact con = contact.get(0);
 					List<Contact.Number> phoneNumbers = con.getPhoneNumbers();
 					for(Contact.Number entry : phoneNumbers){
-						//TODO determine if numbers are always stored in "123-456-7897987979" form if their is a clean way to get numbers as string of 1234567890
-						//clean the phone number from "-" in it.
-						String number = entry.getNumber().replaceAll("-", "");
+						String number = entry.getCleanedUpNumber();
 						mLog.logV("Fetch SMS Thread with number: "+ entry.getNumber()+" replaced to: "+number);
 						List<Integer> threadIds = mTextingAdapter.fetchThreadIds(number);
 						for(Integer threadId : threadIds){
@@ -281,7 +279,6 @@ public class JsonAPIRequestHandler extends AbstractHttpRequestHandler implements
 								threadList.add(msg);
 								mLog.logV("Adding sms to thread list with id: "+ msg.getId());
 							}
-							
 						}
 					}
 					
