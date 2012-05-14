@@ -148,7 +148,7 @@ public class SmsBridge extends Logable implements SmsIOCallback {
 	}
 
 	private void registerSmsReceivedNotification() {
-		logV("registered new IntentFilter [ACTION_SMS_SENT]");
+		logV("registered new IntentFilter [ACTION_SMS_RECEIVED]");
 		mContext.registerReceiver(mSmsSentNotifier, new IntentFilter(
 				SmsSentBroadcastReceiver.ACTION_SMS_RECEIVED));
 	}
@@ -166,7 +166,7 @@ public class SmsBridge extends Logable implements SmsIOCallback {
 				}
 
 			} else {
-				logV("couldn't find any text message infos at all :(");
+				logE("couldn't find any text message infos at all :(");
 			}
 		} catch (Exception e) {
 			logV("FAILED to gather text message extras from intent");

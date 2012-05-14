@@ -182,9 +182,12 @@ public class JsonAPIRequestHandler extends AbstractHttpRequestHandler implements
 		tmf.setRead(false);
 		tmf.setSeen(false);
 		
-		TextMessage message = this.parseToTextMessgae(intent);
-		mLog.logV("Textmessage from "+message.getAddress()+" received in api request handler.");		
-		this.mSMSReceivedList.add(message);
+		ArrayList<TextMessage> messages = this.parseToTextMessgaes(intent);
+		
+		for ( TextMessage message : messages ) {
+			mLog.logV("Textmessage from "+message.getAddress()+" received in api request handler.");
+			this.mSMSReceivedList.add(message);
+		}
 	}
 
 	private void sendResponse(HttpResponse httpResponse,
@@ -509,11 +512,34 @@ public class JsonAPIRequestHandler extends AbstractHttpRequestHandler implements
 			Bundle extrasBundle = intent.getExtras();
 			if (extrasBundle != null) {
 				Serializable serializedTextMessage = extrasBundle
-						.getSerializable(SmsSentBroadcastReceiver.EXTRA_BUNDLE_KEY_TEXTMESSAGE);
+						.getSerializable(SmsSentBroadcastReceiver.EXTRA_BUNDLE_KEY_TEXTMESSAGELIST);
 
 				if (serializedTextMessage != null) {
-					TextMessage sentMessage = (TextMessage) serializedTextMessage;
-					return sentMessage;
+					TextMessage receivedMessage = (TextMessage) serializedTextMessage;
+					return receivedMessage;
+				}
+
+			} else {
+				mLog.logV("couldn't find any text message infos at all :(");
+			}
+		} catch (Exception e) {
+			mLog.logV("FAILED to gather text message extras from intent");
+		}
+		return null;
+	}
+	
+	
+	private ArrayList<TextMessage> parseToTextMessgaes(Intent intent) {
+		try {
+			Bundle extrasBundle = intent.getExtras();
+			if (extrasBundle != null) {
+				Serializable serializedTextMessages = extrasBundle
+						.getSerializable(SmsSentBroadcastReceiver.EXTRA_BUNDLE_KEY_TEXTMESSAGELIST);
+
+				if (serializedTextMessages != null) {
+//					@SuppressWarnings("unchecked")
+					ArrayList<TextMessage> receivedMessages = (ArrayList<TextMessage>) serializedTextMessages;
+					return receivedMessages;
 				}
 
 			} else {
