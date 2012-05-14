@@ -128,6 +128,7 @@ public class SmsBridge extends Logable implements SmsIOCallback {
 	public void smsReceivedCallback(Context context, Intent intent) {
 		if (mExternalSmsSentCallback != null) {
 			logV("bypassing mExternalSmsReceivedCallback.smsReceivedCallback()");
+			mExternalSmsSentCallback.smsReceivedCallback(context, intent);
 		} else {
 			logV("no external callback [mExternalSmsReceivedCallback.smsReceivedCallback()] found - callback ends here");
 		}

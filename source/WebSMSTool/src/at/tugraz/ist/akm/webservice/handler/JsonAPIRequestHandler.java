@@ -177,7 +177,13 @@ public class JsonAPIRequestHandler extends AbstractHttpRequestHandler implements
 	@Override
 	public synchronized void smsReceivedCallback(Context context, Intent intent) {
 		this.mSMSReceived = true;
+		
+		TextMessageFilter tmf = new TextMessageFilter();
+		tmf.setRead(false);
+		tmf.setSeen(false);
+		
 		TextMessage message = this.parseToTextMessgae(intent);
+		mLog.logV("Textmessage from "+message.getAddress()+" received in api request handler.");		
 		this.mSMSReceivedList.add(message);
 	}
 
@@ -239,7 +245,7 @@ public class JsonAPIRequestHandler extends AbstractHttpRequestHandler implements
 	    public int compare(TextMessage o1, TextMessage o2) {
 	    	Date m1 = new Date(Long.parseLong(o1.getDate()));
 	    	Date m2 = new Date(Long.parseLong(o2.getDate()));
-	    	return m1.compareTo(m2);
+	    	return (-1) * (m1.compareTo(m2));
 	    }
 	}
 
@@ -460,9 +466,9 @@ public class JsonAPIRequestHandler extends AbstractHttpRequestHandler implements
 
 			mLog.logV("Evaluate sms received.");
 			result.put("sms_received", this.mSMSReceived);
-			if (this.mSMSSentSuccess) {
+			if (this.mSMSReceived) {				
 				JSONArray recvList = new JSONArray();
-				for (int i = 0; i < mSMSSentList.size(); i++) {
+				for (int i = 0; i < mSMSReceivedList.size(); i++) {
 					recvList.put(mJsonFactory.createJsonObject(mSMSReceivedList
 							.get(i)));
 				}

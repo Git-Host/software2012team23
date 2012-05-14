@@ -62,6 +62,34 @@ $.ajaxSetup({cache: false, async: true });
 			generate_contact_list(json);
 		}
 		
+		if(json.signal.signal_icon){
+			var img = 'data:image/png;base64,'+json.signal.signal_icon;
+			$('#signal_img').attr('src',img);
+		}
+
+		if(json.battery.battery_level_icon){
+			var img = 'data:image/png;base64,'+json.battery.battery_level_icon;
+			$('#batter_img').attr('src',img);
+		}
+		
+		if(json.sms_sent_success === true){
+			if(json.sms_sent_success_messages){
+				sent_length = json.sms_sent_success_messages.length;
+				for(var i = 0; i < sent_length; i++){
+					wstLog.success('SMS to '+json.sms_sent_success_messages[i].address+' successfully sent.');
+				}
+			}
+		}
+		
+		if(json.sms_received === true){
+			if(json.sms_received_messages){
+				recv_length = json.sms_received_messages.length;
+				for(var i = 0; i < recv_length; i++){
+					wstLog.success('SMS for '+json.sms_received_messages[i].address+' received.');
+				}
+			}			
+		}
+		
 		wstLog.log('Updating webapp');
 	}
 	
@@ -132,6 +160,7 @@ $.ajaxSetup({cache: false, async: true });
 				wstAPI.sendSMSMessage(address, message, function(json){
 					//we will reach the callback only if the api request returns success-state
 					wstLog.info('Message successfully transfered to application for sending.');
+					form.sms_text.value = "";
 				});
 			} else {
 				wstLog.log('Number and/or SMS-Text could not be correctly determined.');
