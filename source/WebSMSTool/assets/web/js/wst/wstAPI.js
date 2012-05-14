@@ -62,6 +62,13 @@
         },
         
         
+        fetchSMSThread: function(contact_id,callback){
+        	wstLog.log('fetchSMSThread called.');
+        	var params = '[{"contact_id":"'+contact_id+'"}]';
+        	this.sendRequest("fetch_sms_thread",params,callback);        	
+        },
+        
+        
         getContacts: function(callback){
             wstLog.log('getContacts called.');
             this.sendRequest("get_contacts","",callback);

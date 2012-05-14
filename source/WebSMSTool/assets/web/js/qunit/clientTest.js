@@ -76,11 +76,12 @@ test('settings', function() {
 
 
 
+
 setTimeout(function(){
 	module('wstAPI');
 	test('API - Simple Tests', function() {
 	    stop();  
-	    expect(3);  
+	    expect(4);  
 	
 		wstAPI.pollInfo(function(data){
 			ok(data.state == 'success', 'PollInfo request is working.');
@@ -90,11 +91,15 @@ setTimeout(function(){
 	    	wstAPI.getContactsCallback(data);
 	    	ok(data.state == 'success', 'Get Contacts successfully received');
 	    });
-	
 	    
 	    wstAPI.sendSMSMessage(message_address,short_test_message, function(data){
 	    	ok(data.state == 'success', 'SMS successfully sent to phone application.');
 	    }); 
+	    
+	    wstAPI.fetchSMSThread(1, function(data){
+	    	ok(data.state == 'success', 'SMS Thread successfully fetched.');
+	    });
+	    
 	    setTimeout(function(){start();}, 1000);  
 	});
 },2000);
@@ -171,10 +176,10 @@ test('test template', function() {
 	equal(html, cmp, 'Template "test" correctly fetched.');
 });
 
-test('contact entry template', function() {
-	var html = wstTemplate.get('contact_entry', contact_test_entry);
-	equal(html, contact_tempalte_result, 'Template "contact_entry" correctly fetched.');
-});
+//test('contact entry template', function() {
+//	var html = wstTemplate.get('contact_entry', contact_test_entry);
+//	equal(html, contact_tempalte_result, 'Template "contact_entry" correctly fetched.');
+//});
 
 //test('sms thread entry template', function() {
 //	var data = {title: 'Testtitel', firstName:'Stefan',lastName:'Lexow'};

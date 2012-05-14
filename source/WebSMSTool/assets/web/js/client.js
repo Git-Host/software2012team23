@@ -24,7 +24,7 @@ $.ajaxSetup({cache: false, async: true });
 	//initialize the contact list
 	wstAPI.getContacts(generate_contact_list);
 		
-	//create the interval for updating the webapp
+	//set the interval for updating the webapp
 	this.timerId = setInterval(function(){
 		var inst = this;
 		wstAPI.pollInfo(update_webapp);
@@ -48,6 +48,7 @@ $.ajaxSetup({cache: false, async: true });
 	
 	
 	
+	/** WEBAPP METHODS */
 	function update_webapp(json){
 		
 		if(json.contact_changed === true){
