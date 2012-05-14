@@ -39,6 +39,12 @@ $.ajaxSetup({cache: false, async: true });
 	});
 
 	
+	tab_div.on('click','.send_sms_submit',function(){
+		var contact_id = $(this).data('contactId');
+		send_form(contact_id);
+	});
+	
+	
 	tab_div.on('click','.contact_tab_close',function(){
 		var id = $(this).data('contactId');
 		if(tab_div.wstTab('remove',id)){
@@ -115,6 +121,26 @@ $.ajaxSetup({cache: false, async: true });
 		return false;
 	}
 
+	
+	function send_form(contact_id){
+		var form = document.getElementById('send_form_'+contact_id);
+		if(form.length){
+			var address = form.number.options[form.number.selectedIndex].value;
+			var message = form.sms_text.value;
+			
+			if(address.length > 0 && message.length > 0){
+				wstAPI.sendSMSMessage(address, message, function(json){
+					//we will reach the callback only if the api request returns success-state
+					wstLog.info('Message successfully transfered to application for sending.');
+				});
+			} else {
+				wstLog.log('Number and/or SMS-Text could not be correctly determined.');
+			}
+		} else {
+			wstLog.log('ERROR: Could not determine send form with given contact_id: '+contact_id);
+		}
+		
+	}
 	
 	
 })();

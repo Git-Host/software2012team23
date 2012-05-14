@@ -72,19 +72,7 @@
         getContacts: function(callback){
             wstLog.log('getContacts called.');
             this.sendRequest("get_contacts","",callback);
-        },
-        
-        //remains only for testing purpose in this object - will be moved to a more suitable one.
-        getContactsCallback: function(data){
-      	   var size = data.contacts.length;
-    	   for(var i = 0; i < size; i++){
-    		  if(data.contacts[i].image != null){
-    			  wstLog.log('Image found to replace test img.');
-        		  $('#testimg').attr('src', "data:image/jpeg;base64,"+data.contacts[i].image);            			  
-    		  }
-    	   }
         }
-   
     };
 
     window.wstAPI = wstAPI;

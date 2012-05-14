@@ -1,10 +1,9 @@
 <button class="contact_tab_close" data-contact-id="{{id}}">Close</button>
-
 <div id="sms_send_form_{{id}}" class="content">
-    <form action="javascript:send_message({{id}})">
+    <form id="send_form_{{id}}" name="send_form_{{id}}" action="javascript:return false;" onsubmit="javascript:return false;">
     <label for="number">Number:</label><br>
     {{! This sets the input or select field}}{{!set_contact_form_input phone_numbers}}
-    <select id="number" name="number" required>
+    <select id="number_{{id}}" name="number" required>
     {{#each phone_numbers}}
     <option value="{{this.number}}">{{this.number}}</option>
     {{/each}}
@@ -13,8 +12,7 @@
     <label for="text">Text:</label><br>
     <textarea name="sms_text" id="sms_text_{{id}}" cols="70" rows="10" placeholder="Enter text" required></textarea>
     <br>
-    <input type="button" name="cancel_button" id="cancel_button" value="Cancel" />
-    <input type="submit" name="submit_button" id="submit_button" value="Send" />
+    <button class="send_sms_submit" data-contact-id="{{id}}" name="submit_button_{{id}}" id="submit_button__{{id}}">Send</button>
     </form>
 </div>
 
