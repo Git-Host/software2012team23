@@ -11,16 +11,16 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
-import org.apache.http.HttpException;
-import org.apache.http.HttpRequest;
-import org.apache.http.HttpResponse;
-import org.apache.http.ParseException;
-import org.apache.http.entity.ContentProducer;
-import org.apache.http.entity.EntityTemplate;
-import org.apache.http.message.BasicHttpEntityEnclosingRequest;
-import org.apache.http.protocol.HttpContext;
-import org.apache.http.protocol.HttpRequestHandlerRegistry;
-import org.apache.http.util.EntityUtils;
+import my.org.apache.http.HttpException;
+import my.org.apache.http.HttpRequest;
+import my.org.apache.http.HttpResponse;
+import my.org.apache.http.ParseException;
+import my.org.apache.http.entity.ContentProducer;
+import my.org.apache.http.entity.EntityTemplate;
+import my.org.apache.http.message.BasicHttpEntityEnclosingRequest;
+import my.org.apache.http.protocol.HttpContext;
+import my.org.apache.http.protocol.HttpRequestHandlerRegistry;
+import my.org.apache.http.util.EntityUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -550,5 +550,5 @@ public class JsonAPIRequestHandler extends AbstractHttpRequestHandler implements
 		}
 		return null;
 	}
-
 }
+

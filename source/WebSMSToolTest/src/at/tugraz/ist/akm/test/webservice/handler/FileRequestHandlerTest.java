@@ -6,14 +6,14 @@ import java.util.List;
 
 import junit.framework.Assert;
 
-import org.apache.http.HttpException;
-import org.apache.http.HttpRequest;
-import org.apache.http.HttpResponse;
-import org.apache.http.ProtocolVersion;
-import org.apache.http.message.BasicHttpRequest;
-import org.apache.http.message.BasicHttpResponse;
-import org.apache.http.message.BasicStatusLine;
-import org.apache.http.protocol.HttpRequestHandlerRegistry;
+import my.org.apache.http.HttpException;
+import my.org.apache.http.HttpRequest;
+import my.org.apache.http.HttpResponse;
+import my.org.apache.http.ProtocolVersion;
+import my.org.apache.http.message.BasicHttpRequest;
+import my.org.apache.http.message.BasicHttpResponse;
+import my.org.apache.http.message.BasicStatusLine;
+import my.org.apache.http.protocol.HttpRequestHandlerRegistry;
 
 import android.test.InstrumentationTestCase;
 import at.tugraz.ist.akm.io.FileReader;
