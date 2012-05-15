@@ -33,7 +33,12 @@ public class SimpleWebServerTest extends InstrumentationTestCase {
     private static SimpleWebServer webserver;
 
     private void startServer(final boolean https) {
+        if (webserver != null && webserver.isRunning()) {
+            stopServer();
+        }
+        
         Log.d("SimpleWebServerTest", "start server");
+        
         httpClient = new DefaultHttpClient();
         webserver = new SimpleWebServer(getInstrumentation().getContext(), https);
         Assert.assertTrue(webserver.startServer(8888));
@@ -66,66 +71,71 @@ public class SimpleWebServerTest extends InstrumentationTestCase {
     }
 
     public void testSimpleJsonRequest() {
-        for (int i = 0; i <= 1; i++) {
-            startServer(i == 0 ? false : true);
-    
-            Log.d("test", "testSimpleJsonRequest");
-    
-            HttpPost httppost = new HttpPost("http://localhost:8888/api.html");
-            try {
-    
-                JSONObject requestJson = new JSONObject();
-                requestJson.put("method", "getSMS");
-    
-                JSONObject paramJson = new JSONObject();
-                paramJson.put("user_id", 5);
-                paramJson.put("detail_string", "foobar");
-    
-                requestJson.put("params", paramJson);
-    
-                httppost.setHeader("Accept", "application/json");
-                httppost.setHeader("Content-type", "application/json");
-    
-                httppost.setEntity(new StringEntity(requestJson.toString()));
-    
-                HttpResponse response = httpClient.execute(httppost);
-                ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                // TODO: the test case blocks here:
-                response.getEntity().writeTo(baos);
-    
-                Assert.assertEquals(requestJson.toString(),
-                        new String(baos.toByteArray()));
-            } catch (Exception e) {
-                Assert.fail(e.getMessage());
-            }
-            stopServer();
+        startServer(false);
+
+        Log.d("test", "testSimpleJsonRequest");
+
+        HttpPost httppost = new HttpPost("http://localhost:8888/api.html");
+        try {
+
+            JSONObject requestJson = new JSONObject();
+            requestJson.put("method", "getSMS");
+
+            JSONObject paramJson = new JSONObject();
+            paramJson.put("user_id", 5);
+            paramJson.put("detail_string", "foobar");
+
+            requestJson.put("params", paramJson);
+
+            httppost.setHeader("Accept", "application/json");
+            httppost.setHeader("Content-type", "application/json");
+
+            httppost.setEntity(new StringEntity(requestJson.toString()));
+
+            HttpResponse response = httpClient.execute(httppost);
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            // TODO: the test case blocks here:
+            response.getEntity().writeTo(baos);
+
+            Assert.assertEquals(requestJson.toString(),
+                    new String(baos.toByteArray()));
+        } catch (Exception e) {
+            Assert.fail(e.getMessage());
         }
+        stopServer();
     }
 
     public void testSimpleFileRequest() {
-//        for (int i = 0; i <= 1; i++) {
-//            startServer(i == 0 ? false : true);
+        startServer(false);
+        Log.d("test", "testSimpleFileRequest");       
+        
+        HttpPost httppost = new HttpPost("http://localhost:8888/");
+        try {
+            httppost.setHeader("Accept", "application/text");
+            httppost.setHeader("Content-type", "application/text");
+
+            HttpResponse response = httpClient.execute(httppost);
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            response.getEntity().writeTo(baos);
+
+            Assert.assertEquals(new FileReader(getInstrumentation()
+                    .getContext(), "web/index.html").read(),
+                    new String(baos.toByteArray()));
+
+        } catch (Exception e) {
+            Assert.fail(e.getMessage());
+        }
+        stopServer();
+    }
+    
+    public void testStartSecureServer() {
+        Log.d("test", "testStartSecureServer");
+        
         startServer(true);
-            Log.d("test", "testSimpleFileRequest");
-    
-            HttpPost httppost = new HttpPost("http://localhost:8888/");
-            try {
-                httppost.setHeader("Accept", "application/text");
-                httppost.setHeader("Content-type", "application/text");
-    
-                HttpResponse response = httpClient.execute(httppost);
-                ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                response.getEntity().writeTo(baos);
-    
-                Assert.assertEquals(new FileReader(getInstrumentation()
-                        .getContext(), "web/index.html").read(),
-                        new String(baos.toByteArray()));
-    
-            } catch (Exception e) {
-                Assert.fail(e.getMessage());
-            }
-            stopServer();
-//        }
+        Assert.assertTrue(webserver.isRunning());
+        
+        stopServer();
+        Assert.assertFalse(webserver.isRunning());
     }
 
     public void testKeyStore() {
