@@ -13,6 +13,7 @@ public class WebSMSToolService extends Service {
 
     SimpleWebServer mServer = null;
     private int mPort = 8887;
+    private boolean mHttps = false;
 
     public WebSMSToolService() {
     }
@@ -39,7 +40,7 @@ public class WebSMSToolService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         LOG.logV("Try to start webserver.");
-        mServer = new SimpleWebServer(this, false);
+        mServer = new SimpleWebServer(this, mHttps);
 
         try {
             mServer.startServer(mPort);
