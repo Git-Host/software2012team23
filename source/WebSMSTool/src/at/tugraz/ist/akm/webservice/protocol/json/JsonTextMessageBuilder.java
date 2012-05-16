@@ -1,5 +1,8 @@
 package at.tugraz.ist.akm.webservice.protocol.json;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -19,9 +22,13 @@ public class JsonTextMessageBuilder implements IJsonBuilder {
 			json.put("thread_id", message.getThreadId());
         	json.put("address", message.getAddress());
 			json.put("body", message.getBody());
-			json.put("date", message.getDate());
+			
+			SimpleDateFormat df = new SimpleDateFormat("d.M.y HH:mm:ss");
+			json.put("date", df.format(new Date(Long.parseLong(message.getDate()))));
+			
 			json.put("person", message.getPerson());
 			json.put("status", message.getStatus());
+			json.put("seen", message.getSeen());
 		} catch (JSONException e) {
 			log.logE("Could not create jsonTextMessage Object",e);
 		}

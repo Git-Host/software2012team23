@@ -8,7 +8,7 @@ public class TextMessage implements Serializable {
 
 	private String mId = "";
 	private String mThreadId = "";
-	private String mPerson = "null";
+	private String mPerson = "";
 	private String mDate = "";
 	/**
 	 * usually the phone number

@@ -62,6 +62,5 @@ public class SystemMonitor extends PhoneStateListener {
 	@Override
 	public void onSignalStrengthChanged(int asu) {
 		super.onSignalStrengthChanged(asu);
-		mLog.logV("foobar: ["+asu+"]");
 	}
 }

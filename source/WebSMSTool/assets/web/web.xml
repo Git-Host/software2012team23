@@ -8,16 +8,20 @@
 		<request uriPattern="/js/client.js" dataFile="web/js/client.js" contentType="text/javascript"/>
 		<request uriPattern="/js/qunit/clientTest.js" dataFile="web/js/qunit/clientTest.js" contentType="text/javascript"/>
 		<request uriPattern="/js/qunit/qunit.js" dataFile="web/js/qunit/qunit.js" contentType="text/javascript"/>
-		<request uriPattern="/js/qunit/qunit.css" dataFile="web/js/qunit/qunit.css" contentType="text/css"/>     
+        <request uriPattern="/js/notifier.js" dataFile="web/js/notifier.js" contentType="text/javascript"/>
+		<request uriPattern="/js/qunit/qunit.css" dataFile="web/js/qunit/qunit.css" contentType="text/css"/>
 		<request uriPattern="/css/css.css" dataFile="web/css/css.css" contentType="text/css"/>
 
 		<request uriPattern="/js/wst/wstLog.js" dataFile="web/js/wst/wstLog.js" contentType="text/javascript"/>
 		<request uriPattern="/js/wst/wstAPI.js" dataFile="web/js/wst/wstAPI.js" contentType="text/javascript"/>
 		<request uriPattern="/js/handlebars.js" dataFile="web/js/handlebars.js" contentType="text/javascript"/>
 		<request uriPattern="/js/wst/wstTemplate.js" dataFile="web/js/wst/wstTemplate.js" contentType="text/javascript"/>
+        <request uriPattern="/js/wst/wstTab.js" dataFile="web/js/wst/wstTab.js" contentType="text/javascript"/>
+        <request uriPattern="/css/wstTab.css" dataFile="web/css/wstTab.css" contentType="text/css"/>        		
 		<request uriPattern="/js/wst/templates/test.html" dataFile="web/js/wst/templates/test.html" contentType="text/html"/>
 		<request uriPattern="/js/wst/templates/contact_entry.html" dataFile="web/js/wst/templates/contact_entry.html" contentType="text/html"/>
 		<request uriPattern="/js/wst/templates/sms_thread_entry.html" dataFile="web/js/wst/templates/sms_thread_entry.html" contentType="text/html"/>
+        <request uriPattern="/js/wst/templates/contact_tab.html" dataFile="web/js/wst/templates/contact_tab.html" contentType="text/html"/>		
 		
 	</requestHandler>
     <requestHandler class="at.tugraz.ist.akm.webservice.handler.JsonAPIRequestHandler">
