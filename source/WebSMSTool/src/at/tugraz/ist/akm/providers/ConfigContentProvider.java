@@ -14,14 +14,14 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 
-import at.tugraz.ist.akm.db.User.Users;
+import at.tugraz.ist.akm.content.Config;
 import at.tugraz.ist.akm.trace.Logable;
 
-public class AuthContentProvider extends ContentProvider {
+public class ConfigContentProvider extends ContentProvider {
 
-	public static final String AUTHORITY = "at.tugraz.ist.akm.providers.AuthContentProvider";
-	private static String DATABASE_NAME = "AuthContent";
-	private static String USERS_TABLE_NAME = "users";
+	public static final String AUTHORITY = "at.tugraz.ist.akm.providers.ConfigContentProvider";
+	private static String DATABASE_NAME = "ConfigContent";
+	public static final String CONFIGURATION_TABLE_NAME = "config";
 	
 	private static final UriMatcher uriMatcher;
 	private static HashMap<String, String> usersMap;
@@ -36,7 +36,8 @@ public class AuthContentProvider extends ContentProvider {
 		switch (uriMatcher.match(uri)) {
 		case 1:
 			try {
-			count = db.delete(USERS_TABLE_NAME, selection + "=?", selectionArgs);
+			count = db.delete(CONFIGURATION_TABLE_NAME, selection + "=?", selectionArgs);
+			db.close();
 			}
 			catch (Exception e) {
 				
@@ -48,17 +49,6 @@ public class AuthContentProvider extends ContentProvider {
 
 		getContext().getContentResolver().notifyChange(uri, null);
 		return count;
-	}
-
-	@Override
-	public String getType(Uri uri) {
-		switch (uriMatcher.match(uri)) {
-		case 1:
-			return Users.CONTENT_TYPE;
-		
-		default: 
-			throw new IllegalArgumentException("unknown URI" + uri);
-		}
 	}
 
 	@Override
@@ -75,22 +65,19 @@ public class AuthContentProvider extends ContentProvider {
 		}
 
 		SQLiteDatabase db = dbHelper.getWritableDatabase();
-		long rowId = db.insert(USERS_TABLE_NAME, Users.USERNAME, values);
+		long rowId = 0;
+			
+		rowId = db.insert(CONFIGURATION_TABLE_NAME, null, values);
+		db.close();
 		if (rowId > 0) {
-			Uri noteUri = ContentUris.withAppendedId(Users.CONTENT_URI, rowId);
+			Uri noteUri = ContentUris.withAppendedId(Config.Content.CONTENT_URI, rowId);
 			getContext().getContentResolver().notifyChange(noteUri, null);
 			return noteUri;
 		}
 
 		throw new SQLException("Failed to insert row into " + uri);
 	}
-
-	@Override
-	public boolean onCreate() {
-		dbHelper = new DataBaseHelper(getContext());
-		return true;
-	}
-
+	
 	@Override
 	public Cursor query(Uri uri, String[] projection, String selection,
 			String[] selectionArgs, String sortOrder) {
@@ -99,7 +86,7 @@ public class AuthContentProvider extends ContentProvider {
 		switch (uriMatcher.match(uri)) {
 		case 1:
 			try {
-				qb.setTables(USERS_TABLE_NAME);
+				qb.setTables(CONFIGURATION_TABLE_NAME);
 				qb.setProjectionMap(usersMap);
 			
 			}
@@ -118,7 +105,7 @@ public class AuthContentProvider extends ContentProvider {
 		try {
 			c = qb.query(db, projection, selection + "=?", selectionArgs, null,
 					null, sortOrder);
-			
+			db.close();
 	
 			c.setNotificationUri(getContext().getContentResolver(), uri);
 		}
@@ -136,7 +123,8 @@ public class AuthContentProvider extends ContentProvider {
 		switch (uriMatcher.match(uri)) {
 		case 1:
 			try {
-			count = db.update(USERS_TABLE_NAME, values, selection + "=?", selectionArgs);
+			count = db.update(CONFIGURATION_TABLE_NAME, values, selection + "=?", selectionArgs);
+			db.close();
 			}
 			catch (Exception e) {
 				
@@ -151,33 +139,54 @@ public class AuthContentProvider extends ContentProvider {
 		getContext().getContentResolver().notifyChange(uri, null);
 		return count;
 	}
-	
+
+	@Override
+	public String getType(Uri uri) {
+		switch (uriMatcher.match(uri)) {
+		case 1:
+			return Config.Content.CONTENT_TYPE;
+		
+		default: 
+			throw new IllegalArgumentException("unknown URI" + uri);
+		}
+	}
+
+	@Override
+	public boolean onCreate() {
+		mLog.logV("onCreate config-content-provider");
+		dbHelper = new DataBaseHelper(getContext());
+		return !dbHelper.equals(null);
+	}
+		
 	static {
 		uriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
-		uriMatcher.addURI(AUTHORITY, USERS_TABLE_NAME, 1);
+		uriMatcher.addURI(AUTHORITY, CONFIGURATION_TABLE_NAME, 1);
 		
 		usersMap = new HashMap<String, String>();
-		usersMap.put(Users.USER_ID, Users.USER_ID);
-		usersMap.put(Users.USERNAME, Users.USERNAME);
-		usersMap.put(Users.PASSWORD, Users.PASSWORD);
+		usersMap.put(Config.Content._ID, Config.Content._ID);
+		usersMap.put(Config.Content.NAME, Config.Content.NAME);
+		usersMap.put(Config.Content.VALUE, Config.Content.VALUE);
 	}
 	
 	private static class DataBaseHelper extends SQLiteOpenHelper {
+		private Logable mLog = new Logable(getClass().getSimpleName());
+		
 		DataBaseHelper(Context context) {
 			super(context, DATABASE_NAME, null, 1);
 		}
 
 		@Override
 		public void onCreate(SQLiteDatabase db) {
-			db.execSQL("CREATE TABLE " + USERS_TABLE_NAME + " ("
-					+ Users.USER_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
-					+ Users.USERNAME + " VARCHAR(255),"
-					+ Users.PASSWORD + " VARCHAR(255)" + ");");
+			mLog.logV("onCreate sqlitedatabase invoked");
+			db.execSQL("CREATE TABLE " + CONFIGURATION_TABLE_NAME + " ("
+					+ Config.Content._ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
+					+ Config.Content.NAME + " VARCHAR(255),"
+					+ Config.Content.VALUE + " VARCHAR(255)" + ");");
 		}
 
 		@Override
 		public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-			db.execSQL("DROP TABLE IF EXISTS " + USERS_TABLE_NAME);
+			db.execSQL("DROP TABLE IF EXISTS " + CONFIGURATION_TABLE_NAME);
 			onCreate(db);
 		}
 	}

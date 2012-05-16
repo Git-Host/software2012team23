@@ -33,7 +33,7 @@
             </intent-filter>
         </activity>
         <service android:name=".webservice.WebSMSToolService"></service>
-        <provider android:name=".providers.AuthContentProvider" android:authorities="at.tugraz.ist.akm.providers.AuthContentProvider"></provider>
+        <provider android:name=".providers.ConfigContentProvider" android:authorities="at.tugraz.ist.akm.providers.ConfigContentProvider"></provider>
 
         <activity
             android:name=".test.MainActivityTest"

@@ -13,7 +13,7 @@ public class WebSMSToolService extends Service {
 
     SimpleWebServer mServer = null;
     private int mPort = 8887;
-    private boolean mHttps = false;
+    private boolean mHttps = true;
 
     public WebSMSToolService() {
     }
