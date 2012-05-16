@@ -1,29 +1,50 @@
 package at.tugraz.ist.akm.test;
 
-import com.jayway.android.robotium.solo.Solo;
+import android.test.ActivityInstrumentationTestCase2;
+import at.tugraz.ist.akm.MainActivity;
+import at.tugraz.ist.akm.test.trace.ThrowingLogSink;
+import at.tugraz.ist.akm.trace.Logable;
+import at.tugraz.ist.akm.trace.Logger;
 
-public class MainActivityTest extends WebSMSToolTestInstrumentation {
+public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActivity>
+{
 
-	private Solo mSolo;
+	private Logable mLog = null;
 
-	public MainActivityTest() {
-		super(MainActivityTest.class.getSimpleName());
-		mSolo = new Solo(getInstrumentation(), getActivity());
-		getActivity().setContentView(R.layout.main);
+	public MainActivityTest()
+	{
+		super("at.tugraz.ist.akm", MainActivity.class);
+		Logger.setSink(new ThrowingLogSink());
+		mLog = new Logable(MainActivityTest.class.getSimpleName());
 	}
 
-	protected void test() {
-		log("running empty test");
+	/**
+	 * just show that the main activity starts without crashing
+	 */
+	public void testMainActivityStart() throws Exception
+	{
+		MainActivity a = getActivity();
+		assertTrue(null != a);
+		a.stopService();
 	}
 
 	@Override
-	protected void setUp() throws Exception {
+	protected void setUp() throws Exception
+	{
 		super.setUp();
+		log(getName() + ".setUp()");
 	}
 
 	@Override
-	protected void tearDown() throws Exception {
-		log("tearDown()");
-		mSolo.finishOpenedActivities();
+	protected void tearDown() throws Exception
+	{
+		log(getName() + ".tearDown()");
+		super.tearDown();
 	}
+
+	protected void log(final String m)
+	{
+		mLog.logV(m);
+	}
+
 }

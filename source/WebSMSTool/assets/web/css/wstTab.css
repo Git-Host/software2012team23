@@ -1,0 +1,58 @@
+#tabs {
+	font-size: 90%;
+}
+
+#tabs ul {
+    background: none repeat scroll 0 0 #E3FEFA;
+    float: left;
+    margin-bottom: 0;
+    margin-right: 10px;
+    padding-left: 0;
+    padding-top: 4px;   
+    padding-right:8px;
+}
+
+#tabs li {
+	margin-left: 8px;
+	list-style: none;
+}
+
+* html #tabs li {
+	display: inline; /* ie6 double float margin bug */
+}
+
+#tabs li,#tabs li a {
+	float: left;
+}
+
+#tabs ul li a {
+	text-decoration: none;
+	padding: 8px;
+	color: #0073BF;
+	font-weight: bold;
+}
+
+#tabs ul li.active {
+	background-color: #CEE1EF;
+}
+
+#tabs ul li.active a {
+	color: #333333;
+}
+
+#tabs div.contact_tab {
+	background: #CEE1EF;
+	clear: both;
+	padding: 20px;
+	margin-right:10px;
+}
+
+#tabs div.contact_tab h3 {
+	text-transform: uppercase;
+	margin-bottom: 10px;
+	letter-spacing: 1px;
+}
+
+#tabs div.contact_tab p {
+	line-height: 150%;
+}
