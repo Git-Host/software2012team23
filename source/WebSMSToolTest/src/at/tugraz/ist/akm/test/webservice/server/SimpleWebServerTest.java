@@ -94,7 +94,6 @@ public class SimpleWebServerTest extends InstrumentationTestCase {
 
             HttpResponse response = httpClient.execute(httppost);
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            // TODO: the test case blocks here:
             response.getEntity().writeTo(baos);
 
             Assert.assertEquals(requestJson.toString(),
