@@ -14,7 +14,9 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 
+import at.tugraz.ist.akm.MainActivity;
 import at.tugraz.ist.akm.content.Config;
+import at.tugraz.ist.akm.content.StandardSettings;
 import at.tugraz.ist.akm.trace.Logable;
 
 public class ConfigContentProvider extends ContentProvider {
@@ -24,7 +26,7 @@ public class ConfigContentProvider extends ContentProvider {
 	public static final String CONFIGURATION_TABLE_NAME = "config";
 	
 	private static final UriMatcher uriMatcher;
-	private static HashMap<String, String> usersMap;
+	private static HashMap<String, String> contentMap;
 	private DataBaseHelper dbHelper;
 	
 	private Logable mLog = new Logable(getClass().getSimpleName());
@@ -87,8 +89,7 @@ public class ConfigContentProvider extends ContentProvider {
 		case 1:
 			try {
 				qb.setTables(CONFIGURATION_TABLE_NAME);
-				qb.setProjectionMap(usersMap);
-			
+				qb.setProjectionMap(contentMap);
 			}
 			catch (Exception e) {
 				
@@ -162,17 +163,18 @@ public class ConfigContentProvider extends ContentProvider {
 		uriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
 		uriMatcher.addURI(AUTHORITY, CONFIGURATION_TABLE_NAME, 1);
 		
-		usersMap = new HashMap<String, String>();
-		usersMap.put(Config.Content._ID, Config.Content._ID);
-		usersMap.put(Config.Content.NAME, Config.Content.NAME);
-		usersMap.put(Config.Content.VALUE, Config.Content.VALUE);
+		contentMap = new HashMap<String, String>();
+		contentMap.put(Config.Content._ID, Config.Content._ID);
+		contentMap.put(Config.Content.NAME, Config.Content.NAME);
+		contentMap.put(Config.Content.VALUE, Config.Content.VALUE);
 	}
 	
 	private static class DataBaseHelper extends SQLiteOpenHelper {
 		private Logable mLog = new Logable(getClass().getSimpleName());
-		
+		private Context mContext = null;
 		DataBaseHelper(Context context) {
 			super(context, DATABASE_NAME, null, 1);
+			this.mContext = context;
 		}
 
 		@Override
@@ -182,6 +184,7 @@ public class ConfigContentProvider extends ContentProvider {
 					+ Config.Content._ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
 					+ Config.Content.NAME + " VARCHAR(255),"
 					+ Config.Content.VALUE + " VARCHAR(255)" + ");");
+			StandardSettings.setStandardSettings(mContext);
 		}
 
 		@Override
