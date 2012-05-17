@@ -1,14 +1,11 @@
 package at.tugraz.ist.akm.test.sms;
 
-import java.io.Serializable;
 import java.util.List;
 
 import android.content.Context;
-import android.content.Intent;
 import android.content.IntentFilter;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.Bundle;
 import at.tugraz.ist.akm.content.SmsContent;
 import at.tugraz.ist.akm.content.query.TextMessageFilter;
 import at.tugraz.ist.akm.sms.SmsBoxReader;
@@ -192,47 +189,23 @@ public class ManipulateSmsTest extends WebSMSToolActivityTestcase implements
 	}
 
 	@Override
-	public void smsSentCallback(Context context, Intent intent) {
-		logV("sms sent. unpacking text message extras ...");
-
-		try {
-			Bundle extrasBundle = intent.getExtras();
-			if (extrasBundle != null) {
-				Serializable serializedTextMessage = extrasBundle
-						.getSerializable(SmsSentBroadcastReceiver.EXTRA_BUNDLE_KEY_TEXTMESSAGE);
-				String part = (String) extrasBundle
-						.getSerializable(SmsSentBroadcastReceiver.EXTRA_BUNDLE_KEY_PART);
-				if (serializedTextMessage != null) {
-					TextMessage sentMessage = (TextMessage) serializedTextMessage;
-					StringBuffer infos = new StringBuffer();
-					infos.append("SMS to [" + sentMessage.getAddress()
-							+ "] sent on [" + sentMessage.getDate()
-							+ "], part: [" + part + "], whole message was: ["
-							+ sentMessage.getBody() + "]");
-					logV(infos.toString());
-				}
-
-			} else {
-				logE("couldn't find any text message infos at all :(");
-			}
-		} catch (Exception e) {
-			logE("FAILED to gather text message extras from intent");
-		}
+	public void smsSentCallback(Context context, List<TextMessage> messages) {
+		logV("sms sent (list size: " + messages.size() + " )");
 	}
 
 	@Override
-	public void smsDeliveredCallback(Context context, Intent intent) {
-		logV("sms delivered (action: " + intent.getAction() + " )");
+	public void smsDeliveredCallback(Context context, List<TextMessage> messages) {
+		logV("sms delivered (list size: " + messages.size() + " )");
 	}
 
 	@Override
-	public void smsReceivedCallback(Context context, Intent intent) {
-		logV("sms received (action: " + intent.getAction() + " )");
+	public void smsReceivedCallback(Context context, List<TextMessage> messages) {
+		logV("sms received (list size: " + messages.size() + " )");
 	}
 
 	@Override
-	public void smsSentErrorCallback(Context context, Intent intent) {
-		logV("sms sent erroneous (action: " + intent.getAction() + " )");
+	public void smsSentErrorCallback(Context context, List<TextMessage> messages) {
+		logV("sms sent erroneous (list size: " + messages.size() + " )");
 	}
 
 }

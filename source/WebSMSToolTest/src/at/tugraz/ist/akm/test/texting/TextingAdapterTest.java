@@ -3,15 +3,12 @@ package at.tugraz.ist.akm.test.texting;
 import java.util.List;
 
 import android.content.Context;
-import android.content.Intent;
-import android.os.Bundle;
 import at.tugraz.ist.akm.content.SmsContent;
 import at.tugraz.ist.akm.content.query.ContactFilter;
 import at.tugraz.ist.akm.content.query.TextMessageFilter;
 import at.tugraz.ist.akm.phonebook.Contact;
 import at.tugraz.ist.akm.phonebook.ContactModifiedCallback;
 import at.tugraz.ist.akm.sms.SmsIOCallback;
-import at.tugraz.ist.akm.sms.SmsSentBroadcastReceiver;
 import at.tugraz.ist.akm.sms.TextMessage;
 import at.tugraz.ist.akm.test.WebSMSToolActivityTestcase;
 import at.tugraz.ist.akm.test.sms.SmsHelper;
@@ -97,67 +94,63 @@ public class TextingAdapterTest extends WebSMSToolActivityTestcase implements Sm
 	}
 
 	@Override
-	public void smsReceivedCallback(Context context, Intent intent)
+	public void smsReceivedCallback(Context context, List<TextMessage> messages)
 	{
-		logV("sms received (action: " + intent.getAction() + " )");
+		logV("sms received (messages size: " + messages.size() + " )");
 	}
 
 	@Override
-	public void smsSentCallback(Context context, Intent intent)
+	public void smsSentCallback(Context context, List<TextMessage> messages)
 	{
 		++mCountSent;
 
-		Bundle textMessageInfos = intent.getExtras();
-		String sentPart = textMessageInfos.getString(SmsSentBroadcastReceiver.EXTRA_BUNDLE_KEY_PART);
-		TextMessage m = (TextMessage) textMessageInfos
-				.getSerializable(SmsSentBroadcastReceiver.EXTRA_BUNDLE_KEY_TEXTMESSAGE);
-		logV("sent part: " + sentPart);
-
-		if (mIsTestcaseSendNoFail)
-		{
-			assertTrue(0 == sentPart.compareTo("foobar foo baz"));
-			assertTrue(0 == m.getAddress().compareTo("01234"));
-			assertTrue(0 == m.getBody().compareTo("foobar foo baz"));
-		}
-		else if (mIsTestcaseSendLongText)
-		{
-			assertTrue(0 == m.getAddress().compareTo("13570"));
-			if (mCountSent == 1)
+		for(TextMessage m : messages){
+			if (mIsTestcaseSendNoFail)
 			{
-				assertTrue(sentPart
-						.contains(". 123456789012345678901234567890123456789012345678901234567890123456789012345678901234567"));
+				assertTrue(0 == m.getAddress().compareTo("01234"));
+				assertTrue(0 == m.getBody().compareTo("foobar foo baz"));
 			}
-			else if (mCountSent == 2)
+			else if (mIsTestcaseSendLongText)
 			{
-				assertTrue(m
-						.getBody()
-						.contains(
-								"890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890"));
-			}
-			else if (mCountSent == 3)
-			{
-				assertTrue(m.getBody().contains("1234567890"));
-
+				assertTrue(0 == m.getAddress().compareTo("13570"));
+				if (mCountSent == 1)
+				{
+					assertTrue(m
+							.getBody()
+							.contains(". 123456789012345678901234567890123456789012345678901234567890123456789012345678901234567"));
+				}
+				else if (mCountSent == 2)
+				{
+					assertTrue(m
+							.getBody()
+							.contains(
+									"890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890"));
+				}
+				else if (mCountSent == 3)
+				{
+					assertTrue(m.getBody().contains("1234567890"));
+	
+				}
+				else
+					assertTrue(false);
 			}
 			else
+			{
 				assertTrue(false);
-		}
-		else
-		{
-			assertTrue(false);
+			}
 		}
 	}
 
 	@Override
-	public void smsSentErrorCallback(Context context, Intent intent)
+	public void smsSentErrorCallback(Context context, List<TextMessage> messages)
 	{
-		logV("sms sent erroneous (action: " + intent.getAction() + " )");
+		logV("sms sent erroneous (messages size: " + messages.size() + " )");
 	}
 
 	@Override
-	public void smsDeliveredCallback(Context context, Intent intent)
+	public void smsDeliveredCallback(Context context, List<TextMessage> messages)
 	{
-		logV("sms delivered (action: " + intent.getAction() + " )");
+		logV("sms delivered (messages size: " + messages.size() + " )");
 	}
 
 }

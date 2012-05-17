@@ -79,17 +79,17 @@ public class SmsBridge extends Logable implements SmsIOCallback {
 	 * SmsSentBroadcastReceiver.
 	 */
 	@Override
-	public void smsSentCallback(Context context, List<TextMessage> message) {
-		boolean sentSuccessfully = storeMessageToCorrectBox(message);
+	public void smsSentCallback(Context context, List<TextMessage> messages) {
+		boolean sentSuccessfully = storeMessageToCorrectBox(messages);
 
 		if (mExternalSmsSentCallback != null) {
 
 			if (sentSuccessfully) {
 				logV("bypassing SmsSentCallback.smsSentCallback()");
-				mExternalSmsSentCallback.smsSentCallback(context, message);
+				mExternalSmsSentCallback.smsSentCallback(context, messages);
 			} else {
 				logV("bypassing SmsSendErrorCallback.smsSentCallback()");
-				mExternalSmsSentCallback.smsSentErrorCallback(context, message);
+				mExternalSmsSentCallback.smsSentErrorCallback(context, messages);
 			}
 		} else {
 			logV("no external callback [SmsSentCallback.smsSentCallback()] found - callback ends here");
@@ -102,17 +102,17 @@ public class SmsBridge extends Logable implements SmsIOCallback {
 	 * this interface method will be never called from SmsSentBroadcastReceiver.
 	 */
 	@Override
-	public void smsSentErrorCallback(Context context, List<TextMessage> message) {
+	public void smsSentErrorCallback(Context context, List<TextMessage> messages) {
 	}
 
 	/**
 	 * bypass the event to external audience
 	 */
 	@Override
-	public void smsDeliveredCallback(Context context, List<TextMessage> message) {
+	public void smsDeliveredCallback(Context context, List<TextMessage> messages) {
 		if (mExternalSmsSentCallback != null) {
 			logV("bypassing SmsSentCallback.smsDeliveredCallback()");
-			mExternalSmsSentCallback.smsDeliveredCallback(context, message);
+			mExternalSmsSentCallback.smsDeliveredCallback(context, messages);
 		} else {
 			logV("no external callback [SmsSentCallback.smsDeliveredCallback()] found - callback ends here");
 		}
@@ -122,10 +122,10 @@ public class SmsBridge extends Logable implements SmsIOCallback {
 	 * simply bypass the callback to external listener
 	 */
 	@Override
-	public void smsReceivedCallback(Context context, List<TextMessage> message) {
+	public void smsReceivedCallback(Context context, List<TextMessage> messages) {
 		if (mExternalSmsSentCallback != null) {
 			logV("bypassing mExternalSmsReceivedCallback.smsReceivedCallback()");
-			mExternalSmsSentCallback.smsReceivedCallback(context, message);
+			mExternalSmsSentCallback.smsReceivedCallback(context, messages);
 		} else {
 			logV("no external callback [mExternalSmsReceivedCallback.smsReceivedCallback()] found - callback ends here");
 		}
@@ -161,13 +161,13 @@ public class SmsBridge extends Logable implements SmsIOCallback {
 	 *            where to parse the TextMessage from
 	 * @return true if correctly sent else false
 	 */
-	private boolean storeMessageToCorrectBox(List<TextMessage> message) {
+	private boolean storeMessageToCorrectBox(List<TextMessage> messages) {
 		boolean isSuccessfullySent = false;
 		//TextMessage sentMessage = parseToTextMessgae(intent);
 		
 		String verboseSentState = null;
 
-		for(TextMessage sentMessage : message)
+		for(TextMessage sentMessage : messages)
 		{
 			switch (mSmsSentNotifier.getResultCode()) {
 			case Activity.RESULT_OK:
