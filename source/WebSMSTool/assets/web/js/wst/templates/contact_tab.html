@@ -5,7 +5,7 @@
     {{! This sets the input or select field}}{{!set_contact_form_input phone_numbers}}
     <select id="number_{{id}}" name="number" required>
     {{#each phone_numbers}}
-    <option value="{{this.number}}">{{this.number}}</option>
+    <option value="{{this.clean_number}}">{{this.number}}</option>
     {{/each}}
     </select>
     <br><br>

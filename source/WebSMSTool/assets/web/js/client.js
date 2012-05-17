@@ -12,8 +12,7 @@ $.ajaxSetup({cache: false, async: true });
 (function(){
 	
 	
-	/** GENERAL INITIALIZATION */
-
+	/** GENERAL INITIALIZATION */	
 	//init tabbing
 	var tab_div = $('#tabs');
 	tab_div.wstTab();
@@ -22,14 +21,14 @@ $.ajaxSetup({cache: false, async: true });
 	});
 	
 	//initialize the contact list
+	var number_to_contact_id = new Object(); //new Object used as map	
 	wstAPI.getContacts(generate_contact_list);
-		
-	//set the interval for updating the webapp
-	this.timerId = setInterval(function(){
-		var inst = this;
-		wstAPI.pollInfo(update_webapp);
-	},4000);
+			
 	
+	var poll = function(){
+		wstAPI.pollInfo(update_webapp);
+	}
+	poll();
 	
 	
 	/** LISTENERS */
@@ -76,7 +75,14 @@ $.ajaxSetup({cache: false, async: true });
 			if(json.sms_sent_success_messages){
 				sent_length = json.sms_sent_success_messages.length;
 				for(var i = 0; i < sent_length; i++){
-					wstLog.success('SMS to '+json.sms_sent_success_messages[i].address+' successfully sent.');
+					var address = json.sms_sent_success_messages[i].address;
+					var contact_id = get_contact_id_by_number(address);
+					if(contact_id > 0){
+						var contact = get_contact_full_name(contact_id);
+						wstLog.success('SMS to '+contact+' successfully sent!');
+					} else {
+						wstLog.success('SMS to '+json.sms_sent_success_messages[i].address+' successfully sent!');
+					}
 				}
 			}
 		}
@@ -85,12 +91,20 @@ $.ajaxSetup({cache: false, async: true });
 			if(json.sms_received_messages){
 				recv_length = json.sms_received_messages.length;
 				for(var i = 0; i < recv_length; i++){
-					wstLog.success('SMS for '+json.sms_received_messages[i].address+' received.');
+					var address = json.sms_received_messages[i].address;
+					var contact_id = get_contact_id_by_number(address);
+					if(contact_id > 0){
+						var contact = get_contact_full_name(contact_id);
+						wstLog.success('SMS from '+contact+' received!');
+					} else {
+						wstLog.success('SMS for '+json.sms_received_messages[i].address+' received.');
+					}
 				}
 			}			
 		}
 		
 		wstLog.log('Updating webapp');
+		setTimeout(poll,10000); 
 	}
 	
 	
@@ -122,7 +136,12 @@ $.ajaxSetup({cache: false, async: true });
 				wstLog.success('Thread-List successfully loaded.');
 				return true;
 			} else {
-				wstLog.info('No sms stored for this contact.');
+				var contact_name = get_contact_full_name(contact_id);
+				if(contact_name){
+					wstLog.info('No messages stored for contact '+contact_name);
+				} else {
+					wstLog.info('No messages stored for this contact.');
+				}
 				$('#sms_thread_'+contact_id).html("");
 				return true;
 			}
@@ -136,17 +155,60 @@ $.ajaxSetup({cache: false, async: true });
 		if(json != null){
 			var cl_length = json.contacts.length;
 			if(cl_length > 0){
+				number_to_contact_id = new Object();
 				var html = '';
 				for(var i = 0; i < cl_length; i++){
 					html += wstTemplate.get('contact_entry', json.contacts[i])+'\n';
+					
+					//store phone numbers to contacts internal
+					var phone_numbers = json.contacts[i].phone_numbers; 
+					for(var j = 0; j < phone_numbers.length; j++){
+						var number = phone_numbers[j].clean_number;
+						number_to_contact_id[number] = json.contacts[i].id;
+					}
 				}
 				$('#contact_list').html(html);
 				wstLog.success('Contact-List successfully updated.');
+				wstLog.log(number_to_contact_id);				
 				return true;
 			}
 		}
 		wstLog.warn('Contact-List could not be loaded.');
 		return false;
+	}
+	
+	
+	
+	
+	function get_contact_from_client(contact_id){
+		var contact_entry = $('#contact_entry_'+contact_id);
+		if(contact_entry.length){
+			var data = contact_entry.data('contactFull');
+			return data;
+		} else {
+			return null;
+		}
+	}
+	
+	
+	
+	function get_contact_id_by_number(number){
+		var id = number_to_contact_id[number];
+		if(id){
+			return id;
+		} else {
+			return 0;
+		}
+	}
+	
+	
+	function get_contact_full_name(contact_id){
+		var contact = get_contact_from_client(contact_id);
+		if(contact){
+			return contact.display_name;
+		} else {
+			return null;
+		}
 	}
 
 	

@@ -169,25 +169,25 @@ test('API - Test long text sms', function() {
 },6000);
 
 
-//setTimeout(function(){
-//	module('wstAPI');
-//	test('API - Test long text sms sent notification', function() {
-//	    stop();   
-//	    expect(4);
-//    
-//	    
-//		wstAPI.pollInfo(function(data){
-//				ok(data.sms_sent_success == true, 'SMS sent success returned true.');
-//				ok(data.sms_sent_success_messages.length > 0, 'SMS success messages are set.');
-//				var msg = data.sms_sent_success_messages[0];
-//				equal(msg.body,long_test_message, 'SMS sent body is eqal to webapp body sent.');
-//				equal(msg.address,message_address, 'SMS sent address is eqal to webapp address sent.');
-//		});
-//		
-//	    setTimeout(function(){start();}, 1000);
-//	    
-//	});
-//},8000);
+setTimeout(function(){
+	module('wstAPI');
+	test('API - Test long text sms sent notification', function() {
+	    stop();   
+	    expect(4);
+    
+	    
+		wstAPI.pollInfo(function(data){
+				ok(data.sms_sent_success == true, 'SMS sent success returned true.');
+				ok(data.sms_sent_success_messages.length > 0, 'SMS success messages are set.');
+				var msg = data.sms_sent_success_messages[0];
+				equal(msg.body,long_test_message, 'SMS sent body is eqal to webapp body sent.');
+				equal(msg.address,message_address, 'SMS sent address is eqal to webapp address sent.');
+		});
+		
+	    setTimeout(function(){start();}, 1000);
+	    
+	});
+},8000);
 
 
 
