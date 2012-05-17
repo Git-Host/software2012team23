@@ -1,15 +1,12 @@
 package at.tugraz.ist.akm.sms;
 
-import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 
 import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.Context;
-import android.content.Intent;
 import android.content.IntentFilter;
-import android.os.Bundle;
 import android.telephony.SmsManager;
 import at.tugraz.ist.akm.content.query.TextMessageFilter;
 import at.tugraz.ist.akm.trace.Logable;
@@ -82,17 +79,17 @@ public class SmsBridge extends Logable implements SmsIOCallback {
 	 * SmsSentBroadcastReceiver.
 	 */
 	@Override
-	public void smsSentCallback(Context context, Intent intent) {
-		boolean sentSuccessfully = storeMessageToCorrectBox(intent);
+	public void smsSentCallback(Context context, List<TextMessage> message) {
+		boolean sentSuccessfully = storeMessageToCorrectBox(message);
 
 		if (mExternalSmsSentCallback != null) {
 
 			if (sentSuccessfully) {
 				logV("bypassing SmsSentCallback.smsSentCallback()");
-				mExternalSmsSentCallback.smsSentCallback(context, intent);
+				mExternalSmsSentCallback.smsSentCallback(context, message);
 			} else {
 				logV("bypassing SmsSendErrorCallback.smsSentCallback()");
-				mExternalSmsSentCallback.smsSentErrorCallback(context, intent);
+				mExternalSmsSentCallback.smsSentErrorCallback(context, message);
 			}
 		} else {
 			logV("no external callback [SmsSentCallback.smsSentCallback()] found - callback ends here");
@@ -105,17 +102,17 @@ public class SmsBridge extends Logable implements SmsIOCallback {
 	 * this interface method will be never called from SmsSentBroadcastReceiver.
 	 */
 	@Override
-	public void smsSentErrorCallback(Context context, Intent intent) {
+	public void smsSentErrorCallback(Context context, List<TextMessage> message) {
 	}
 
 	/**
 	 * bypass the event to external audience
 	 */
 	@Override
-	public void smsDeliveredCallback(Context context, Intent intent) {
+	public void smsDeliveredCallback(Context context, List<TextMessage> message) {
 		if (mExternalSmsSentCallback != null) {
 			logV("bypassing SmsSentCallback.smsDeliveredCallback()");
-			mExternalSmsSentCallback.smsDeliveredCallback(context, intent);
+			mExternalSmsSentCallback.smsDeliveredCallback(context, message);
 		} else {
 			logV("no external callback [SmsSentCallback.smsDeliveredCallback()] found - callback ends here");
 		}
@@ -125,10 +122,10 @@ public class SmsBridge extends Logable implements SmsIOCallback {
 	 * simply bypass the callback to external listener
 	 */
 	@Override
-	public void smsReceivedCallback(Context context, Intent intent) {
+	public void smsReceivedCallback(Context context, List<TextMessage> message) {
 		if (mExternalSmsSentCallback != null) {
 			logV("bypassing mExternalSmsReceivedCallback.smsReceivedCallback()");
-			mExternalSmsSentCallback.smsReceivedCallback(context, intent);
+			mExternalSmsSentCallback.smsReceivedCallback(context, message);
 		} else {
 			logV("no external callback [mExternalSmsReceivedCallback.smsReceivedCallback()] found - callback ends here");
 		}
@@ -153,26 +150,7 @@ public class SmsBridge extends Logable implements SmsIOCallback {
 				SmsSentBroadcastReceiver.ACTION_SMS_RECEIVED));
 	}
 
-	private TextMessage parseToTextMessgae(Intent intent) {
-		try {
-			Bundle extrasBundle = intent.getExtras();
-			if (extrasBundle != null) {
-				Serializable serializedTextMessage = extrasBundle
-						.getSerializable(SmsSentBroadcastReceiver.EXTRA_BUNDLE_KEY_TEXTMESSAGE);
 
-				if (serializedTextMessage != null) {
-					TextMessage sentMessage = (TextMessage) serializedTextMessage;
-					return sentMessage;
-				}
-
-			} else {
-				logE("couldn't find any text message infos at all :(");
-			}
-		} catch (Exception e) {
-			logV("FAILED to gather text message extras from intent");
-		}
-		return null;
-	}
 
 	/**
 	 * Is being called when the send state of a TextMessage is clear. If state
@@ -183,49 +161,52 @@ public class SmsBridge extends Logable implements SmsIOCallback {
 	 *            where to parse the TextMessage from
 	 * @return true if correctly sent else false
 	 */
-	private boolean storeMessageToCorrectBox(Intent intent) {
+	private boolean storeMessageToCorrectBox(List<TextMessage> message) {
 		boolean isSuccessfullySent = false;
-		TextMessage sentMessage = parseToTextMessgae(intent);
+		//TextMessage sentMessage = parseToTextMessgae(intent);
 		
 		String verboseSentState = null;
 
-		switch (mSmsSentNotifier.getResultCode()) {
-		case Activity.RESULT_OK:
-			verboseSentState = "to address [" + sentMessage.getAddress()
-					+ "] on [" + sentMessage.getDate() + "] ("
-					+ sentMessage.getBody() + ")";
-
-			mSmsBoxWriter.writeSentboxTextMessage(sentMessage);
-			isSuccessfullySent = true;
-			break;
-
-		case SmsManager.RESULT_ERROR_GENERIC_FAILURE:
-			verboseSentState = "Error.";
-			sentMessage.setLocked("");
-			sentMessage.setErrorCode("");
-			mSmsBoxWriter.writeOutboxTextMessage(sentMessage);
-			break;
-
-		case SmsManager.RESULT_ERROR_NO_SERVICE:
-			verboseSentState = "Error: No service.";
-			sentMessage.setLocked("");
-			sentMessage.setErrorCode("");
-			mSmsBoxWriter.writeOutboxTextMessage(sentMessage);
-			break;
-
-		case SmsManager.RESULT_ERROR_NULL_PDU:
-			verboseSentState = "Error: Null PDU.";
-			sentMessage.setLocked("");
-			sentMessage.setErrorCode("");
-			mSmsBoxWriter.writeOutboxTextMessage(sentMessage);
-			break;
-
-		case SmsManager.RESULT_ERROR_RADIO_OFF:
-			verboseSentState = "Error: Radio off.";
-			sentMessage.setLocked("");
-			sentMessage.setErrorCode("");
-			mSmsBoxWriter.writeOutboxTextMessage(sentMessage);
-			break;
+		for(TextMessage sentMessage : message)
+		{
+			switch (mSmsSentNotifier.getResultCode()) {
+			case Activity.RESULT_OK:
+				verboseSentState = "to address [" + sentMessage.getAddress()
+						+ "] on [" + sentMessage.getDate() + "] ("
+						+ sentMessage.getBody() + ")";
+	
+				mSmsBoxWriter.writeSentboxTextMessage(sentMessage);
+				isSuccessfullySent = true;
+				break;
+	
+			case SmsManager.RESULT_ERROR_GENERIC_FAILURE:
+				verboseSentState = "Error.";
+				sentMessage.setLocked("");
+				sentMessage.setErrorCode("");
+				mSmsBoxWriter.writeOutboxTextMessage(sentMessage);
+				break;
+	
+			case SmsManager.RESULT_ERROR_NO_SERVICE:
+				verboseSentState = "Error: No service.";
+				sentMessage.setLocked("");
+				sentMessage.setErrorCode("");
+				mSmsBoxWriter.writeOutboxTextMessage(sentMessage);
+				break;
+	
+			case SmsManager.RESULT_ERROR_NULL_PDU:
+				verboseSentState = "Error: Null PDU.";
+				sentMessage.setLocked("");
+				sentMessage.setErrorCode("");
+				mSmsBoxWriter.writeOutboxTextMessage(sentMessage);
+				break;
+	
+			case SmsManager.RESULT_ERROR_RADIO_OFF:
+				verboseSentState = "Error: Radio off.";
+				sentMessage.setLocked("");
+				sentMessage.setErrorCode("");
+				mSmsBoxWriter.writeOutboxTextMessage(sentMessage);
+				break;
+			}
 		}
 
 		if (isSuccessfullySent) {

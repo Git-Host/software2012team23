@@ -3,7 +3,6 @@ package at.tugraz.ist.akm.webservice.handler;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -21,13 +20,12 @@ import my.org.apache.http.message.BasicHttpEntityEnclosingRequest;
 import my.org.apache.http.protocol.HttpContext;
 import my.org.apache.http.protocol.HttpRequestHandlerRegistry;
 import my.org.apache.http.util.EntityUtils;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.content.Context;
-import android.content.Intent;
-import android.os.Bundle;
 import at.tugraz.ist.akm.content.SmsContent;
 import at.tugraz.ist.akm.content.query.ContactFilter;
 import at.tugraz.ist.akm.content.query.TextMessageFilter;
@@ -38,7 +36,6 @@ import at.tugraz.ist.akm.monitoring.TelephonySignalStrength;
 import at.tugraz.ist.akm.phonebook.Contact;
 import at.tugraz.ist.akm.phonebook.ContactModifiedCallback;
 import at.tugraz.ist.akm.sms.SmsIOCallback;
-import at.tugraz.ist.akm.sms.SmsSentBroadcastReceiver;
 import at.tugraz.ist.akm.sms.TextMessage;
 import at.tugraz.ist.akm.texting.TextingAdapter;
 import at.tugraz.ist.akm.texting.TextingInterface;
@@ -130,60 +127,55 @@ public class JsonAPIRequestHandler extends AbstractHttpRequestHandler implements
 	}
 
 	@Override
-	public synchronized void smsSentCallback(Context context, Intent intent) {
-		TextMessage message = this.parseToTextMessgae(intent);
-		if (message != null) {
-			String address = message.getAddress();
-			mLog.logV("Looking for address in waiting queue with :" + address);
-			if (mSMSWaitingForSentCallback.containsKey(address)) {
-				int tmpCount = mSMSWaitingForSentCallback.get(address);
-				tmpCount = tmpCount - 1;
-
-				// if we received all callbacks for an specific address we can
-				// assume, that the sms was sent successfully and the count is 0
-				if (tmpCount == 0) {
-					mSMSSentSuccess = true;
-					mSMSSentList.add(message);
-					mSMSWaitingForSentCallback.remove(address);
-					mLog.logV("Received all sms callbacks for address "
-							+ address + " going to notify webapp.");
+	public synchronized void smsSentCallback(Context context, List<TextMessage> messages) {
+		if(messages.isEmpty() == false){
+			for(TextMessage message : messages) {
+				String address = message.getAddress();
+				mLog.logV("Looking for address in waiting queue with :" + address);
+				if (mSMSWaitingForSentCallback.containsKey(address)) {
+					int tmpCount = mSMSWaitingForSentCallback.get(address);
+					tmpCount = tmpCount - 1;
+	
+					// if we received all callbacks for an specific address we can
+					// assume, that the sms was sent successfully and the count is 0
+					if (tmpCount == 0) {
+						mSMSSentSuccess = true;
+						mSMSSentList.add(message);
+						mSMSWaitingForSentCallback.remove(address);
+						mLog.logV("Received all sms callbacks for address "
+								+ address + " going to notify webapp.");
+					} else {
+						mSMSWaitingForSentCallback.put(address, tmpCount);
+						mLog.logV("Received sms callback for address " + address
+								+ " - count is: " + tmpCount);
+					}
 				} else {
-					mSMSWaitingForSentCallback.put(address, tmpCount);
-					mLog.logV("Received sms callback for address " + address
-							+ " - count is: " + tmpCount);
+					mLog.logE("Got a callback for address " + address
+							+ " but could not be found in waiting list!");
 				}
-			} else {
-				mLog.logE("Got a callback for address " + address
-						+ " but could not be found in waiting list!");
 			}
 		} else {
-			mLog.logW("A received callback could not be converted to an TextMessage - Possible lost of sms notification to the webapp");
+			mLog.logW("A sms sent callback was delivered but textmessages list was empty");
 		}
 	}
 
 	@Override
-	public synchronized void smsSentErrorCallback(Context context, Intent intent) {
+	public synchronized void smsSentErrorCallback(Context context, List<TextMessage> messages) {
 		this.mSMSSentError = true;
-		TextMessage message = this.parseToTextMessgae(intent);
-		this.mSMSSentErrorList.add(message);
+		for(TextMessage message : messages){
+			this.mSMSSentErrorList.add(message);
+		}
 	}
 
 	@Override
-	public synchronized void smsDeliveredCallback(Context context, Intent intent) {
+	public synchronized void smsDeliveredCallback(Context context, List<TextMessage> message) {
 		// not working so we do not bother about it
 
 	}
 
 	@Override
-	public synchronized void smsReceivedCallback(Context context, Intent intent) {
+	public synchronized void smsReceivedCallback(Context context, List<TextMessage> messages) {
 		this.mSMSReceived = true;
-		
-		TextMessageFilter tmf = new TextMessageFilter();
-		tmf.setRead(false);
-		tmf.setSeen(false);
-		
-		ArrayList<TextMessage> messages = this.parseToTextMessgaes(intent);
-		
 		for ( TextMessage message : messages ) {
 			mLog.logV("Textmessage from "+message.getAddress()+" received in api request handler.");
 			this.mSMSReceivedList.add(message);
@@ -505,50 +497,5 @@ public class JsonAPIRequestHandler extends AbstractHttpRequestHandler implements
 		return result;
 	}
 
-	// TODO: This is copy and paste from SmsBridge.java - change it to public
-	// static in the bridge or think generally about it
-	private TextMessage parseToTextMessgae(Intent intent) {
-		try {
-			Bundle extrasBundle = intent.getExtras();
-			if (extrasBundle != null) {
-				Serializable serializedTextMessage = extrasBundle
-						.getSerializable(SmsSentBroadcastReceiver.EXTRA_BUNDLE_KEY_TEXTMESSAGELIST);
-
-				if (serializedTextMessage != null) {
-					TextMessage receivedMessage = (TextMessage) serializedTextMessage;
-					return receivedMessage;
-				}
-
-			} else {
-				mLog.logV("couldn't find any text message infos at all :(");
-			}
-		} catch (Exception e) {
-			mLog.logV("FAILED to gather text message extras from intent");
-		}
-		return null;
-	}
-	
-	
-	private ArrayList<TextMessage> parseToTextMessgaes(Intent intent) {
-		try {
-			Bundle extrasBundle = intent.getExtras();
-			if (extrasBundle != null) {
-				Serializable serializedTextMessages = extrasBundle
-						.getSerializable(SmsSentBroadcastReceiver.EXTRA_BUNDLE_KEY_TEXTMESSAGELIST);
-
-				if (serializedTextMessages != null) {
-//					@SuppressWarnings("unchecked")
-					ArrayList<TextMessage> receivedMessages = (ArrayList<TextMessage>) serializedTextMessages;
-					return receivedMessages;
-				}
-
-			} else {
-				mLog.logV("couldn't find any text message infos at all :(");
-			}
-		} catch (Exception e) {
-			mLog.logV("FAILED to gather text message extras from intent");
-		}
-		return null;
-	}
 }
 
