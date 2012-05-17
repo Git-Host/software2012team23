@@ -80,6 +80,7 @@ $.ajaxSetup({cache: false, async: true });
 					if(contact_id > 0){
 						var contact = get_contact_full_name(contact_id);
 						wstLog.success('SMS to '+contact+' successfully sent!');
+						load_thread_list(contact_id);
 					} else {
 						wstLog.success('SMS to '+json.sms_sent_success_messages[i].address+' successfully sent!');
 					}
@@ -96,6 +97,7 @@ $.ajaxSetup({cache: false, async: true });
 					if(contact_id > 0){
 						var contact = get_contact_full_name(contact_id);
 						wstLog.success('SMS from '+contact+' received!');
+						load_thread_list(contact_id);
 					} else {
 						wstLog.success('SMS for '+json.sms_received_messages[i].address+' received.');
 					}
@@ -118,9 +120,19 @@ $.ajaxSetup({cache: false, async: true });
 			var contact_name = contact_json.name+' '+contact_json.last_name;
 			var html = wstTemplate.get('contact_tab',contact_json);
 			tab_div.wstTab('add',contact_json.id,contact_name,html);
-			wstAPI.fetchSMSThread(contact_json.id, generate_sms_thread_list);
+			//wstAPI.fetchSMSThread(contact_json.id, generate_sms_thread_list);
+			load_thread_list(contact_json.id);
 		}
 	}
+	
+	
+	function load_thread_list(contact_id){
+		var contact_tab = $('#contact_tab_'+contact_id);
+		if(contact_tab.length){
+			wstAPI.fetchSMSThread(contact_id, generate_sms_thread_list);
+		}
+	}
+	
 	
 	
 	function generate_sms_thread_list(json){
@@ -133,7 +145,7 @@ $.ajaxSetup({cache: false, async: true });
 					html += wstTemplate.get('sms_thread_entry', json.thread_messages[i])+'\n';
 				}
 				$('#sms_thread_'+contact_id).html(html);
-				wstLog.success('Thread-List successfully loaded.');
+				wstLog.info('Thread-List successfully loaded.');
 				return true;
 			} else {
 				var contact_name = get_contact_full_name(contact_id);
