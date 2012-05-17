@@ -47,6 +47,17 @@
 	});
 	
 	
+	Handlebars.registerHelper('set_person', function(sms_json) {
+		//lookup if contact is in contact list for fetching data attribute
+		var contact_entry = $('#contact_entry_'+sms_json.person);
+		if(contact_entry.length){
+			var contact_data = contact_entry.data('contactFull');
+			return contact_data.name+' '+contact_data.last_name;
+		} else {
+			return sms_json.address;
+		}
+	});	
+	
 	Handlebars.registerHelper('set_contact_form_input', function(contact_numbers) {
 		var html = '';
 		if(contact_numbers.length > 1){
