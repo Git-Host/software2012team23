@@ -25,7 +25,6 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
 	{
 		MainActivity a = getActivity();
 		assertTrue(null != a);
-		a.stopService();
 	}
 
 	@Override
