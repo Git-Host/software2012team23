@@ -1,17 +1,16 @@
 package at.tugraz.ist.akm;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import at.tugraz.ist.akm.actionbar.ActionBarActivity;
 import at.tugraz.ist.akm.webservice.WebSMSToolService;
 
-public class MainActivity extends Activity
+public class MainActivity extends ActionBarActivity 
 {
-
 	private Intent mSmsServiceIntent = null;
 
 	/**
@@ -22,6 +21,7 @@ public class MainActivity extends Activity
 	{
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main);
+				
 		Log.v("Activity", "Going to start web service");
 		mSmsServiceIntent = new Intent(this, WebSMSToolService.class);
 		this.startService(mSmsServiceIntent);
@@ -31,7 +31,10 @@ public class MainActivity extends Activity
 	public boolean onCreateOptionsMenu(Menu menu) {
 	    MenuInflater inflater = getMenuInflater();
 	    inflater.inflate(R.menu.menu, menu);
-	    return true;
+	    
+	    // Calling super after populating the menu is necessary here to ensure that the
+        // action bar helpers have a chance to handle this event.
+        return super.onCreateOptionsMenu(menu);
 	}
 	
 	@Override
@@ -41,10 +44,10 @@ public class MainActivity extends Activity
 	        case R.id.settings:
 	            Intent myIntent = new Intent(MainActivity.this, SettingsActivity.class);
 	            MainActivity.this.startActivity(myIntent);
-	            return true;
-	        default:
-	            return super.onOptionsItemSelected(item);
+	            break;
 	    }
+	    
+	    return super.onOptionsItemSelected(item);
 	}
 
 	/**
