@@ -13,8 +13,6 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
-
-import at.tugraz.ist.akm.MainActivity;
 import at.tugraz.ist.akm.content.Config;
 import at.tugraz.ist.akm.content.StandardSettings;
 import at.tugraz.ist.akm.trace.Logable;
