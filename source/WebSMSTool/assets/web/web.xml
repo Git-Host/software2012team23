@@ -4,7 +4,6 @@
       List of interceptors are executed prior to execution of any handler in this file.
     -->
     <requestInterceptors>
-       <interceptor class="at.tugraz.ist.akm.webservice.handler.interceptor.AuthorizationInterceptor"/>
        <interceptor class="at.tugraz.ist.akm.webservice.handler.interceptor.SessionCookieInterceptor"/>
     </requestInterceptors>
 	<requestHandler class="at.tugraz.ist.akm.webservice.handler.FileRequestHandler">
