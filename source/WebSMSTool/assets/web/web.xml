@@ -1,5 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <webServerConfig>
+    <!-- order of interceptors are important!!! 
+      List of interceptors are executed prior to execution of any handler in this file.
+    -->
+    <requestInterceptors>
+       <interceptor class="at.tugraz.ist.akm.webservice.handler.interceptor.AuthorizationInterceptor"/>
+       <interceptor class="at.tugraz.ist.akm.webservice.handler.interceptor.SessionCookieInterceptor"/>
+    </requestInterceptors>
 	<requestHandler class="at.tugraz.ist.akm.webservice.handler.FileRequestHandler">
 		<request uriPattern="/" dataFile="web/index.html" contentType="text/html"/>
 		<request uriPattern="/index.html" dataFile="web/index.html" contentType="text/html"/>
@@ -22,7 +29,6 @@
 		<request uriPattern="/js/wst/templates/contact_entry.html" dataFile="web/js/wst/templates/contact_entry.html" contentType="text/html"/>
 		<request uriPattern="/js/wst/templates/sms_thread_entry.html" dataFile="web/js/wst/templates/sms_thread_entry.html" contentType="text/html"/>
         <request uriPattern="/js/wst/templates/contact_tab.html" dataFile="web/js/wst/templates/contact_tab.html" contentType="text/html"/>		
-		
 	</requestHandler>
     <requestHandler class="at.tugraz.ist.akm.webservice.handler.JsonAPIRequestHandler">
         <request uriPattern="/api.html" dataFile="web/api.html" contentType="text/html"/>

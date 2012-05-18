@@ -12,11 +12,17 @@ import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
 
 import junit.framework.Assert;
+import my.org.apache.http.Header;
 import my.org.apache.http.HttpResponse;
+import my.org.apache.http.client.CookieStore;
 import my.org.apache.http.client.HttpClient;
 import my.org.apache.http.client.methods.HttpPost;
+import my.org.apache.http.client.protocol.ClientContext;
 import my.org.apache.http.entity.StringEntity;
+import my.org.apache.http.impl.client.BasicCookieStore;
 import my.org.apache.http.impl.client.DefaultHttpClient;
+import my.org.apache.http.protocol.BasicHttpContext;
+import my.org.apache.http.protocol.HttpContext;
 
 import org.json.JSONObject;
 
@@ -25,6 +31,8 @@ import android.test.InstrumentationTestCase;
 import android.util.Log;
 import at.tugraz.ist.akm.R;
 import at.tugraz.ist.akm.io.FileReader;
+import at.tugraz.ist.akm.webservice.WebServerConfig;
+import at.tugraz.ist.akm.webservice.cookie.CookieManager;
 import at.tugraz.ist.akm.webservice.server.SimpleWebServer;
 
 public class SimpleWebServerTest extends InstrumentationTestCase {
@@ -36,9 +44,9 @@ public class SimpleWebServerTest extends InstrumentationTestCase {
         if (webserver != null && webserver.isRunning()) {
             stopServer();
         }
-        
+
         Log.d("SimpleWebServerTest", "start server");
-        
+
         httpClient = new DefaultHttpClient();
         webserver = new SimpleWebServer(getInstrumentation().getContext(), https);
         Assert.assertTrue(webserver.startServer(8888));
@@ -96,8 +104,7 @@ public class SimpleWebServerTest extends InstrumentationTestCase {
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             response.getEntity().writeTo(baos);
 
-            Assert.assertEquals(requestJson.toString(),
-                    new String(baos.toByteArray()));
+            Assert.assertEquals(requestJson.toString(), new String(baos.toByteArray()));
         } catch (Exception e) {
             Assert.fail(e.getMessage());
         }
@@ -106,8 +113,8 @@ public class SimpleWebServerTest extends InstrumentationTestCase {
 
     public void testSimpleFileRequest() {
         startServer(false);
-        Log.d("test", "testSimpleFileRequest");       
-        
+        Log.d("test", "testSimpleFileRequest");
+
         HttpPost httppost = new HttpPost("http://localhost:8888/");
         try {
             httppost.setHeader("Accept", "application/text");
@@ -117,8 +124,8 @@ public class SimpleWebServerTest extends InstrumentationTestCase {
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             response.getEntity().writeTo(baos);
 
-            Assert.assertEquals(new FileReader(getInstrumentation()
-                    .getContext(), "web/index.html").read(),
+            Assert.assertEquals(
+                    new FileReader(getInstrumentation().getContext(), "web/index.html").read(),
                     new String(baos.toByteArray()));
 
         } catch (Exception e) {
@@ -126,13 +133,13 @@ public class SimpleWebServerTest extends InstrumentationTestCase {
         }
         stopServer();
     }
-    
+
     public void testStartSecureServer() {
         Log.d("test", "testStartSecureServer");
-        
+
         startServer(true);
         Assert.assertTrue(webserver.isRunning());
-        
+
         stopServer();
         Assert.assertFalse(webserver.isRunning());
     }
@@ -140,13 +147,13 @@ public class SimpleWebServerTest extends InstrumentationTestCase {
     public void testKeyStore() {
         try {
             KeyStore keystore = KeyStore.getInstance("BKS");
-            
+
             Context context = this.getInstrumentation().getTargetContext().getApplicationContext();
             InputStream is = context.getResources().openRawResource(R.raw.websms);
-            
+
             keystore.load(is, "foobar64".toCharArray());
             String alias = "at.tugraz.ist.akm.websms";
-    
+
             Key key = keystore.getKey(alias, "foobar64".toCharArray());
             if (!(key instanceof PrivateKey)) {
                 Assert.fail("Private key not found!");
@@ -162,5 +169,139 @@ public class SimpleWebServerTest extends InstrumentationTestCase {
         } catch (UnrecoverableKeyException e) {
             Assert.fail(e.getMessage());
         }
+    }
+
+    public void testSessionCookie() {
+        startServer(false);
+
+        Log.d("test", "testSimpleJsonRequest");
+
+        CookieStore cookieStore = new BasicCookieStore();
+        HttpContext context = new BasicHttpContext();
+        context.setAttribute(ClientContext.COOKIE_STORE, cookieStore);
+
+        HttpPost httppost = new HttpPost("http://localhost:8888/api.html");
+
+        try {
+            // --------------------------------------------------------------------------------------
+            // send a simple request withouth a cookie
+            // --------------------------------------------------------------------------------------
+            JSONObject requestJson = new JSONObject();
+            requestJson.put("method", "getSMS");
+
+            JSONObject paramJson = new JSONObject();
+            paramJson.put("user_id", 5);
+            paramJson.put("detail_string", "foobar");
+
+            requestJson.put("params", paramJson);
+
+            httppost.setHeader("Accept", WebServerConfig.HTTP.CONTENT_TYPE_JSON);
+            httppost.setHeader(WebServerConfig.HTTP.KEY_CONTENT_TYPE,
+                    WebServerConfig.HTTP.CONTENT_TYPE_JSON);
+
+            httppost.setEntity(new StringEntity(requestJson.toString()));
+
+            HttpResponse response = httpClient.execute(httppost, context);
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            response.getEntity().writeTo(baos);
+
+            // result of this should be that the response object contains an
+            // error indicating
+            // that the session cookie is expired
+            JSONObject responseObject = new JSONObject(new String(baos.toByteArray()));
+
+            Log.v("test", responseObject.toString());
+
+            String state = responseObject.getString(WebServerConfig.JSON.STATE);
+            Assert.assertEquals(WebServerConfig.JSON.STATE_SESSION_COOKIE_EXPIRED, state);
+
+            // --------------------------------------------------------------------------------------
+            // send a second request for logging in an user
+            // --------------------------------------------------------------------------------------
+            httppost.setHeader("Accept", WebServerConfig.HTTP.CONTENT_TYPE_JSON);
+            httppost.setHeader(WebServerConfig.HTTP.KEY_CONTENT_TYPE,
+                    WebServerConfig.HTTP.CONTENT_TYPE_JSON);
+
+            requestJson = new JSONObject();
+            requestJson.put("method", "login");
+
+            httppost.setEntity(new StringEntity(requestJson.toString()));
+
+            response = httpClient.execute(httppost, context);
+            baos = new ByteArrayOutputStream();
+            response.getEntity().writeTo(baos);
+
+            // result of this should be that the response object contains an
+            // error indicating
+            // that the session cookie is expired
+            responseObject = new JSONObject(new String(baos.toByteArray()));
+
+            state = responseObject.getString(WebServerConfig.JSON.STATE);
+            Assert.assertEquals(WebServerConfig.JSON.STATE_SUCCESS, state);
+
+            Header cookieHeader = response.getFirstHeader(WebServerConfig.HTTP.HEADER_SET_COOKIE);
+            Assert.assertNotNull(cookieHeader);
+
+            Log.d("test", "cookie header = " + cookieHeader);
+
+            // --------------------------------------------------------------------------------------
+            // next request should work without any error
+            // --------------------------------------------------------------------------------------
+            httppost.setHeader("Accept", "application/json");
+            httppost.setHeader("Content-type", "application/json");
+
+            requestJson = new JSONObject();
+            requestJson.put("method", "getSMS");
+
+            httppost.setEntity(new StringEntity(requestJson.toString()));
+
+            response = httpClient.execute(httppost, context);
+            baos = new ByteArrayOutputStream();
+            response.getEntity().writeTo(baos);
+
+            Header newCookieHeader = response
+                    .getFirstHeader(WebServerConfig.HTTP.HEADER_SET_COOKIE);
+            Assert.assertNotNull(newCookieHeader);
+            Assert.assertEquals(cookieHeader.getValue(), newCookieHeader.getValue());
+
+            Assert.assertEquals(requestJson.toString(), new String(baos.toByteArray()));
+
+            // --------------------------------------------------------------------------------------
+            // last request to check wehter a cookie is expired or not
+            // --------------------------------------------------------------------------------------
+            CookieManager.COOKIE_VALID_TIME = 1;
+
+            try {
+                synchronized (this) {
+                    this.wait(2000);
+                }
+            } catch (Exception e) {
+
+            }
+
+            httppost.setHeader("Accept", "application/json");
+            httppost.setHeader("Content-type", "application/json");
+
+            requestJson = new JSONObject();
+            requestJson.put("method", "getSMS");
+
+            httppost.setEntity(new StringEntity(requestJson.toString()));
+
+            response = httpClient.execute(httppost, context);
+            baos = new ByteArrayOutputStream();
+            response.getEntity().writeTo(baos);
+
+            // result of this should be that the response object contains an
+            // error indicating
+            // that the session cookie is expired
+            responseObject = new JSONObject(new String(baos.toByteArray()));
+
+            state = responseObject.getString(WebServerConfig.JSON.STATE);
+            Assert.assertEquals(WebServerConfig.JSON.STATE_SESSION_COOKIE_EXPIRED, state);
+
+        } catch (Exception e) {
+            Assert.fail(e.getMessage());
+        }
+        stopServer();
     }
 }

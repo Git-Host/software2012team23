@@ -1,25 +1,19 @@
 package at.tugraz.ist.akm.webservice.handler;
 
 import java.io.IOException;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 
 import my.org.apache.http.HttpException;
-import my.org.apache.http.HttpRequest;
 import my.org.apache.http.HttpResponse;
 import my.org.apache.http.ParseException;
-import my.org.apache.http.entity.ContentProducer;
-import my.org.apache.http.entity.EntityTemplate;
-import my.org.apache.http.message.BasicHttpEntityEnclosingRequest;
-import my.org.apache.http.protocol.HttpContext;
+import my.org.apache.http.RequestLine;
 import my.org.apache.http.protocol.HttpRequestHandlerRegistry;
-import my.org.apache.http.util.EntityUtils;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.content.Context;
 import at.tugraz.ist.akm.io.xml.XmlNode;
+import at.tugraz.ist.akm.webservice.WebServerConfig;
 
 public class EchoJsonRequestHandler extends AbstractHttpRequestHandler {
 
@@ -29,33 +23,19 @@ public class EchoJsonRequestHandler extends AbstractHttpRequestHandler {
     }
 
     @Override
-    public void handle(HttpRequest httpRequest, HttpResponse httpResponse, HttpContext httpContext)
+    public void handleRequest(RequestLine requestLine, String requestData, HttpResponse httpResponse)
             throws HttpException, IOException {
         mLog.logD("called");
-        if (httpRequest.getRequestLine().getMethod().equals("POST")) {
-            BasicHttpEntityEnclosingRequest post = (BasicHttpEntityEnclosingRequest) httpRequest;
+        if (requestLine.getMethod().equals(WebServerConfig.HTTP.REQUEST_TYPE_POST)) {
             final JSONObject json;
             try {
-                json = new JSONObject(EntityUtils.toString(post.getEntity()));
-
-                httpResponse.setEntity(new EntityTemplate(new ContentProducer() {
-
-                    @Override
-                    public void writeTo(OutputStream arg0) throws IOException {
-                        OutputStreamWriter writer = new OutputStreamWriter(arg0);
-                        writer.write(json.toString());
-                        writer.flush();
-                        writer.close();
-                    }
-                }));
-                httpResponse.setHeader("Content-type", "application/json");
+                json = new JSONObject(requestData);
+                responseDataAppender.appendHttpResponseData(httpResponse, json);
             } catch (ParseException e) {
                 e.printStackTrace();
             } catch (JSONException e) {
                 e.printStackTrace();
             }
         }
-
     }
-
 }
