@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import my.org.apache.http.HttpEntity;
 import my.org.apache.http.HttpException;
 import my.org.apache.http.HttpRequest;
 import my.org.apache.http.HttpResponse;
@@ -27,7 +28,7 @@ public abstract class AbstractHttpRequestHandler implements HttpRequestHandler {
     protected final XmlNode mConfig;
     protected final HttpRequestHandlerRegistry mRegistry;
     private final List<IRequestInterceptor> requestInterceptorList = new ArrayList<IRequestInterceptor>();
-    
+
     protected HttpResponseDataAppender responseDataAppender = new HttpResponseDataAppender();
 
     protected HashMap<String, FileInfo> mUri2FileInfo = new HashMap<String, AbstractHttpRequestHandler.FileInfo>();
@@ -108,7 +109,12 @@ public abstract class AbstractHttpRequestHandler implements HttpRequestHandler {
             throws HttpException, IOException {
 
         BasicHttpEntityEnclosingRequest post = (BasicHttpEntityEnclosingRequest) httpRequest;
-        String requestData = EntityUtils.toString(post.getEntity());
+        String requestData = null;
+
+        HttpEntity entitiy = post.getEntity();
+        if (entitiy != null) {
+            requestData = EntityUtils.toString(entitiy);
+        }
 
         for (IRequestInterceptor interceptor : requestInterceptorList) {
             if (!interceptor.process(httpRequest, requestData, httpResponse)) {
@@ -118,8 +124,8 @@ public abstract class AbstractHttpRequestHandler implements HttpRequestHandler {
         handleRequest(httpRequest.getRequestLine(), requestData, httpResponse);
     }
 
-    public abstract void handleRequest(RequestLine requestLine, String requestData, HttpResponse httpResponse)
-            throws HttpException, IOException;
+    public abstract void handleRequest(RequestLine requestLine, String requestData,
+            HttpResponse httpResponse) throws HttpException, IOException;
 
     /**
      * adapter: call it to ensure proper cleanup

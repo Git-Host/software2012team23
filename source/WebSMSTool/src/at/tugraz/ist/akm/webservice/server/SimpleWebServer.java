@@ -243,7 +243,7 @@ public class SimpleWebServer {
         mLog.logV("request interceptors read from configuration");
     }
 
-    private void setInterceptor(IRequestInterceptor reqInterceptor) {
+    protected void setInterceptor(IRequestInterceptor reqInterceptor) {
         for (AbstractHttpRequestHandler reqHandler : mHandlerReferenceListing) {
             reqHandler.addRequestInterceptor(reqInterceptor);
         }

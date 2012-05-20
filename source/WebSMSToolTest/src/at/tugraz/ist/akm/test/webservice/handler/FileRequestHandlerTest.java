@@ -10,6 +10,7 @@ import my.org.apache.http.HttpException;
 import my.org.apache.http.HttpRequest;
 import my.org.apache.http.HttpResponse;
 import my.org.apache.http.ProtocolVersion;
+import my.org.apache.http.message.BasicHttpEntityEnclosingRequest;
 import my.org.apache.http.message.BasicHttpRequest;
 import my.org.apache.http.message.BasicHttpResponse;
 import my.org.apache.http.message.BasicStatusLine;
@@ -60,12 +61,13 @@ public class FileRequestHandlerTest extends InstrumentationTestCase {
     }
 
     public void testHandle() {
-        HttpRequest httpRequest = new BasicHttpRequest("none", URI);
+        HttpRequest httpRequest = new BasicHttpEntityEnclosingRequest("none", URI);
         HttpResponse httpResponse = new BasicHttpResponse(new BasicStatusLine(new ProtocolVersion(
                 "HTTP", 1, 1), 200, ""));
 
         try {
             testInstance.handle(httpRequest, httpResponse, null);
+            
 
             Assert.assertEquals(200, httpResponse.getStatusLine().getStatusCode());
             Assert.assertNotNull(httpResponse.getEntity());

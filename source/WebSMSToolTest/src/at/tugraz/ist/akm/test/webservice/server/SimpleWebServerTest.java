@@ -40,7 +40,7 @@ public class SimpleWebServerTest extends InstrumentationTestCase {
     private HttpClient httpClient;
     private static SimpleWebServer webserver;
 
-    private void startServer(final boolean https) {
+    private void startServer(final boolean https, final boolean useMockServer) {
         if (webserver != null && webserver.isRunning()) {
             stopServer();
         }
@@ -48,7 +48,8 @@ public class SimpleWebServerTest extends InstrumentationTestCase {
         Log.d("SimpleWebServerTest", "start server");
 
         httpClient = new DefaultHttpClient();
-        webserver = new SimpleWebServer(getInstrumentation().getContext(), https);
+        webserver = useMockServer ? new MockSimpleWebServer(getInstrumentation().getContext(), https) : 
+                                    new SimpleWebServer(getInstrumentation().getContext(), https);
         Assert.assertTrue(webserver.startServer(8888));
         Assert.assertTrue(webserver.startServer(9999));
         while (!webserver.isRunning()) {
@@ -70,16 +71,14 @@ public class SimpleWebServerTest extends InstrumentationTestCase {
                 try {
                     SimpleWebServerTest.class.wait(200);
                 } catch (InterruptedException e) {
-                    // TODO Auto-generated catch block
                     e.printStackTrace();
                 }
             }
         }
-
     }
 
     public void testSimpleJsonRequest() {
-        startServer(false);
+        startServer(false, true);
 
         Log.d("test", "testSimpleJsonRequest");
 
@@ -112,7 +111,7 @@ public class SimpleWebServerTest extends InstrumentationTestCase {
     }
 
     public void testSimpleFileRequest() {
-        startServer(false);
+        startServer(false, true);
         Log.d("test", "testSimpleFileRequest");
 
         HttpPost httppost = new HttpPost("http://localhost:8888/");
@@ -137,7 +136,7 @@ public class SimpleWebServerTest extends InstrumentationTestCase {
     public void testStartSecureServer() {
         Log.d("test", "testStartSecureServer");
 
-        startServer(true);
+        startServer(true, true);
         Assert.assertTrue(webserver.isRunning());
 
         stopServer();
@@ -172,7 +171,7 @@ public class SimpleWebServerTest extends InstrumentationTestCase {
     }
 
     public void testSessionCookie() {
-        startServer(false);
+        startServer(false, false);
 
         Log.d("test", "testSimpleJsonRequest");
 
