@@ -60,6 +60,7 @@ footer {
 	margin-top: 2px;
 	border: 1px solid black;
 	min-height: 50px;
+	cursor: pointer;
 }
 
 .list .list_entry img {

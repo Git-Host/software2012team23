@@ -24,7 +24,7 @@ $.ajaxSetup({cache: false, async: true });
 	var number_to_contact_id = new Object(); //new Object used as map	
 	wstAPI.getContacts(generate_contact_list);
 			
-
+	
 	var poll = function(){
 		wstAPI.pollInfo(update_webapp);
 	}
@@ -187,40 +187,6 @@ $.ajaxSetup({cache: false, async: true });
 		}
 		wstLog.warn('Contact-List could not be loaded.');
 		return false;
-	}
-	
-	
-	
-	
-	function get_contact_from_client(contact_id){
-		var contact_entry = $('#contact_entry_'+contact_id);
-		if(contact_entry.length){
-			var data = contact_entry.data('contactFull');
-			return data;
-		} else {
-			return null;
-		}
-	}
-	
-	
-	
-	function get_contact_id_by_number(number){
-		var id = number_to_contact_id[number];
-		if(id){
-			return id;
-		} else {
-			return 0;
-		}
-	}
-	
-	
-	function get_contact_full_name(contact_id){
-		var contact = get_contact_from_client(contact_id);
-		if(contact){
-			return contact.display_name;
-		} else {
-			return null;
-		}
 	}
 	
 	
