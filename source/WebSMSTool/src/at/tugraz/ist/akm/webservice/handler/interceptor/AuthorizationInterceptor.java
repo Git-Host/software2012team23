@@ -43,6 +43,12 @@ public class AuthorizationInterceptor extends AbstractRequestInterceptor {
             mLog.logV("require authentication");
             httpResponse.setStatusCode(401);
             httpResponse.setHeader("WWW-Authenticate", "Basic realm=\"thomas\"");
+            
+            StringBuffer sb = new StringBuffer();
+            sb.append("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\"");
+            sb.append("<HTML><HEAD><TITLE>Error</TITLE><META HTTP-EQUIV=\"Content-Type\" CONTENT=\"text/html; charset=ISO-8859-1\"></HEAD><BODY><H1>401 Unauthorized.</H1></BODY></HTML>");
+            
+            responseDataAppender.appendHttpResponseData(httpResponse, WebServerConfig.HTTP.CONTENTY_TYPE_TEXT_HTML, sb.toString());
             return false;
         }
 

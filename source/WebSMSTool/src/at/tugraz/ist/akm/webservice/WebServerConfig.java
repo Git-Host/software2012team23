@@ -30,6 +30,7 @@ public class WebServerConfig {
     public final static class HTTP {
         public final static String KEY_CONTENT_TYPE = "Content-Type";
         public final static String CONTENT_TYPE_JSON = "application/json";
+        public final static String CONTENTY_TYPE_TEXT_HTML = "text/html";
         public final static String REQUEST_TYPE_POST = "POST";
         public final static String HEADER_COOKIE = "Cookie";
         public final static String HEADER_SET_COOKIE = "Set-Cookie";
