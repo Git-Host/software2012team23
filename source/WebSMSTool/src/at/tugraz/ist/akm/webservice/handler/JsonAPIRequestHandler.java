@@ -1,8 +1,6 @@
 package at.tugraz.ist.akm.webservice.handler;
 
 import java.io.IOException;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -14,8 +12,6 @@ import my.org.apache.http.HttpException;
 import my.org.apache.http.HttpResponse;
 import my.org.apache.http.ParseException;
 import my.org.apache.http.RequestLine;
-import my.org.apache.http.entity.ContentProducer;
-import my.org.apache.http.entity.EntityTemplate;
 import my.org.apache.http.protocol.HttpRequestHandlerRegistry;
 
 import org.json.JSONArray;
@@ -118,76 +114,60 @@ public class JsonAPIRequestHandler extends AbstractHttpRequestHandler implements
         this.mContactsChanged = true;
     }
 
-    @Override
-    public synchronized void smsSentCallback(Context context, List<TextMessage> messages) {
-        if(messages.isEmpty() == false){
-            for(TextMessage message : messages) {
-                String address = message.getAddress();
-                mLog.logV("Looking for address in waiting queue with :" + address);
-                if (mSMSWaitingForSentCallback.containsKey(address)) {
-                    int tmpCount = mSMSWaitingForSentCallback.get(address);
-                    tmpCount = tmpCount - 1;
-    
-                    // if we received all callbacks for an specific address we can
-                    // assume, that the sms was sent successfully and the count is 0
-                    if (tmpCount == 0) {
-                        mSMSSentSuccess = true;
-                        mSMSSentList.add(message);
-                        mSMSWaitingForSentCallback.remove(address);
-                        mLog.logV("Received all sms callbacks for address "
-                                + address + " going to notify webapp.");
-                    } else {
-                        mSMSWaitingForSentCallback.put(address, tmpCount);
-                        mLog.logV("Received sms callback for address " + address
-                                + " - count is: " + tmpCount);
-                    }
-                } else {
-                    mLog.logE("Got a callback for address " + address
-                            + " but could not be found in waiting list!");
-                }
-            }
-        } else {
-            mLog.logW("A sms sent callback was delivered but textmessages list was empty");
-        }
-    }
+	@Override
+	public synchronized void smsSentCallback(Context context, List<TextMessage> messages) {
+		if(messages.isEmpty() == false){
+			for(TextMessage message : messages) {
+				String address = message.getAddress();
+				mLog.logV("Looking for address in waiting queue with :" + address);
+				if (mSMSWaitingForSentCallback.containsKey(address)) {
+					int tmpCount = mSMSWaitingForSentCallback.get(address);
+					tmpCount = tmpCount - 1;
+	
+					// if we received all callbacks for an specific address we can
+					// assume, that the sms was sent successfully and the count is 0
+					if (tmpCount == 0) {
+						mSMSSentSuccess = true;
+						mSMSSentList.add(message);
+						mSMSWaitingForSentCallback.remove(address);
+						mLog.logV("Received all sms callbacks for address "
+								+ address + " going to notify webapp.");
+					} else {
+						mSMSWaitingForSentCallback.put(address, tmpCount);
+						mLog.logV("Received sms callback for address " + address
+								+ " - count is: " + tmpCount);
+					}
+				} else {
+					mLog.logE("Got a callback for address " + address
+							+ " but could not be found in waiting list!");
+				}
+			}
+		} else {
+			mLog.logW("A sms sent callback was delivered but textmessages list was empty");
+		}
+	}
 
-    @Override
-    public synchronized void smsSentErrorCallback(Context context, List<TextMessage> messages) {
-        this.mSMSSentError = true;
-        for(TextMessage message : messages){
-            this.mSMSSentErrorList.add(message);
-        }
-    }
+	@Override
+	public synchronized void smsSentErrorCallback(Context context, List<TextMessage> messages) {
+		this.mSMSSentError = true;
+		for(TextMessage message : messages){
+			this.mSMSSentErrorList.add(message);
+		}
+	}
 
-    @Override
-    public synchronized void smsDeliveredCallback(Context context, List<TextMessage> message) {
-        // not working so we do not bother about it
+	@Override
+	public synchronized void smsDeliveredCallback(Context context, List<TextMessage> message) {
+		// not working so we do not bother about it
+	}
 
-    }
-
-    @Override
-    public synchronized void smsReceivedCallback(Context context, List<TextMessage> messages) {
-        this.mSMSReceived = true;
-        for ( TextMessage message : messages ) {
-            mLog.logV("Textmessage from "+message.getAddress()+" received in api request handler.");
-            this.mSMSReceivedList.add(message);
-        }
-    }
-
-//    private void sendResponse(HttpResponse httpResponse,
-//            final JSONObject jsonResponse) {
-//        httpResponse.setEntity(new EntityTemplate(new ContentProducer() {
-//            @Override
-//            public void writeTo(OutputStream outstream) throws IOException {
-//                OutputStreamWriter writer = new OutputStreamWriter(outstream);
-//                writer.write(jsonResponse.toString());
-//                writer.flush();
-//                writer.close();
-//            }
-//        }));
-//        httpResponse.setHeader(WebServerConfig.HTTP.KEY_CONTENT_TYPE,
-//                WebServerConfig.HTTP.CONTENT_TYPE_JSON);
-//    }
+	@Override
+	public synchronized void smsReceivedCallback(Context context, List<TextMessage> messages) {
+		this.mSMSReceived = true;
+		for ( TextMessage message : messages ) {
+			mLog.logV("Textmessage from "+message.getAddress()+" received in api request handler.");
+			this.mSMSReceivedList.add(message);
+		}
+	}
 
     private JSONObject processMethod(String method, JSONArray jsonParams) {
         // TODO: call any API class to either retrieved the desired data or
