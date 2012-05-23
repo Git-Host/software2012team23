@@ -5,10 +5,9 @@ import my.org.apache.http.HttpRequest;
 import my.org.apache.http.HttpResponse;
 import android.content.Context;
 import android.util.Base64;
+import at.tugraz.ist.akm.io.FileReader;
 import at.tugraz.ist.akm.trace.Logable;
 import at.tugraz.ist.akm.webservice.WebServerConfig;
-import at.tugraz.ist.akm.webservice.cookie.Cookie;
-import at.tugraz.ist.akm.webservice.cookie.CookieManager;
 
 public class AuthorizationInterceptor extends AbstractRequestInterceptor {
     protected final Logable mLog = new Logable(getClass().getSimpleName());
@@ -19,67 +18,35 @@ public class AuthorizationInterceptor extends AbstractRequestInterceptor {
 
     @Override
     public boolean process(HttpRequest httpRequest, String requestData, HttpResponse httpResponse) {
-        Header header = httpRequest.getFirstHeader("Authorization");
-        printHeaders(httpRequest.getAllHeaders());
+        Header header = httpRequest.getFirstHeader(WebServerConfig.HTTP.HEADER_AUTHENTICATION);
         if (header != null) {
             mLog.logD("login!");
             String headerValue = header.getValue();
             int idx = headerValue.indexOf(" ");
+            String user = "";
+            String pass = "";
             if (idx >= 0) {
-                String authenticationCode = headerValue.substring(idx + 1);
-
-                byte[] byteAuthenticationCode = Base64.decode(authenticationCode, 0);
-                mLog.logD("user credentials: " + new String(byteAuthenticationCode));
+                String userCredentials = new String(
+                        Base64.decode(headerValue.substring(idx + 1), 0));
+                user = getUsername(userCredentials);
+                pass = getPassword(userCredentials);
             }
-
-            Cookie cookie = CookieManager.createCookie();
-            mLog.logD("logged in: create session cookie " + cookie);
-
+            // TODO
             // validate user credentials
-
-            httpResponse.setStatusCode(200);
-            httpResponse.setHeader(WebServerConfig.HTTP.HEADER_SET_COOKIE, cookie.toString());
+            httpResponse.setStatusCode(WebServerConfig.HTTP.HTTP_CODE_OK);
         } else {
             mLog.logV("require authentication");
-            httpResponse.setStatusCode(401);
-            httpResponse.setHeader("WWW-Authenticate", "Basic realm=\"thomas\"");
-            
-            StringBuffer sb = new StringBuffer();
-            sb.append("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\"");
-            sb.append("<HTML><HEAD><TITLE>Error</TITLE><META HTTP-EQUIV=\"Content-Type\" CONTENT=\"text/html; charset=ISO-8859-1\"></HEAD><BODY><H1>401 Unauthorized.</H1></BODY></HTML>");
-            
-            responseDataAppender.appendHttpResponseData(httpResponse, WebServerConfig.HTTP.CONTENTY_TYPE_TEXT_HTML, sb.toString());
+            httpResponse.setStatusCode(WebServerConfig.HTTP.HTTP_CODE_UNAUTHORIZED);
+            httpResponse.setHeader(WebServerConfig.HTTP.HEADER_WWW_AUTHENTICATE,
+                    String.format("Basic realm=\"%s\"", WebServerConfig.HTTP.AUTHENTICATION_REALM));
+
+            // display error page
+            FileReader filereader = new FileReader(mContext, WebServerConfig.RES.UNAUTHORIZED);
+            responseDataAppender.appendHttpResponseData(httpResponse,
+                    WebServerConfig.HTTP.CONTENTY_TYPE_TEXT_HTML, filereader.read());
+
             return false;
         }
-
-        // } else {
-        // Header cookieHeader =
-        // httpRequest.getFirstHeader(WebServerConfig.HTTP.HEADER_COOKIE);
-        // boolean cookieExpired = true;
-        // if (cookieHeader != null) {
-        // mLog.logV("cookie to be checked: " + cookieHeader.getValue());
-        // Cookie cookie = CookieManager.lookupCookie(cookieHeader.getValue());
-        //
-        // mLog.logV("received cookie: " + cookie);
-        // if (cookie != null) {
-        // if (CookieManager.validateCookie(cookie)) {
-        // httpResponse.setHeader(WebServerConfig.HTTP.HEADER_SET_COOKIE,
-        // cookie.toString());
-        // cookie.accessed();
-        // cookieExpired = false;
-        // } else {
-        // mLog.logI("cookie " + cookie.getValue() + " is expired");
-        // }
-        // }
-        // }
-        // if (cookieExpired) {
-        // httpResponse.setHeader("WWW-Authenticate", "Basic realm=\"thomas\"");
-        // httpResponse.setStatusCode(401);
-        // mLog.logI("cookie expired or not set");
-        // return false;
-        // }
-        //
-        // }
         return true;
     }
 
@@ -87,6 +54,22 @@ public class AuthorizationInterceptor extends AbstractRequestInterceptor {
         for (Header header : headers) {
             mLog.logV("header: name=" + header.getName() + " value=" + header.getValue());
         }
+    }
+
+    private String getUsername(String authenticationCode) {
+        int idx = authenticationCode.indexOf(":");
+        if (idx >= 0) {
+            return authenticationCode.substring(0, idx);
+        }
+        return "";
+    }
+
+    private String getPassword(String authenticationCode) {
+        int idx = authenticationCode.indexOf(":");
+        if (idx >= 0) {
+            return authenticationCode.substring(idx + 1);
+        }
+        return "";
     }
 
 }

@@ -25,6 +25,7 @@ public class WebServerConfig {
     public final static class RES {
         public final static String BASE_PATH = "web";
         public final static String WEB_XML = BASE_PATH + "/web.xml";
+        public final static String UNAUTHORIZED = BASE_PATH + "/unauthorized.html";
     }
 
     public final static class HTTP {
@@ -32,8 +33,14 @@ public class WebServerConfig {
         public final static String CONTENT_TYPE_JSON = "application/json";
         public final static String CONTENTY_TYPE_TEXT_HTML = "text/html";
         public final static String REQUEST_TYPE_POST = "POST";
-        public final static String HEADER_COOKIE = "Cookie";
-        public final static String HEADER_SET_COOKIE = "Set-Cookie";
+
+        public final static String HEADER_AUTHENTICATION = "Authorization";
+        public final static String HEADER_WWW_AUTHENTICATE = "WWW-Authenticate";
+        public final static String AUTHENTICATION_REALM = "Web SMS Tool";
+        
+        public final static int HTTP_CODE_OK = 200;
+        public final static int HTTP_CODE_UNAUTHORIZED = 401;
+        
     }
 
     public final static class JSON {

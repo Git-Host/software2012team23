@@ -29,10 +29,10 @@ import org.json.JSONObject;
 import android.content.Context;
 import android.test.InstrumentationTestCase;
 import android.util.Log;
+import android.webkit.CookieManager;
 import at.tugraz.ist.akm.R;
 import at.tugraz.ist.akm.io.FileReader;
 import at.tugraz.ist.akm.webservice.WebServerConfig;
-import at.tugraz.ist.akm.webservice.cookie.CookieManager;
 import at.tugraz.ist.akm.webservice.server.SimpleWebServer;
 
 public class SimpleWebServerTest extends InstrumentationTestCase {
@@ -168,139 +168,5 @@ public class SimpleWebServerTest extends InstrumentationTestCase {
         } catch (UnrecoverableKeyException e) {
             Assert.fail(e.getMessage());
         }
-    }
-
-    public void testSessionCookie() {
-        startServer(false, false);
-
-        Log.d("test", "testSimpleJsonRequest");
-
-        CookieStore cookieStore = new BasicCookieStore();
-        HttpContext context = new BasicHttpContext();
-        context.setAttribute(ClientContext.COOKIE_STORE, cookieStore);
-
-        HttpPost httppost = new HttpPost("http://localhost:8888/api.html");
-
-        try {
-            // --------------------------------------------------------------------------------------
-            // send a simple request withouth a cookie
-            // --------------------------------------------------------------------------------------
-            JSONObject requestJson = new JSONObject();
-            requestJson.put("method", "getSMS");
-
-            JSONObject paramJson = new JSONObject();
-            paramJson.put("user_id", 5);
-            paramJson.put("detail_string", "foobar");
-
-            requestJson.put("params", paramJson);
-
-            httppost.setHeader("Accept", WebServerConfig.HTTP.CONTENT_TYPE_JSON);
-            httppost.setHeader(WebServerConfig.HTTP.KEY_CONTENT_TYPE,
-                    WebServerConfig.HTTP.CONTENT_TYPE_JSON);
-
-            httppost.setEntity(new StringEntity(requestJson.toString()));
-
-            HttpResponse response = httpClient.execute(httppost, context);
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            response.getEntity().writeTo(baos);
-
-            // result of this should be that the response object contains an
-            // error indicating
-            // that the session cookie is expired
-            JSONObject responseObject = new JSONObject(new String(baos.toByteArray()));
-
-            Log.v("test", responseObject.toString());
-
-            String state = responseObject.getString(WebServerConfig.JSON.STATE);
-            Assert.assertEquals(WebServerConfig.JSON.STATE_SESSION_COOKIE_EXPIRED, state);
-
-            // --------------------------------------------------------------------------------------
-            // send a second request for logging in an user
-            // --------------------------------------------------------------------------------------
-            httppost.setHeader("Accept", WebServerConfig.HTTP.CONTENT_TYPE_JSON);
-            httppost.setHeader(WebServerConfig.HTTP.KEY_CONTENT_TYPE,
-                    WebServerConfig.HTTP.CONTENT_TYPE_JSON);
-
-            requestJson = new JSONObject();
-            requestJson.put("method", "login");
-
-            httppost.setEntity(new StringEntity(requestJson.toString()));
-
-            response = httpClient.execute(httppost, context);
-            baos = new ByteArrayOutputStream();
-            response.getEntity().writeTo(baos);
-
-            // result of this should be that the response object contains an
-            // error indicating
-            // that the session cookie is expired
-            responseObject = new JSONObject(new String(baos.toByteArray()));
-
-            state = responseObject.getString(WebServerConfig.JSON.STATE);
-            Assert.assertEquals(WebServerConfig.JSON.STATE_SUCCESS, state);
-
-            Header cookieHeader = response.getFirstHeader(WebServerConfig.HTTP.HEADER_SET_COOKIE);
-            Assert.assertNotNull(cookieHeader);
-
-            Log.d("test", "cookie header = " + cookieHeader);
-
-            // --------------------------------------------------------------------------------------
-            // next request should work without any error
-            // --------------------------------------------------------------------------------------
-            httppost.setHeader("Accept", "application/json");
-            httppost.setHeader("Content-type", "application/json");
-
-            requestJson = new JSONObject();
-            requestJson.put("method", "getSMS");
-
-            httppost.setEntity(new StringEntity(requestJson.toString()));
-
-            response = httpClient.execute(httppost, context);
-            baos = new ByteArrayOutputStream();
-            response.getEntity().writeTo(baos);
-
-            Header newCookieHeader = response
-                    .getFirstHeader(WebServerConfig.HTTP.HEADER_SET_COOKIE);
-            Assert.assertNotNull(newCookieHeader);
-            Assert.assertEquals(cookieHeader.getValue(), newCookieHeader.getValue());
-
-            Assert.assertEquals(requestJson.toString(), new String(baos.toByteArray()));
-
-            // --------------------------------------------------------------------------------------
-            // last request to check wehter a cookie is expired or not
-            // --------------------------------------------------------------------------------------
-            CookieManager.COOKIE_VALID_TIME = 1;
-
-            try {
-                synchronized (this) {
-                    this.wait(2000);
-                }
-            } catch (Exception e) {
-
-            }
-
-            httppost.setHeader("Accept", "application/json");
-            httppost.setHeader("Content-type", "application/json");
-
-            requestJson = new JSONObject();
-            requestJson.put("method", "getSMS");
-
-            httppost.setEntity(new StringEntity(requestJson.toString()));
-
-            response = httpClient.execute(httppost, context);
-            baos = new ByteArrayOutputStream();
-            response.getEntity().writeTo(baos);
-
-            // result of this should be that the response object contains an
-            // error indicating
-            // that the session cookie is expired
-            responseObject = new JSONObject(new String(baos.toByteArray()));
-
-            state = responseObject.getString(WebServerConfig.JSON.STATE);
-            Assert.assertEquals(WebServerConfig.JSON.STATE_SESSION_COOKIE_EXPIRED, state);
-
-        } catch (Exception e) {
-            Assert.fail(e.getMessage());
-        }
-        stopServer();
     }
 }

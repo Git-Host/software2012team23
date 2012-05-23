@@ -48,7 +48,6 @@ import at.tugraz.ist.akm.io.xml.XmlNode;
 import at.tugraz.ist.akm.io.xml.XmlReader;
 import at.tugraz.ist.akm.trace.Logable;
 import at.tugraz.ist.akm.webservice.WebServerConfig;
-import at.tugraz.ist.akm.webservice.cookie.CookieManager;
 import at.tugraz.ist.akm.webservice.handler.AbstractHttpRequestHandler;
 import at.tugraz.ist.akm.webservice.handler.interceptor.IRequestInterceptor;
 
@@ -305,7 +304,6 @@ public class SimpleWebServer {
         for (AbstractHttpRequestHandler toBeCleanedUp : mHandlerReferenceListing) {
             toBeCleanedUp.onClose();
         }
-        CookieManager.clear();
     }
 
     private void initSSLContext() {
