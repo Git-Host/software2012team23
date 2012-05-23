@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <webServerConfig>
+    <requestInterceptors>
+        <interceptor class="at.tugraz.ist.akm.webservice.handler.interceptor.AuthorizationInterceptor"/>
+    </requestInterceptors>
 	<requestHandler class="at.tugraz.ist.akm.webservice.handler.FileRequestHandler">
 		<request uriPattern="/" dataFile="web/index.html" contentType="text/html"/>
 		<request uriPattern="/index.html" dataFile="web/index.html" contentType="text/html"/>
