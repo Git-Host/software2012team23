@@ -3,7 +3,6 @@ package at.tugraz.ist.akm.texting;
 import java.util.List;
 
 import android.content.Context;
-import android.content.Intent;
 import at.tugraz.ist.akm.content.query.ContactFilter;
 import at.tugraz.ist.akm.content.query.TextMessageFilter;
 import at.tugraz.ist.akm.phonebook.Contact;
@@ -89,41 +88,41 @@ public class TextingAdapter extends Logable implements TextingInterface,
 	}
 
 	@Override
-	public void smsSentCallback(Context context, Intent intent) {
+	public void smsSentCallback(Context context, List<TextMessage> message) {
 		logV("sms sent successfully");
 		mOutgoingStatistics
 				.setNumPending(mOutgoingStatistics.getNumPending() - 1);
 		if (mExternalTextMessageCallback != null) {
-			mExternalTextMessageCallback.smsSentCallback(context, intent);
+			mExternalTextMessageCallback.smsSentCallback(context, message);
 		}
 	}
 
 	@Override
-	public void smsSentErrorCallback(Context context, Intent intent) {
+	public void smsSentErrorCallback(Context context, List<TextMessage> message) {
 		logV("failed to send sms");
 		mOutgoingStatistics.setNumErroneous(mOutgoingStatistics
 				.getNumErroneous() + 1);
 		if (mExternalTextMessageCallback != null) {
-			mExternalTextMessageCallback.smsSentErrorCallback(context, intent);
+			mExternalTextMessageCallback.smsSentErrorCallback(context, message);
 		}
 	}
 
 	@Override
-	public void smsDeliveredCallback(Context context, Intent intent) {
+	public void smsDeliveredCallback(Context context, List<TextMessage> message) {
 		logV("sms delivered");
 		if (mExternalTextMessageCallback != null) {
-			mExternalTextMessageCallback.smsDeliveredCallback(context, intent);
+			mExternalTextMessageCallback.smsDeliveredCallback(context, message);
 		}
 
 	}
 
 	@Override
-	public void smsReceivedCallback(Context context, Intent intent) {
+	public void smsReceivedCallback(Context context, List<TextMessage> message) {
 		logV("sms received");
 		mIncomingStatistics
 				.setNumReceived(mIncomingStatistics.getNumReceived() + 1);
 		if (mExternalTextMessageCallback != null) {
-			mExternalTextMessageCallback.smsReceivedCallback(context, intent);
+			mExternalTextMessageCallback.smsReceivedCallback(context, message);
 		}
 	}
 

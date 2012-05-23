@@ -37,6 +37,9 @@ public final class CookieManager {
     }
 
     public static synchronized boolean validateCookie(Cookie cookie) {
+        if(cookie == null) {
+            return false;
+        }
         long now = System.currentTimeMillis();
         if ((now - cookie.getTimeLastAccess()) > (COOKIE_VALID_TIME * 1000)) {
             return false;

@@ -108,14 +108,14 @@ public abstract class AbstractHttpRequestHandler implements HttpRequestHandler {
     public void handle(HttpRequest httpRequest, HttpResponse httpResponse, HttpContext httpContext)
             throws HttpException, IOException {
 
-        BasicHttpEntityEnclosingRequest post = (BasicHttpEntityEnclosingRequest) httpRequest;
         String requestData = null;
 
-        HttpEntity entitiy = post.getEntity();
-        if (entitiy != null) {
-            requestData = EntityUtils.toString(entitiy);
+        if (httpRequest instanceof BasicHttpEntityEnclosingRequest) {
+            HttpEntity entitiy = ((BasicHttpEntityEnclosingRequest)httpRequest).getEntity();
+            if (entitiy != null) {
+                requestData = EntityUtils.toString(entitiy);
+            }
         }
-
         for (IRequestInterceptor interceptor : requestInterceptorList) {
             if (!interceptor.process(httpRequest, requestData, httpResponse)) {
                 return;

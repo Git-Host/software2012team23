@@ -1,7 +1,9 @@
 package at.tugraz.ist.akm.sms;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -34,37 +36,56 @@ public class SmsSentBroadcastReceiver extends BroadcastReceiver
 	public void onReceive(Context context, Intent intent)
 	{
 		String action = intent.getAction();
-
+		
 		if (action.compareTo(ACTION_SMS_SENT) == 0)
 		{
-			mCallback.smsSentCallback(context, intent);
+			TextMessage message = extractSmsFromIntent(intent);
+			List<TextMessage> messages = new ArrayList<TextMessage>();
+			messages.add(message);
+			mCallback.smsSentCallback(context, messages);
 
 		}
 		else if (action.compareTo(ACTION_SMS_DELIVERED) == 0)
 		{
-			mCallback.smsDeliveredCallback(context, intent);
+			List<TextMessage> messages = extractSmsListFromIntent(intent);
+			mCallback.smsDeliveredCallback(context, messages);
 
 		}
 		else if (action.compareTo(ACTION_SMS_RECEIVED) == 0)
 		{
-			// we can receive more than one sms at a time
-			injectSmsList(intent);
-			mCallback.smsReceivedCallback(context, intent);
+			List<TextMessage> messages = extractSmsListFromIntent(intent);
+			mCallback.smsReceivedCallback(context, messages);
 		}
 		else
 		{
 			Log.v(getClass().getSimpleName(), "unknown action received: " + action);
 		}
 	}
-
-	private Bundle getSmsBundle(ArrayList<TextMessage> messages)
-	{
-		Bundle smsBundle = new Bundle();
-		smsBundle.putSerializable(SmsSentBroadcastReceiver.EXTRA_BUNDLE_KEY_TEXTMESSAGELIST, messages);
-		return smsBundle;
-	}
 	
-	private void injectSmsList(Intent intent)
+	
+	
+	private TextMessage extractSmsFromIntent(Intent intent) {
+		try {
+			Bundle extrasBundle = intent.getExtras();
+			if (extrasBundle != null) {
+				Serializable serializedTextMessage = extrasBundle
+						.getSerializable(SmsSentBroadcastReceiver.EXTRA_BUNDLE_KEY_TEXTMESSAGE);
+
+				if (serializedTextMessage != null) {
+					TextMessage sentMessage = (TextMessage) serializedTextMessage;
+					return sentMessage;
+				}
+
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
+	}	
+	
+	
+	
+	private List<TextMessage> extractSmsListFromIntent(Intent intent)
 	{
 		Bundle bundle = intent.getExtras();
 
@@ -78,10 +99,13 @@ public class SmsSentBroadcastReceiver extends BroadcastReceiver
 				SmsMessage sms = SmsMessage.createFromPdu((byte[]) pdus[i]);
 				messages.add(parseToTextMessage(sms));
 			}
-			intent.putExtras(getSmsBundle(messages));
 		}
-	}
+		
+		return messages;
+	}	
 	
+	
+		
 	private TextMessage parseToTextMessage(SmsMessage sms) {
 		TextMessage textMessage = new TextMessage();
 		textMessage.setDate(Long.toString(new Date().getTime()));
