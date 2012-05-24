@@ -1,12 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <webServerConfig>
-    <!-- order of interceptors are important!!! 
-      List of interceptors are executed prior to execution of any handler in this file.
-    -->
-  <requestInterceptors>
-    <interceptor class="at.tugraz.ist.akm.test.webservice.handler.interceptor.MockAuthorizationInterceptor"/>
-    <interceptor class="at.tugraz.ist.akm.webservice.handler.interceptor.SessionCookieInterceptor"/>
-  </requestInterceptors>
   <requestHandler  class="at.tugraz.ist.akm.webservice.handler.FileRequestHandler">
     <request uriPattern="/" dataFile="web/index.html" contentType="text/html"/>
     <request uriPattern="/js/jquery.js" dataFile="web/js/jquery.js" contentType="text/javascript"/>
