@@ -16,5 +16,6 @@
     <string name="https">https</string>
     <string name="savesettings">Save</string>
     <string name="startstop">Starts/Stops the server</string>
+    <string name="info">Info</string>
 
 </resources>

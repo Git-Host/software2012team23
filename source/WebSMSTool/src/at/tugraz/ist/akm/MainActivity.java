@@ -24,23 +24,23 @@ public class MainActivity extends ActionBarActivity
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main);
 		
-		final ImageButton button = (ImageButton) findViewById(R.id.start_stop_server);
-        button.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                if (mSmsServiceIntent == null) {
-                    Log.v("Activity", "Going to start web service");
-                    mSmsServiceIntent = new Intent(v.getContext(), WebSMSToolService.class);
-                    v.getContext().startService(mSmsServiceIntent);
-                    
-                    button.setBackgroundResource(R.drawable.stop);
-                } else {
-                    v.getContext().stopService(mSmsServiceIntent);
-                    mSmsServiceIntent = null;
-                    
-                    button.setBackgroundResource(R.drawable.start);
-                }
-            }
-        });
+//		final ImageButton button = (ImageButton) findViewById(R.id.start_stop_server);
+//        button.setOnClickListener(new View.OnClickListener() {
+//            public void onClick(View v) {
+//                if (mSmsServiceIntent == null) {
+//                    Log.v("Activity", "Going to start web service");
+//                    mSmsServiceIntent = new Intent(v.getContext(), WebSMSToolService.class);
+//                    v.getContext().startService(mSmsServiceIntent);
+//                    
+//                    button.setBackgroundResource(R.drawable.stop);
+//                } else {
+//                    v.getContext().stopService(mSmsServiceIntent);
+//                    mSmsServiceIntent = null;
+//                    
+//                    button.setBackgroundResource(R.drawable.start);
+//                }
+//            }
+//        });
 	}
 	
 	@Override
