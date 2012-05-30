@@ -40,13 +40,21 @@ public class ConfigContentProviderTest extends WebSMSToolTestcase{
 	}
 	
 	public void testDelete() {
-		this.testInsert();
-		String[] names = {"bla"};
+		ContentValues values = new ContentValues();
+		values.put(Config.Content.NAME, "bla");
+		values.put(Config.Content.VALUE, "bla");
+		mContentResolver.insert(uri, values);
 		
+		String[] names = {"bla"};
 		assertTrue("no users deleted", mContentResolver.delete(uri, Config.Content.NAME, names) != 0);
 	}
 	
 	public void testQuery() {
+		ContentValues values = new ContentValues();
+		values.put(Config.Content.NAME, "bla");
+		values.put(Config.Content.VALUE, "bla");
+		mContentResolver.insert(uri, values);
+		
 		try {
 			String[] names = {"bla"};
 			Cursor c = mContentResolver.query(uri, null, Config.Content.NAME, names, null);
@@ -60,6 +68,11 @@ public class ConfigContentProviderTest extends WebSMSToolTestcase{
 
 	public void testUpdate() {
 		ContentValues values = new ContentValues();
+		values.put(Config.Content.NAME, "bla");
+		values.put(Config.Content.VALUE, "bla");
+		mContentResolver.insert(uri, values);
+		values.clear();
+		
 		values.put(Config.Content.NAME, "bla2");
 		
 		String[] names = {"bla"};
