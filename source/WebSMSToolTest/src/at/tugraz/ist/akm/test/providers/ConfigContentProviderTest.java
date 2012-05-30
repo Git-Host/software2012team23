@@ -40,6 +40,7 @@ public class ConfigContentProviderTest extends WebSMSToolTestcase{
 	}
 	
 	public void testDelete() {
+		this.testInsert();
 		String[] names = {"bla"};
 		
 		assertTrue("no users deleted", mContentResolver.delete(uri, Config.Content.NAME, names) != 0);
