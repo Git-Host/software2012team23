@@ -104,7 +104,7 @@ public class ConfigContentProvider extends ContentProvider {
 		try {
 			c = qb.query(db, projection, selection + "=?", selectionArgs, null,
 					null, sortOrder);
-			db.close();
+//			c = db.query(true, CONFIGURATION_TABLE_NAME, projection, selection + "LIKE ?", selectionArgs, null, null, sortOrder, null);
 	
 			c.setNotificationUri(getContext().getContentResolver(), uri);
 		}
@@ -153,7 +153,9 @@ public class ConfigContentProvider extends ContentProvider {
 	@Override
 	public boolean onCreate() {
 		mLog.logV("onCreate config-content-provider");
-		dbHelper = new DataBaseHelper(getContext());
+		if (dbHelper == null) {
+			dbHelper = new DataBaseHelper(getContext());
+		}
 		return !dbHelper.equals(null);
 	}
 		
@@ -169,10 +171,8 @@ public class ConfigContentProvider extends ContentProvider {
 	
 	private static class DataBaseHelper extends SQLiteOpenHelper {
 		private Logable mLog = new Logable(getClass().getSimpleName());
-		private Context mContext = null;
 		DataBaseHelper(Context context) {
 			super(context, DATABASE_NAME, null, 1);
-			this.mContext = context;
 		}
 
 		@Override
@@ -182,7 +182,7 @@ public class ConfigContentProvider extends ContentProvider {
 					+ Config.Content._ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
 					+ Config.Content.NAME + " VARCHAR(255),"
 					+ Config.Content.VALUE + " VARCHAR(255)" + ");");
-			StandardSettings.setStandardSettings(mContext);
+			StandardSettings.setStandardSettings(db);
 		}
 
 		@Override

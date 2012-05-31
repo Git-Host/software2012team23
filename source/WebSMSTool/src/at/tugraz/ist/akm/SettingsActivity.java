@@ -7,7 +7,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.RadioButton;
-import android.widget.RadioGroup;
 import at.tugraz.ist.akm.actionbar.ActionBarActivity;
 import at.tugraz.ist.akm.content.Config;
 
@@ -74,7 +73,7 @@ public class SettingsActivity extends ActionBarActivity {
     	userName.setText(config.getUserName());
     	passWord.setText(config.getPassWord());
     	port.setText(config.getPort());
-    	if (config.getProtocol() == "http") {
+    	if (config.getProtocol().equals("http")) {
     		http.setChecked(true);
     		https.setChecked(false);
     	}

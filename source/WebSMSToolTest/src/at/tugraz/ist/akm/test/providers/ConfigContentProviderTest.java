@@ -5,6 +5,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import at.tugraz.ist.akm.content.Config;
 import at.tugraz.ist.akm.content.Config.Content;
+import at.tugraz.ist.akm.content.StandardSettings;
 import at.tugraz.ist.akm.providers.ConfigContentProvider;
 import at.tugraz.ist.akm.test.WebSMSToolTestcase;
 
@@ -30,13 +31,8 @@ public class ConfigContentProviderTest extends WebSMSToolTestcase{
 		values.put(Config.Content.NAME, "bla");
 		values.put(Config.Content.VALUE, "bla");
 		assertTrue("values not inserted", !(mContentResolver.insert(uri, values) == null));
-	}
-
-	public void testInsert2() {
-		ContentValues values = new ContentValues();
-		values.put(Config.Content.NAME, "bla");
-		values.put(Config.Content.VALUE, "bla");
-		assertTrue("values not inserted", !(mContentResolver.insert(uri, values) == null));
+		
+		mContentResolver.delete(uri, Config.Content.NAME, new String[] {"bla"});
 	}
 	
 	public void testDelete() {
@@ -50,14 +46,15 @@ public class ConfigContentProviderTest extends WebSMSToolTestcase{
 	}
 	
 	public void testQuery() {
-		ContentValues values = new ContentValues();
-		values.put(Config.Content.NAME, "bla");
-		values.put(Config.Content.VALUE, "bla");
-		mContentResolver.insert(uri, values);
-		
 		try {
-			String[] names = {"bla"};
-			Cursor c = mContentResolver.query(uri, null, Config.Content.NAME, names, null);
+			String[] names = {StandardSettings.PORT};
+			Cursor c = mContentResolver.query(uri, new String[] {Config.Content.VALUE}, Config.Content.NAME, names, null);
+			if (c != null) {
+				while (c.moveToNext()) {
+					logD(c.getString(0));
+				}
+			}
+
 			assertTrue("no values found", !(c==null));
 			c.close();
 			Thread.sleep(1000);
@@ -68,16 +65,14 @@ public class ConfigContentProviderTest extends WebSMSToolTestcase{
 
 	public void testUpdate() {
 		ContentValues values = new ContentValues();
-		values.put(Config.Content.NAME, "bla");
-		values.put(Config.Content.VALUE, "bla");
-		mContentResolver.insert(uri, values);
+		values.put(Config.Content.VALUE, "admin");
+		
+		String[] names = {StandardSettings.USERNAME};
+		
+		assertTrue("no values updated at first update", mContentResolver.update(uri, values, Config.Content.NAME, names) != 0);
 		values.clear();
-		
-		values.put(Config.Content.NAME, "bla2");
-		
-		String[] names = {"bla"};
-		
-		assertTrue("no values updated", mContentResolver.update(uri, values, Config.Content.NAME, names) != 0);
+		values.put(Config.Content.VALUE, "");
+		assertTrue("no values updated at second update", mContentResolver.update(uri, values, Config.Content.NAME, names) != 0);
 	}
 	
 	public void testGetType() {

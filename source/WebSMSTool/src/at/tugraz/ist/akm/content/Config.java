@@ -9,6 +9,7 @@ import android.provider.BaseColumns;
 
 public class Config {
 	private ContentResolver mContentResolver;
+	private Uri mUri = Uri.withAppendedPath(Content.CONTENT_URI, "config");
 	
 	public Config(Context context) {
 		mContentResolver = context.getContentResolver();
@@ -66,11 +67,18 @@ public class Config {
 
 	private String getSettings(String name) {
 		String[] names = {name};
-		Cursor c = mContentResolver.query(StandardSettings.URI, null, Content.NAME, names, null);
-		return c.toString();
+		String queriedValue = "";
+		Cursor c = mContentResolver.query(this.mUri, new String[]{Content.VALUE}, Content.NAME, names, null);
+		if (c != null) {
+			while(c.moveToNext()){
+				queriedValue = c.getString(0);
+			}
+		}
+		c.close();
+		return queriedValue;
 	}
 	private void updateSettings(ContentValues values, String where) {
-		mContentResolver.update(StandardSettings.URI, values, Content.NAME, new String[] {where});
+		mContentResolver.update(this.mUri, values, Content.NAME, new String[] {where});
 	}
 	
 	public static final class Content implements BaseColumns {
