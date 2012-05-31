@@ -7,7 +7,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ImageButton;
+import android.widget.ToggleButton;
 import at.tugraz.ist.akm.actionbar.ActionBarActivity;
 import at.tugraz.ist.akm.webservice.WebSMSToolService;
 
@@ -24,23 +24,24 @@ public class MainActivity extends ActionBarActivity
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main);
 		
-//		final ImageButton button = (ImageButton) findViewById(R.id.start_stop_server);
-//        button.setOnClickListener(new View.OnClickListener() {
-//            public void onClick(View v) {
-//                if (mSmsServiceIntent == null) {
-//                    Log.v("Activity", "Going to start web service");
-//                    mSmsServiceIntent = new Intent(v.getContext(), WebSMSToolService.class);
-//                    v.getContext().startService(mSmsServiceIntent);
-//                    
-//                    button.setBackgroundResource(R.drawable.stop);
-//                } else {
-//                    v.getContext().stopService(mSmsServiceIntent);
-//                    mSmsServiceIntent = null;
-//                    
-//                    button.setBackgroundResource(R.drawable.start);
-//                }
-//            }
-//        });
+		final ToggleButton button = (ToggleButton) findViewById(R.id.start_stop_server);
+        button.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                if (mSmsServiceIntent == null) {
+                    Log.v("Activity", "Going to start web service");
+                    
+                    button.setVisibility(1);
+                    
+                    mSmsServiceIntent = new Intent(v.getContext(), WebSMSToolService.class);
+                    v.getContext().startService(mSmsServiceIntent);
+                    
+                    button.setVisibility(0);
+                } else {
+                    v.getContext().stopService(mSmsServiceIntent);
+                    mSmsServiceIntent = null;
+                }
+            }
+        });
 	}
 	
 	@Override
