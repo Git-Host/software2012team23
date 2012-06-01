@@ -1,10 +1,15 @@
 package at.tugraz.ist.akm.test;
 
 import android.test.ActivityInstrumentationTestCase2;
+import android.widget.ToggleButton;
 import at.tugraz.ist.akm.MainActivity;
+import at.tugraz.ist.akm.R;
+import at.tugraz.ist.akm.SettingsActivity;
 import at.tugraz.ist.akm.test.trace.ThrowingLogSink;
 import at.tugraz.ist.akm.trace.Logable;
 import at.tugraz.ist.akm.trace.Logger;
+
+import com.jayway.android.robotium.solo.Solo;
 
 public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActivity>
 {
@@ -26,6 +31,24 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
 		MainActivity a = getActivity();
 		assertTrue(null != a);
 	}
+	
+	
+	
+	/**
+	 * Test start button (state after it should be checked) and click again to stop service
+	 * (state should be not checked)
+	 */
+	public void testStartStopButton(){
+		Solo solo = new Solo(getInstrumentation(), getActivity());
+		ToggleButton startStop = (ToggleButton) getActivity().findViewById(R.id.start_stop_server);
+		solo.clickOnView(startStop);		
+		assertTrue(startStop.isChecked());
+		solo.clickOnView(startStop);
+		assertFalse(startStop.isChecked());
+	}
+	
+	
+	
 
 	@Override
 	protected void setUp() throws Exception
