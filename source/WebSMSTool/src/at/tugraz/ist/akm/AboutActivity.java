@@ -1,7 +1,9 @@
 package at.tugraz.ist.akm;
 
 import android.os.Bundle;
+import android.text.util.Linkify;
 import android.view.MenuItem;
+import android.widget.TextView;
 import at.tugraz.ist.akm.actionbar.ActionBarActivity;
 
 
@@ -12,6 +14,9 @@ public class AboutActivity extends ActionBarActivity {
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.about);
+        
+        TextView link = (TextView) findViewById(R.id.aboutInfoLink);
+        Linkify.addLinks(link, Linkify.ALL);
     }
     
     
