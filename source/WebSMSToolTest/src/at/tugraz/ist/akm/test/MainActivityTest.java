@@ -4,7 +4,6 @@ import android.test.ActivityInstrumentationTestCase2;
 import android.widget.ToggleButton;
 import at.tugraz.ist.akm.MainActivity;
 import at.tugraz.ist.akm.R;
-import at.tugraz.ist.akm.SettingsActivity;
 import at.tugraz.ist.akm.test.trace.ThrowingLogSink;
 import at.tugraz.ist.akm.trace.Logable;
 import at.tugraz.ist.akm.trace.Logger;

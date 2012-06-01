@@ -70,32 +70,32 @@ public class SimpleWebServer {
     private KeyManager[] mKeyManager;
     private KeyStore mKeyStore;
 
-    private static class WorkerThread extends Thread {
-        private final SimpleWebServer mWebServer;
-        private final Socket mSocket;
-
-        public WorkerThread(final SimpleWebServer webServer, final Socket socket) {
-            this.mWebServer = webServer;
-            this.mSocket = socket;
-        }
-
-        @Override
-        public void run() {
-            DefaultHttpServerConnection serverConn = new DefaultHttpServerConnection();
-            try {
-                HttpParams params = new BasicHttpParams();
-                HttpProtocolParams.setVersion(params, HttpVersion.HTTP_1_1);
-                HttpProtocolParams.setContentCharset(params, HTTP.UTF_8);
-
-                serverConn.bind(mSocket, params);
-                HttpService httpService = mWebServer.initializeHTTPService();
-                httpService.handleRequest(serverConn, mWebServer.getHttpContext());
-            } catch (Exception e) {
-                e.printStackTrace();
-                mLog.logE("Exception caught when processing HTTP client connection", e);
-            }
-        }
-    }
+//    private static class WorkerThread extends Thread {
+//        private final SimpleWebServer mWebServer;
+//        private final Socket mSocket;
+//
+//        public WorkerThread(final SimpleWebServer webServer, final Socket socket) {
+//            this.mWebServer = webServer;
+//            this.mSocket = socket;
+//        }
+//
+//        @Override
+//        public void run() {
+//            DefaultHttpServerConnection serverConn = new DefaultHttpServerConnection();
+//            try {
+//                HttpParams params = new BasicHttpParams();
+//                HttpProtocolParams.setVersion(params, HttpVersion.HTTP_1_1);
+//                HttpProtocolParams.setContentCharset(params, HTTP.UTF_8);
+//
+//                serverConn.bind(mSocket, params);
+//                HttpService httpService = mWebServer.initializeHTTPService();
+//                httpService.handleRequest(serverConn, mWebServer.getHttpContext());
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//                mLog.logE("Exception caught when processing HTTP client connection", e);
+//            }
+//        }
+//    }
 
     private static class ServerThread extends Thread {
         private final SimpleWebServer mWebServer;
