@@ -2,7 +2,6 @@ package at.tugraz.ist.akm.webservice.handler.interceptor;
 
 import my.org.apache.http.HttpRequest;
 import my.org.apache.http.HttpResponse;
-import my.org.apache.http.RequestLine;
 import android.content.Context;
 import at.tugraz.ist.akm.webservice.HttpResponseDataAppender;
 
