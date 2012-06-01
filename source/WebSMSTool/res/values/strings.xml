@@ -17,5 +17,12 @@
     <string name="savesettings">Save</string>
     <string name="startstop">Starts/Stops the server</string>
     <string name="info">Info</string>
-
+    <string name="aboutTitle">About</string>
+    <string name="aboutDeveloperTitle">Developers</string>
+    <string name="aboutDevelopers">Martin Decker\nHerman Felbinger\nThomas Gödl\nStefan Lexow\nRaoul Rubien</string>
+    <string name="aboutDesignerTitle">Designer</string>
+    <string name="aboutDesigners">Carmen Krautberger\nMelanie Lindner</string>
+    <string name="aboutInfo">Developed during the course \nSoftware 2012 @ Graz University of Technology</string>
+    <string name="aboutFurtherInformation">Further informations and contact</string>
+    <string name="aboutInfoGoogleCodeLinks">http://code.google.com/p/software2012team23/</string>   
 </resources>
