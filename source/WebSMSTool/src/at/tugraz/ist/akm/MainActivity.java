@@ -1,12 +1,16 @@
 package at.tugraz.ist.akm;
 
 import android.content.Intent;
+import android.net.wifi.WifiInfo;
+import android.net.wifi.WifiManager;
 import android.os.Bundle;
+import android.text.format.Formatter;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.TextView;
 import android.widget.ToggleButton;
 import at.tugraz.ist.akm.actionbar.ActionBarActivity;
 import at.tugraz.ist.akm.webservice.WebSMSToolService;
@@ -36,10 +40,21 @@ public class MainActivity extends ActionBarActivity
                     v.getContext().startService(mSmsServiceIntent);
                     
                     button.setVisibility(0);
+                    
+                    String wifiIp  = getLocalIpAddress();
+                    Log.d("Actual IP:", wifiIp);
+                    
+                    
+                    TextView ipFieldView =  (TextView) findViewById(R.id.ip_data_field);
+                    ipFieldView.setText(getString(R.string.ipTitle)+wifiIp);
                 } else {
                     v.getContext().stopService(mSmsServiceIntent);
                     mSmsServiceIntent = null;
+                    TextView ipFieldView =  (TextView) findViewById(R.id.ip_data_field);
+                    ipFieldView.setText("");
                 }
+
+                
             }
         });
 	}
@@ -71,5 +86,32 @@ public class MainActivity extends ActionBarActivity
 	    
 	    
 	    return super.onOptionsItemSelected(item);
+	}
+	
+	
+	
+	public String getLocalIpAddress() {
+	    /*
+	     //Lookup in all network interfaces
+	     try {
+	        for (Enumeration<NetworkInterface> en = NetworkInterface.getNetworkInterfaces(); en.hasMoreElements();) {
+	            NetworkInterface intf = en.nextElement();
+	            for (Enumeration<InetAddress> enumIpAddr = intf.getInetAddresses(); enumIpAddr.hasMoreElements();) {
+	                InetAddress inetAddress = enumIpAddr.nextElement();
+	                if (!inetAddress.isLoopbackAddress()) {
+	                    return inetAddress.getHostAddress().toString();
+	                }
+	            }
+	        }
+	    } catch (SocketException ex) {
+	        Log.e("GetLocalIpAddress", ex.toString());
+	    }*/
+	    
+	    //the direct wifi way
+	    WifiManager wifiManager = (WifiManager) getSystemService(WIFI_SERVICE);
+	    WifiInfo wifiInfo = wifiManager.getConnectionInfo();
+	    int ipAddress = wifiInfo.getIpAddress();
+	    String ip = Formatter.formatIpAddress(ipAddress);
+	    return ip;
 	}
 }
