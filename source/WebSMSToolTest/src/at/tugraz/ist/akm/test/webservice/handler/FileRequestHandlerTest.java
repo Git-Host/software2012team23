@@ -5,17 +5,14 @@ import java.io.IOException;
 import java.util.List;
 
 import junit.framework.Assert;
-
 import my.org.apache.http.HttpException;
 import my.org.apache.http.HttpRequest;
 import my.org.apache.http.HttpResponse;
 import my.org.apache.http.ProtocolVersion;
 import my.org.apache.http.message.BasicHttpEntityEnclosingRequest;
-import my.org.apache.http.message.BasicHttpRequest;
 import my.org.apache.http.message.BasicHttpResponse;
 import my.org.apache.http.message.BasicStatusLine;
 import my.org.apache.http.protocol.HttpRequestHandlerRegistry;
-
 import android.test.InstrumentationTestCase;
 import at.tugraz.ist.akm.io.FileReader;
 import at.tugraz.ist.akm.io.xml.XmlNode;
