@@ -16,5 +16,16 @@
     <string name="https">https</string>
     <string name="savesettings">Save</string>
     <string name="startstop">Starts/Stops the server</string>
-
+    <string name="info">Info</string>
+    <string name="aboutTitle">About</string>
+    <string name="aboutDeveloperTitle">\nDevelopers</string>
+    <string name="aboutDevelopers">Martin Decker\nHerman Felbinger\nThomas Gödl\nStefan Lexow\nRaoul Rubien</string>
+    <string name="aboutDesignerTitle">\nDesigner</string>
+    <string name="aboutDesigners">Carmen Krautberger\nMelanie Lindner</string>
+    <string name="aboutInfo">Developed during the course \nSoftware 2012 @ Graz University of Technology</string>
+    <string name="aboutFurtherInformation">\nFurther informations and contact</string>
+    <string name="aboutInfoGoogleCodeLinks">Project-Page:\nhttp://code.google.com/p/software2012team23\n\nE-Mail:\nsoftware2012team23@googlecode.com</string>
+    <string name="aboutSupervisorTitle">\nSupervisor</string>
+    <string name="aboutSupervisor">Wolfgang Slany</string>
+    <string name="ipTitle">IP: </string>
 </resources>

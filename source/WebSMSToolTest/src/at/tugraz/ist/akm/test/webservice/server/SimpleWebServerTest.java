@@ -12,27 +12,19 @@ import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
 
 import junit.framework.Assert;
-import my.org.apache.http.Header;
 import my.org.apache.http.HttpResponse;
-import my.org.apache.http.client.CookieStore;
 import my.org.apache.http.client.HttpClient;
 import my.org.apache.http.client.methods.HttpPost;
-import my.org.apache.http.client.protocol.ClientContext;
 import my.org.apache.http.entity.StringEntity;
-import my.org.apache.http.impl.client.BasicCookieStore;
 import my.org.apache.http.impl.client.DefaultHttpClient;
-import my.org.apache.http.protocol.BasicHttpContext;
-import my.org.apache.http.protocol.HttpContext;
 
 import org.json.JSONObject;
 
 import android.content.Context;
 import android.test.InstrumentationTestCase;
 import android.util.Log;
-import android.webkit.CookieManager;
 import at.tugraz.ist.akm.R;
 import at.tugraz.ist.akm.io.FileReader;
-import at.tugraz.ist.akm.webservice.WebServerConfig;
 import at.tugraz.ist.akm.webservice.server.SimpleWebServer;
 
 public class SimpleWebServerTest extends InstrumentationTestCase {

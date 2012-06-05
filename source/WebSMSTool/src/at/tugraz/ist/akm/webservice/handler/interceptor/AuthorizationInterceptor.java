@@ -16,7 +16,8 @@ public class AuthorizationInterceptor extends AbstractRequestInterceptor {
         super(context);
     }
 
-    @Override
+    @SuppressWarnings("unused")
+	@Override
     public boolean process(HttpRequest httpRequest, String requestData, HttpResponse httpResponse) {
         Header header = httpRequest.getFirstHeader(WebServerConfig.HTTP.HEADER_AUTHENTICATION);
         if (header != null) {
@@ -50,11 +51,11 @@ public class AuthorizationInterceptor extends AbstractRequestInterceptor {
         return true;
     }
 
-    private void printHeaders(Header[] headers) {
-        for (Header header : headers) {
-            mLog.logV("header: name=" + header.getName() + " value=" + header.getValue());
-        }
-    }
+//    private void printHeaders(Header[] headers) {
+//        for (Header header : headers) {
+//            mLog.logV("header: name=" + header.getName() + " value=" + header.getValue());
+//        }
+//    }
 
     private String getUsername(String authenticationCode) {
         int idx = authenticationCode.indexOf(":");

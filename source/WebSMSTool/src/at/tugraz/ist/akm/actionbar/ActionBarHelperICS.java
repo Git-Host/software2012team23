@@ -18,8 +18,6 @@ package at.tugraz.ist.akm.actionbar;
 
 import android.app.Activity;
 import android.content.Context;
-import android.view.Menu;
-import android.view.MenuItem;
 
 /**
  * An extension of {@link at.tugraz.ist.akm.actionbar.example.android.actionbarcompat.ActionBarHelper} that provides Android

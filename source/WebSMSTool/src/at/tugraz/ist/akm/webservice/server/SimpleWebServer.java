@@ -48,6 +48,7 @@ import at.tugraz.ist.akm.io.xml.XmlNode;
 import at.tugraz.ist.akm.io.xml.XmlReader;
 import at.tugraz.ist.akm.trace.Logable;
 import at.tugraz.ist.akm.webservice.WebServerConfig;
+import at.tugraz.ist.akm.webservice.WebserviceThreadPool;
 import at.tugraz.ist.akm.webservice.handler.AbstractHttpRequestHandler;
 import at.tugraz.ist.akm.webservice.handler.interceptor.IRequestInterceptor;
 
@@ -69,32 +70,32 @@ public class SimpleWebServer {
     private KeyManager[] mKeyManager;
     private KeyStore mKeyStore;
 
-    private static class WorkerThread extends Thread {
-        private final SimpleWebServer mWebServer;
-        private final Socket mSocket;
-
-        public WorkerThread(final SimpleWebServer webServer, final Socket socket) {
-            this.mWebServer = webServer;
-            this.mSocket = socket;
-        }
-
-        @Override
-        public void run() {
-            DefaultHttpServerConnection serverConn = new DefaultHttpServerConnection();
-            try {
-                HttpParams params = new BasicHttpParams();
-                HttpProtocolParams.setVersion(params, HttpVersion.HTTP_1_1);
-                HttpProtocolParams.setContentCharset(params, HTTP.UTF_8);
-
-                serverConn.bind(mSocket, params);
-                HttpService httpService = mWebServer.initializeHTTPService();
-                httpService.handleRequest(serverConn, mWebServer.getHttpContext());
-            } catch (Exception e) {
-                e.printStackTrace();
-                mLog.logE("Exception caught when processing HTTP client connection", e);
-            }
-        }
-    }
+//    private static class WorkerThread extends Thread {
+//        private final SimpleWebServer mWebServer;
+//        private final Socket mSocket;
+//
+//        public WorkerThread(final SimpleWebServer webServer, final Socket socket) {
+//            this.mWebServer = webServer;
+//            this.mSocket = socket;
+//        }
+//
+//        @Override
+//        public void run() {
+//            DefaultHttpServerConnection serverConn = new DefaultHttpServerConnection();
+//            try {
+//                HttpParams params = new BasicHttpParams();
+//                HttpProtocolParams.setVersion(params, HttpVersion.HTTP_1_1);
+//                HttpProtocolParams.setContentCharset(params, HTTP.UTF_8);
+//
+//                serverConn.bind(mSocket, params);
+//                HttpService httpService = mWebServer.initializeHTTPService();
+//                httpService.handleRequest(serverConn, mWebServer.getHttpContext());
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//                mLog.logE("Exception caught when processing HTTP client connection", e);
+//            }
+//        }
+//    }
 
     private static class ServerThread extends Thread {
         private final SimpleWebServer mWebServer;
@@ -102,9 +103,12 @@ public class SimpleWebServer {
         private boolean mRunning = false;
         private boolean mStopServerThread = false;
 
+        private final WebserviceThreadPool mThreadPool;
+        
         public ServerThread(final SimpleWebServer webServer, final ServerSocket serverSocket) {
             this.mWebServer = webServer;
             this.mServerSocket = serverSocket;
+            this.mThreadPool = new WebserviceThreadPool();
         }
 
         @Override
@@ -126,9 +130,29 @@ public class SimpleWebServer {
                 if (socket != null) {
                     mLog.logD("connection request from ip <" + socket.getInetAddress()
                             + "> on port <" + socket.getPort() + ">");
-                    WorkerThread workerThread = new WorkerThread(mWebServer, socket);
-                    workerThread.setDaemon(true);
-                    workerThread.start();
+//                    WorkerThread workerThread = new WorkerThread(mWebServer, socket);
+//                    workerThread.setDaemon(true);
+//                    workerThread.start();
+                
+                    final Socket tmpSocket = socket;
+                    mThreadPool.executeTask(new Runnable() {
+                        @Override
+                        public void run() {
+                            DefaultHttpServerConnection serverConn = new DefaultHttpServerConnection();
+                            try {
+                                HttpParams params = new BasicHttpParams();
+                                HttpProtocolParams.setVersion(params, HttpVersion.HTTP_1_1);
+                                HttpProtocolParams.setContentCharset(params, HTTP.UTF_8);
+
+                                serverConn.bind(tmpSocket, params);
+                                HttpService httpService = mWebServer.initializeHTTPService();
+                                httpService.handleRequest(serverConn, mWebServer.getHttpContext());
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                                mLog.logE("Exception caught when processing HTTP client connection", e);
+                            }
+                        }
+                    });
                 }
             }
 
@@ -137,6 +161,7 @@ public class SimpleWebServer {
         }
 
         public void stopThread() {
+            mThreadPool.shutdown();
             mStopServerThread = true;
         }
 
