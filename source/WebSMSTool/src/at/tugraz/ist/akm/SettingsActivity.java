@@ -65,6 +65,7 @@ public class SettingsActivity extends ActionBarActivity {
     	else {
     		config.setProtocol("https");
     	}
+    	finish();
     }
     
     private void getSettings() {

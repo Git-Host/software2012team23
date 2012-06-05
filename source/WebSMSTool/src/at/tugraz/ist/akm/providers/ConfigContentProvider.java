@@ -104,7 +104,6 @@ public class ConfigContentProvider extends ContentProvider {
 		try {
 			c = qb.query(db, projection, selection + "=?", selectionArgs, null,
 					null, sortOrder);
-//			c = db.query(true, CONFIGURATION_TABLE_NAME, projection, selection + "LIKE ?", selectionArgs, null, null, sortOrder, null);
 	
 			c.setNotificationUri(getContext().getContentResolver(), uri);
 		}
