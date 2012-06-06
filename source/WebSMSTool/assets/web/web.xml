@@ -15,6 +15,7 @@
 		<request uriPattern="/js/qunit/qunit.css" dataFile="web/js/qunit/qunit.css" contentType="text/css"/>
 		<request uriPattern="/css/css.css" dataFile="web/css/css.css" contentType="text/css"/>
 
+		<request uriPattern="/js/loader.js" dataFile="web/js/loader.js" contentType="text/javascript"/>
 		<request uriPattern="/js/wst/wstLog.js" dataFile="web/js/wst/wstLog.js" contentType="text/javascript"/>
 		<request uriPattern="/js/wst/wstAPI.js" dataFile="web/js/wst/wstAPI.js" contentType="text/javascript"/>
 		<request uriPattern="/js/handlebars.js" dataFile="web/js/handlebars.js" contentType="text/javascript"/>
