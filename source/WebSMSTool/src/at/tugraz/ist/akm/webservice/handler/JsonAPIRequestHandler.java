@@ -263,7 +263,7 @@ public class JsonAPIRequestHandler extends AbstractHttpRequestHandler implements
                                 	break;
                                 }
                                 threadList.add(msg);
-                                mLog.logVerbose("Adding sms to thread list with id: "+ msg.getId());
+                                mLog.logVerbose("Adding sms to thread list with message-id: "+ msg.getId()+ " and Person-id: "+msg.getPerson());
                                 messageCount--;
                             }
                         }
@@ -273,7 +273,14 @@ public class JsonAPIRequestHandler extends AbstractHttpRequestHandler implements
                     Collections.sort(threadList, new TextMessageThreadSort());
                     JSONArray thread_messages = new JSONArray();
                     for(TextMessage msg : threadList){
-                        thread_messages.put(mJsonFactory.createJsonObject(msg));
+                    	JSONObject entry = new JSONObject();
+                    	if(msg.getPerson() != null && msg.getPerson().compareTo("null") != 0 && msg.getPerson().length() > 0 ){
+                    		entry.put("real_contact_id", contact_id);
+                    	} else {
+                    		entry.put("real_contact_id", "");
+                    	}
+                    	entry.put("message", mJsonFactory.createJsonObject(msg));
+                        thread_messages.put(entry);
                     }
                     setSuccessState(resultObject);
                     resultObject.put("thread_messages", thread_messages);

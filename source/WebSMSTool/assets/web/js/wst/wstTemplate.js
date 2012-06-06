@@ -47,9 +47,9 @@
 	});
 	
 	
-	Handlebars.registerHelper('set_person', function(sms_json) {
+	Handlebars.registerHelper('set_person', function(contact_id) {
 		//lookup if contact is in contact list for fetching data attribute
-		var contact_entry = $('#contact_entry_'+sms_json.person);
+		var contact_entry = $('#contact_entry_'+contact_id);
 		if(contact_entry.length){
 			var contact_data = contact_entry.data('contactFull');
 			return contact_data.name+' '+contact_data.last_name;

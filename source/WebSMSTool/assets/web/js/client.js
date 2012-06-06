@@ -12,16 +12,10 @@
 	//initialize the contact list
 	this.number_to_contact_id = new Object(); //new Object used as map	
 	wstAPI.getContacts(generate_contact_list);
-			
-	
-	var poll = function(){
-		wstAPI.pollInfo(update_webapp);
-	}	
+
 	setInterval(function(){
-		poll();
+		wstAPI.pollInfo(update_webapp);
 	}, polling_interval);
-	
-	poll();
 	
 	
 	/** LISTENERS */
@@ -97,9 +91,7 @@
 				}
 			}			
 		}
-		
 		wstLog.log('Updating webapp');
-		//setTimeout(poll,10000); 
 	}
 	
 	
