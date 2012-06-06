@@ -21,7 +21,7 @@ public class AuthorizationInterceptor extends AbstractRequestInterceptor {
     public boolean process(HttpRequest httpRequest, String requestData, HttpResponse httpResponse) {
         Header header = httpRequest.getFirstHeader(WebServerConfig.HTTP.HEADER_AUTHENTICATION);
         if (header != null) {
-            mLog.logD("login!");
+            mLog.logDebug("login!");
             String headerValue = header.getValue();
             int idx = headerValue.indexOf(" ");
             String user = "";
@@ -36,7 +36,7 @@ public class AuthorizationInterceptor extends AbstractRequestInterceptor {
             // validate user credentials
             httpResponse.setStatusCode(WebServerConfig.HTTP.HTTP_CODE_OK);
         } else {
-            mLog.logV("require authentication");
+            mLog.logVerbose("require authentication");
             httpResponse.setStatusCode(WebServerConfig.HTTP.HTTP_CODE_UNAUTHORIZED);
             httpResponse.setHeader(WebServerConfig.HTTP.HEADER_WWW_AUTHENTICATE,
                     String.format("Basic realm=\"%s\"", WebServerConfig.HTTP.AUTHENTICATION_REALM));
@@ -50,12 +50,6 @@ public class AuthorizationInterceptor extends AbstractRequestInterceptor {
         }
         return true;
     }
-
-//    private void printHeaders(Header[] headers) {
-//        for (Header header : headers) {
-//            mLog.logV("header: name=" + header.getName() + " value=" + header.getValue());
-//        }
-//    }
 
     private String getUsername(String authenticationCode) {
         int idx = authenticationCode.indexOf(":");

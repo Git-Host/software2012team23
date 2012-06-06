@@ -31,8 +31,8 @@ public class FileReader {
             while ((line = reader.readLine()) != null) {
                 builder.append(line).append("\n");
             }
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (IOException ioException) {
+            ioException.printStackTrace();
         } finally {
             try {
                 if (is != null) {
@@ -44,8 +44,8 @@ public class FileReader {
                 if (reader != null) {
                     reader.close();
                 }
-            } catch (IOException e) {
-                e.printStackTrace();
+            } catch (IOException ioException) {
+                ioException.printStackTrace();
             }
         }
         return builder.toString();

@@ -14,52 +14,52 @@ public class Logable
 		mTag = new String(tag);
 	}
 
-	public void logV(String message)
+	public void logVerbose(String message)
 	{
-		logV(message, null);
+		logVerbose(message, null);
 	}
 
-	public void logV(String message, Throwable t)
+	public void logVerbose(String message, Throwable t)
 	{
 		Logger.log(Logger.LogLevel.VERBOSE, mTag, message, t);
 	}
 
-	public void logE(String message)
+	public void logError(String message)
 	{
-		logE(message, null);
+		logError(message, null);
 	}
 
-	public void logE(String message, Throwable t)
+	public void logError(String message, Throwable t)
 	{
 		Logger.log(Logger.LogLevel.ERROR, mTag, message, t);
 	}
 
-	public void logW(String message)
+	public void logWarning(String message)
 	{
-		logW(message, null);
+		logWarning(message, null);
 	}
 
-	public void logW(String message, Throwable t)
+	public void logWarning(String message, Throwable t)
 	{
 		Logger.log(Logger.LogLevel.WARNING, mTag, message, t);
 	}
 
-	public void logI(String message)
+	public void logInfo(String message)
 	{
-		logI(message, null);
+		logInfo(message, null);
 	}
 
-	public void logI(String message, Throwable t)
+	public void logInfo(String message, Throwable t)
 	{
 		Logger.log(Logger.LogLevel.INFO, mTag, message, t);
 	}
 
-	public void logD(String message)
+	public void logDebug(String message)
 	{
-		logD(message, null);
+		logDebug(message, null);
 	}
 
-	public void logD(String message, Throwable t)
+	public void logDebug(String message, Throwable t)
 	{
 		Logger.log(Logger.LogLevel.DEBUG, mTag, message, t);
 	}

@@ -13,9 +13,9 @@ public class SmsBoxWriter extends Logable {
 
 	private ContentResolver mContentResolver = null;
 
-	public SmsBoxWriter(ContentResolver c) {
+	public SmsBoxWriter(ContentResolver contentResolver) {
 		super(SmsBoxWriter.class.getSimpleName());
-		mContentResolver = c;
+		mContentResolver = contentResolver;
 	}
 
 	/**
@@ -85,7 +85,7 @@ public class SmsBoxWriter extends Logable {
 		int rows = mContentResolver.update(destination,
 				textMessageToValues(message), where.toString(), like);
 
-		logV("Updated [" + rows + "] rows on [" + destination.toString() + "]");
+		logVerbose("Updated [" + rows + "] rows on [" + destination.toString() + "]");
 		return rows;
 	}
 

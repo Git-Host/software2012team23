@@ -17,8 +17,8 @@ public class BatteryStatus {
 	private boolean mIsAcCharge = false;
 	private Context mContext = null;
 
-	public BatteryStatus(Context c, Intent batteryStatus) {
-		mContext = c;
+	public BatteryStatus(Context context, Intent batteryStatus) {
+		mContext = context;
 		int extraStatus = batteryStatus.getIntExtra(
 				BatteryManager.EXTRA_STATUS, -1);
 		mIsCharging = (extraStatus == BatteryManager.BATTERY_STATUS_CHARGING || extraStatus == BatteryManager.BATTERY_STATUS_FULL);

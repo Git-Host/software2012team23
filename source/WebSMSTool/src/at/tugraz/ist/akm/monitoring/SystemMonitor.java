@@ -15,20 +15,20 @@ public class SystemMonitor extends PhoneStateListener {
 	private SignalStrength mSingalStrength = null;
 	private Logable mLog = new Logable(SystemMonitor.class.getSimpleName());
 
-	public SystemMonitor(Context c) {
-		mContext = c;
+	public SystemMonitor(Context context) {
+		mContext = context;
 		mTel = (TelephonyManager) mContext
 				.getSystemService(Context.TELEPHONY_SERVICE);
 
 	}
 
 	public void start() {
-		mLog.logV("start: registering phone state listener");
+		mLog.logVerbose("start: registering phone state listener");
 		mTel.listen(this, PhoneStateListener.LISTEN_SIGNAL_STRENGTHS | PhoneStateListener.LISTEN_SIGNAL_STRENGTH);
 	}
 
 	public void stop() {
-		mLog.logV("stop: unregistering phone state listener");
+		mLog.logVerbose("stop: unregistering phone state listener");
 		mTel.listen(this, PhoneStateListener.LISTEN_NONE);
 	}
 
@@ -40,16 +40,16 @@ public class SystemMonitor extends PhoneStateListener {
 
 	public synchronized TelephonySignalStrength getSignalStrength() {
 		if (null != mSingalStrength) {
-			mLog.logV("passing signal strenth to external caller");
+			mLog.logVerbose("passing signal strenth to external caller");
 			return new TelephonySignalStrength(mContext, mSingalStrength);
 		} else {
-			mLog.logE("FAILED to pass SignalStrength - no info available at the moment");	
+			mLog.logError("FAILED to pass SignalStrength - no info available at the moment");	
 			return null;
 		}
 	}
 
 	private synchronized void setSignalStrength(SignalStrength signalStrength) {
-		mLog.logV("signal strength changed");
+		mLog.logVerbose("signal strength changed");
 		mSingalStrength = signalStrength;
 	}
 

@@ -25,16 +25,15 @@ public class EchoJsonRequestHandler extends AbstractHttpRequestHandler {
     @Override
     public void handleRequest(RequestLine requestLine, String requestData, HttpResponse httpResponse)
             throws HttpException, IOException {
-        mLog.logD("called");
         if (requestLine.getMethod().equals(WebServerConfig.HTTP.REQUEST_TYPE_POST)) {
             final JSONObject json;
             try {
                 json = new JSONObject(requestData);
                 responseDataAppender.appendHttpResponseData(httpResponse, json);
-            } catch (ParseException e) {
-                e.printStackTrace();
-            } catch (JSONException e) {
-                e.printStackTrace();
+            } catch (ParseException parseException) {
+                parseException.printStackTrace();
+            } catch (JSONException jsonException) {
+                jsonException.printStackTrace();
             }
         }
     }

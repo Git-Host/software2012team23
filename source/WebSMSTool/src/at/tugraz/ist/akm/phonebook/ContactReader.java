@@ -20,8 +20,8 @@ public class ContactReader {
 
 	private ContentResolver mContentResolver = null;
 
-	public ContactReader(ContentResolver c) {
-		mContentResolver = c;
+	public ContactReader(ContentResolver contentResolver) {
+		mContentResolver = contentResolver;
 	}
 
 	public List<Contact> fetchContacts(ContactFilter filter) {
@@ -40,8 +40,8 @@ public class ContactReader {
 
 	private Cursor queryContacts(ContactFilter filter) {
 		ContactQueryBuilder qBuild = new ContactQueryBuilder(filter);
-		ContentProviderQueryParameters q = qBuild.getQueryArgs();
-		return mContentResolver.query(q.uri, q.as, q.where, q.like, q.sortBy);
+		ContentProviderQueryParameters queryParameters = qBuild.getQueryArgs();
+		return mContentResolver.query(queryParameters.uri, queryParameters.as, queryParameters.where, queryParameters.like, queryParameters.sortBy);
 	}
 
 	private Contact parseToContact(Cursor person) {
@@ -167,12 +167,12 @@ public class ContactReader {
 		if (iStream != null) {
 			try {
 				ByteArrayOutputStream oStream = new ByteArrayOutputStream();
-				int c = 0;
-				while ((c = iStream.read()) != -1) {
-					oStream.write(c);
+				int character = 0;
+				while ((character = iStream.read()) != -1) {
+					oStream.write(character);
 				}
 				bytes = oStream.toByteArray();
-			} catch (IOException e) {
+			} catch (IOException ioException) {
 				// If there is no picture I really don't care!
 			}
 		}

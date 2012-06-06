@@ -29,22 +29,22 @@ public class Logger {
 			final String message, final Throwable t) {
 		switch (level) {
 		case ERROR:
-			mSink.e(tag, formatMessage(message, t));
+			mSink.error(tag, formatMessage(message, t));
 			break;
 		case WARNING:
-			mSink.w(tag, formatMessage(message, t));
+			mSink.warning(tag, formatMessage(message, t));
 			break;
 	
 		case INFO:
-			mSink.i(tag, formatMessage(message, t));
+			mSink.info(tag, formatMessage(message, t));
 			break;
 	
 		case DEBUG:
-			mSink.d(tag, formatMessage(message, t));
+			mSink.debug(tag, formatMessage(message, t));
 			break;
 	
 		case VERBOSE:
-			mSink.v(tag, formatMessage(message, t));
+			mSink.verbose(tag, formatMessage(message, t));
 			break;
 		}
 	}

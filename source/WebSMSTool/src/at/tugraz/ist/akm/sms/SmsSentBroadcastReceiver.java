@@ -27,9 +27,9 @@ public class SmsSentBroadcastReceiver extends BroadcastReceiver
 
 	private SmsIOCallback mCallback = null;
 
-	public SmsSentBroadcastReceiver(SmsIOCallback s)
+	public SmsSentBroadcastReceiver(SmsIOCallback callback)
 	{
-		mCallback = s;
+		mCallback = callback;
 	}
 
 	@Override
@@ -77,8 +77,8 @@ public class SmsSentBroadcastReceiver extends BroadcastReceiver
 				}
 
 			}
-		} catch (Exception e) {
-			e.printStackTrace();
+		} catch (Exception ex) {
+			ex.printStackTrace();
 		}
 		return null;
 	}	
@@ -94,9 +94,9 @@ public class SmsSentBroadcastReceiver extends BroadcastReceiver
 		{
 			Object[] pdus = (Object[]) bundle.get(EXTRA_BUNDLE_KEY_PDU);
 
-			for (int i = 0; i < pdus.length; ++i)
+			for (int idx = 0; idx < pdus.length; ++idx)
 			{
-				SmsMessage sms = SmsMessage.createFromPdu((byte[]) pdus[i]);
+				SmsMessage sms = SmsMessage.createFromPdu((byte[]) pdus[idx]);
 				messages.add(parseToTextMessage(sms));
 			}
 		}

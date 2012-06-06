@@ -17,25 +17,25 @@ public class ContactQueryBuilder {
 	}
 
 	public ContentProviderQueryParameters getQueryArgs() {
-		ContentProviderQueryParameters q = new ContentProviderQueryParameters();
+		ContentProviderQueryParameters queryParameters = new ContentProviderQueryParameters();
 
-		q.uri = ContactsContract.Contacts.CONTENT_URI;
+		queryParameters.uri = ContactsContract.Contacts.CONTENT_URI;
 
-		q.as = new String[] { ContactsContract.Contacts._ID,
+		queryParameters.as = new String[] { ContactsContract.Contacts._ID,
 				ContactsContract.Contacts.DISPLAY_NAME,
 				ContactsContract.Contacts.STARRED };
 
 		if (mFilter == null)
-			return q;
+			return queryParameters;
 
 		collectIdClause();
 		collectStarredQueryClause();
 		collectWithPhoneQueryClause();
 
-		q.like = new String[mLikeArgs.size()];
-		q.like = mLikeArgs.toArray(q.like);
-		q.where = mWhere.toString();
-		return q;
+		queryParameters.like = new String[mLikeArgs.size()];
+		queryParameters.like = mLikeArgs.toArray(queryParameters.like);
+		queryParameters.where = mWhere.toString();
+		return queryParameters;
 	}
 
 	/**

@@ -17,8 +17,8 @@ public class TelephonySignalStrength {
 	private int mSignalIconId = 0;
 	private Context mContext = null;
 
-	public TelephonySignalStrength(Context c, SignalStrength signalStrength) {
-		mContext = c;
+	public TelephonySignalStrength(Context context, SignalStrength signalStrength) {
+		mContext = context;
 		mSignalStrength = signalStrength;
 	}
 

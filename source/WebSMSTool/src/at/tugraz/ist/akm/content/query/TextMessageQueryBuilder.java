@@ -20,10 +20,10 @@ public class TextMessageQueryBuilder {
 	}
 
 	public ContentProviderQueryParameters getQueryArgs() {
-		ContentProviderQueryParameters q = new ContentProviderQueryParameters();
+		ContentProviderQueryParameters queryParameters = new ContentProviderQueryParameters();
 
 		if (mFilter == null)
-			return q;
+			return queryParameters;
 
 		collectUri();
 		collectAddressQueryPart();
@@ -33,15 +33,15 @@ public class TextMessageQueryBuilder {
 		collectSeenQueryPart();
 		collectReadQueryPart();
 
-		q.uri = mBoxUri;
+		queryParameters.uri = mBoxUri;
 		if (mWhere != null)
-			q.where = mWhere.toString();
+			queryParameters.where = mWhere.toString();
 		if (mLikeArgs.size() > 0) {
-			q.like = new String [] {""};
-			q.like = mLikeArgs.toArray(q.like);
+			queryParameters.like = new String [] {""};
+			queryParameters.like = mLikeArgs.toArray(queryParameters.like);
 		}
 			
-		return q;
+		return queryParameters;
 	}
 
 	/**

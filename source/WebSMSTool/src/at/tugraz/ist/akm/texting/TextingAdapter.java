@@ -30,20 +30,20 @@ public class TextingAdapter extends Logable implements TextingInterface,
 	private VolatileIncomingReport mIncomingStatistics = new VolatileIncomingReport();
 	private VolatilePhonebookReport mPhonebookStatistics = new VolatilePhonebookReport();
 
-	public TextingAdapter(Context c, SmsIOCallback ms,
-			ContactModifiedCallback cm) {
+	public TextingAdapter(Context context, SmsIOCallback smsIOCallback,
+			ContactModifiedCallback contactModifiedCallback) {
 		super(TextingAdapter.class.getSimpleName());
-		mContext = c;
+		mContext = context;
 
-		mExternalTextMessageCallback = ms;
-		mExternalPhonebookModifiedCallback = cm;
+		mExternalTextMessageCallback = smsIOCallback;
+		mExternalPhonebookModifiedCallback = contactModifiedCallback;
 
 		mSmsBridge = new SmsBridge(mContext);
 		mPhoneBook = new PhonebookBridge(mContext);
 	}
 
 	public void start() {
-		logV("power up ...");
+		logVerbose("power up ...");
 		registerSmsCallbacks();
 		registerPhonebookCallbacks();
 		mSmsBridge.start();
@@ -51,7 +51,7 @@ public class TextingAdapter extends Logable implements TextingInterface,
 	}
 
 	public void stop() {
-		logV("power down ...");
+		logVerbose("power down ...");
 		mPhoneBook.stop();
 		mSmsBridge.stop();
 	}
@@ -64,10 +64,10 @@ public class TextingAdapter extends Logable implements TextingInterface,
 	 * ist.akm.sms.TextMessage)
 	 */
 	@Override
-	public int sendTextMessage(TextMessage m) {
+	public int sendTextMessage(TextMessage message) {
 		mOutgoingStatistics
 				.setNumPending(mOutgoingStatistics.getNumPending() + 1);
-		return mSmsBridge.sendTextMessage(m);
+		return mSmsBridge.sendTextMessage(message);
 	}
 
 	/*
@@ -89,7 +89,7 @@ public class TextingAdapter extends Logable implements TextingInterface,
 
 	@Override
 	public void smsSentCallback(Context context, List<TextMessage> message) {
-		logV("sms sent successfully");
+		logVerbose("sms sent successfully");
 		mOutgoingStatistics
 				.setNumPending(mOutgoingStatistics.getNumPending() - 1);
 		if (mExternalTextMessageCallback != null) {
@@ -99,7 +99,7 @@ public class TextingAdapter extends Logable implements TextingInterface,
 
 	@Override
 	public void smsSentErrorCallback(Context context, List<TextMessage> message) {
-		logV("failed to send sms");
+		logVerbose("failed to send sms");
 		mOutgoingStatistics.setNumErroneous(mOutgoingStatistics
 				.getNumErroneous() + 1);
 		if (mExternalTextMessageCallback != null) {
@@ -109,7 +109,7 @@ public class TextingAdapter extends Logable implements TextingInterface,
 
 	@Override
 	public void smsDeliveredCallback(Context context, List<TextMessage> message) {
-		logV("sms delivered");
+		logVerbose("sms delivered");
 		if (mExternalTextMessageCallback != null) {
 			mExternalTextMessageCallback.smsDeliveredCallback(context, message);
 		}
@@ -118,7 +118,7 @@ public class TextingAdapter extends Logable implements TextingInterface,
 
 	@Override
 	public void smsReceivedCallback(Context context, List<TextMessage> message) {
-		logV("sms received");
+		logVerbose("sms received");
 		mIncomingStatistics
 				.setNumReceived(mIncomingStatistics.getNumReceived() + 1);
 		if (mExternalTextMessageCallback != null) {
@@ -128,7 +128,7 @@ public class TextingAdapter extends Logable implements TextingInterface,
 
 	@Override
 	public void contactModifiedCallback() {
-		logV("contact modified");
+		logVerbose("contact modified");
 		mPhonebookStatistics
 				.setNumChanges(mPhonebookStatistics.getNumChanges() + 1);
 		if (mExternalPhonebookModifiedCallback != null) {

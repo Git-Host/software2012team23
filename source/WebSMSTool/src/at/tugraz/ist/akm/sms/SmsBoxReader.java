@@ -17,8 +17,8 @@ public class SmsBoxReader {
 	private ContentResolver mContentResolver = null;
 	private Logable mLog = new Logable(getClass().getSimpleName());
 
-	public SmsBoxReader(ContentResolver c) {
-		mContentResolver = c;
+	public SmsBoxReader(ContentResolver contentResolver) {
+		mContentResolver = contentResolver;
 	}
 
 	public List<TextMessage> getTextMessages(TextMessageFilter filter)
@@ -79,30 +79,30 @@ public class SmsBoxReader {
 	}
 
 	private TextMessage parseToTextMessge(Cursor sms) {
-		TextMessage m = new TextMessage();
-		m.setAddress(sms.getString(sms
+		TextMessage message = new TextMessage();
+		message.setAddress(sms.getString(sms
 				.getColumnIndex(SmsContent.Content.ADDRESS)));
-		m.setBody(sms.getString(sms.getColumnIndex(SmsContent.Content.BODY)));
-		m.setDate(sms.getString(sms.getColumnIndex(SmsContent.Content.DATE)));
-		m.setId(sms.getString(sms.getColumnIndex(SmsContent.Content.ID)));
-		m.setLocked(sms.getString(sms.getColumnIndex(SmsContent.Content.LOCKED)));
-		m.setPerson(sms.getString(sms.getColumnIndex(SmsContent.Content.PERSON)));
-		m.setProtocol(sms.getString(sms
+		message.setBody(sms.getString(sms.getColumnIndex(SmsContent.Content.BODY)));
+		message.setDate(sms.getString(sms.getColumnIndex(SmsContent.Content.DATE)));
+		message.setId(sms.getString(sms.getColumnIndex(SmsContent.Content.ID)));
+		message.setLocked(sms.getString(sms.getColumnIndex(SmsContent.Content.LOCKED)));
+		message.setPerson(sms.getString(sms.getColumnIndex(SmsContent.Content.PERSON)));
+		message.setProtocol(sms.getString(sms
 				.getColumnIndex(SmsContent.Content.PROTOCOL)));
-		m.setRead(sms.getString(sms.getColumnIndex(SmsContent.Content.READ)));
-		m.setSeen(sms.getString(sms.getColumnIndex(SmsContent.Content.SEEN)));
-		m.setServiceCenter(sms.getString(sms
+		message.setRead(sms.getString(sms.getColumnIndex(SmsContent.Content.READ)));
+		message.setSeen(sms.getString(sms.getColumnIndex(SmsContent.Content.SEEN)));
+		message.setServiceCenter(sms.getString(sms
 				.getColumnIndex(SmsContent.Content.SERVICE_CENTER)));
-		m.setStatus(sms.getString(sms.getColumnIndex(SmsContent.Content.STATUS)));
-		m.setThreadId(sms.getString(sms
+		message.setStatus(sms.getString(sms.getColumnIndex(SmsContent.Content.STATUS)));
+		message.setThreadId(sms.getString(sms
 				.getColumnIndex(SmsContent.Content.THREAD_ID)));
-		m.setType(sms.getString(sms
+		message.setType(sms.getString(sms
 				.getColumnIndex(SmsContent.Content.MESSAGE_TYPE)));
-		return m;
+		return message;
 	}
 
-	private void log(final String m) {
-		mLog.logV(m);
+	private void log(final String message) {
+		mLog.logVerbose(message);
 	}
 
 }

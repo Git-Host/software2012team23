@@ -39,14 +39,14 @@ public class WebSMSToolService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        LOG.logV("Try to start webserver.");
+        LOG.logVerbose("Try to start webserver.");
         mServer = new SimpleWebServer(this, mHttps);
 
         try {
             mServer.startServer(mPort);
-            LOG.logI("Web service has been started on port <" + mPort + ">");
-        } catch (Exception e) {
-            LOG.logE("Couldn't start web service on port <" + mPort + ">", e);
+            LOG.logInfo("Web service has been started on port <" + mPort + ">");
+        } catch (Exception ex) {
+            LOG.logError("Couldn't start web service on port <" + mPort + ">", ex);
         }
 
         return super.onStartCommand(intent, flags, startId);
@@ -56,8 +56,8 @@ public class WebSMSToolService extends Service {
     public void onDestroy() {
         try {
             mServer.stopServer();
-        } catch (Exception e) {
-            LOG.logE("Error while stopping server!", e);
+        } catch (Exception ex) {
+            LOG.logError("Error while stopping server!", ex);
         }
         super.onDestroy();
     }

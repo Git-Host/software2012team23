@@ -22,8 +22,8 @@ public class JsonTelephonySignalStrengthBuilder implements IJsonBuilder {
             json.put("gsm_level", signal.getGsmLevel());
             json.put("evdo_level", signal.getEvdoLevel());
             return json;
-        } catch (JSONException e) {
-			log.logE("Could not create jsonTelephonySignalStrength Object",e);
+        } catch (JSONException jsonException) {
+			log.logError("Could not create jsonTelephonySignalStrength Object",jsonException);
         }
         return null;
     }

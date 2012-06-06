@@ -68,13 +68,13 @@ public class Config {
 	private String getSettings(String name) {
 		String[] names = {name};
 		String queriedValue = "";
-		Cursor c = mContentResolver.query(this.mUri, new String[]{Content.VALUE}, Content.NAME, names, null);
-		if (c != null) {
-			while(c.moveToNext()){
-				queriedValue = c.getString(0);
+		Cursor cursor = mContentResolver.query(this.mUri, new String[]{Content.VALUE}, Content.NAME, names, null);
+		if (cursor != null) {
+			while(cursor.moveToNext()){
+				queriedValue = cursor.getString(0);
 			}
 		}
-		c.close();
+		cursor.close();
 		return queriedValue;
 	}
 	private void updateSettings(ContentValues values, String where) {

@@ -20,9 +20,9 @@ public class SmsSender extends Logable {
 	private int mSentRequestCode = 0;
 	private int mDeliveredRequestCode = 0;
 
-	public SmsSender(Context c) {
+	public SmsSender(Context context) {
 		super(SmsSender.class.getSimpleName());
-		mContext = c;
+		mContext = context;
 		mContentResolver = mContext.getContentResolver();
 	}
 
@@ -31,7 +31,7 @@ public class SmsSender extends Logable {
 
 		int partNum = 0;
 		for (String part : parts) {
-			logV("sending part [" + partNum++ + "] to [" + message.getAddress()
+			logVerbose("sending part [" + partNum++ + "] to [" + message.getAddress()
 					+ "] (" + part + ")");
 			PendingIntent sentPIntent = getSentPendingIntent(message, part);
 			PendingIntent deliveredPIntent = getDeliveredPendingIntent(message,

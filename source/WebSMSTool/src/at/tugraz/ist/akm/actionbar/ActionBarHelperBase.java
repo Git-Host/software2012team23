@@ -284,10 +284,10 @@ public class ActionBarHelperBase extends ActionBarHelper {
 
                     eventType = parser.next();
                 }
-            } catch (XmlPullParserException e) {
-                throw new InflateException("Error inflating menu XML", e);
-            } catch (IOException e) {
-                throw new InflateException("Error inflating menu XML", e);
+            } catch (XmlPullParserException parserException) {
+                throw new InflateException("Error inflating menu XML", parserException);
+            } catch (IOException ioException) {
+                throw new InflateException("Error inflating menu XML", ioException);
             } finally {
                 if (parser != null) {
                     parser.close();

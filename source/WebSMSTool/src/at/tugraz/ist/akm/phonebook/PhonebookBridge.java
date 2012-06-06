@@ -27,9 +27,9 @@ public class PhonebookBridge implements ContactModifiedCallback {
 
 		private ContactModifiedCallback mCallback = null;
 
-		public ContactContentObserver(ContactModifiedCallback c) {
+		public ContactContentObserver(ContactModifiedCallback callback) {
 			super(null);
-			mCallback = c;
+			mCallback = callback;
 		}
 
 		@Override
@@ -46,8 +46,8 @@ public class PhonebookBridge implements ContactModifiedCallback {
 		}
 	}
 
-	public PhonebookBridge(Context c) {
-		mContext = c;
+	public PhonebookBridge(Context context) {
+		mContext = context;
 		mContentResolver = mContext.getContentResolver();
 		mContactReader = new ContactReader(mContentResolver);
 		mContactContentCursor = getContactCursor();
@@ -65,9 +65,9 @@ public class PhonebookBridge implements ContactModifiedCallback {
 		return mContactReader.fetchContacts(filter);
 	}
 
-	public void setContactModifiedCallback(ContactModifiedCallback c) {
+	public void setContactModifiedCallback(ContactModifiedCallback callback) {
 		log("registered new [ContactModifiedCallback] callback");
-		mExternalContactModifiedCallback = c;
+		mExternalContactModifiedCallback = callback;
 	}
 
 	@Override
@@ -99,7 +99,7 @@ public class PhonebookBridge implements ContactModifiedCallback {
 		mContactContentCursor.close();
 	}
 
-	private void log(final String m) {
-		mLog.logV(m);
+	private void log(final String message) {
+		mLog.logVerbose(message);
 	}
 }

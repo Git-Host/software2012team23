@@ -12,18 +12,18 @@ public class DrawableResource {
 
 	private Context mContext = null;
 
-	public DrawableResource(Context c) {
-		mContext = c;
+	public DrawableResource(Context context) {
+		mContext = context;
 	}
 
 	/**
 	 * @return raw bytes of resourceId
 	 */
 	public byte[] getBytes(int resourceId) {
-		Drawable d = mContext.getResources().getDrawable(resourceId);
-		Bitmap b = ((BitmapDrawable) d).getBitmap();
+		Drawable drawable = mContext.getResources().getDrawable(resourceId);
+		Bitmap bitmap = ((BitmapDrawable) drawable).getBitmap();
 		ByteArrayOutputStream stream = new ByteArrayOutputStream();
-		b.compress(Bitmap.CompressFormat.JPEG, 100, stream);
+		bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
 		return stream.toByteArray();
 	}
 

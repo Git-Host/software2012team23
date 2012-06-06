@@ -39,14 +39,14 @@ public class XmlReader {
         try {
             is = context.getAssets().open(filePath);
             read(is);
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (IOException ioException) {
+            ioException.printStackTrace();
         } finally {
             if (is != null) {
                 try {
                     is.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
+                } catch (IOException ioException) {
+                    ioException.printStackTrace();
                 }
             }
         }
@@ -60,12 +60,12 @@ public class XmlReader {
         try {
             DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
             mDom = builder.parse(is);
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (ParserConfigurationException e) {
-            e.printStackTrace();
-        } catch (SAXException e) {
-            e.printStackTrace();
+        } catch (IOException ioException) {
+            ioException.printStackTrace();
+        } catch (ParserConfigurationException parserConfigException) {
+            parserConfigException.printStackTrace();
+        } catch (SAXException saxException) {
+            saxException.printStackTrace();
         }
     }
 

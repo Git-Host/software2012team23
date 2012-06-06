@@ -24,9 +24,9 @@ public class SmsBridge extends Logable implements SmsIOCallback {
 			this);
 	private SmsIOCallback mExternalSmsSentCallback = null;
 
-	public SmsBridge(Context c) {
+	public SmsBridge(Context context) {
 		super(SmsBridge.class.getSimpleName());
-		mContext = c;
+		mContext = context;
 		mContentResolver = mContext.getContentResolver();
 		mSmsSink = new SmsSender(mContext);
 		mSmsBoxReader = new SmsBoxReader(mContentResolver);
@@ -34,14 +34,14 @@ public class SmsBridge extends Logable implements SmsIOCallback {
 	}
 
 	public int sendTextMessage(TextMessage message) {
-		logV("sending message to [" + message.getAddress() + "]");
+		logVerbose("sending message to [" + message.getAddress() + "]");
 		message.setDate(Long.toString(new Date().getTime()));
 		return mSmsSink.sendTextMessage(message);
 	}
 
 	public List<TextMessage> fetchTextMessages(TextMessageFilter filter) {
 		List<TextMessage> messages = mSmsBoxReader.getTextMessages(filter);
-		logV("fetched [" + messages.size() + "] messages");
+		logVerbose("fetched [" + messages.size() + "] messages");
 		return messages;
 	}
 
@@ -53,9 +53,9 @@ public class SmsBridge extends Logable implements SmsIOCallback {
 		return mSmsBoxReader.getThreadIds(address);
 	}
 
-	public void setSmsSentCallback(SmsIOCallback c) {
-		logV("registered new [SmsSentCallback] callback");
-		mExternalSmsSentCallback = c;
+	public void setSmsSentCallback(SmsIOCallback callback) {
+		logVerbose("registered new [SmsSentCallback] callback");
+		mExternalSmsSentCallback = callback;
 	}
 
 	public void start() {
@@ -85,14 +85,14 @@ public class SmsBridge extends Logable implements SmsIOCallback {
 		if (mExternalSmsSentCallback != null) {
 
 			if (sentSuccessfully) {
-				logV("bypassing SmsSentCallback.smsSentCallback()");
+				logVerbose("bypassing SmsSentCallback.smsSentCallback()");
 				mExternalSmsSentCallback.smsSentCallback(context, messages);
 			} else {
-				logV("bypassing SmsSendErrorCallback.smsSentCallback()");
+				logVerbose("bypassing SmsSendErrorCallback.smsSentCallback()");
 				mExternalSmsSentCallback.smsSentErrorCallback(context, messages);
 			}
 		} else {
-			logV("no external callback [SmsSentCallback.smsSentCallback()] found - callback ends here");
+			logVerbose("no external callback [SmsSentCallback.smsSentCallback()] found - callback ends here");
 		}
 	}
 
@@ -111,10 +111,10 @@ public class SmsBridge extends Logable implements SmsIOCallback {
 	@Override
 	public void smsDeliveredCallback(Context context, List<TextMessage> messages) {
 		if (mExternalSmsSentCallback != null) {
-			logV("bypassing SmsSentCallback.smsDeliveredCallback()");
+			logVerbose("bypassing SmsSentCallback.smsDeliveredCallback()");
 			mExternalSmsSentCallback.smsDeliveredCallback(context, messages);
 		} else {
-			logV("no external callback [SmsSentCallback.smsDeliveredCallback()] found - callback ends here");
+			logVerbose("no external callback [SmsSentCallback.smsDeliveredCallback()] found - callback ends here");
 		}
 	}
 
@@ -124,28 +124,28 @@ public class SmsBridge extends Logable implements SmsIOCallback {
 	@Override
 	public void smsReceivedCallback(Context context, List<TextMessage> messages) {
 		if (mExternalSmsSentCallback != null) {
-			logV("bypassing mExternalSmsReceivedCallback.smsReceivedCallback()");
+			logVerbose("bypassing mExternalSmsReceivedCallback.smsReceivedCallback()");
 			mExternalSmsSentCallback.smsReceivedCallback(context, messages);
 		} else {
-			logV("no external callback [mExternalSmsReceivedCallback.smsReceivedCallback()] found - callback ends here");
+			logVerbose("no external callback [mExternalSmsReceivedCallback.smsReceivedCallback()] found - callback ends here");
 		}
 
 	}
 
 	private void registerSmsSentNotification() {
-		logV("registered new IntentFilter [ACTION_SMS_SENT]");
+		logVerbose("registered new IntentFilter [ACTION_SMS_SENT]");
 		mContext.registerReceiver(mSmsSentNotifier, new IntentFilter(
 				SmsSentBroadcastReceiver.ACTION_SMS_SENT));
 	}
 
 	private void registerSmsDeliveredNotification() {
-		logV("registered new IntentFilter [ACTION_SMS_DELIVERED]");
+		logVerbose("registered new IntentFilter [ACTION_SMS_DELIVERED]");
 		mContext.registerReceiver(mSmsSentNotifier, new IntentFilter(
 				SmsSentBroadcastReceiver.ACTION_SMS_DELIVERED));
 	}
 
 	private void registerSmsReceivedNotification() {
-		logV("registered new IntentFilter [ACTION_SMS_RECEIVED]");
+		logVerbose("registered new IntentFilter [ACTION_SMS_RECEIVED]");
 		mContext.registerReceiver(mSmsSentNotifier, new IntentFilter(
 				SmsSentBroadcastReceiver.ACTION_SMS_RECEIVED));
 	}
@@ -210,9 +210,9 @@ public class SmsBridge extends Logable implements SmsIOCallback {
 		}
 
 		if (isSuccessfullySent) {
-			logV("text message sent successfully (" + verboseSentState + ")");
+			logVerbose("text message sent successfully (" + verboseSentState + ")");
 		} else {
-			logV(verboseSentState);
+			logVerbose(verboseSentState);
 		}
 
 		return isSuccessfullySent;

@@ -17,7 +17,6 @@ public class JsonContactBuilder implements IJsonBuilder {
     public JSONObject build(Object data) {
     	Logable log = new Logable(this.getClass().getSimpleName());
     	
-        // TODO: check type compatibility
         Contact contact = (Contact) data;
         try {
             JSONObject json = new JSONObject();
@@ -35,10 +34,10 @@ public class JsonContactBuilder implements IJsonBuilder {
             json.put("phone_numbers", buildPhoneNumbers(contact.getPhoneNumbers()));
             
             
-            log.logI(json.toString());
+            log.logInfo(json.toString());
             return json;
-        } catch (JSONException e) {
-			log.logE("Could not create jsonContact Object",e);
+        } catch (JSONException jsonException) {
+			log.logError("Could not create jsonContact Object",jsonException);
         }
         return null;
     }

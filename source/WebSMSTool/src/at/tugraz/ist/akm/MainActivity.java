@@ -30,14 +30,14 @@ public class MainActivity extends ActionBarActivity
 		
 		final ToggleButton button = (ToggleButton) findViewById(R.id.start_stop_server);
         button.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
+            public void onClick(View view) {
                 if (mSmsServiceIntent == null) {
                     Log.v("Activity", "Going to start web service");
                     
                     button.setVisibility(1);
                     
-                    mSmsServiceIntent = new Intent(v.getContext(), WebSMSToolService.class);
-                    v.getContext().startService(mSmsServiceIntent);
+                    mSmsServiceIntent = new Intent(view.getContext(), WebSMSToolService.class);
+                    view.getContext().startService(mSmsServiceIntent);
                     
                     button.setVisibility(0);
                     
@@ -48,7 +48,7 @@ public class MainActivity extends ActionBarActivity
                     TextView ipFieldView =  (TextView) findViewById(R.id.ip_data_field);
                     ipFieldView.setText(getString(R.string.ipTitle)+wifiIp);
                 } else {
-                    v.getContext().stopService(mSmsServiceIntent);
+                    view.getContext().stopService(mSmsServiceIntent);
                     mSmsServiceIntent = null;
                     TextView ipFieldView =  (TextView) findViewById(R.id.ip_data_field);
                     ipFieldView.setText("");

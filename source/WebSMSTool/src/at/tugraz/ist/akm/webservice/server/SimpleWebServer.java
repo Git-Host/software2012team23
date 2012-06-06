@@ -70,33 +70,6 @@ public class SimpleWebServer {
     private KeyManager[] mKeyManager;
     private KeyStore mKeyStore;
 
-//    private static class WorkerThread extends Thread {
-//        private final SimpleWebServer mWebServer;
-//        private final Socket mSocket;
-//
-//        public WorkerThread(final SimpleWebServer webServer, final Socket socket) {
-//            this.mWebServer = webServer;
-//            this.mSocket = socket;
-//        }
-//
-//        @Override
-//        public void run() {
-//            DefaultHttpServerConnection serverConn = new DefaultHttpServerConnection();
-//            try {
-//                HttpParams params = new BasicHttpParams();
-//                HttpProtocolParams.setVersion(params, HttpVersion.HTTP_1_1);
-//                HttpProtocolParams.setContentCharset(params, HTTP.UTF_8);
-//
-//                serverConn.bind(mSocket, params);
-//                HttpService httpService = mWebServer.initializeHTTPService();
-//                httpService.handleRequest(serverConn, mWebServer.getHttpContext());
-//            } catch (Exception e) {
-//                e.printStackTrace();
-//                mLog.logE("Exception caught when processing HTTP client connection", e);
-//            }
-//        }
-//    }
-
     private static class ServerThread extends Thread {
         private final SimpleWebServer mWebServer;
         private final ServerSocket mServerSocket;
@@ -116,23 +89,18 @@ public class SimpleWebServer {
             mRunning = true;
             while (mRunning) {
                 Socket socket = null;
-                // mLog.logD("waiting for connection at " + mServerSocket);
                 try {
                     socket = mServerSocket != null ? mServerSocket.accept() : null;
-                } catch (IOException e) {
-                    // mLog.logE("Exception caught while waiting for client connection",
-                    // e);
+                } catch (IOException ioException) {
+                    //no need to write trace
                 }
 
                 if (mStopServerThread) {
                     break;
                 }
                 if (socket != null) {
-                    mLog.logD("connection request from ip <" + socket.getInetAddress()
+                    mLog.logDebug("connection request from ip <" + socket.getInetAddress()
                             + "> on port <" + socket.getPort() + ">");
-//                    WorkerThread workerThread = new WorkerThread(mWebServer, socket);
-//                    workerThread.setDaemon(true);
-//                    workerThread.start();
                 
                     final Socket tmpSocket = socket;
                     mThreadPool.executeTask(new Runnable() {
@@ -147,9 +115,9 @@ public class SimpleWebServer {
                                 serverConn.bind(tmpSocket, params);
                                 HttpService httpService = mWebServer.initializeHTTPService();
                                 httpService.handleRequest(serverConn, mWebServer.getHttpContext());
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                                mLog.logE("Exception caught when processing HTTP client connection", e);
+                            } catch (Exception ex) {
+                                ex.printStackTrace();
+                                mLog.logError("Exception caught when processing HTTP client connection", ex);
                             }
                         }
                     });
@@ -216,7 +184,7 @@ public class SimpleWebServer {
             String className = node.getAttributeValue(WebServerConfig.XML.ATTRIBUTE_CLASS);
 
             if (className == null) {
-                mLog.logE("request handler <" + node.getName()
+                mLog.logError("request handler <" + node.getName()
                         + ">: no corresponding class to load found");
                 continue;
             }
@@ -227,12 +195,12 @@ public class SimpleWebServer {
                 AbstractHttpRequestHandler newHandler = (AbstractHttpRequestHandler) constr
                         .newInstance(mContext, node, mRegistry);
                 mHandlerReferenceListing.add(newHandler);
-            } catch (Exception e) {
-                mLog.logE("Loading of class <" + className + "> failed", e);
+            } catch (Exception ex) {
+                mLog.logError("Loading of class <" + className + "> failed", ex);
                 stopServer();
             }
         }
-        mLog.logV("request handlers read from configuration");
+        mLog.logVerbose("request handlers read from configuration");
     }
 
     private void readRequestInterceptors() {
@@ -240,7 +208,7 @@ public class SimpleWebServer {
         List<XmlNode> interceptorNodes = reader
                 .getNodes(WebServerConfig.XML.TAG_REQUEST_INTERCEPTORS);
         if (interceptorNodes.size() == 0) {
-            mLog.logW("no request interceptors configured");
+            mLog.logWarning("no request interceptors configured");
             return;
         }
         List<XmlNode> nodes = interceptorNodes.get(0).getChildNodes(
@@ -249,7 +217,7 @@ public class SimpleWebServer {
             String className = node.getAttributeValue(WebServerConfig.XML.ATTRIBUTE_CLASS);
 
             if (className == null) {
-                mLog.logE("request interceptor <" + node.getName()
+                mLog.logError("request interceptor <" + node.getName()
                         + ">: no corresponding class to load found");
                 continue;
             }
@@ -259,12 +227,12 @@ public class SimpleWebServer {
                 IRequestInterceptor interceptor = (IRequestInterceptor) constr
                         .newInstance(mContext);
                 setInterceptor(interceptor);
-            } catch (Exception e) {
-                mLog.logE("Loading of class <" + className + "> failed", e);
+            } catch (Exception ex) {
+                mLog.logError("Loading of class <" + className + "> failed", ex);
                 stopServer();
             }
         }
-        mLog.logV("request interceptors read from configuration");
+        mLog.logVerbose("request interceptors read from configuration");
     }
 
     protected void setInterceptor(IRequestInterceptor reqInterceptor) {
@@ -279,7 +247,7 @@ public class SimpleWebServer {
 
     public synchronized boolean startServer(int port) {
         if (this.isRunning()) {
-            mLog.logI("Web service is already running at port <" + mServerThread.getPort() + ">");
+            mLog.logInfo("Web service is already running at port <" + mServerThread.getPort() + ">");
             return true;
         }
 
@@ -302,20 +270,20 @@ public class SimpleWebServer {
             mServerThread.start();
 
             return true;
-        } catch (IOException e) {
-            mLog.logE("Cannot create server socket on port <" + port + ">", e);
+        } catch (IOException ioException) {
+            mLog.logError("Cannot create server socket on port <" + port + ">", ioException);
             return false;
         }
     }
 
     public synchronized void stopServer() {
-        mLog.logV("stop web server");
+        mLog.logVerbose("stop web server");
         if (mServerThread != null) {
             mServerThread.stopThread();
             while (mServerThread.isRunning()) {
                 try {
                     this.wait(200);
-                } catch (InterruptedException e) {
+                } catch (InterruptedException interruptedException) {
                     ;
                 }
             }
@@ -344,18 +312,18 @@ public class SimpleWebServer {
             mKeyFactory.init(mKeyStore, "foobar64".toCharArray());
             mKeyManager = mKeyFactory.getKeyManagers();
             mSSLContext.init(mKeyManager, null, new SecureRandom());
-        } catch (IOException e) {
-            mLog.logE("Cannot read keystore!", e);
-        } catch (KeyStoreException e) {
-            mLog.logE("Error while loading keystore!", e);
-        } catch (NoSuchAlgorithmException e) {
-            mLog.logE("Wrong keystore algorithm!", e);
-        } catch (CertificateException e) {
-            mLog.logE("Error while loading certificate!", e);
-        } catch (UnrecoverableKeyException e) {
-            mLog.logE("Error while loading keystore", e);
-        } catch (KeyManagementException e) {
-            mLog.logE("Error while getting keymanagers!", e);
+        } catch (IOException ioException) {
+            mLog.logError("Cannot read keystore!", ioException);
+        } catch (KeyStoreException keyStoreException) {
+            mLog.logError("Error while loading keystore!", keyStoreException);
+        } catch (NoSuchAlgorithmException algoException) {
+            mLog.logError("Wrong keystore algorithm!", algoException);
+        } catch (CertificateException certificateException) {
+            mLog.logError("Error while loading certificate!", certificateException);
+        } catch (UnrecoverableKeyException keyException) {
+            mLog.logError("Error while loading keystore", keyException);
+        } catch (KeyManagementException keyException) {
+            mLog.logError("Error while getting keymanagers!", keyException);
         }
     }
 }

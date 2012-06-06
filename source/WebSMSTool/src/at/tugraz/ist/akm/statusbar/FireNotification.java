@@ -19,8 +19,8 @@ public class FireNotification {
 	private Context mContext = null;
 	private NotificationManager mNotificationManager = null;
 
-	public FireNotification(Context c) {
-		mContext = c;
+	public FireNotification(Context context) {
+		mContext = context;
 		String ns = Context.NOTIFICATION_SERVICE;
 		mNotificationManager = (NotificationManager) mContext
 				.getSystemService(ns);

@@ -27,8 +27,8 @@ public class XmlNode {
 
     public List<XmlNode> getChildNodes(String name) {
         List<XmlNode> childNodes = new ArrayList<XmlNode>();
-        for (int i = 0; i < mNode.getChildNodes().getLength(); i++) {
-            Node childNode = mNode.getChildNodes().item(i);
+        for (int idx = 0; idx < mNode.getChildNodes().getLength(); idx++) {
+            Node childNode = mNode.getChildNodes().item(idx);
             if (childNode.getNodeName().equals(name)) {
                 childNodes.add(new XmlNode(childNode));
             }

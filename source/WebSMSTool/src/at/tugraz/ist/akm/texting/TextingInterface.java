@@ -17,7 +17,7 @@ public interface TextingInterface {
 	public void stop();
 	
 	
-	public int sendTextMessage(TextMessage m);
+	public int sendTextMessage(TextMessage message);
 
 	public List<TextMessage> fetchTextMessages(TextMessageFilter filter);
 	
