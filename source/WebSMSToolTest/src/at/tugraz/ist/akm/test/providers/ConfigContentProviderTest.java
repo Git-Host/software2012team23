@@ -48,17 +48,17 @@ public class ConfigContentProviderTest extends WebSMSToolTestcase{
 	public void testQuery() {
 		try {
 			String[] names = {StandardSettings.PORT};
-			Cursor c = mContentResolver.query(uri, new String[] {Config.Content.VALUE}, Config.Content.NAME, names, null);
-			if (c != null) {
-				while (c.moveToNext()) {
-					logD(c.getString(0));
+			Cursor cursor = mContentResolver.query(uri, new String[] {Config.Content.VALUE}, Config.Content.NAME, names, null);
+			if (cursor != null) {
+				while (cursor.moveToNext()) {
+					logDebug(cursor.getString(0));
 				}
 			}
 
-			assertTrue("no values found", !(c==null));
-			c.close();
+			assertTrue("no values found", !(cursor==null));
+			cursor.close();
 			Thread.sleep(1000);
-		} catch (Exception t) {
+		} catch (Exception ex) {
 			assertTrue(false);
 		}
 	}

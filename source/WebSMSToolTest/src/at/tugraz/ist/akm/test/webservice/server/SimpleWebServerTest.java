@@ -25,19 +25,30 @@ import android.test.InstrumentationTestCase;
 import android.util.Log;
 import at.tugraz.ist.akm.R;
 import at.tugraz.ist.akm.io.FileReader;
+import at.tugraz.ist.akm.test.texting.TextingAdapterTest;
+import at.tugraz.ist.akm.test.trace.ThrowingLogSink;
+import at.tugraz.ist.akm.trace.Logable;
+import at.tugraz.ist.akm.trace.Logger;
 import at.tugraz.ist.akm.webservice.server.SimpleWebServer;
 
 public class SimpleWebServerTest extends InstrumentationTestCase {
 
     private HttpClient httpClient;
     private static SimpleWebServer webserver;
+    private Logable mLog = null;
 
+    public SimpleWebServerTest()
+    {
+        Logger.setSink(new ThrowingLogSink());
+        mLog = new Logable(SimpleWebServerTest.class.getSimpleName());
+    }
+    
     private void startServer(final boolean https, final boolean useMockServer) {
         if (webserver != null && webserver.isRunning()) {
             stopServer();
         }
 
-        Log.d("SimpleWebServerTest", "start server");
+        mLog.logDebug("start server");
 
         httpClient = new DefaultHttpClient();
         webserver = useMockServer ? new MockSimpleWebServer(getInstrumentation().getContext(), https) : 
@@ -48,22 +59,22 @@ public class SimpleWebServerTest extends InstrumentationTestCase {
             synchronized (SimpleWebServerTest.class) {
                 try {
                     SimpleWebServerTest.class.wait(200);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
+                } catch (InterruptedException interruptedException) {
+                    interruptedException.printStackTrace();
                 }
             }
         }
     }
 
     private void stopServer() {
-        Log.d("SimpleWebServerTest", "stop server");
+        mLog.logDebug("stop server");
         webserver.stopServer();
         while (webserver.isRunning()) {
             synchronized (SimpleWebServerTest.class) {
                 try {
                     SimpleWebServerTest.class.wait(200);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
+                } catch (InterruptedException interruptedException) {
+                    interruptedException.printStackTrace();
                 }
             }
         }
@@ -72,7 +83,7 @@ public class SimpleWebServerTest extends InstrumentationTestCase {
     public void testSimpleJsonRequest() {
         startServer(false, true);
 
-        Log.d("test", "testSimpleJsonRequest");
+        mLog.logDebug("testSimpleJsonRequest");
 
         HttpPost httppost = new HttpPost("http://localhost:8888/api.html");
         try {
@@ -96,15 +107,15 @@ public class SimpleWebServerTest extends InstrumentationTestCase {
             response.getEntity().writeTo(baos);
 
             Assert.assertEquals(requestJson.toString(), new String(baos.toByteArray()));
-        } catch (Exception e) {
-            Assert.fail(e.getMessage());
+        } catch (Exception ex) {
+            Assert.fail(ex.getMessage());
         }
         stopServer();
     }
 
     public void testSimpleFileRequest() {
         startServer(false, true);
-        Log.d("test", "testSimpleFileRequest");
+        mLog.logDebug("testSimpleFileRequest");
 
         HttpPost httppost = new HttpPost("http://localhost:8888/");
         try {
@@ -119,14 +130,14 @@ public class SimpleWebServerTest extends InstrumentationTestCase {
                     new FileReader(getInstrumentation().getContext(), "web/index.html").read(),
                     new String(baos.toByteArray()));
 
-        } catch (Exception e) {
-            Assert.fail(e.getMessage());
+        } catch (Exception ex) {
+            Assert.fail(ex.getMessage());
         }
         stopServer();
     }
 
     public void testStartSecureServer() {
-        Log.d("test", "testStartSecureServer");
+        mLog.logDebug("testStartSecureServer");
 
         startServer(true, true);
         Assert.assertTrue(webserver.isRunning());
@@ -149,16 +160,16 @@ public class SimpleWebServerTest extends InstrumentationTestCase {
             if (!(key instanceof PrivateKey)) {
                 Assert.fail("Private key not found!");
             }
-        } catch (KeyStoreException e) {
-            Assert.fail(e.getMessage());
-        } catch (NoSuchAlgorithmException e) {
-            Assert.fail(e.getMessage());
-        } catch (CertificateException e) {
-            Assert.fail(e.getMessage());
-        } catch (IOException e) {
-            Assert.fail(e.getMessage());
-        } catch (UnrecoverableKeyException e) {
-            Assert.fail(e.getMessage());
+        } catch (KeyStoreException keyException) {
+            Assert.fail(keyException.getMessage());
+        } catch (NoSuchAlgorithmException algoException) {
+            Assert.fail(algoException.getMessage());
+        } catch (CertificateException certificateException) {
+            Assert.fail(certificateException.getMessage());
+        } catch (IOException ioException) {
+            Assert.fail(ioException.getMessage());
+        } catch (UnrecoverableKeyException keyException) {
+            Assert.fail(keyException.getMessage());
         }
     }
 }

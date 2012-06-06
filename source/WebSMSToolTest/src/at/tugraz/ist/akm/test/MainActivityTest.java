@@ -28,8 +28,8 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
 	 */
 	public void testMainActivityStart() throws Exception
 	{
-		MainActivity a = getActivity();
-		assertTrue(null != a);
+		MainActivity activity = getActivity();
+		assertTrue(null != activity);
 	}
 	
 	
@@ -84,7 +84,7 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
 
 	protected void log(final String m)
 	{
-		mLog.logV(m);
+		mLog.logVerbose(m);
 	}
 
 }

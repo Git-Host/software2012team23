@@ -20,8 +20,8 @@ public class PhonebookBridgeTest extends WebSMSToolActivityTestcase {
 			PhonebookHelper.deleteContact(mrFoo[2], mrFoo[0] + " " + mrFoo[1], mContentResolver);
 			Thread.sleep(1000);
 			phonebook.stop();
-		} catch (Exception e) {
-			e.printStackTrace();
+		} catch (Exception ex) {
+			ex.printStackTrace();
 			assertTrue(false);
 		}
 	}

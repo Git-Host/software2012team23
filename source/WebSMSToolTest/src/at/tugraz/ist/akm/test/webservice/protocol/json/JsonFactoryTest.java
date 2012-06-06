@@ -35,7 +35,9 @@ public class JsonFactoryTest extends TestCase {
         contact.setPhoneNumbers(phoneNumbers);
 
         JSONObject createdObject = factory.createJsonObject(contact);
-        log.logV("created object: " + createdObject.toString());
+        log.logVerbose("created object: " + createdObject.toString());
+        
+        //TODO: add ASSERT statement
     }
 
 }

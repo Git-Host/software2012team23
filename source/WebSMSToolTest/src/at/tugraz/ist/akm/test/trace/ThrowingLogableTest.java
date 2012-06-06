@@ -16,40 +16,40 @@ public class ThrowingLogableTest extends TestCase {
 	
 	public void testLogVerbose() {
 		try {
-			mLog.logV("testLogVerbose");
-		} catch (Exception e) {
+			mLog.logVerbose("testLogVerbose");
+		} catch (Exception ex) {
 			assertTrue(false);
 		}
 	}
 	
 	public void testLogVerboseE() {
 		try {			
-			mLog.logV("testLogVerboseE", null);
-		} catch (Exception e) {
+			mLog.logVerbose("testLogVerboseE", null);
+		} catch (Exception ex) {
 			assertTrue(false);
 		}
 	}
 	
 	public void testLogDebug() {
 		try {
-			mLog.logD("testLogDebug");
-		} catch (Exception e) {
+			mLog.logDebug("testLogDebug");
+		} catch (Exception ex) {
 			assertTrue(false);
 		}
 	}
 	
 	public void testLogDebugE() {
 		try {
-			mLog.logD("testLogDebugE", null);
-		} catch (Exception e) {
+			mLog.logDebug("testLogDebugE", null);
+		} catch (Exception ex) {
 			assertTrue(false);
 		}
 	}
 	
 	public void testLogError() {
 		try {
-			mLog.logE("testLogError: If you read this message don't panik - it's just a test!");
-		} catch (Throwable e) {
+			mLog.logError("testLogError: If you read this message don't panik - it's just a test!");
+		} catch (Throwable throwable) {
 			// ok
 			return;
 		}
@@ -58,8 +58,8 @@ public class ThrowingLogableTest extends TestCase {
 	
 	public void testLogErrorE() {
 		try {
-			mLog.logE("testLogErrorE: If you read this message don't panik - it's just a test!", null);
-		} catch (Throwable e) {
+			mLog.logError("testLogErrorE: If you read this message don't panik - it's just a test!", null);
+		} catch (Throwable throwable) {
 			// ok
 			return;
 		}
@@ -68,32 +68,32 @@ public class ThrowingLogableTest extends TestCase {
 	
 	public void testLogInfo() {
 		try {
-			mLog.logI("testLogInfo");
-		} catch (Exception e) {
+			mLog.logInfo("testLogInfo");
+		} catch (Exception ex) {
 			assertTrue(false);
 		}
 	}
 	
 	public void testLogInfoE() {
 		try {
-			mLog.logI("testLogInfoE", null);
-		} catch (Exception e) {
+			mLog.logInfo("testLogInfoE", null);
+		} catch (Exception ex) {
 			assertTrue(false);
 		}
 	}
 	
 	public void testLogWarn() {
 		try {
-			mLog.logW("testLogWarn");
-		} catch (Exception e) {
+			mLog.logWarning("testLogWarn");
+		} catch (Exception ex) {
 			assertTrue(false);
 		}
 	}
 	
 	public void testLogWarnE() {
 		try {
-			mLog.logW("testLogWarnE", null);
-		} catch (Exception e) {
+			mLog.logWarning("testLogWarnE", null);
+		} catch (Exception ex) {
 			assertTrue(false);
 		}
 	}

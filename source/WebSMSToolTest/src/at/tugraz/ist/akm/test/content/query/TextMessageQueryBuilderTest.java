@@ -17,11 +17,11 @@ public class TextMessageQueryBuilderTest extends WebSMSToolTestcase {
 		filter.setBox(SmsContent.ContentUri.INBOX_URI);
 		filter.setAddress("01906666");
 		TextMessageQueryBuilder builder = new TextMessageQueryBuilder(filter);
-		ContentProviderQueryParameters q = builder.getQueryArgs();
+		ContentProviderQueryParameters queryParameters = builder.getQueryArgs();
 
-		assertTrue(q.uri.equals(SmsContent.ContentUri.INBOX_URI));
-		assertTrue(q.where.compareTo(SmsContent.Content.ADDRESS + " = ? ") == 0);
-		String[] queryArgs = q.like;
+		assertTrue(queryParameters.uri.equals(SmsContent.ContentUri.INBOX_URI));
+		assertTrue(queryParameters.where.compareTo(SmsContent.Content.ADDRESS + " = ? ") == 0);
+		String[] queryArgs = queryParameters.like;
 		assertTrue(queryArgs[0].compareTo("01906666") == 0);
 	}
 
@@ -30,11 +30,11 @@ public class TextMessageQueryBuilderTest extends WebSMSToolTestcase {
 		filter.setBox(SmsContent.ContentUri.BASE_URI);
 		filter.setId(1234);
 		TextMessageQueryBuilder builder = new TextMessageQueryBuilder(filter);
-		ContentProviderQueryParameters q = builder.getQueryArgs();
+		ContentProviderQueryParameters queryParameters = builder.getQueryArgs();
 
-		assertTrue(q.uri.equals(SmsContent.ContentUri.BASE_URI));
-		assertTrue(q.where.compareTo(SmsContent.Content.ID + " = ? ") == 0);
-		String[] queryArgs = q.like;
+		assertTrue(queryParameters.uri.equals(SmsContent.ContentUri.BASE_URI));
+		assertTrue(queryParameters.where.compareTo(SmsContent.Content.ID + " = ? ") == 0);
+		String[] queryArgs = queryParameters.like;
 		assertTrue(queryArgs[0].compareTo("1234") == 0);
 	}
 
@@ -43,11 +43,11 @@ public class TextMessageQueryBuilderTest extends WebSMSToolTestcase {
 		filter.setBox(SmsContent.ContentUri.DRAFT_URI);
 		filter.setPerson("foo bar");
 		TextMessageQueryBuilder builder = new TextMessageQueryBuilder(filter);
-		ContentProviderQueryParameters q = builder.getQueryArgs();
+		ContentProviderQueryParameters queryParameters = builder.getQueryArgs();
 
-		assertTrue(q.uri.equals(SmsContent.ContentUri.DRAFT_URI));
-		assertTrue(q.where.compareTo(SmsContent.Content.PERSON + " = ? ") == 0);
-		String[] queryArgs = q.like;
+		assertTrue(queryParameters.uri.equals(SmsContent.ContentUri.DRAFT_URI));
+		assertTrue(queryParameters.where.compareTo(SmsContent.Content.PERSON + " = ? ") == 0);
+		String[] queryArgs = queryParameters.like;
 		assertTrue(queryArgs[0].compareTo("foo bar") == 0);
 	}
 
@@ -56,11 +56,11 @@ public class TextMessageQueryBuilderTest extends WebSMSToolTestcase {
 		filter.setBox(SmsContent.ContentUri.FAILED_URI);
 		filter.setRead(true);
 		TextMessageQueryBuilder builder = new TextMessageQueryBuilder(filter);
-		ContentProviderQueryParameters q = builder.getQueryArgs();
+		ContentProviderQueryParameters queryParameters = builder.getQueryArgs();
 
-		assertTrue(q.uri.equals(SmsContent.ContentUri.FAILED_URI));
-		assertTrue(q.where.compareTo(SmsContent.Content.READ + " = ? ") == 0);
-		String[] queryArgs = q.like;
+		assertTrue(queryParameters.uri.equals(SmsContent.ContentUri.FAILED_URI));
+		assertTrue(queryParameters.where.compareTo(SmsContent.Content.READ + " = ? ") == 0);
+		String[] queryArgs = queryParameters.like;
 		assertTrue(queryArgs[0].compareTo("1") == 0);
 	}
 
@@ -69,11 +69,11 @@ public class TextMessageQueryBuilderTest extends WebSMSToolTestcase {
 		filter.setBox(SmsContent.ContentUri.QUEUED_URI);
 		filter.setSeen(true);
 		TextMessageQueryBuilder builder = new TextMessageQueryBuilder(filter);
-		ContentProviderQueryParameters q = builder.getQueryArgs();
+		ContentProviderQueryParameters queryParameters = builder.getQueryArgs();
 
-		assertTrue(q.uri.equals(SmsContent.ContentUri.QUEUED_URI));
-		assertTrue(q.where.compareTo(SmsContent.Content.SEEN + " = ? ") == 0);
-		String[] queryArgs = q.like;
+		assertTrue(queryParameters.uri.equals(SmsContent.ContentUri.QUEUED_URI));
+		assertTrue(queryParameters.where.compareTo(SmsContent.Content.SEEN + " = ? ") == 0);
+		String[] queryArgs = queryParameters.like;
 		assertTrue(queryArgs[0].compareTo("1") == 0);
 	}
 
@@ -82,11 +82,11 @@ public class TextMessageQueryBuilderTest extends WebSMSToolTestcase {
 		filter.setBox(SmsContent.ContentUri.UNDELIVERED_URI);
 		filter.setThreadId(42L);
 		TextMessageQueryBuilder builder = new TextMessageQueryBuilder(filter);
-		ContentProviderQueryParameters q = builder.getQueryArgs();
+		ContentProviderQueryParameters queryParameters = builder.getQueryArgs();
 
-		assertTrue(q.uri.equals(SmsContent.ContentUri.UNDELIVERED_URI));
-		assertTrue(q.where.compareTo(SmsContent.Content.THREAD_ID + " = ? ") == 0);
-		String[] queryArgs = q.like;
+		assertTrue(queryParameters.uri.equals(SmsContent.ContentUri.UNDELIVERED_URI));
+		assertTrue(queryParameters.where.compareTo(SmsContent.Content.THREAD_ID + " = ? ") == 0);
+		String[] queryArgs = queryParameters.like;
 		assertTrue(queryArgs[0].compareTo("42") == 0);
 	}
 	
@@ -101,22 +101,22 @@ public class TextMessageQueryBuilderTest extends WebSMSToolTestcase {
 		filter.setSeen(false);
 		filter.setRead(false);
 		TextMessageQueryBuilder builder = new TextMessageQueryBuilder(filter);
-		ContentProviderQueryParameters q = builder.getQueryArgs();
+		ContentProviderQueryParameters queryParameters = builder.getQueryArgs();
 
-		assertTrue(q.uri.equals(SmsContent.ContentUri.SENT_URI));
-		logV(q.where + "|" + SmsContent.Content.ADDRESS + " = ?  AND " +
+		assertTrue(queryParameters.uri.equals(SmsContent.ContentUri.SENT_URI));
+		logVerbose(queryParameters.where + "|" + SmsContent.Content.ADDRESS + " = ?  AND " +
 				SmsContent.Content.THREAD_ID + " = ?  AND " +
 				SmsContent.Content.ID + " = ?  AND " +
 				SmsContent.Content.PERSON + " = ?  AND " +
 				SmsContent.Content.SEEN + " = ?  AND " +
 				SmsContent.Content.READ + " = ? ");
-		assertTrue(q.where.compareTo(SmsContent.Content.ADDRESS + " = ?  AND " +
+		assertTrue(queryParameters.where.compareTo(SmsContent.Content.ADDRESS + " = ?  AND " +
 				SmsContent.Content.THREAD_ID + " = ?  AND " +
 				SmsContent.Content.ID + " = ?  AND " +
 				SmsContent.Content.PERSON + " = ?  AND " +
 				SmsContent.Content.SEEN + " = ?  AND " +
 				SmsContent.Content.READ + " = ? ") == 0);
-		String[] queryArgs = q.like;
+		String[] queryArgs = queryParameters.like;
 		assertTrue(queryArgs[0].compareTo("01906666") == 0);
 		assertTrue(queryArgs[1].compareTo("42") == 0);
 		assertTrue(queryArgs[2].compareTo("10987") == 0);

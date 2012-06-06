@@ -17,47 +17,47 @@ public class SmsBridgeTest extends WebSMSToolActivityTestcase {
 	public void testSmsBridgeSendSms() {
 
 		try {
-			SmsBridge s = new SmsBridge(mContext);
-			s.start();
-			s.sendTextMessage(SmsHelper.getDummyTextMessage());
+			SmsBridge smsBridge = new SmsBridge(mContext);
+			smsBridge.start();
+			smsBridge.sendTextMessage(SmsHelper.getDummyTextMessage());
 			Thread.sleep(1000);
-			s.stop();
-		} catch (Exception e) {
-			e.printStackTrace();
+			smsBridge.stop();
+		} catch (Exception ex) {
+			ex.printStackTrace();
 			assertTrue(false);
 		}
 	}
 
 	public void testSmsBridgeFetchInbox() {
 		try {
-			SmsBridge s = new SmsBridge(mContext);
-			s.start();
+			SmsBridge smsBridge = new SmsBridge(mContext);
+			smsBridge.start();
 			TextMessageFilter filter = new TextMessageFilter();
 			filter.setBox(SmsContent.ContentUri.INBOX_URI);
-			List<TextMessage> inMessages = s.fetchTextMessages(filter);
-			for (TextMessage m : inMessages) {
-				SmsHelper.logTextMessage(m);
+			List<TextMessage> inMessages = smsBridge.fetchTextMessages(filter);
+			for (TextMessage message : inMessages) {
+				SmsHelper.logTextMessage(message);
 			}
-			s.stop();
-		} catch (Exception e) {
-			e.printStackTrace();
+			smsBridge.stop();
+		} catch (Exception ex) {
+			ex.printStackTrace();
 			assertTrue(false);
 		}
 	}
 
 	public void testSmsBridgeFetchOutbox() {
 		try {
-			SmsBridge s = new SmsBridge(mContext);
-			s.start();
+			SmsBridge smsBridge = new SmsBridge(mContext);
+			smsBridge.start();
 			TextMessageFilter filter = new TextMessageFilter();
 			filter.setBox(SmsContent.ContentUri.OUTBOX_URI);
-			List<TextMessage> inMessages = s.fetchTextMessages(filter);
-			for (TextMessage m : inMessages) {
-				SmsHelper.logTextMessage(m);
+			List<TextMessage> inMessages = smsBridge.fetchTextMessages(filter);
+			for (TextMessage message : inMessages) {
+				SmsHelper.logTextMessage(message);
 			}
-			s.stop();
-		} catch (Exception e) {
-			e.printStackTrace();
+			smsBridge.stop();
+		} catch (Exception ex) {
+			ex.printStackTrace();
 			assertTrue(false);
 		}
 	}
@@ -71,5 +71,4 @@ public class SmsBridgeTest extends WebSMSToolActivityTestcase {
 	protected void tearDown() throws Exception {
 		super.tearDown();
 	}
-
 }

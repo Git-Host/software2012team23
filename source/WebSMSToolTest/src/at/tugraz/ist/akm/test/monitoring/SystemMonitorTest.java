@@ -22,13 +22,13 @@ public class SystemMonitorTest extends WebSMSToolActivityTestcase {
 			byte[] bytes = bStats.getBatteryIconBytes();
 			assertTrue(bytes.length > 0);
 			sm.stop();
-		} catch (Exception e) {
+		} catch (Exception ex) {
 			assertTrue(false);
 		}
 	}
 
 	public void testSystemMonitorSignalStrength() {
-		logW("WARNING: one test ist still being skipped [testSystemMonitorSignalStrength()]");
+		logWarning("WARNING: one test ist still being skipped [testSystemMonitorSignalStrength()]");
 		return;
 //				
 //		try {
@@ -50,7 +50,7 @@ public class SystemMonitorTest extends WebSMSToolActivityTestcase {
 	}
 
 	private void logBStats(BatteryStatus bStats) {
-		logV(" BatteryStatus: batteryIconId [" + bStats.getBatteryIconId()
+		logVerbose(" BatteryStatus: batteryIconId [" + bStats.getBatteryIconId()
 				+ "] isCharging [" + bStats.getIsCharging() + "] isFull["
 				+ bStats.getIsFull() + "] chargePlug[" + bStats.getChargePlug()
 				+ "]usbCharge [" + bStats.getIsUsbCharge() + "] acCharge["
@@ -60,7 +60,7 @@ public class SystemMonitorTest extends WebSMSToolActivityTestcase {
 	
 	@SuppressWarnings("unused")
 	private void logSStats(TelephonySignalStrength sStats) {
-		logV(" TelephonySignalStrength: signal icon id ["
+		logVerbose(" TelephonySignalStrength: signal icon id ["
 				+ sStats.getSignalIconId() + "] signal strength ["
 				+ sStats.getSignalStrength() + "%]");
 	}

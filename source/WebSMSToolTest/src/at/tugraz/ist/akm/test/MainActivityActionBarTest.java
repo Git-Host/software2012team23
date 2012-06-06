@@ -50,7 +50,7 @@ public class MainActivityActionBarTest extends ActivityInstrumentationTestCase2<
 
 	protected void log(final String m)
 	{
-		mLog.logV(m);
+		mLog.logVerbose(m);
 	}
 
 }

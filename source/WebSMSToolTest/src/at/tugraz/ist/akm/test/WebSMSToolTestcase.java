@@ -19,7 +19,7 @@ public class WebSMSToolTestcase extends InstrumentationTestCase {
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
-		logV(getName() + ".setUp()");
+		logVerbose(getName() + ".setUp()");
 
 		mContentResolver = getInstrumentation().getContext()
 				.getContentResolver();
@@ -28,40 +28,40 @@ public class WebSMSToolTestcase extends InstrumentationTestCase {
 
 	@Override
 	protected void tearDown() throws Exception {
-		logV(getName() + ".tearDown()");
+		logVerbose(getName() + ".tearDown()");
 		super.tearDown();
 	}
 
-	protected void logD(final String m, Throwable t) {
-		mLog.logD(m, t);
+	protected void logDebug(final String message, Throwable throwable) {
+		mLog.logDebug(message, throwable);
 	}
 	
-	protected void logD(final String m) {
-		mLog.logD(m);
+	protected void logDebug(final String message) {
+		mLog.logDebug(message);
 	}
 	
-	protected void logE(final String m, Throwable t) {
-		mLog.logE(m, t);
+	protected void logError(final String message, Throwable throwable) {
+		mLog.logError(message, throwable);
 	}
 	
-	protected void logE(final String m) {
-		mLog.logE(m);
+	protected void logError(final String message) {
+		mLog.logError(message);
 	}
 	
-	protected void logI(final String m, Throwable t) {
-		mLog.logI(m, t);
+	protected void logInfo(final String message, Throwable throwable) {
+		mLog.logInfo(message, throwable);
 	}
 	
-	protected void logI(final String m) {
-		mLog.logI(m);
+	protected void logInfo(final String message) {
+		mLog.logInfo(message);
 	}
 	
-	protected void logV(final String m, Throwable t) {
-		mLog.logV(m, t);
+	protected void logVerbose(final String message, Throwable throwable) {
+		mLog.logVerbose(message, throwable);
 	}
 	
-	protected void logV(final String m) {
-		mLog.logV(m);
+	protected void logVerbose(final String message) {
+		mLog.logVerbose(message);
 	}
 
 }

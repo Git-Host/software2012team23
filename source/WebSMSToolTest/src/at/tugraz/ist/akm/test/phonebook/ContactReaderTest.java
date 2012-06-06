@@ -23,34 +23,34 @@ public class ContactReaderTest extends WebSMSToolActivityTestcase {
 			PhonebookHelper.storeContacts(mTestContacts, mContentResolver);
 			ContactReader contactReader = new ContactReader(mContentResolver);
 
-			logV("get contacts with phone");
+			logVerbose("get contacts with phone");
 			ContactFilter filterWithPhone = new ContactFilter();
 			filterWithPhone.setWithPhone(true);
 			List<Contact> contacts = contactReader
 					.fetchContacts(filterWithPhone);
 			PhonebookHelper.logContacts(contacts);
 
-			logV("get contacts with phone AND starred");
+			logVerbose("get contacts with phone AND starred");
 			ContactFilter filterWithPhoneAndStarred = new ContactFilter();
 			filterWithPhoneAndStarred.setWithPhone(true);
 			filterWithPhoneAndStarred.setIsStarred(true);
 			contacts = contactReader.fetchContacts(filterWithPhoneAndStarred);
 			PhonebookHelper.logContacts(contacts);
 
-			logV("get starred contacts");
+			logVerbose("get starred contacts");
 			ContactFilter filterStarred = new ContactFilter();
 			filterStarred.setIsStarred(true);
 			contacts = contactReader.fetchContacts(filterStarred);
 			PhonebookHelper.logContacts(contacts);
 
-			logV("get contacts unfiltered");
+			logVerbose("get contacts unfiltered");
 			ContactFilter noFilter = new ContactFilter();
 			contacts = contactReader.fetchContacts(noFilter);
 			PhonebookHelper.logContacts(contacts);
 
 			PhonebookHelper.deleteContacts(mTestContacts, mContentResolver);
-		} catch (Throwable e) {
-			e.printStackTrace();
+		} catch (Throwable throwable) {
+		    throwable.printStackTrace();
 			assertTrue(false);
 		}
 	}

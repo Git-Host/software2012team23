@@ -47,8 +47,8 @@ public class ManipulateSmsTest extends WebSMSToolActivityTestcase implements
 			SmsHelper.logCursor(mContentResolver.query(
 					SmsContent.ContentUri.SENT_URI, null, null, null, null));
 
-		} catch (Exception e) {
-			e.printStackTrace();
+		} catch (Exception ex) {
+			ex.printStackTrace();
 			assertTrue(false);
 		}
 	}
@@ -58,8 +58,8 @@ public class ManipulateSmsTest extends WebSMSToolActivityTestcase implements
 			TextMessage m = SmsHelper.getDummyTextMessage();
 			SmsBoxWriter smsWriter = new SmsBoxWriter(mContentResolver);
 			smsWriter.writeOutboxTextMessage(m);
-		} catch (Exception e) {
-			e.printStackTrace();
+		} catch (Exception ex) {
+			ex.printStackTrace();
 			assertTrue(false);
 		}
 
@@ -84,8 +84,8 @@ public class ManipulateSmsTest extends WebSMSToolActivityTestcase implements
 
 			mContext.unregisterReceiver(sentReceiver);
 			mContext.unregisterReceiver(deliveredReceiver);
-		} catch (Exception e) {
-			e.printStackTrace();
+		} catch (Exception ex) {
+			ex.printStackTrace();
 			assertTrue(false);
 		}
 	}
@@ -99,8 +99,8 @@ public class ManipulateSmsTest extends WebSMSToolActivityTestcase implements
 			for (TextMessage m : inbox) {
 				SmsHelper.logTextMessage(m);
 			}
-		} catch (Exception e) {
-			e.printStackTrace();
+		} catch (Exception ex) {
+			ex.printStackTrace();
 			assertTrue(false);
 		}
 	}
@@ -141,8 +141,8 @@ public class ManipulateSmsTest extends WebSMSToolActivityTestcase implements
 							.getColumnIndex(SmsContent.Content.BODY));
 			assertTrue(0 == messageBodyFromContentprovider.compareTo(message
 					.getBody()));
-		} catch (Exception e) {
-			e.printStackTrace();
+		} catch (Exception ex) {
+			ex.printStackTrace();
 			assertTrue(false);
 		}
 	}
@@ -156,8 +156,8 @@ public class ManipulateSmsTest extends WebSMSToolActivityTestcase implements
 			for (TextMessage m : outbox) {
 				SmsHelper.logTextMessage(m);
 			}
-		} catch (Exception e) {
-			e.printStackTrace();
+		} catch (Exception ex) {
+			ex.printStackTrace();
 			assertTrue(false);
 		}
 	}
@@ -169,11 +169,11 @@ public class ManipulateSmsTest extends WebSMSToolActivityTestcase implements
 			List<Integer> threadIDs = smsSource.getThreadIds(address);
 
 			for (Integer id : threadIDs) {
-				logV("fetched sms thread-ID: [" + id + "] for address ["
+				logVerbose("fetched sms thread-ID: [" + id + "] for address ["
 						+ address + "]");
 			}
-		} catch (Exception e) {
-			e.printStackTrace();
+		} catch (Exception ex) {
+			ex.printStackTrace();
 			assertTrue(false);
 		}
 	}
@@ -190,22 +190,22 @@ public class ManipulateSmsTest extends WebSMSToolActivityTestcase implements
 
 	@Override
 	public void smsSentCallback(Context context, List<TextMessage> messages) {
-		logV("sms sent (list size: " + messages.size() + " )");
+		logVerbose("sms sent (list size: " + messages.size() + " )");
 	}
 
 	@Override
 	public void smsDeliveredCallback(Context context, List<TextMessage> messages) {
-		logV("sms delivered (list size: " + messages.size() + " )");
+		logVerbose("sms delivered (list size: " + messages.size() + " )");
 	}
 
 	@Override
 	public void smsReceivedCallback(Context context, List<TextMessage> messages) {
-		logV("sms received (list size: " + messages.size() + " )");
+		logVerbose("sms received (list size: " + messages.size() + " )");
 	}
 
 	@Override
 	public void smsSentErrorCallback(Context context, List<TextMessage> messages) {
-		logV("sms sent erroneous (list size: " + messages.size() + " )");
+		logVerbose("sms sent erroneous (list size: " + messages.size() + " )");
 	}
 
 }

@@ -32,8 +32,8 @@ public class TextingAdapterTest extends WebSMSToolActivityTestcase implements Sm
 		mIsTestcaseSendLongText = true;
 		TextingInterface texting = new TextingAdapter(mContext, this, this);
 		texting.start();
-		TextMessage m = SmsHelper.getDummyMultiTextMessage();
-		texting.sendTextMessage(m);
+		TextMessage message = SmsHelper.getDummyMultiTextMessage();
+		texting.sendTextMessage(message);
 
 		// try check for callbacks, else wait some time
 		int awaitedCallbacks = 3, tries = 30, durationMs = 200;
@@ -51,10 +51,10 @@ public class TextingAdapterTest extends WebSMSToolActivityTestcase implements Sm
 		mIsTestcaseSendNoFail = true;
 		TextingInterface texting = new TextingAdapter(mContext, this, this);
 		texting.start();
-		TextMessage m = new TextMessage();
-		m.setAddress("01234");
-		m.setBody("foobar foo baz");
-		texting.sendTextMessage(m);
+		TextMessage message = new TextMessage();
+		message.setAddress("01234");
+		message.setBody("foobar foo baz");
+		texting.sendTextMessage(message);
 		Thread.sleep(1000);
 		assertTrue(mCountSent > 0);
 		texting.stop();
@@ -69,9 +69,6 @@ public class TextingAdapterTest extends WebSMSToolActivityTestcase implements Sm
 		List<Contact> contacts = texting.fetchContacts(filter);
 
 		assertTrue(contacts.size() == 1 | contacts.size() == 0);
-		// Contact c = contacts.get(0);
-		// assertTrue(c.getPhotoBytes() != null);
-		// assertTrue(c.getPhotoUri() != null);
 
 		texting.stop();
 	}
@@ -90,13 +87,13 @@ public class TextingAdapterTest extends WebSMSToolActivityTestcase implements Sm
 	@Override
 	public void contactModifiedCallback()
 	{
-		logV("contact modified");
+		logVerbose("contact modified");
 	}
 
 	@Override
 	public void smsReceivedCallback(Context context, List<TextMessage> messages)
 	{
-		logV("sms received (messages size: " + messages.size() + " )");
+		logVerbose("sms received (messages size: " + messages.size() + " )");
 	}
 
 	@Override
@@ -104,31 +101,31 @@ public class TextingAdapterTest extends WebSMSToolActivityTestcase implements Sm
 	{
 		++mCountSent;
 
-		for(TextMessage m : messages){
+		for(TextMessage message : messages){
 			if (mIsTestcaseSendNoFail)
 			{
-				assertTrue(0 == m.getAddress().compareTo("01234"));
-				assertTrue(0 == m.getBody().compareTo("foobar foo baz"));
+				assertTrue(0 == message.getAddress().compareTo("01234"));
+				assertTrue(0 == message.getBody().compareTo("foobar foo baz"));
 			}
 			else if (mIsTestcaseSendLongText)
 			{
-				assertTrue(0 == m.getAddress().compareTo("13570"));
+				assertTrue(0 == message.getAddress().compareTo("13570"));
 				if (mCountSent == 1)
 				{
-					assertTrue(m
+					assertTrue(message
 							.getBody()
 							.contains(". 123456789012345678901234567890123456789012345678901234567890123456789012345678901234567"));
 				}
 				else if (mCountSent == 2)
 				{
-					assertTrue(m
+					assertTrue(message
 							.getBody()
 							.contains(
 									"890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890"));
 				}
 				else if (mCountSent == 3)
 				{
-					assertTrue(m.getBody().contains("1234567890"));
+					assertTrue(message.getBody().contains("1234567890"));
 	
 				}
 				else
@@ -144,13 +141,13 @@ public class TextingAdapterTest extends WebSMSToolActivityTestcase implements Sm
 	@Override
 	public void smsSentErrorCallback(Context context, List<TextMessage> messages)
 	{
-		logV("sms sent erroneous (messages size: " + messages.size() + " )");
+		logVerbose("sms sent erroneous (messages size: " + messages.size() + " )");
 	}
 
 	@Override
 	public void smsDeliveredCallback(Context context, List<TextMessage> messages)
 	{
-		logV("sms delivered (messages size: " + messages.size() + " )");
+		logVerbose("sms delivered (messages size: " + messages.size() + " )");
 	}
 
 }

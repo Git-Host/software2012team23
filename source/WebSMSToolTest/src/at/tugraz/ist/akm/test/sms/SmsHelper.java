@@ -11,8 +11,8 @@ public class SmsHelper {
 
 	private static Logable mLog = new Logable(SmsHelper.class.getSimpleName());
 	
-	private static void log(final String m) {
-		mLog.logV(m);
+	private static void log(final String message) {
+		mLog.logVerbose(message);
 	}
 	
 	public static String getDateNowString() {
@@ -26,21 +26,21 @@ public class SmsHelper {
 	public static TextMessage getDummyTextMessage() {
 		String methodName = Thread.currentThread().getStackTrace()[3]
 				.getMethodName();
-		TextMessage m = new TextMessage();
-		m.setAddress("1357");
-		m.setBody(methodName + ": Dummy texting generated on "
+		TextMessage message = new TextMessage();
+		message.setAddress("1357");
+		message.setBody(methodName + ": Dummy texting generated on "
 				+ getDateNowString() + ".");
-		return m;
+		return message;
 	}
 	
 	public static TextMessage getDummyMultiTextMessage() {
 		String methodName = Thread.currentThread().getStackTrace()[3]
 				.getMethodName();
-		TextMessage m = new TextMessage();
-		m.setAddress("13570");
-		m.setBody(methodName + ": Dummy texting generated on "
+		TextMessage message = new TextMessage();
+		message.setAddress("13570");
+		message.setBody(methodName + ": Dummy texting generated on "
 				+ getDateNowString() + ". 1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890");
-		return m;
+		return message;
 	}
 	
 	public static void logCursor(Cursor table) {

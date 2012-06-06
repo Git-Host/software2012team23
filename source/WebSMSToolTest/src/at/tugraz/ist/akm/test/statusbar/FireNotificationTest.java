@@ -18,7 +18,7 @@ public class FireNotificationTest extends WebSMSToolActivityTestcase {
 			notify.fireStickyInfos(infos);
 			Thread.sleep(100);
 			notify.cancelAll();
-		} catch (Exception e) {
+		} catch (Exception ex) {
 			assertTrue(false);
 		}
 	}

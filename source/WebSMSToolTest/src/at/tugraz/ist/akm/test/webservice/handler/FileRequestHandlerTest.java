@@ -75,12 +75,12 @@ public class FileRequestHandlerTest extends InstrumentationTestCase {
                     new FileReader(getInstrumentation().getContext(), DATA_FILE).read(),
                     new String(baos.toByteArray()));
 
-        } catch (HttpException e) {
-            Assert.fail("Exception => " + e.getMessage());
-            e.printStackTrace();
-        } catch (IOException e) {
-            Assert.fail("Exception => " + e.getMessage());
-            e.printStackTrace();
+        } catch (HttpException httpException) {
+            Assert.fail("Exception => " + httpException.getMessage());
+            httpException.printStackTrace();
+        } catch (IOException ioException) {
+            Assert.fail("Exception => " + ioException.getMessage());
+            ioException.printStackTrace();
         }
     }
 }
