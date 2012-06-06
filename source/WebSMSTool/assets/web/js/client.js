@@ -10,7 +10,7 @@
 	});
 	
 	//initialize the contact list
-	var number_to_contact_id = new Object(); //new Object used as map	
+	this.number_to_contact_id = new Object(); //new Object used as map	
 	wstAPI.getContacts(generate_contact_list);
 			
 	
@@ -160,7 +160,7 @@
 		if(json != null){
 			var cl_length = json.contacts.length;
 			if(cl_length > 0){
-				number_to_contact_id = new Object();
+				this.number_to_contact_id = new Object();
 				var html = '';
 				for(var i = 0; i < cl_length; i++){
 					html += wstTemplate.get('contact_entry', json.contacts[i])+'\n';
@@ -169,12 +169,12 @@
 					var phone_numbers = json.contacts[i].phone_numbers; 
 					for(var j = 0; j < phone_numbers.length; j++){
 						var number = phone_numbers[j].clean_number;
-						number_to_contact_id[number] = json.contacts[i].id;
+							this.number_to_contact_id[number] = json.contacts[i].id;
 					}
 				}
 				$('#contact_list').html(html);
 				wstLog.success('Contact-List successfully updated.');
-				wstLog.log(number_to_contact_id);				
+				wstLog.log(this.number_to_contact_id);				
 				return true;
 			}
 		}
