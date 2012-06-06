@@ -55,9 +55,9 @@ public class ManipulateSmsTest extends WebSMSToolActivityTestcase implements
 
 	public void testWriteSMSToOutbox() {
 		try {
-			TextMessage m = SmsHelper.getDummyTextMessage();
+			TextMessage textMessage = SmsHelper.getDummyTextMessage();
 			SmsBoxWriter smsWriter = new SmsBoxWriter(mContentResolver);
-			smsWriter.writeOutboxTextMessage(m);
+			smsWriter.writeOutboxTextMessage(textMessage);
 		} catch (Exception ex) {
 			ex.printStackTrace();
 			assertTrue(false);

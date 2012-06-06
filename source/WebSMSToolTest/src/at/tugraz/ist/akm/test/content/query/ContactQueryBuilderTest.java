@@ -16,12 +16,12 @@ public class ContactQueryBuilderTest extends WebSMSToolTestcase {
 		ContactFilter filter = new ContactFilter();
 		filter.setIsStarred(true);
 		ContactQueryBuilder builder = new ContactQueryBuilder(filter);
-		ContentProviderQueryParameters q = builder.getQueryArgs();
+		ContentProviderQueryParameters queryParams = builder.getQueryArgs();
 
-		assertTrue(q.uri.equals(ContactsContract.Contacts.CONTENT_URI));
-		assertTrue(q.where.compareTo(ContactsContract.Contacts.STARRED
+		assertTrue(queryParams.uri.equals(ContactsContract.Contacts.CONTENT_URI));
+		assertTrue(queryParams.where.compareTo(ContactsContract.Contacts.STARRED
 				+ " = ? ") == 0);
-		String[] queryArgs = q.like;
+		String[] queryArgs = queryParams.like;
 		assertTrue(queryArgs[0].compareTo("1") == 0);
 	}
 
@@ -29,10 +29,10 @@ public class ContactQueryBuilderTest extends WebSMSToolTestcase {
 		ContactFilter filter = new ContactFilter();
 		filter.setId(115);
 		ContactQueryBuilder builder = new ContactQueryBuilder(filter);
-		ContentProviderQueryParameters q = builder.getQueryArgs();
+		ContentProviderQueryParameters queryParams = builder.getQueryArgs();
 
-		assertTrue(q.where.compareTo(ContactsContract.Contacts._ID + " = ? ") == 0);
-		String[] queryArgs = q.like;
+		assertTrue(queryParams.where.compareTo(ContactsContract.Contacts._ID + " = ? ") == 0);
+		String[] queryArgs = queryParams.like;
 		assertTrue(queryArgs[0].compareTo("115") == 0);
 	}
 
@@ -40,12 +40,12 @@ public class ContactQueryBuilderTest extends WebSMSToolTestcase {
 		ContactFilter filter = new ContactFilter();
 		filter.setWithPhone(true);
 		ContactQueryBuilder builder = new ContactQueryBuilder(filter);
-		ContentProviderQueryParameters q = builder.getQueryArgs();
+		ContentProviderQueryParameters queryParams = builder.getQueryArgs();
 
-		assertTrue(q.uri.equals(ContactsContract.Contacts.CONTENT_URI));
-		assertTrue(q.where.compareTo(ContactsContract.Contacts.HAS_PHONE_NUMBER
+		assertTrue(queryParams.uri.equals(ContactsContract.Contacts.CONTENT_URI));
+		assertTrue(queryParams.where.compareTo(ContactsContract.Contacts.HAS_PHONE_NUMBER
 				+ " = ? ") == 0);
-		String[] queryArgs = q.like;
+		String[] queryArgs = queryParams.like;
 		assertTrue(queryArgs[0].compareTo("1") == 0);
 	}
 
@@ -56,15 +56,15 @@ public class ContactQueryBuilderTest extends WebSMSToolTestcase {
 		filter.setWithPhone(true);
 
 		ContactQueryBuilder builder = new ContactQueryBuilder(filter);
-		ContentProviderQueryParameters q = builder.getQueryArgs();
+		ContentProviderQueryParameters queryParams = builder.getQueryArgs();
 
-		assertTrue(q.uri.equals(ContactsContract.Contacts.CONTENT_URI));
-		assertTrue(q.where.compareTo(ContactsContract.Contacts._ID
+		assertTrue(queryParams.uri.equals(ContactsContract.Contacts.CONTENT_URI));
+		assertTrue(queryParams.where.compareTo(ContactsContract.Contacts._ID
 				+ " = ?  AND " + ContactsContract.Contacts.STARRED
 				+ " = ?  AND " + ContactsContract.Contacts.HAS_PHONE_NUMBER
 				+ " = ? ") == 0);
 
-		String[] queryArgs = q.like;
+		String[] queryArgs = queryParams.like;
 		assertTrue(queryArgs[0].compareTo("123") == 0);
 		assertTrue(queryArgs[1].compareTo("1") == 0);
 		assertTrue(queryArgs[2].compareTo("1") == 0);
