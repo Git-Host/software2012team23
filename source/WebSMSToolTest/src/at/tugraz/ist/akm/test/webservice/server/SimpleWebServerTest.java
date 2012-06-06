@@ -22,10 +22,8 @@ import org.json.JSONObject;
 
 import android.content.Context;
 import android.test.InstrumentationTestCase;
-import android.util.Log;
 import at.tugraz.ist.akm.R;
 import at.tugraz.ist.akm.io.FileReader;
-import at.tugraz.ist.akm.test.texting.TextingAdapterTest;
 import at.tugraz.ist.akm.test.trace.ThrowingLogSink;
 import at.tugraz.ist.akm.trace.Logable;
 import at.tugraz.ist.akm.trace.Logger;
