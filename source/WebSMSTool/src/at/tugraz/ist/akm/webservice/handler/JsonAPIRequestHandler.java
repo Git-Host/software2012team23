@@ -44,7 +44,8 @@ public class JsonAPIRequestHandler extends AbstractHttpRequestHandler implements
 
     private volatile TextingInterface mTextingAdapter;
     private volatile SystemMonitor mSystemMonitor;
-
+	private int mSMSThreadMessageCount;
+	
     /** members to represent a state */
     private volatile boolean mSMSSentSuccess = false;
     private volatile boolean mContactsChanged = false;
@@ -56,6 +57,7 @@ public class JsonAPIRequestHandler extends AbstractHttpRequestHandler implements
     private volatile List<TextMessage> mSMSReceivedList = new ArrayList<TextMessage>();
     private volatile List<TextMessage> mSMSSentErrorList = new ArrayList<TextMessage>();
 
+
     public JsonAPIRequestHandler(final Context context, final XmlNode config,
             final HttpRequestHandlerRegistry registry) {
         super(context, config, registry);
@@ -64,6 +66,8 @@ public class JsonAPIRequestHandler extends AbstractHttpRequestHandler implements
 
         mSystemMonitor = new SystemMonitor(context);
         mSystemMonitor.start();
+        
+        mSMSThreadMessageCount = 20;
     }
 
     @Override
@@ -219,6 +223,7 @@ public class JsonAPIRequestHandler extends AbstractHttpRequestHandler implements
         JSONObject resultObject = new JSONObject();
         String contact_id = "";
         int paramsLength = params.length();
+        int messageCount = this.mSMSThreadMessageCount;
         try {
             if (paramsLength == 1) {
                 List<TextMessage> threadList = new ArrayList<TextMessage>();
@@ -237,18 +242,29 @@ public class JsonAPIRequestHandler extends AbstractHttpRequestHandler implements
                     Contact con = contact.get(0);
                     List<Contact.Number> phoneNumbers = con.getPhoneNumbers();
                     for(Contact.Number entry : phoneNumbers){
+                        if(messageCount <= 0){
+                        	break;
+                        }
                         String number = entry.getCleanedUpNumber();
                         mLog.logVerbose("Fetch SMS Thread with number: "+ entry.getNumber()+" replaced to: "+number);
                         List<Integer> threadIds = mTextingAdapter.fetchThreadIds(number);
                         for(Integer threadId : threadIds){
+                            if(messageCount <= 0){
+                            	break;
+                            }
                             TextMessageFilter msgFilter = new TextMessageFilter();
                             msgFilter.setThreadId(threadId.longValue());
                             msgFilter.setBox(SmsContent.ContentUri.BASE_URI);
                             mLog.logVerbose("Fetch SMS Thread with threadID: "+ threadId);
                             List<TextMessage> threadMessages = mTextingAdapter.fetchTextMessages(msgFilter);
+
                             for(TextMessage msg : threadMessages){
+                                if(messageCount <= 0){
+                                	break;
+                                }
                                 threadList.add(msg);
                                 mLog.logVerbose("Adding sms to thread list with id: "+ msg.getId());
+                                messageCount--;
                             }
                         }
                     }
@@ -324,6 +340,8 @@ public class JsonAPIRequestHandler extends AbstractHttpRequestHandler implements
 
     private JSONArray fetchContactsJsonArray() {
         ContactFilter allFilter = new ContactFilter();
+        allFilter.setWithPhone(true);
+        allFilter.setOrderByDisplayName(true, ContactFilter.SORT_ORDER_ASCENDING);
         List<Contact> contacts = mTextingAdapter.fetchContacts(allFilter);
         JSONArray contactList = new JSONArray();
         for (int idx = 0; idx < contacts.size(); idx++) {

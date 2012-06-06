@@ -11,6 +11,7 @@ public class ContactQueryBuilder {
 	private StringBuffer mWhere = new StringBuffer();
 	private boolean mIsFirstWhereQuery = true;
 	private List<String> mLikeArgs = new ArrayList<String>();
+	private String mSort = "";
 
 	public ContactQueryBuilder(ContactFilter filter) {
 		mFilter = filter;
@@ -31,10 +32,12 @@ public class ContactQueryBuilder {
 		collectIdClause();
 		collectStarredQueryClause();
 		collectWithPhoneQueryClause();
+		collectSortClause();
 
 		queryParameters.like = new String[mLikeArgs.size()];
 		queryParameters.like = mLikeArgs.toArray(queryParameters.like);
 		queryParameters.where = mWhere.toString();
+		queryParameters.sortBy = mSort;
 		return queryParameters;
 	}
 
@@ -91,5 +94,15 @@ public class ContactQueryBuilder {
 			mIsFirstWhereQuery = false;
 		}
 		mWhere.append(clause);
+	}
+	
+	
+	/**
+	 * collect the sort clause from filter
+	 */
+	private void collectSortClause(){
+		if(mFilter.getOrderByDisplayName()){
+			mSort = ContactsContract.Contacts.DISPLAY_NAME + " " + mFilter.getSortOrder();
+		}
 	}
 }
