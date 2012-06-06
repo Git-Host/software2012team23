@@ -54,7 +54,8 @@
 			var contact_data = contact_entry.data('contactFull');
 			return contact_data.name+' '+contact_data.last_name;
 		} else {
-			return sms_json.address;
+			//return sms_json.address;
+			return "ME";
 		}
 	});	
 	

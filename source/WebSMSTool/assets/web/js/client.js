@@ -10,7 +10,7 @@ $.ajaxSetup({cache: false, async: true });
 
 
 (function(){
-	
+	var polling_interval = 10000;
 	
 	/** GENERAL INITIALIZATION */	
 	//init tabbing
@@ -27,7 +27,11 @@ $.ajaxSetup({cache: false, async: true });
 	
 	var poll = function(){
 		wstAPI.pollInfo(update_webapp);
-	}
+	}	
+	setInterval(function(){
+		poll();
+	}, polling_interval);
+	
 	poll();
 	
 	
@@ -106,7 +110,7 @@ $.ajaxSetup({cache: false, async: true });
 		}
 		
 		wstLog.log('Updating webapp');
-		setTimeout(poll,10000); 
+		//setTimeout(poll,10000); 
 	}
 	
 	
