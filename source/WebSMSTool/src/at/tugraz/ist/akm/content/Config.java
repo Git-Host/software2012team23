@@ -73,8 +73,10 @@ public class Config {
 			while(cursor.moveToNext()){
 				queriedValue = cursor.getString(0);
 			}
+			
+			cursor.close();
 		}
-		cursor.close();
+		
 		return queriedValue;
 	}
 	private void updateSettings(ContentValues values, String where) {

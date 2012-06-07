@@ -17,6 +17,7 @@
 <resources>
     <item type="id" name="actionbar_compat" />
     <item type="id" name="actionbar_compat_title" />
-    <item type="id" name="actionbar_compat_item_refresh_progress" />
-    <item type="id" name="actionbar_compat_item_refresh" />
+    <item type="id" name="actionbar_compat_item_info" />
+    <item type="id" name="actionbar_compat_item_settings" />
+    <item type="id" name="actionbar_compat_item_home" />
 </resources>

@@ -1,8 +1,6 @@
 package at.tugraz.ist.akm;
 
 import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
@@ -32,16 +30,6 @@ public class SettingsActivity extends ActionBarActivity {
     }
     
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.menu, menu);
-        
-        // Calling super after populating the menu is necessary here to ensure that the
-        // action bar helpers have a chance to handle this event.
-        return super.onCreateOptionsMenu(menu);
-    }
-    
-    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle item selection
         switch (item.getItemId()) {
@@ -54,10 +42,16 @@ public class SettingsActivity extends ActionBarActivity {
     }
     
     public void saveSettings(View view) {
-    	Config config = new Config(getApplicationContext());
+        if (port.getText() == null || port.getText().toString().length() == 0) {
+            port.setError("This field is mandatory, please add a value (default 8887).");
+            return;
+        }
+        
+        Config config = new Config(getApplicationContext());
     	
     	config.setUserName(userName.getText().toString());
     	config.setPassword(passWord.getText().toString());
+    	    	
     	config.setPort(port.getText().toString());
     	if (http.isChecked()) {
     		config.setProtocol("http");

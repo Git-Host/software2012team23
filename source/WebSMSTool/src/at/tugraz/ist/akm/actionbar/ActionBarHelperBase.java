@@ -104,21 +104,6 @@ public class ActionBarHelperBase extends ActionBarHelper {
         actionBarCompat.addView(titleText);
     }
 
-    /**{@inheritDoc}*/
-    @Override
-    public void setRefreshActionItemState(boolean refreshing) {
-        View refreshButton = mActivity.findViewById(R.id.actionbar_compat_item_refresh);
-        View refreshIndicator = mActivity.findViewById(
-                R.id.actionbar_compat_item_refresh_progress);
-
-        if (refreshButton != null) {
-            refreshButton.setVisibility(refreshing ? View.GONE : View.VISIBLE);
-        }
-        if (refreshIndicator != null) {
-            refreshIndicator.setVisibility(refreshing ? View.VISIBLE : View.GONE);
-        }
-    }
-
     /**
      * Action bar helper code to be run in {@link Activity#onCreateOptionsMenu(android.view.Menu)}.
      *
@@ -183,9 +168,16 @@ public class ActionBarHelperBase extends ActionBarHelper {
                                 ? R.dimen.actionbar_compat_button_home_width
                                 : R.dimen.actionbar_compat_button_width),
                 ViewGroup.LayoutParams.FILL_PARENT));
-//        if (itemId == R.id.menu_refresh) {
-//            actionButton.setId(R.id.actionbar_compat_item_refresh);
-//        }
+        
+        
+        if (itemId == R.id.home) {
+            actionButton.setId(R.id.actionbar_compat_item_home);
+        } else if (itemId == R.id.settings) {
+            actionButton.setId(R.id.actionbar_compat_item_settings);
+        } else if (itemId == R.id.info) {
+            actionButton.setId(R.id.actionbar_compat_item_info);
+        }
+        
         actionButton.setImageDrawable(item.getIcon());
         actionButton.setScaleType(ImageView.ScaleType.CENTER);
         actionButton.setContentDescription(item.getTitle());

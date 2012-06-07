@@ -61,7 +61,7 @@
         android:layout_height="wrap_content"
         android:ems="10"
         android:text="@string/default_port"
-        android:inputType="number" 
+        android:inputType="number"
         android:selectAllOnFocus="true"/>
 
     <TextView

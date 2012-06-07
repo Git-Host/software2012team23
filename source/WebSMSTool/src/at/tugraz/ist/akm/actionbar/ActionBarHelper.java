@@ -17,7 +17,6 @@
 package at.tugraz.ist.akm.actionbar;
 
 import android.app.Activity;
-import android.os.Build;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -40,13 +39,7 @@ public abstract class ActionBarHelper {
      * Honeycomb-specific helper will be returned.
      */
     public static ActionBarHelper createInstance(Activity activity) {
-        if (Build.VERSION.SDK_INT >= 13 /* Build.VERSION_CODES.ICE_CREAM_SANDWICH */ ) {
-            return new ActionBarHelperICS(activity);
-        } else if (Build.VERSION.SDK_INT >= 11 /* Build.VERSION_CODES.HONEYCOMB */ ) {
-            return new ActionBarHelperHoneycomb(activity);
-        } else {
-            return new ActionBarHelperBase(activity);
-        }
+        return new ActionBarHelperBase(activity);
     }
 
     protected ActionBarHelper(Activity activity) {
@@ -79,12 +72,6 @@ public abstract class ActionBarHelper {
      */
     protected void onTitleChanged(CharSequence title, int color) {
     }
-
-    /**
-     * Sets the indeterminate loading state of the item with ID {@link R.id.menu_refresh}.
-     * (where the item ID was menu_refresh).
-     */
-    public abstract void setRefreshActionItemState(boolean refreshing);
 
     /**
      * Returns a {@link MenuInflater} for use when inflating menus. The implementation of this
