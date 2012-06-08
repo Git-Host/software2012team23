@@ -37,9 +37,9 @@ public class WebSMSToolService extends Service {
 
         try {
             mServer.startServer();
-            LOG.logInfo("Web service has been started on port <" + mServer.getServerPort() + ">");
+            LOG.logInfo("Web service has been started");
         } catch (Exception ex) {
-            LOG.logError("Couldn't start web service on port", ex);
+            LOG.logError("Couldn't start web service", ex);
         }
 
         return super.onStartCommand(intent, flags, startId);

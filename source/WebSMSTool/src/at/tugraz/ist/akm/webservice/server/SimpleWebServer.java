@@ -194,12 +194,16 @@ public class SimpleWebServer {
             mServerThread = new ServerThread(this, serverSocket);
             mServerThread.setDaemon(true);
             mServerThread.start();
-
+            
+            mLog.logInfo("WebServer started on port: " + mServerPort);
+            
             return true;
         } catch (IOException ioException) {
             mLog.logError("Cannot create server socket on port <" + mServerPort + ">", ioException);
             return false;
         }
+        
+        
     }
 
     private void updateWebServerConfiguration() {

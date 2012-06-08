@@ -5,21 +5,36 @@ import my.org.apache.http.HttpRequest;
 import my.org.apache.http.HttpResponse;
 import android.content.Context;
 import android.util.Base64;
+import at.tugraz.ist.akm.content.Config;
 import at.tugraz.ist.akm.io.FileReader;
 import at.tugraz.ist.akm.trace.Logable;
 import at.tugraz.ist.akm.webservice.WebServerConfig;
 
 public class AuthorizationInterceptor extends AbstractRequestInterceptor {
     protected final Logable mLog = new Logable(getClass().getSimpleName());
+    private Config mConfig;
 
     public AuthorizationInterceptor(Context context) {
-        super(context);
+    	super(context);
+    	mConfig = new Config(context);
     }
 
-    @SuppressWarnings("unused")
+    
 	@Override
     public boolean process(HttpRequest httpRequest, String requestData, HttpResponse httpResponse) {
         Header header = httpRequest.getFirstHeader(WebServerConfig.HTTP.HEADER_AUTHENTICATION);
+        
+        String userToCheck = mConfig.getUserName();
+        String passToCkeck = mConfig.getPassWord();
+        
+        //config values are not correctly set -> no authentication will be done
+        if(userToCheck.length() == 0 || passToCkeck.length() == 0){
+        	httpResponse.setStatusCode(WebServerConfig.HTTP.HTTP_CODE_OK);
+        	return true;
+        }
+
+        boolean authSuccess = false;
+        
         if (header != null) {
             mLog.logDebug("login!");
             String headerValue = header.getValue();
@@ -32,10 +47,16 @@ public class AuthorizationInterceptor extends AbstractRequestInterceptor {
                 user = getUsername(userCredentials);
                 pass = getPassword(userCredentials);
             }
-            // TODO
-            // validate user credentials
-            httpResponse.setStatusCode(WebServerConfig.HTTP.HTTP_CODE_OK);
-        } else {
+            
+            
+            if(user.compareTo(userToCheck) == 0 && pass.compareTo(passToCkeck) == 0){
+            	authSuccess = true;
+            	httpResponse.setStatusCode(WebServerConfig.HTTP.HTTP_CODE_OK);
+            }
+        }
+        
+        
+        if(authSuccess == false) {
             mLog.logVerbose("require authentication");
             httpResponse.setStatusCode(WebServerConfig.HTTP.HTTP_CODE_UNAUTHORIZED);
             httpResponse.setHeader(WebServerConfig.HTTP.HEADER_WWW_AUTHENTICATE,
@@ -45,10 +66,9 @@ public class AuthorizationInterceptor extends AbstractRequestInterceptor {
             FileReader filereader = new FileReader(mContext, WebServerConfig.RES.UNAUTHORIZED);
             responseDataAppender.appendHttpResponseData(httpResponse,
                     WebServerConfig.HTTP.CONTENTY_TYPE_TEXT_HTML, filereader.read());
-
-            return false;
         }
-        return true;
+        
+        return authSuccess;
     }
 
     private String getUsername(String authenticationCode) {
