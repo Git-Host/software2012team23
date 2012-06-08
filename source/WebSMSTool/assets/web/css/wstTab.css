@@ -17,6 +17,7 @@
 #tabs li {
     margin-left: 8px;
     list-style: none;
+    border-radius: 5px 5px 0px 0px;
 }
 
 * html #tabs li {
