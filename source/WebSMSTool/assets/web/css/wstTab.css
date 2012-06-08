@@ -44,7 +44,7 @@
 }
 
 #tabs ul li:hover {
-    background-color: white;
+  background-color: rgb(255,255,200);
 }
 
 #tabs ul li a:hover {

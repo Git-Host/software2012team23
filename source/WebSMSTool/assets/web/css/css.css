@@ -109,7 +109,7 @@ footer {
 }
 
 #left_column .list .list_entry {
-    margin: 2px 2px 0px 2px;
+    padding: 3px 2px 4px 3px;
     border: 1px solid #1E4695;
     min-height: 50px;
     cursor: pointer;
