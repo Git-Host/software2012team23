@@ -11,11 +11,13 @@ import android.net.Uri;
 import android.provider.ContactsContract;
 import android.provider.ContactsContract.PhoneLookup;
 import android.provider.ContactsContract.RawContacts;
-import android.util.Log;
 import at.tugraz.ist.akm.phonebook.Contact;
+import at.tugraz.ist.akm.trace.Logable;
 
 public class PhonebookHelper {
 
+    private static Logable mLog = new Logable(PhonebookHelper.class.getSimpleName());
+    
 	public static void storeContact(String[] record,
 			ContentResolver contentResolver) throws Throwable {
 		
@@ -114,7 +116,7 @@ public class PhonebookHelper {
 					+ contact.getFamilyName() + " GName: " + contact.getName()
 					+ " PhotoUri: " + contact.getPhotoUri() + " IsStarred: "
 					+ contact.isStarred() + " Numbers: " + numbers.toString());
-			Log.v(PhonebookHelper.class.getSimpleName(), details.toString());
+			mLog.logVerbose(details.toString());
 		}
 
 	}

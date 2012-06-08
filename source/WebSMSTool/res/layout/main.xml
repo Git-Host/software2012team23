@@ -14,7 +14,7 @@
         android:background="@drawable/start_stop_selector" />
 
     <TextView
-        android:id="@+id/ip_data_field"
+        android:id="@+id/adress_data_field"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text=""

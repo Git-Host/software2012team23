@@ -12,6 +12,7 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 import at.tugraz.ist.akm.actionbar.ActionBarActivity;
+import at.tugraz.ist.akm.content.Config;
 import at.tugraz.ist.akm.trace.Logable;
 import at.tugraz.ist.akm.webservice.WebSMSToolService;
 
@@ -38,16 +39,19 @@ public class MainActivity extends ActionBarActivity
                     mSmsServiceIntent = new Intent(view.getContext(), WebSMSToolService.class);
                     view.getContext().startService(mSmsServiceIntent);
                     
+                    Config config = new Config(getApplicationContext());
+                    
                     String wifiIp  = getLocalIpAddress();
                     mLog.logDebug("Actual IP: " + wifiIp);
                     
                     
-                    TextView ipFieldView =  (TextView) findViewById(R.id.ip_data_field);
-                    ipFieldView.setText(getString(R.string.ipTitle)+wifiIp);
+                    TextView ipFieldView =  (TextView) findViewById(R.id.adress_data_field);
+                    ipFieldView.setText(config.getProtocol() + "://" + wifiIp + ":" +
+                            config.getPort());
                 } else {
                     view.getContext().stopService(mSmsServiceIntent);
                     mSmsServiceIntent = null;
-                    TextView ipFieldView =  (TextView) findViewById(R.id.ip_data_field);
+                    TextView ipFieldView =  (TextView) findViewById(R.id.adress_data_field);
                     ipFieldView.setText("");
                 }
 
