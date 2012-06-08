@@ -80,7 +80,7 @@ public class SimpleWebServerTest extends InstrumentationTestCase {
     }
 
     public void testSimpleJsonRequest() {
-    	Config serverConfig = new Config(getInstrumentation().getContext());
+    	Config serverConfig = new Config(this.getInstrumentation().getTargetContext().getApplicationContext());
     	serverConfig.setProtocol("http");
     	serverConfig.setPort("8888");
         

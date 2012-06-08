@@ -55,7 +55,7 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
 	public void testIpAdressOutputOnServiceStart() throws InterruptedException{
 		Solo solo = new Solo(getInstrumentation(), getActivity());
 		ToggleButton startStop = (ToggleButton) getActivity().findViewById(R.id.start_stop_server);
-		TextView ipView = (TextView) getActivity().findViewById(R.id.ip_data_field);
+		TextView ipView = (TextView) getActivity().findViewById(R.id.adress_data_field);
 		
 		assertTrue(ipView.getText().length() == 0);
 		solo.clickOnView(startStop);	

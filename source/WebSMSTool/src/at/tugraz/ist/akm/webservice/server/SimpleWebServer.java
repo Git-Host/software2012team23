@@ -57,7 +57,6 @@ public class SimpleWebServer {
 
     private boolean mHttps;
     private int mServerPort;
-    private Config mConfig;
 	private String mKeyStorePass;
 	
     // ssl and keystore
@@ -71,7 +70,6 @@ public class SimpleWebServer {
 
     public SimpleWebServer(Context context) {
         this.mContext = context;
-        this.mConfig = new Config(mContext);
 
         readRequestHandlers();
         readRequestInterceptors();
@@ -207,14 +205,16 @@ public class SimpleWebServer {
     }
 
     private void updateWebServerConfiguration() {
-        if(mConfig.getProtocol().compareTo("https") == 0){
+        Config config = new Config(mContext);
+        
+        if(config.getProtocol().compareTo("https") == 0){
         	mHttps = true;
         } else {
         	mHttps = false;
         }
         
-        mServerPort = Integer.parseInt(mConfig.getPort());
-        mKeyStorePass = mConfig.getKeyStorePassword();
+        mServerPort = Integer.parseInt(config.getPort());
+        mKeyStorePass = config.getKeyStorePassword();
 	}
 
 	public synchronized void stopServer() {

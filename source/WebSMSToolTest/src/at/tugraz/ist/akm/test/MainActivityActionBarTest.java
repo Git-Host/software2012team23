@@ -104,7 +104,7 @@ public class MainActivityActionBarTest extends ActivityInstrumentationTestCase2<
         settingsSolo.clickOnView(https);
         settingsSolo.clickOnView(save);
         
-        Thread.sleep(100);
+        Thread.sleep(200);
         
         Config config2 = new Config(context);
         assertEquals("Second save user should not empty.", "MyUsername", config2.getUserName());
