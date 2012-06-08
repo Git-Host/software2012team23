@@ -6,8 +6,8 @@ import at.tugraz.ist.akm.webservice.server.SimpleWebServer;
 
 public class MockSimpleWebServer extends SimpleWebServer {
 
-    public MockSimpleWebServer(Context context, boolean https) {
-        super(context, https);
+    public MockSimpleWebServer(Context context) {
+        super(context);
     }
     
     @Override

@@ -18,14 +18,20 @@ public class ConfigTest extends WebSMSToolActivityTestcase {
 
 	
 	public void testGetSettings() {
+		//insert values we want to check 
+		mConfig.setUserName("testUserName");
+		mConfig.setPassword("testPassword");
+		mConfig.setPort("8800");
+		mConfig.setProtocol("http");
+		
 		String username = mConfig.getUserName();
 		String password = mConfig.getPassWord();
 		String port = mConfig.getPort();
 		String protocol = mConfig.getProtocol();
 		String keyStorePassword = mConfig.getKeyStorePassword();
-		assertTrue("username not equals standard username", username.equals(""));
-		assertTrue("password not equals standard password", password.equals(""));
-		assertTrue("port not equals standard port", port.equals("8887"));
+		assertTrue("username not equals standard username", username.equals("testUserName"));
+		assertTrue("password not equals standard password", password.equals("testPassword"));
+		assertTrue("port not equals standard port", port.equals("8800"));
 		assertTrue("protocol not equals standard protocol", protocol.equals("http"));
 		assertTrue("keystorepassword not equals standard keystorepassword", keyStorePassword.equals("foobar64"));
 	}

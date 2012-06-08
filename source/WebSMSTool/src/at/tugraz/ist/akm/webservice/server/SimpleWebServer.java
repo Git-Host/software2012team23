@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Constructor;
 import java.net.ServerSocket;
-import java.net.Socket;
 import java.security.KeyManagementException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
@@ -21,18 +20,13 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLServerSocketFactory;
 
 import my.org.apache.http.HttpResponseInterceptor;
-import my.org.apache.http.HttpVersion;
 import my.org.apache.http.impl.DefaultConnectionReuseStrategy;
 import my.org.apache.http.impl.DefaultHttpResponseFactory;
-import my.org.apache.http.impl.DefaultHttpServerConnection;
-import my.org.apache.http.params.BasicHttpParams;
 import my.org.apache.http.params.CoreConnectionPNames;
 import my.org.apache.http.params.CoreProtocolPNames;
 import my.org.apache.http.params.HttpParams;
-import my.org.apache.http.params.HttpProtocolParams;
 import my.org.apache.http.params.SyncBasicHttpParams;
 import my.org.apache.http.protocol.BasicHttpContext;
-import my.org.apache.http.protocol.HTTP;
 import my.org.apache.http.protocol.HttpProcessor;
 import my.org.apache.http.protocol.HttpRequestHandlerRegistry;
 import my.org.apache.http.protocol.HttpService;
@@ -42,13 +36,12 @@ import my.org.apache.http.protocol.ResponseContent;
 import my.org.apache.http.protocol.ResponseDate;
 import my.org.apache.http.protocol.ResponseServer;
 import android.content.Context;
-import android.util.Log;
 import at.tugraz.ist.akm.R;
+import at.tugraz.ist.akm.content.Config;
 import at.tugraz.ist.akm.io.xml.XmlNode;
 import at.tugraz.ist.akm.io.xml.XmlReader;
 import at.tugraz.ist.akm.trace.Logable;
 import at.tugraz.ist.akm.webservice.WebServerConfig;
-import at.tugraz.ist.akm.webservice.WebserviceThreadPool;
 import at.tugraz.ist.akm.webservice.handler.AbstractHttpRequestHandler;
 import at.tugraz.ist.akm.webservice.handler.interceptor.IRequestInterceptor;
 
@@ -63,95 +56,25 @@ public class SimpleWebServer {
     private Vector<AbstractHttpRequestHandler> mHandlerReferenceListing = new Vector<AbstractHttpRequestHandler>();
 
     private boolean mHttps;
-
+    private int mServerPort;
+    private Config mConfig;
+	private String mKeyStorePass;
+	
     // ssl and keystore
     private SSLContext mSSLContext;
     private KeyManagerFactory mKeyFactory;
     private KeyManager[] mKeyManager;
     private KeyStore mKeyStore;
 
-    private static class ServerThread extends Thread {
-        private final SimpleWebServer mWebServer;
-        private final ServerSocket mServerSocket;
-        private boolean mRunning = false;
-        private boolean mStopServerThread = false;
 
-        private final WebserviceThreadPool mThreadPool;
-        
-        public ServerThread(final SimpleWebServer webServer, final ServerSocket serverSocket) {
-            this.mWebServer = webServer;
-            this.mServerSocket = serverSocket;
-            this.mThreadPool = new WebserviceThreadPool();
-        }
 
-        @Override
-        public void run() {
-            mRunning = true;
-            while (mRunning) {
-                Socket socket = null;
-                try {
-                    socket = mServerSocket != null ? mServerSocket.accept() : null;
-                } catch (IOException ioException) {
-                    //no need to write trace
-                }
 
-                if (mStopServerThread) {
-                    break;
-                }
-                if (socket != null) {
-                    mLog.logDebug("connection request from ip <" + socket.getInetAddress()
-                            + "> on port <" + socket.getPort() + ">");
-                
-                    final Socket tmpSocket = socket;
-                    mThreadPool.executeTask(new Runnable() {
-                        @Override
-                        public void run() {
-                            DefaultHttpServerConnection serverConn = new DefaultHttpServerConnection();
-                            try {
-                                HttpParams params = new BasicHttpParams();
-                                HttpProtocolParams.setVersion(params, HttpVersion.HTTP_1_1);
-                                HttpProtocolParams.setContentCharset(params, HTTP.UTF_8);
-
-                                serverConn.bind(tmpSocket, params);
-                                HttpService httpService = mWebServer.initializeHTTPService();
-                                httpService.handleRequest(serverConn, mWebServer.getHttpContext());
-                            } catch (Exception ex) {
-                                ex.printStackTrace();
-                                mLog.logError("Exception caught when processing HTTP client connection", ex);
-                            }
-                        }
-                    });
-                }
-            }
-
-            mRunning = false;
-            Log.i("SimpleWebServer", "Webserver stopped");
-        }
-
-        public void stopThread() {
-            mThreadPool.shutdown();
-            mStopServerThread = true;
-        }
-
-        public boolean isRunning() {
-            return mRunning;
-        }
-
-        public int getPort() {
-            return mServerSocket.getLocalPort();
-        }
-    }
-
-    public SimpleWebServer(Context context, final boolean https) {
+    public SimpleWebServer(Context context) {
         this.mContext = context;
-        this.mHttps = https;
+        this.mConfig = new Config(mContext);
 
         readRequestHandlers();
         readRequestInterceptors();
-
-        if (mHttps) {
-            initSSLContext();
-        }
     }
 
     protected synchronized HttpService initializeHTTPService() {
@@ -245,21 +168,24 @@ public class SimpleWebServer {
         return mServerThread != null;
     }
 
-    public synchronized boolean startServer(int port) {
+    public synchronized boolean startServer() {
         if (this.isRunning()) {
             mLog.logInfo("Web service is already running at port <" + mServerThread.getPort() + ">");
             return true;
         }
-
+        
+        updateWebServerConfiguration();
+        
         try {
             ServerSocket serverSocket = null;
-
+            
             if (mHttps) {
+				initSSLContext();
                 final SSLServerSocketFactory sslServerSocketFactory = mSSLContext
                         .getServerSocketFactory();
-                serverSocket = sslServerSocketFactory.createServerSocket(port);
+                serverSocket = sslServerSocketFactory.createServerSocket(mServerPort);
             } else {
-                serverSocket = new ServerSocket(port);
+                serverSocket = new ServerSocket(mServerPort);
             }
 
             serverSocket.setReuseAddress(true);
@@ -271,12 +197,23 @@ public class SimpleWebServer {
 
             return true;
         } catch (IOException ioException) {
-            mLog.logError("Cannot create server socket on port <" + port + ">", ioException);
+            mLog.logError("Cannot create server socket on port <" + mServerPort + ">", ioException);
             return false;
         }
     }
 
-    public synchronized void stopServer() {
+    private void updateWebServerConfiguration() {
+        if(mConfig.getProtocol().compareTo("https") == 0){
+        	mHttps = true;
+        } else {
+        	mHttps = false;
+        }
+        
+        mServerPort = Integer.parseInt(mConfig.getPort());
+        mKeyStorePass = mConfig.getKeyStorePassword();
+	}
+
+	public synchronized void stopServer() {
         mLog.logVerbose("stop web server");
         if (mServerThread != null) {
             mServerThread.stopThread();
@@ -307,9 +244,9 @@ public class SimpleWebServer {
 
             InputStream is = mContext.getResources().openRawResource(R.raw.websms);
 
-            mKeyStore.load(is, "foobar64".toCharArray());
+            mKeyStore.load(is, mKeyStorePass.toCharArray());
 
-            mKeyFactory.init(mKeyStore, "foobar64".toCharArray());
+            mKeyFactory.init(mKeyStore, mKeyStorePass.toCharArray());
             mKeyManager = mKeyFactory.getKeyManagers();
             mSSLContext.init(mKeyManager, null, new SecureRandom());
         } catch (IOException ioException) {
@@ -325,5 +262,15 @@ public class SimpleWebServer {
         } catch (KeyManagementException keyException) {
             mLog.logError("Error while getting keymanagers!", keyException);
         }
+    }
+    
+    
+    
+    public synchronized int getServerPort(){
+    	if(mServerThread != null && mServerThread.isRunning()){
+    		return mServerPort;
+    	} else {
+    		return -1;
+    	}
     }
 }

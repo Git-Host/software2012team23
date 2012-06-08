@@ -23,6 +23,7 @@ import org.json.JSONObject;
 import android.content.Context;
 import android.test.InstrumentationTestCase;
 import at.tugraz.ist.akm.R;
+import at.tugraz.ist.akm.content.Config;
 import at.tugraz.ist.akm.io.FileReader;
 import at.tugraz.ist.akm.test.trace.ThrowingLogSink;
 import at.tugraz.ist.akm.trace.Logable;
@@ -41,7 +42,7 @@ public class SimpleWebServerTest extends InstrumentationTestCase {
         mLog = new Logable(SimpleWebServerTest.class.getSimpleName());
     }
     
-    private void startServer(final boolean https, final boolean useMockServer) {
+    private void startServer(final boolean useMockServer) {
         if (webserver != null && webserver.isRunning()) {
             stopServer();
         }
@@ -49,10 +50,10 @@ public class SimpleWebServerTest extends InstrumentationTestCase {
         mLog.logDebug("start server");
 
         httpClient = new DefaultHttpClient();
-        webserver = useMockServer ? new MockSimpleWebServer(getInstrumentation().getContext(), https) : 
-                                    new SimpleWebServer(getInstrumentation().getContext(), https);
-        Assert.assertTrue(webserver.startServer(8888));
-        Assert.assertTrue(webserver.startServer(9999));
+        webserver = useMockServer ? new MockSimpleWebServer(getInstrumentation().getContext()) : 
+                                    new SimpleWebServer(getInstrumentation().getContext());
+        Assert.assertTrue(webserver.startServer());
+        //Assert.assertTrue(webserver.startServer(9999));
         while (!webserver.isRunning()) {
             synchronized (SimpleWebServerTest.class) {
                 try {
@@ -79,7 +80,11 @@ public class SimpleWebServerTest extends InstrumentationTestCase {
     }
 
     public void testSimpleJsonRequest() {
-        startServer(false, true);
+    	Config serverConfig = new Config(getInstrumentation().getContext());
+    	serverConfig.setProtocol("http");
+    	serverConfig.setPort("8888");
+        
+    	startServer(true);
 
         mLog.logDebug("testSimpleJsonRequest");
 
@@ -112,7 +117,11 @@ public class SimpleWebServerTest extends InstrumentationTestCase {
     }
 
     public void testSimpleFileRequest() {
-        startServer(false, true);
+    	Config serverConfig = new Config(getInstrumentation().getContext());
+    	serverConfig.setProtocol("http");
+    	serverConfig.setPort("8888");
+    	
+        startServer(true);
         mLog.logDebug("testSimpleFileRequest");
 
         HttpPost httppost = new HttpPost("http://localhost:8888/");
@@ -136,8 +145,12 @@ public class SimpleWebServerTest extends InstrumentationTestCase {
 
     public void testStartSecureServer() {
         mLog.logDebug("testStartSecureServer");
-
-        startServer(true, true);
+    	
+        Config serverConfig = new Config(getInstrumentation().getContext());
+    	serverConfig.setProtocol("https");
+    	serverConfig.setPort("8888");
+    	
+        startServer(true);
         Assert.assertTrue(webserver.isRunning());
 
         stopServer();

@@ -1,0 +1,93 @@
+package at.tugraz.ist.akm.webservice.server;
+
+import java.io.IOException;
+import java.net.ServerSocket;
+import java.net.Socket;
+
+import my.org.apache.http.HttpVersion;
+import my.org.apache.http.impl.DefaultHttpServerConnection;
+import my.org.apache.http.params.BasicHttpParams;
+import my.org.apache.http.params.HttpParams;
+import my.org.apache.http.params.HttpProtocolParams;
+import my.org.apache.http.protocol.HTTP;
+import my.org.apache.http.protocol.HttpService;
+import at.tugraz.ist.akm.trace.Logable;
+import at.tugraz.ist.akm.webservice.WebserviceThreadPool;
+
+public class ServerThread extends Thread {
+    private final static Logable mLog = new Logable(SimpleWebServer.class.getSimpleName());	
+    private final SimpleWebServer mWebServer;
+    private final ServerSocket mServerSocket;
+    private boolean mRunning = false;
+    private boolean mStopServerThread = false;
+
+    private final WebserviceThreadPool mThreadPool;
+    
+    public ServerThread(final SimpleWebServer webServer, final ServerSocket serverSocket) {
+        this.mWebServer = webServer;
+        this.mServerSocket = serverSocket;
+        this.mThreadPool = new WebserviceThreadPool();
+    }
+
+    @Override
+    public void run() {
+        mRunning = true;
+        while (mRunning) {
+            Socket socket = null;
+            try {
+                socket = mServerSocket != null ? mServerSocket.accept() : null;
+            } catch (IOException ioException) {
+                //no need to write trace
+            }
+
+            if (mStopServerThread) {
+                break;
+            }
+            if (socket != null) {
+                mLog.logDebug("connection request from ip <" + socket.getInetAddress()
+                        + "> on port <" + socket.getPort() + ">");
+            
+                final Socket tmpSocket = socket;
+                mThreadPool.executeTask(new Runnable() {
+                    @Override
+                    public void run() {
+                        DefaultHttpServerConnection serverConn = new DefaultHttpServerConnection();
+                        try {
+                            HttpParams params = new BasicHttpParams();
+                            HttpProtocolParams.setVersion(params, HttpVersion.HTTP_1_1);
+                            HttpProtocolParams.setContentCharset(params, HTTP.UTF_8);
+
+                            serverConn.bind(tmpSocket, params);
+                            HttpService httpService = mWebServer.initializeHTTPService();
+                            httpService.handleRequest(serverConn, mWebServer.getHttpContext());
+                        } catch (Exception ex) {
+                            ex.printStackTrace();
+                            mLog.logError("Exception caught when processing HTTP client connection", ex);
+                        }
+                    }
+                });
+            }
+        }
+
+        mRunning = false;
+        mLog.logInfo("Webserver stopped");
+    }
+
+    public void stopThread() {
+        mThreadPool.shutdown();
+        mStopServerThread = true;
+        try {
+			mServerSocket.close();
+		} catch (IOException exp) {
+			mLog.logWarning("Could not close server socket on stopping server thread", exp);
+		}
+    }
+
+    public boolean isRunning() {
+        return mRunning;
+    }
+
+    public int getPort() {
+        return mServerSocket.getLocalPort();
+    }
+}

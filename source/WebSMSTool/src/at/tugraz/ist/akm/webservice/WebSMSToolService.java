@@ -12,15 +12,8 @@ public class WebSMSToolService extends Service {
             WebSMSToolService.class.getSimpleName());
 
     SimpleWebServer mServer = null;
-    private int mPort = 8887;
-    private boolean mHttps = true;
 
-    public WebSMSToolService() {
-    }
-
-    public WebSMSToolService(int port) {
-        mPort = port;
-    }
+    public WebSMSToolService() {}
 
     public class LocalBinder extends Binder {
         WebSMSToolService getService() {
@@ -40,13 +33,13 @@ public class WebSMSToolService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         LOG.logVerbose("Try to start webserver.");
-        mServer = new SimpleWebServer(this, mHttps);
+        mServer = new SimpleWebServer(this);
 
         try {
-            mServer.startServer(mPort);
-            LOG.logInfo("Web service has been started on port <" + mPort + ">");
+            mServer.startServer();
+            LOG.logInfo("Web service has been started on port <" + mServer.getServerPort() + ">");
         } catch (Exception ex) {
-            LOG.logError("Couldn't start web service on port <" + mPort + ">", ex);
+            LOG.logError("Couldn't start web service on port", ex);
         }
 
         return super.onStartCommand(intent, flags, startId);
