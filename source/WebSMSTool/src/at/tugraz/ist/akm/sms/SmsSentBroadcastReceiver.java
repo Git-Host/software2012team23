@@ -10,7 +10,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.telephony.SmsMessage;
-import android.util.Log;
+import at.tugraz.ist.akm.trace.Logable;
 
 public class SmsSentBroadcastReceiver extends BroadcastReceiver
 {
@@ -26,6 +26,7 @@ public class SmsSentBroadcastReceiver extends BroadcastReceiver
 	private static final String EXTRA_BUNDLE_KEY_PDU = "pdus";
 
 	private SmsIOCallback mCallback = null;
+	private Logable mLog = new Logable(getClass().getSimpleName());
 
 	public SmsSentBroadcastReceiver(SmsIOCallback callback)
 	{
@@ -58,7 +59,7 @@ public class SmsSentBroadcastReceiver extends BroadcastReceiver
 		}
 		else
 		{
-			Log.v(getClass().getSimpleName(), "unknown action received: " + action);
+			 mLog.logVerbose("unknown action received: " + action);
 		}
 	}
 	

@@ -3,6 +3,7 @@ package at.tugraz.ist.akm.trace;
 
 public class Logger {
 
+    private static boolean mEnabled = false;
 	private static Logger mLogger = null;
 	private LogSink mSink = new AndroidLogSink();
 
@@ -11,7 +12,9 @@ public class Logger {
 	}
 	
 	public static void log(final LogLevel level, final String tag, final String message, final Throwable t) {
-		getInstance().distributeLog(level, tag, message, t);
+		if (mEnabled) {
+		    getInstance().distributeLog(level, tag, message, t);
+		}
 	}
 
 	public static void setSink(LogSink newSink) {
@@ -27,25 +30,27 @@ public class Logger {
 	
 	private void distributeLog(final LogLevel level, final String tag,
 			final String message, final Throwable t) {
-		switch (level) {
-		case ERROR:
-			mSink.error(tag, formatMessage(message, t));
-			break;
-		case WARNING:
-			mSink.warning(tag, formatMessage(message, t));
-			break;
-	
-		case INFO:
-			mSink.info(tag, formatMessage(message, t));
-			break;
-	
-		case DEBUG:
-			mSink.debug(tag, formatMessage(message, t));
-			break;
-	
-		case VERBOSE:
-			mSink.verbose(tag, formatMessage(message, t));
-			break;
+		if (mEnabled) {
+    	    switch (level) {
+    		case ERROR:
+    			mSink.error(tag, formatMessage(message, t));
+    			break;
+    		case WARNING:
+    			mSink.warning(tag, formatMessage(message, t));
+    			break;
+    	
+    		case INFO:
+    			mSink.info(tag, formatMessage(message, t));
+    			break;
+    	
+    		case DEBUG:
+    			mSink.debug(tag, formatMessage(message, t));
+    			break;
+    	
+    		case VERBOSE:
+    			mSink.verbose(tag, formatMessage(message, t));
+    			break;
+    		}
 		}
 	}
 

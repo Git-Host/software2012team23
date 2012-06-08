@@ -5,7 +5,6 @@ import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.text.format.Formatter;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -13,11 +12,13 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 import at.tugraz.ist.akm.actionbar.ActionBarActivity;
+import at.tugraz.ist.akm.trace.Logable;
 import at.tugraz.ist.akm.webservice.WebSMSToolService;
 
 public class MainActivity extends ActionBarActivity 
 {
 	private Intent mSmsServiceIntent = null;
+	private Logable mLog = new Logable(getClass().getSimpleName());
 
 	/**
 	 * starts the main service (web server etc.)
@@ -32,17 +33,13 @@ public class MainActivity extends ActionBarActivity
         button.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
                 if (mSmsServiceIntent == null) {
-                    Log.v("Activity", "Going to start web service");
-                    
-                    button.setVisibility(1);
+                    mLog.logVerbose("Going to start web service");
                     
                     mSmsServiceIntent = new Intent(view.getContext(), WebSMSToolService.class);
                     view.getContext().startService(mSmsServiceIntent);
                     
-                    button.setVisibility(0);
-                    
                     String wifiIp  = getLocalIpAddress();
-                    Log.d("Actual IP:", wifiIp);
+                    mLog.logDebug("Actual IP: " + wifiIp);
                     
                     
                     TextView ipFieldView =  (TextView) findViewById(R.id.ip_data_field);
