@@ -81,7 +81,7 @@ public class SimpleWebServer {
     private KeyManager[] mKeyManager;
     private KeyStore mKeyStore;
 
-
+    private boolean mIsServerRunning = false;
 
 
     public SimpleWebServer(Context context) {
@@ -179,7 +179,8 @@ public class SimpleWebServer {
     }
 
     public boolean isRunning() {
-        return mServerThread != null;
+    	return mIsServerRunning;
+        //return mServerThread != null;
     }
 
     public synchronized boolean startServer() {
@@ -204,7 +205,8 @@ public class SimpleWebServer {
 
             serverSocket.setReuseAddress(true);
             serverSocket.setSoTimeout(2000);
-
+            
+            mIsServerRunning = true;
             mServerThread = new ServerThread(this, serverSocket);
             mServerThread.setDaemon(true);
             mServerThread.start();
@@ -244,6 +246,7 @@ public class SimpleWebServer {
                     ;
                 }
             }
+            mIsServerRunning = false;
         }
 
         closeRegistry();

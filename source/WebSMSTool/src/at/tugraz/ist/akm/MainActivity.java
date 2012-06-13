@@ -16,7 +16,14 @@
 
 package at.tugraz.ist.akm;
 
+import java.util.Iterator;
+import java.util.List;
+
+import android.app.ActivityManager;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
@@ -32,103 +39,205 @@ import at.tugraz.ist.akm.content.Config;
 import at.tugraz.ist.akm.trace.Logable;
 import at.tugraz.ist.akm.webservice.WebSMSToolService;
 
-public class MainActivity extends ActionBarActivity 
-{
+public class MainActivity extends ActionBarActivity implements
+		View.OnClickListener {
 	private Intent mSmsServiceIntent = null;
-	private Logable mLog = new Logable(getClass().getSimpleName());
+	private Logable mLog = null;
+	final String mServiceName = WebSMSToolService.class.getName();
+	private ToggleButton mButton = null;
+	private TextView mInfoFieldView = null;
+	private Config mApplicationConfig = null;
+	private ServiceStateListener mServiceListener = null;
+
+	private class ServiceStateListener extends BroadcastReceiver {
+
+		private MainActivity mCallback = null;
+
+		public ServiceStateListener(MainActivity callback) {
+			mCallback = callback;
+		}
+
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			String action = intent.getAction();
+			if (0 == action.compareTo(WebSMSToolService.SERVICE_STARTED)) {
+				mCallback.webServiceStarted();
+			} else if (0 == action
+					.compareTo(WebSMSToolService.SERVICE_START_FAILED)) {
+				mCallback.webServiceStartFailed();
+			} else if (0 == action
+					.compareTo(WebSMSToolService.SERVICE_STARTING)) {
+				mCallback.webServiceStarting();
+			} else if (0 == action.compareTo(WebSMSToolService.SERVICE_STOPPED)) {
+				mCallback.webServiceStopped();
+			} else if (0 == action
+					.compareTo(WebSMSToolService.SERVICE_STOP_FAILED)) {
+				mCallback.webServiceStopFailed();
+			} else if (0 == action.compareTo(WebSMSToolService.SERVICE_STOPPING)) {
+				mCallback.webServiceStopping();
+			} else if (0 == action
+					.compareTo(WebSMSToolService.SERVICE_STOPPING)) {
+			}
+		}
+	}
+
+	public MainActivity() {
+		mLog = new Logable(getClass().getSimpleName());
+		mServiceListener = new ServiceStateListener(this);
+	}
 
 	/**
 	 * starts the main service (web server etc.)
 	 */
 	@Override
-	public void onCreate(Bundle savedInstanceState)
-	{
+	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main);
-		
-		final ToggleButton button = (ToggleButton) findViewById(R.id.start_stop_server);
-        button.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View view) {
-                if (mSmsServiceIntent == null) {
-                    mLog.logVerbose("Going to start web service");
-                    
-                    mSmsServiceIntent = new Intent(view.getContext(), WebSMSToolService.class);
-                    view.getContext().startService(mSmsServiceIntent);
-                    
-                    Config config = new Config(getApplicationContext());
-                    
-                    String wifiIp  = getLocalIpAddress();
-                    mLog.logDebug("Actual IP: " + wifiIp);
-                    
-                    
-                    TextView ipFieldView =  (TextView) findViewById(R.id.adress_data_field);
-                    ipFieldView.setText(config.getProtocol() + "://" + wifiIp + ":" +
-                            config.getPort());
-                } else {
-                    view.getContext().stopService(mSmsServiceIntent);
-                    mSmsServiceIntent = null;
-                    TextView ipFieldView =  (TextView) findViewById(R.id.adress_data_field);
-                    ipFieldView.setText("");
-                }
+		mSmsServiceIntent = new Intent(this.getApplicationContext(),
+				WebSMSToolService.class);
+		mButton = (ToggleButton) findViewById(R.id.start_stop_server);
+		mInfoFieldView = (TextView) findViewById(R.id.adress_data_field);
+		mApplicationConfig = new Config(getApplicationContext());
 
-                
-            }
-        });
-	}
+		if (isServiceRunning(mServiceName)) {
+			mButton.toggle();
+		}
+		
+		registerReceiver(mServiceListener, new IntentFilter(
+				WebSMSToolService.SERVICE_STARTING));
+		registerReceiver(mServiceListener, new IntentFilter(
+				WebSMSToolService.SERVICE_STARTED));
+		registerReceiver(mServiceListener, new IntentFilter(
+				WebSMSToolService.SERVICE_START_FAILED));
+		registerReceiver(mServiceListener, new IntentFilter(
+				WebSMSToolService.SERVICE_STOPPING));
+		registerReceiver(mServiceListener, new IntentFilter(
+				WebSMSToolService.SERVICE_STOPPED));
+		registerReceiver(mServiceListener, new IntentFilter(
+				WebSMSToolService.SERVICE_STOP_FAILED));
 	
+		mButton.setOnClickListener(this);
+	}
+
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-	    MenuInflater inflater = getMenuInflater();
-	    inflater.inflate(R.menu.menu, menu);
-	    
-	    // Calling super after populating the menu is necessary here to ensure that the
-        // action bar helpers have a chance to handle this event.
-        return super.onCreateOptionsMenu(menu);
+		MenuInflater inflater = getMenuInflater();
+		inflater.inflate(R.menu.menu, menu);
+
+		// Calling super after populating the menu is necessary here to ensure
+		// that the
+		// action bar helpers have a chance to handle this event.
+		return super.onCreateOptionsMenu(menu);
 	}
-	
+
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-	    // Handle item selection
-	    switch (item.getItemId()) {
-	        case R.id.settings:
-	            Intent myIntent = new Intent(MainActivity.this, SettingsActivity.class);
-	            MainActivity.this.startActivity(myIntent);
-	            break;
-	            
-	        case R.id.info:
-	            Intent aboutIntent = new Intent(MainActivity.this, AboutActivity.class);
-	            MainActivity.this.startActivity(aboutIntent);
-	            break; 
-	    }
-	    
-	    
-	    return super.onOptionsItemSelected(item);
+		// Handle item selection
+		switch (item.getItemId()) {
+		case R.id.settings:
+			Intent myIntent = new Intent(MainActivity.this,
+					SettingsActivity.class);
+			MainActivity.this.startActivity(myIntent);
+			break;
+
+		case R.id.info:
+			Intent aboutIntent = new Intent(MainActivity.this,
+					AboutActivity.class);
+			MainActivity.this.startActivity(aboutIntent);
+			break;
+		}
+
+		return super.onOptionsItemSelected(item);
+	}
+
+	public String getLocalIpAddress() {
+		/*
+		 * //Lookup in all network interfaces try { for
+		 * (Enumeration<NetworkInterface> en =
+		 * NetworkInterface.getNetworkInterfaces(); en.hasMoreElements();) {
+		 * NetworkInterface intf = en.nextElement(); for
+		 * (Enumeration<InetAddress> enumIpAddr = intf.getInetAddresses();
+		 * enumIpAddr.hasMoreElements();) { InetAddress inetAddress =
+		 * enumIpAddr.nextElement(); if (!inetAddress.isLoopbackAddress()) {
+		 * return inetAddress.getHostAddress().toString(); } } } } catch
+		 * (SocketException ex) { Log.e("GetLocalIpAddress", ex.toString()); }
+		 */
+
+		// the direct wifi way
+		WifiManager wifiManager = (WifiManager) getSystemService(WIFI_SERVICE);
+		WifiInfo wifiInfo = wifiManager.getConnectionInfo();
+		int ipAddress = wifiInfo.getIpAddress();
+		String ip = Formatter.formatIpAddress(ipAddress);
+		return ip;
+	}
+
+	private boolean isServiceRunning(String serviceName) {
+		boolean serviceRunning = false;
+		ActivityManager am = (ActivityManager) this
+				.getSystemService(ACTIVITY_SERVICE);
+		List<ActivityManager.RunningServiceInfo> l = am.getRunningServices(50);
+		Iterator<ActivityManager.RunningServiceInfo> i = l.iterator();
+		while (i.hasNext()) {
+			ActivityManager.RunningServiceInfo runningServiceInfo = (ActivityManager.RunningServiceInfo) i
+					.next();
+
+			if (runningServiceInfo.service.getClassName().equals(serviceName)) {
+				serviceRunning = true;
+			}
+		}
+		return serviceRunning;
+	}
+
+	@Override
+	public void onClick(View view) {
+		if (!isServiceRunning(mServiceName)) {
+			mLog.logVerbose("Going to start web service");
+			displayStartigService();
+			view.getContext().startService(mSmsServiceIntent);
+		} else {
+			displayStoppingService();
+			view.getContext().stopService(mSmsServiceIntent);
+		}
+	}
+
+	private void displayConnectionUrl() {
+		String wifiIp = getLocalIpAddress();
+		mLog.logDebug("Actual IP: " + wifiIp);
+		mInfoFieldView.setText(mApplicationConfig.getProtocol() + "://"
+				+ wifiIp + ":" + mApplicationConfig.getPort());
+	}
+
+	private void displayStoppingService()
+	{
+		mInfoFieldView.setText("stopping service...");
 	}
 	
+	private void displayStartigService()
+	{
+		mInfoFieldView.setText("starting service...");
+	}
 	
-	
-	public String getLocalIpAddress() {
-	    /*
-	     //Lookup in all network interfaces
-	     try {
-	        for (Enumeration<NetworkInterface> en = NetworkInterface.getNetworkInterfaces(); en.hasMoreElements();) {
-	            NetworkInterface intf = en.nextElement();
-	            for (Enumeration<InetAddress> enumIpAddr = intf.getInetAddresses(); enumIpAddr.hasMoreElements();) {
-	                InetAddress inetAddress = enumIpAddr.nextElement();
-	                if (!inetAddress.isLoopbackAddress()) {
-	                    return inetAddress.getHostAddress().toString();
-	                }
-	            }
-	        }
-	    } catch (SocketException ex) {
-	        Log.e("GetLocalIpAddress", ex.toString());
-	    }*/
-	    
-	    //the direct wifi way
-	    WifiManager wifiManager = (WifiManager) getSystemService(WIFI_SERVICE);
-	    WifiInfo wifiInfo = wifiManager.getConnectionInfo();
-	    int ipAddress = wifiInfo.getIpAddress();
-	    String ip = Formatter.formatIpAddress(ipAddress);
-	    return ip;
+	public void webServiceStarting() {
+		displayStartigService();
+	}
+
+	public void webServiceStarted() {
+		displayConnectionUrl();
+	}
+
+	public void webServiceStartFailed() {
+		mInfoFieldView.setText("failed to start service");
+	}
+
+	public void webServiceStopping() {
+		displayStoppingService();
+	}
+
+	public void webServiceStopped() {
+		mInfoFieldView.setText("");
+	}
+
+	public void webServiceStopFailed() {
+		mInfoFieldView.setText("failed to stop service");
 	}
 }

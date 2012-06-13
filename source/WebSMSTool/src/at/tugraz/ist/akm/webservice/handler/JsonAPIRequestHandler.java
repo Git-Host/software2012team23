@@ -72,12 +72,16 @@ public class JsonAPIRequestHandler extends AbstractHttpRequestHandler implements
     private volatile List<TextMessage> mSMSSentList = new ArrayList<TextMessage>();
     private volatile List<TextMessage> mSMSReceivedList = new ArrayList<TextMessage>();
     private volatile List<TextMessage> mSMSSentErrorList = new ArrayList<TextMessage>();
-
+    private volatile JSONArray mJsonContactList = null;
 
     public JsonAPIRequestHandler(final Context context, final XmlNode config,
-            final HttpRequestHandlerRegistry registry) {
+            final HttpRequestHandlerRegistry registry) throws Throwable {
         super(context, config, registry);
         mTextingAdapter = new TextingAdapter(context, this, this);
+        // pre-caching contacts
+        mLog.logVerbose("precaching contacts [start]");
+        mJsonContactList = fetchContactsJsonArray();
+        mLog.logVerbose("precaching contacts [done]");
         mTextingAdapter.start();
 
         mSystemMonitor = new SystemMonitor(context);
@@ -132,6 +136,9 @@ public class JsonAPIRequestHandler extends AbstractHttpRequestHandler implements
     @Override
     public synchronized void contactModifiedCallback() {
         this.mContactsChanged = true;
+        // TODO
+        mLog.logVerbose("reloading all contacts from provider");
+        mJsonContactList = fetchContactsJsonArray();
     }
 
 	@Override
@@ -342,10 +349,11 @@ public class JsonAPIRequestHandler extends AbstractHttpRequestHandler implements
 
     private synchronized JSONObject getContacts() {
         mLog.logInfo("Handle get_contacts request.");
+        // TODO
         JSONObject resultObject = new JSONObject();
-        JSONArray contactList = this.fetchContactsJsonArray();
+        //JSONArray contactList = this.fetchContactsJsonArray();
         try {
-            resultObject.put("contacts", contactList);
+            resultObject.put("contacts", mJsonContactList);
         } catch (JSONException jsonException) {
             mLog.logError("Could not append contact list to json object.", jsonException);
             return new JSONObject();
@@ -366,6 +374,8 @@ public class JsonAPIRequestHandler extends AbstractHttpRequestHandler implements
         allFilter.setWithPhone(true);
         allFilter.setOrderByDisplayName(true, ContactFilter.SORT_ORDER_ASCENDING);
         List<Contact> contacts = mTextingAdapter.fetchContacts(allFilter);
+        
+        // TODO
         JSONArray contactList = new JSONArray();
         for (int idx = 0; idx < contacts.size(); idx++) {
             contactList.put(mJsonFactory.createJsonObject(contacts.get(idx)));
