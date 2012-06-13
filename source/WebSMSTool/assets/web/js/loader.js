@@ -16,6 +16,7 @@
  
 //disable async for loading the needed client scripts
 $.ajaxSetup({cache: true, async: false });
+jQuery.getScript('js/jquery.blockUI.js');
 jQuery.getScript('js/notifier.js');
 jQuery.getScript('js/handlebars.js');
 jQuery.getScript('js/wst/wstLog.js');

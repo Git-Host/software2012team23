@@ -15,8 +15,12 @@
  */
  
 (function(){
-	var polling_interval = 10000;
 	
+	show_loading_animation();
+	
+	
+	var polling_interval = 10000;
+		
 	/** GENERAL INITIALIZATION */	
 	//init tabbing
 	var tab_div = $('#tabs');
@@ -57,6 +61,28 @@
 	
 	
 	/** WEBAPP METHODS */
+	
+	
+	function show_loading_animation(){
+		$.blockUI({ 
+			message: $('#loading'), 
+			css: { 
+				border: '3px solid #225DA5',  
+				'border-radius': '10px' 
+        	}
+		});
+	}
+	
+	
+	function hide_loading_animation(timeout){
+		if(timeout !== undefined && timeout > 0){
+			setTimeout($.unblockUI, timeout);
+		} else {
+			$.unblockUI;
+		}
+	}
+	
+	
 	function update_webapp(json){
 		
 		if(json.contact_changed === true){
@@ -181,11 +207,13 @@
 					}
 				}
 				$('#contact_list').html(html);
+				hide_loading_animation(1000);				
 				wstLog.success('Contact-List successfully updated.');
-				wstLog.log(this.number_to_contact_id);				
+				wstLog.log(this.number_to_contact_id);
 				return true;
 			}
 		}
+		hide_loading_animation();
 		wstLog.warn('Contact-List could not be loaded.');
 		return false;
 	}

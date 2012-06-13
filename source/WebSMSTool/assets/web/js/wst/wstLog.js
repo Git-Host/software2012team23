@@ -16,7 +16,7 @@
  
 (function(window) {
     var wstLog = {
-    	debug : true,
+    	debug : false,
         log: function(message){
             if(console && this.debug){
                 console.log(message);            
