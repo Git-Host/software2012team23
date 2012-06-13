@@ -19,7 +19,7 @@ package at.tugraz.ist.akm.trace;
 
 public class Logger {
 
-    private static boolean mEnabled = false;
+    private static boolean mEnabled = true;
 	private static Logger mLogger = null;
 	private LogSink mSink = new AndroidLogSink();
 

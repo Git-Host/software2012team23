@@ -261,7 +261,7 @@ public class JsonAPIRequestHandler extends AbstractHttpRequestHandler implements
                         if(messageCount <= 0){
                         	break;
                         }
-                        String number = entry.getCleanedUpNumber();
+                        String number = entry.getNumber();
                         mLog.logVerbose("Fetch SMS Thread with number: "+ entry.getNumber()+" replaced to: "+number);
                         List<Integer> threadIds = mTextingAdapter.fetchThreadIds(number);
                         for(Integer threadId : threadIds){

@@ -33,8 +33,7 @@ public class SmsSender extends Logable {
 	protected ContentResolver mContentResolver = null;
 	private SmsManager mSmsManager = SmsManager.getDefault();
 
-	private int mSentRequestCode = 0;
-	private int mDeliveredRequestCode = 0;
+	private int mIntentRequestCode = 0;
 
 	public SmsSender(Context context) {
 		super(SmsSender.class.getSimpleName());
@@ -62,7 +61,7 @@ public class SmsSender extends Logable {
 		Intent sentIntent = new Intent(SmsSentBroadcastReceiver.ACTION_SMS_SENT);
 		sentIntent.putExtras(getSmsBundle(message, part));
 		PendingIntent sentPIntent = PendingIntent.getBroadcast(mContext,
-				mSentRequestCode++, sentIntent, PendingIntent.FLAG_ONE_SHOT);
+				mIntentRequestCode++, sentIntent, PendingIntent.FLAG_ONE_SHOT);
 
 		return sentPIntent;
 	}
@@ -74,7 +73,7 @@ public class SmsSender extends Logable {
 		deliveredIntent.putExtras(getSmsBundle(message, part));
 
 		PendingIntent deliveredPIntent = PendingIntent.getBroadcast(mContext,
-				mDeliveredRequestCode++, deliveredIntent,
+				mIntentRequestCode++, deliveredIntent,
 				PendingIntent.FLAG_ONE_SHOT);
 
 		return deliveredPIntent;

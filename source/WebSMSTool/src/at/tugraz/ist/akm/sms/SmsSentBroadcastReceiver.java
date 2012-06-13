@@ -56,6 +56,7 @@ public class SmsSentBroadcastReceiver extends BroadcastReceiver
 		
 		if (action.compareTo(ACTION_SMS_SENT) == 0)
 		{
+			mLog.logDebug("passing callback [ACTION_SMS_SENT]");
 			TextMessage message = extractSmsFromIntent(intent);
 			List<TextMessage> messages = new ArrayList<TextMessage>();
 			messages.add(message);
@@ -64,13 +65,15 @@ public class SmsSentBroadcastReceiver extends BroadcastReceiver
 		}
 		else if (action.compareTo(ACTION_SMS_DELIVERED) == 0)
 		{
-			List<TextMessage> messages = extractSmsListFromIntent(intent);
+			mLog.logDebug("passing callback [ACTION_SMS_DELIVERED]");
+			List<TextMessage> messages = new ArrayList<TextMessage>();
+			messages.add(extractSmsFromIntent(intent));
 			mCallback.smsDeliveredCallback(context, messages);
-
 		}
 		else if (action.compareTo(ACTION_SMS_RECEIVED) == 0)
 		{
-			List<TextMessage> messages = extractSmsListFromIntent(intent);
+			mLog.logDebug("passing callback [ACTION_SMS_RECEIVED]");
+			List<TextMessage> messages = extractSmsListFromIntentPdu(intent);
 			mCallback.smsReceivedCallback(context, messages);
 		}
 		else
@@ -78,7 +81,6 @@ public class SmsSentBroadcastReceiver extends BroadcastReceiver
 			 mLog.logVerbose("unknown action received: " + action);
 		}
 	}
-	
 	
 	
 	private TextMessage extractSmsFromIntent(Intent intent) {
@@ -101,26 +103,28 @@ public class SmsSentBroadcastReceiver extends BroadcastReceiver
 	}	
 	
 	
-	
-	private List<TextMessage> extractSmsListFromIntent(Intent intent)
+	private List<TextMessage> extractSmsListFromIntentPdu(Intent intent)
 	{
 		Bundle bundle = intent.getExtras();
 
 		ArrayList<TextMessage> messages = new ArrayList<TextMessage>();
 		if (bundle != null)
 		{
-			Object[] pdus = (Object[]) bundle.get(EXTRA_BUNDLE_KEY_PDU);
+			Object[] pdus = (Object[]) bundle.getSerializable(EXTRA_BUNDLE_KEY_PDU);
 
-			for (int idx = 0; idx < pdus.length; ++idx)
-			{
-				SmsMessage sms = SmsMessage.createFromPdu((byte[]) pdus[idx]);
-				messages.add(parseToTextMessage(sms));
+			if  ( pdus != null ) {
+				for (int idx = 0; idx < pdus.length; ++idx)
+				{
+					SmsMessage sms = SmsMessage.createFromPdu((byte[]) pdus[idx]);
+					messages.add(parseToTextMessage(sms));
+				}
+			}
+			else {
+				mLog.logVerbose("bundle contains no pdu(s)");
 			}
 		}
-		
 		return messages;
 	}	
-	
 	
 		
 	private TextMessage parseToTextMessage(SmsMessage sms) {

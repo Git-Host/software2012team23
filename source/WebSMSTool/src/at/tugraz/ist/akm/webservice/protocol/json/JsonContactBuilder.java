@@ -65,7 +65,7 @@ public class JsonContactBuilder implements IJsonBuilder {
             JSONObject jsonNumber = new JSONObject();
             jsonNumber.put("number", number.getNumber());
             jsonNumber.put("type", Integer.toString(number.getType()));
-            jsonNumber.put("clean_number", number.getCleanedUpNumber());
+            jsonNumber.put("clean_number", number.getNumber());
             jsonNumberList.put(jsonNumber);
         }
 

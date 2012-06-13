@@ -22,6 +22,7 @@ import java.util.Date;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import at.tugraz.ist.akm.phonebook.Contact;
 import at.tugraz.ist.akm.sms.TextMessage;
 import at.tugraz.ist.akm.trace.Logable;
 
@@ -36,7 +37,7 @@ public class JsonTextMessageBuilder implements IJsonBuilder {
         try {
 			json.put("id", message.getId());
 			json.put("thread_id", message.getThreadId());
-        	json.put("address", message.getAddress());
+        	json.put("address", Contact.Number.cleanNumber(message.getAddress()));
 			json.put("body", message.getBody());
 			
 			SimpleDateFormat df = new SimpleDateFormat("d.M.y HH:mm:ss");

@@ -18,7 +18,7 @@ package at.tugraz.ist.akm.trace;
 
 public class Logable
 {
-    private static boolean mEnabled = false;
+    private static boolean mEnabled = true;
 	private String mTag = "<notag>";
 
 	public Logable()

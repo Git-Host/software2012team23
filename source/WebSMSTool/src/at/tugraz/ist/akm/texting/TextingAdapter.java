@@ -124,10 +124,12 @@ public class TextingAdapter extends Logable implements TextingInterface,
 	}
 
 	@Override
-	public void smsDeliveredCallback(Context context, List<TextMessage> message) {
-		logVerbose("sms delivered");
+	public void smsDeliveredCallback(Context context, List<TextMessage> messages) {
+		TextMessage message = messages.get(0);
+		logVerbose("sms was delivered (to address ["+message.getAddress() +"] on ["+message.getDate()+"] text ["+message.getBody()+"])");
+		
 		if (mExternalTextMessageCallback != null) {
-			mExternalTextMessageCallback.smsDeliveredCallback(context, message);
+			mExternalTextMessageCallback.smsDeliveredCallback(context, messages);
 		}
 
 	}

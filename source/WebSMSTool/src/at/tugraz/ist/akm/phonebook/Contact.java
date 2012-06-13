@@ -21,13 +21,13 @@ import java.util.List;
 import android.net.Uri;
 
 public class Contact {
-
+	
 	public static class Number {
 		private final String mNumber;
 		private final int mType;
 
 		public Number(String number, int type) {
-			this.mNumber = number;
+			this.mNumber = Number.cleanNumber(number);
 			/**
 			 * phone types are defined in
 			 * ContactsContract.CommonDataKinds.Phone.TYPE_***
@@ -43,11 +43,12 @@ public class Contact {
 			return mType;
 		}
 		
-		
-		public String getCleanedUpNumber(){
-			String number = this.getNumber().replaceAll("-", "");
-			number = number.replaceAll("^[+]", "00");
-			return number;
+		public static String cleanNumber(String messyNumber)
+		{
+			return messyNumber
+					.replaceAll("^[+]", "00")
+					.replaceAll("/","")
+					.replaceAll(" ","");
 		}
 	};
 

@@ -119,6 +119,7 @@ public class SmsBridge extends Logable implements SmsIOCallback {
 	 */
 	@Override
 	public void smsSentErrorCallback(Context context, List<TextMessage> messages) {
+		logError("failed to send [" + messages.size() + "] messages");
 	}
 
 	/**
@@ -228,7 +229,7 @@ public class SmsBridge extends Logable implements SmsIOCallback {
 		if (isSuccessfullySent) {
 			logVerbose("text message sent successfully (" + verboseSentState + ")");
 		} else {
-			logVerbose(verboseSentState);
+			logError(verboseSentState);
 		}
 
 		return isSuccessfullySent;
