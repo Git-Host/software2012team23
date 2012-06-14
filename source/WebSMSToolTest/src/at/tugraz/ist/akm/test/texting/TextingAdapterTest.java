@@ -157,7 +157,7 @@ public class TextingAdapterTest extends WebSMSToolActivityTestcase implements Sm
 	@Override
 	public void smsSentErrorCallback(Context context, List<TextMessage> messages)
 	{
-		logVerbose("sms sent erroneous (messages size: " + messages.size() + " )");
+		logError("sms sent erroneous (messages size: " + messages.size() + " )");
 	}
 
 	@Override

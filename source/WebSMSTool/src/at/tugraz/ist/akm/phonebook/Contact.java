@@ -48,7 +48,8 @@ public class Contact {
 			return messyNumber
 					.replaceAll("^[+]", "00")
 					.replaceAll("/","")
-					.replaceAll(" ","");
+					.replaceAll(" ","")
+					.replaceAll("-","");
 		}
 	};
 

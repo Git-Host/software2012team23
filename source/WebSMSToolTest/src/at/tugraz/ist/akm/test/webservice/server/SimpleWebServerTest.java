@@ -58,7 +58,7 @@ public class SimpleWebServerTest extends InstrumentationTestCase {
         mLog = new Logable(SimpleWebServerTest.class.getSimpleName());
     }
     
-    private void startServer(final boolean useMockServer) {
+    private void startServer(final boolean useMockServer) throws Exception {
         if (webserver != null && webserver.isRunning()) {
             stopServer();
         }
@@ -67,7 +67,7 @@ public class SimpleWebServerTest extends InstrumentationTestCase {
 
         httpClient = new DefaultHttpClient();
         webserver = useMockServer ? new MockSimpleWebServer(getInstrumentation().getContext()) : 
-                                    new SimpleWebServer(getInstrumentation().getContext());
+                                    new SimpleWebServer(getInstrumentation().getContext(), "0.0.0.0");
         Assert.assertTrue(webserver.startServer());
         //Assert.assertTrue(webserver.startServer(9999));
         while (!webserver.isRunning()) {
@@ -99,14 +99,12 @@ public class SimpleWebServerTest extends InstrumentationTestCase {
     	Config serverConfig = new Config(this.getInstrumentation().getTargetContext().getApplicationContext());
     	serverConfig.setProtocol("http");
     	serverConfig.setPort("8888");
-        
-    	startServer(true);
-
-        mLog.logDebug("testSimpleJsonRequest");
-
-        HttpPost httppost = new HttpPost("http://localhost:8888/api.html");
+    
         try {
-
+        	startServer(true);
+            mLog.logDebug("testSimpleJsonRequest");
+            HttpPost httppost = new HttpPost("http://localhost:8888/api.html");
+            
             JSONObject requestJson = new JSONObject();
             requestJson.put("method", "getSMS");
 
@@ -136,12 +134,11 @@ public class SimpleWebServerTest extends InstrumentationTestCase {
     	Config serverConfig = new Config(getInstrumentation().getContext());
     	serverConfig.setProtocol("http");
     	serverConfig.setPort("8888");
-    	
-        startServer(true);
-        mLog.logDebug("testSimpleFileRequest");
-
-        HttpPost httppost = new HttpPost("http://localhost:8888/");
+  
         try {
+            startServer(true);
+            mLog.logDebug("testSimpleFileRequest");
+            HttpPost httppost = new HttpPost("http://localhost:8888/");
             httppost.setHeader("Accept", "application/text");
             httppost.setHeader("Content-type", "application/text");
 
@@ -166,10 +163,15 @@ public class SimpleWebServerTest extends InstrumentationTestCase {
     	serverConfig.setProtocol("https");
     	serverConfig.setPort("8888");
     	
-        startServer(true);
-        Assert.assertTrue(webserver.isRunning());
+    	try {
+	        startServer(true);
+	        Assert.assertTrue(webserver.isRunning());
+    	} catch (Exception ex)
+    	{
+    		Assert.assertTrue(false);
+    	}
 
-        stopServer();
+    	stopServer();
         Assert.assertFalse(webserver.isRunning());
     }
 
