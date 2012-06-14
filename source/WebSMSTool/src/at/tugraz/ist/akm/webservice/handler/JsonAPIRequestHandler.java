@@ -82,12 +82,12 @@ public class JsonAPIRequestHandler extends AbstractHttpRequestHandler implements
         mLog.logVerbose("precaching contacts [start]");
         mJsonContactList = fetchContactsJsonArray();
         mLog.logVerbose("precaching contacts [done]");
-        mTextingAdapter.start();
-
-        mSystemMonitor = new SystemMonitor(context);
-        mSystemMonitor.start();
         
+        mSystemMonitor = new SystemMonitor(context);
         mSMSThreadMessageCount = 20;
+        
+        mTextingAdapter.start();
+        mSystemMonitor.start();
     }
 
     @Override
@@ -136,7 +136,6 @@ public class JsonAPIRequestHandler extends AbstractHttpRequestHandler implements
     @Override
     public synchronized void contactModifiedCallback() {
         this.mContactsChanged = true;
-        // TODO
         mLog.logVerbose("reloading all contacts from provider");
         mJsonContactList = fetchContactsJsonArray();
     }
@@ -349,9 +348,7 @@ public class JsonAPIRequestHandler extends AbstractHttpRequestHandler implements
 
     private synchronized JSONObject getContacts() {
         mLog.logInfo("Handle get_contacts request.");
-        // TODO
         JSONObject resultObject = new JSONObject();
-        //JSONArray contactList = this.fetchContactsJsonArray();
         try {
             resultObject.put("contacts", mJsonContactList);
         } catch (JSONException jsonException) {
@@ -370,16 +367,20 @@ public class JsonAPIRequestHandler extends AbstractHttpRequestHandler implements
     }
 
     private JSONArray fetchContactsJsonArray() {
+
+    	mLog.logVerbose("fetch contacts from provider [start]");
         ContactFilter allFilter = new ContactFilter();
         allFilter.setWithPhone(true);
         allFilter.setOrderByDisplayName(true, ContactFilter.SORT_ORDER_ASCENDING);
         List<Contact> contacts = mTextingAdapter.fetchContacts(allFilter);
         
-        // TODO
         JSONArray contactList = new JSONArray();
-        for (int idx = 0; idx < contacts.size(); idx++) {
-            contactList.put(mJsonFactory.createJsonObject(contacts.get(idx)));
+        while ( contacts.size() > 0 ) {
+        	mLog.logVerbose("fetched contact from provider [" + contacts.get(0).getDisplayName() + "] id [" + contacts.get(0).getId() + "]"); 
+            contactList.put(mJsonFactory.createJsonObject(contacts.get(0)));
+            contacts.remove(0);
         }
+        mLog.logVerbose("fetch contacts from provider [stop]");
         return contactList;
     }
 
@@ -452,7 +453,7 @@ public class JsonAPIRequestHandler extends AbstractHttpRequestHandler implements
             mLog.logVerbose("Evaluate contact changed state.");
             result.put("contact_changed", this.mContactsChanged);
             if (this.mContactsChanged) {
-                result.put("contacts", this.fetchContactsJsonArray());
+                result.put("contacts", this.mJsonContactList);
                 this.mContactsChanged = false;
             }
 

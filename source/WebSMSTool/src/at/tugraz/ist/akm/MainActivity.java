@@ -41,6 +41,8 @@ import at.tugraz.ist.akm.webservice.WebSMSToolService;
 
 public class MainActivity extends ActionBarActivity implements
 		View.OnClickListener {
+	
+	public static final String SERVER_IP_ADDRESS_INTENT_KEY ="at.tugraz.ist.akm.SERVER_IP_ADDRESS_INTENT_KEY";
 	private Intent mSmsServiceIntent = null;
 	private Logable mLog = null;
 	final String mServiceName = WebSMSToolService.class.getName();
@@ -48,6 +50,7 @@ public class MainActivity extends ActionBarActivity implements
 	private TextView mInfoFieldView = null;
 	private Config mApplicationConfig = null;
 	private ServiceStateListener mServiceListener = null;
+	private String mLocalIp = null;
 
 	private class ServiceStateListener extends BroadcastReceiver {
 
@@ -106,6 +109,9 @@ public class MainActivity extends ActionBarActivity implements
 		
 		registerServiceStateChangeReceiver();
 		mButton.setOnClickListener(this);
+		
+		mLocalIp = getLocalIpAddress();
+		mSmsServiceIntent.putExtra(SERVER_IP_ADDRESS_INTENT_KEY, mLocalIp);
 	}
 	
 	@Override
@@ -196,7 +202,7 @@ public class MainActivity extends ActionBarActivity implements
 	}
 
 	private void displayConnectionUrl() {
-		String wifiIp = getLocalIpAddress();
+		String wifiIp = mLocalIp;
 		mLog.logDebug("Actual IP: " + wifiIp);
 		mInfoFieldView.setText(mApplicationConfig.getProtocol() + "://"
 				+ wifiIp + ":" + mApplicationConfig.getPort());

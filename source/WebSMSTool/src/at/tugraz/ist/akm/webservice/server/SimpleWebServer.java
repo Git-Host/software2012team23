@@ -19,6 +19,7 @@ package at.tugraz.ist.akm.webservice.server;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Constructor;
+import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.security.KeyManagementException;
 import java.security.KeyStore;
@@ -56,6 +57,7 @@ import at.tugraz.ist.akm.R;
 import at.tugraz.ist.akm.content.Config;
 import at.tugraz.ist.akm.io.xml.XmlNode;
 import at.tugraz.ist.akm.io.xml.XmlReader;
+import at.tugraz.ist.akm.statusbar.FireNotification;
 import at.tugraz.ist.akm.trace.Logable;
 import at.tugraz.ist.akm.webservice.WebServerConfig;
 import at.tugraz.ist.akm.webservice.handler.AbstractHttpRequestHandler;
@@ -71,6 +73,8 @@ public class SimpleWebServer {
     private ServerThread mServerThread = null;
     private Vector<AbstractHttpRequestHandler> mHandlerReferenceListing = new Vector<AbstractHttpRequestHandler>();
 
+    private InetAddress mSocketAddress = null;
+    private ServerSocket mServerSocket = null;
     private boolean mHttps;
     private int mServerPort;
 	private String mKeyStorePass;
@@ -84,9 +88,9 @@ public class SimpleWebServer {
     private boolean mIsServerRunning = false;
 
 
-    public SimpleWebServer(Context context) {
+    public SimpleWebServer(Context context, String socketAddress) throws Exception {
         this.mContext = context;
-
+        this.mSocketAddress = InetAddress.getByName(socketAddress);
         readRequestHandlers();
         readRequestInterceptors();
     }
@@ -192,25 +196,23 @@ public class SimpleWebServer {
         updateWebServerConfiguration();
         
         try {
-            ServerSocket serverSocket = null;
-            
             if (mHttps) {
 				initSSLContext();
                 final SSLServerSocketFactory sslServerSocketFactory = mSSLContext
                         .getServerSocketFactory();
-                serverSocket = sslServerSocketFactory.createServerSocket(mServerPort);
+                mServerSocket = sslServerSocketFactory.createServerSocket(mServerPort, 0, mSocketAddress);
             } else {
-                serverSocket = new ServerSocket(mServerPort);
+                mServerSocket = new ServerSocket(mServerPort, 0, mSocketAddress);
             }
 
-            serverSocket.setReuseAddress(true);
-            serverSocket.setSoTimeout(2000);
+            statusbarPrintConnectoinUrl();
+            mServerSocket.setReuseAddress(true);
+            mServerSocket.setSoTimeout(2000);
             
             mIsServerRunning = true;
-            mServerThread = new ServerThread(this, serverSocket);
+            mServerThread = new ServerThread(this, mServerSocket);
             mServerThread.setDaemon(true);
             mServerThread.start();
-            
             mLog.logInfo("WebServer started on port: " + mServerPort);
             
             return true;
@@ -247,6 +249,7 @@ public class SimpleWebServer {
                 }
             }
             mIsServerRunning = false;
+            statusbarClearConnectionUrl();
         }
 
         closeRegistry();
@@ -296,4 +299,28 @@ public class SimpleWebServer {
     		return -1;
     	}
     }
+    
+    private void statusbarPrintConnectoinUrl()
+    {
+    	FireNotification notificator = new FireNotification(mContext);
+    	FireNotification.NotificationInfo info = new FireNotification.NotificationInfo();
+    	
+    	StringBuffer connectionUrl = new StringBuffer();
+    	if (  mHttps ) {
+    		connectionUrl.append("https://");
+    	} else {
+    		connectionUrl.append("http://");
+    	}
+    	
+    	info.text = connectionUrl.append("/"+ mSocketAddress.getHostAddress() + "/" + mServerPort).toString();
+    	info.title="WebSMSTool";
+    	info.tickerText="service running";
+		notificator.fireStickyInfos(info);
+    }
+    
+    private void statusbarClearConnectionUrl()
+    {
+    	new FireNotification(mContext).cancelAll();
+    }
+    
 }

@@ -42,10 +42,11 @@ public class ContactReader {
 
 	public List<Contact> fetchContacts(ContactFilter filter) {
 
-		List<Contact> contacts = new Vector<Contact>();
 		Cursor people = queryContacts(filter);
+		List<Contact> contacts = null;
 
 		if (people != null) {
+			contacts = new Vector<Contact>(people.getCount());
 			while (people.moveToNext()) {
 				contacts.add(parseToContact(people));
 			}

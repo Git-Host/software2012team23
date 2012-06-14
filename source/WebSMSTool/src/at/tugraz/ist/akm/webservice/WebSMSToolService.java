@@ -20,6 +20,7 @@ import android.app.Service;
 import android.content.Intent;
 import android.os.Binder;
 import android.os.IBinder;
+import at.tugraz.ist.akm.MainActivity;
 import at.tugraz.ist.akm.trace.Logable;
 import at.tugraz.ist.akm.webservice.server.SimpleWebServer;
 
@@ -32,13 +33,18 @@ public class WebSMSToolService extends Service {
 	public static final String SERVICE_STOPPED_BOGUS = "at.tugraz.ist.akm.sms.SERVICE_STOPPED_BOGUS";
 	public static final String SERVICE_STOPPED = "at.tugraz.ist.akm.sms.SERVICE_STOPPED";
 	
+	private Intent mServiceStartedStickyIntend = null;
+	private String mSocketIp = null;
+	
     private final static Logable LOG = new Logable(
             WebSMSToolService.class.getSimpleName());
 
     private static boolean mServiceRunning = false;
     private SimpleWebServer mServer = null;
 
-    public WebSMSToolService() {}
+    public WebSMSToolService() {
+    	mServiceStartedStickyIntend = new Intent(SERVICE_STARTED);
+    }
 
     public class LocalBinder extends Binder {
         WebSMSToolService getService() {
@@ -62,16 +68,19 @@ public class WebSMSToolService extends Service {
     	synchronized (this) {
 	    	if ( !mServiceRunning )
 	    	{
+	    		
+	    		mSocketIp = intent.getStringExtra(MainActivity.SERVER_IP_ADDRESS_INTENT_KEY);
 		        LOG.logVerbose("Try to start webserver.");
-		        mServer = new SimpleWebServer(this);
-		
 		        try {
+		        	mServer = new SimpleWebServer(this, mSocketIp);
+		        	getApplicationContext().removeStickyBroadcast(mServiceStartedStickyIntend);
+		        
 		        	getApplicationContext().sendBroadcast(new Intent(SERVICE_STARTING));
 		            mServer.startServer();
 		            mServiceRunning = mServer.isRunning();
 		            if ( !mServiceRunning )
 		            	throw new Exception("server failed to start");
-		            getApplicationContext().sendBroadcast(new Intent(SERVICE_STARTED));
+		            getApplicationContext().sendStickyBroadcast(mServiceStartedStickyIntend);
 		            LOG.logInfo("Web service has been started");
 		        } 
 		        catch (Exception ex) {
@@ -84,13 +93,30 @@ public class WebSMSToolService extends Service {
 	    		LOG.logError("Couldn't start web service (already running)");
 	    	}
 	
-	        return super.onStartCommand(intent, flags, startId);
+	        super.onStartCommand(intent, flags, startId);
+	        return START_STICKY;
     	}
     }
     
     @Override
+    public boolean stopService(Intent name) {
+    	boolean stopped = stopWebSMSToolService(name);
+    	super.stopService(name);
+    	return stopped;
+    }
+    
+    @Override
     public void onDestroy() {
+    	stopWebSMSToolService(null);
+        super.onDestroy();
+    }
+    
+    private boolean stopWebSMSToolService(Intent name)
+    {
+    	boolean stopped;
     	synchronized (this) {
+    		stopped = false;
+    		getApplicationContext().removeStickyBroadcast(mServiceStartedStickyIntend);
 	        try {
 	        	getApplicationContext().sendBroadcast(new Intent(SERVICE_STOPPING));
 	            mServer.stopServer();
@@ -98,11 +124,12 @@ public class WebSMSToolService extends Service {
 	            if ( mServiceRunning )
 	            	throw new Exception("server failed to stop");
 	            getApplicationContext().sendBroadcast(new Intent(SERVICE_STOPPED));
+	            stopped = true;
 	        } catch (Exception ex) {
 	            LOG.logError("Error while stopping server!", ex);
 	            getApplicationContext().sendBroadcast(new Intent(SERVICE_STOPPED_BOGUS));
 	        }
-	        super.onDestroy();
     	}
+    	return stopped;
     }
 }

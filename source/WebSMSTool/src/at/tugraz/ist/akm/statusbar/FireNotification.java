@@ -29,28 +29,29 @@ public class FireNotification {
 	public static class NotificationInfo {
 		public String title = null;
 		public String text = null;
+		public String tickerText = null;
 	}
 
-	private static int NOTIFICATION_ID = 1;
+	private static int NOTIFICATION_ID = 8151;
 	private Context mContext = null;
 	private NotificationManager mNotificationManager = null;
 
 	public FireNotification(Context context) {
 		mContext = context;
-		String ns = Context.NOTIFICATION_SERVICE;
 		mNotificationManager = (NotificationManager) mContext
-				.getSystemService(ns);
+				.getSystemService(Context.NOTIFICATION_SERVICE);
 	}
 
 	public void fireStickyInfos(NotificationInfo wInfos) {
 		int icon = R.drawable.ic_launcher;
-		CharSequence tickerText = "Hello";
+		CharSequence tickerText = wInfos.tickerText;
 		long when = System.currentTimeMillis();
 		Notification notification = new Notification(icon, tickerText, when);
 
 		Intent notificationIntent = new Intent(mContext, MainActivity.class);
+		notificationIntent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
 		PendingIntent contentIntent = PendingIntent.getActivity(mContext, 0,
-				notificationIntent, 0);
+				notificationIntent, PendingIntent.FLAG_CANCEL_CURRENT);
 		notification.setLatestEventInfo(mContext, wInfos.title, wInfos.text,
 				contentIntent);
 		notification.flags = Notification.FLAG_ONGOING_EVENT;

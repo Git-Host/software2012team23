@@ -53,7 +53,7 @@ public class ServerThread extends Thread {
             try {
                 socket = mServerSocket != null ? mServerSocket.accept() : null;
             } catch (IOException ioException) {
-                //no need to write trace
+                // OK: no need to write trace
             }
 
             if (mStopServerThread) {
