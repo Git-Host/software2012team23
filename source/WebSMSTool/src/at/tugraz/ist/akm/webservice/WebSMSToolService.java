@@ -26,10 +26,10 @@ import at.tugraz.ist.akm.webservice.server.SimpleWebServer;
 public class WebSMSToolService extends Service {
 	
 	public static final String SERVICE_STARTING = "at.tugraz.ist.akm.sms.SERVICE_STARTING";
-	public static final String SERVICE_START_FAILED = "at.tugraz.ist.akm.sms.SERVICE_START_FAILED";
+	public static final String SERVICE_STARTED_BOGUS = "at.tugraz.ist.akm.sms.SERVICE_STARTED_BOGUS";
 	public static final String SERVICE_STARTED = "at.tugraz.ist.akm.sms.SERVICE_STARTED";
 	public static final String SERVICE_STOPPING = "at.tugraz.ist.akm.sms.SERVICE_STOPPING";
-	public static final String SERVICE_STOP_FAILED = "at.tugraz.ist.akm.sms.SERVICE_STOP_FAILED";
+	public static final String SERVICE_STOPPED_BOGUS = "at.tugraz.ist.akm.sms.SERVICE_STOPPED_BOGUS";
 	public static final String SERVICE_STOPPED = "at.tugraz.ist.akm.sms.SERVICE_STOPPED";
 	
     private final static Logable LOG = new Logable(
@@ -55,7 +55,6 @@ public class WebSMSToolService extends Service {
     // RemoteService for a more complete example.
     private final IBinder mBinder = new LocalBinder();
 
-
     
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) 
@@ -77,7 +76,7 @@ public class WebSMSToolService extends Service {
 		        } 
 		        catch (Exception ex) {
 		            LOG.logError("Couldn't start web service", ex);
-		            getApplicationContext().sendBroadcast(new Intent(SERVICE_START_FAILED));
+		            getApplicationContext().sendBroadcast(new Intent(SERVICE_STARTED_BOGUS));
 		        }
 	    	}
 	    	else 
@@ -88,20 +87,22 @@ public class WebSMSToolService extends Service {
 	        return super.onStartCommand(intent, flags, startId);
     	}
     }
-
+    
     @Override
     public void onDestroy() {
-        try {
-        	getApplicationContext().sendBroadcast(new Intent(SERVICE_STOPPING));
-            mServer.stopServer();
-            mServiceRunning = mServer.isRunning();
-            if ( mServiceRunning )
-            	throw new Exception("server failed to stop");
-            getApplicationContext().sendBroadcast(new Intent(SERVICE_STOPPED));
-        } catch (Exception ex) {
-            LOG.logError("Error while stopping server!", ex);
-            getApplicationContext().sendBroadcast(new Intent(SERVICE_STOP_FAILED));
-        }
-        super.onDestroy();
+    	synchronized (this) {
+	        try {
+	        	getApplicationContext().sendBroadcast(new Intent(SERVICE_STOPPING));
+	            mServer.stopServer();
+	            mServiceRunning = mServer.isRunning();
+	            if ( mServiceRunning )
+	            	throw new Exception("server failed to stop");
+	            getApplicationContext().sendBroadcast(new Intent(SERVICE_STOPPED));
+	        } catch (Exception ex) {
+	            LOG.logError("Error while stopping server!", ex);
+	            getApplicationContext().sendBroadcast(new Intent(SERVICE_STOPPED_BOGUS));
+	        }
+	        super.onDestroy();
+    	}
     }
 }

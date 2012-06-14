@@ -35,7 +35,7 @@ import at.tugraz.ist.akm.webservice.handler.JsonAPIRequestHandler;
 public class EchoJsonRequestHandler extends JsonAPIRequestHandler {
 
     public EchoJsonRequestHandler(final Context context, final XmlNode config,
-            final HttpRequestHandlerRegistry registry) {
+            final HttpRequestHandlerRegistry registry) throws Throwable {
         super(context, config, registry);
     }
 

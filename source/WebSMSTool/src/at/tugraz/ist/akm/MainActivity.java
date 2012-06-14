@@ -63,7 +63,7 @@ public class MainActivity extends ActionBarActivity implements
 			if (0 == action.compareTo(WebSMSToolService.SERVICE_STARTED)) {
 				mCallback.webServiceStarted();
 			} else if (0 == action
-					.compareTo(WebSMSToolService.SERVICE_START_FAILED)) {
+					.compareTo(WebSMSToolService.SERVICE_STARTED_BOGUS)) {
 				mCallback.webServiceStartFailed();
 			} else if (0 == action
 					.compareTo(WebSMSToolService.SERVICE_STARTING)) {
@@ -71,7 +71,7 @@ public class MainActivity extends ActionBarActivity implements
 			} else if (0 == action.compareTo(WebSMSToolService.SERVICE_STOPPED)) {
 				mCallback.webServiceStopped();
 			} else if (0 == action
-					.compareTo(WebSMSToolService.SERVICE_STOP_FAILED)) {
+					.compareTo(WebSMSToolService.SERVICE_STOPPED_BOGUS)) {
 				mCallback.webServiceStopFailed();
 			} else if (0 == action.compareTo(WebSMSToolService.SERVICE_STOPPING)) {
 				mCallback.webServiceStopping();
@@ -99,24 +99,19 @@ public class MainActivity extends ActionBarActivity implements
 		mInfoFieldView = (TextView) findViewById(R.id.adress_data_field);
 		mApplicationConfig = new Config(getApplicationContext());
 
+		mButton.setChecked(false);
 		if (isServiceRunning(mServiceName)) {
-			mButton.toggle();
+			mButton.setChecked(true);
 		}
 		
-		registerReceiver(mServiceListener, new IntentFilter(
-				WebSMSToolService.SERVICE_STARTING));
-		registerReceiver(mServiceListener, new IntentFilter(
-				WebSMSToolService.SERVICE_STARTED));
-		registerReceiver(mServiceListener, new IntentFilter(
-				WebSMSToolService.SERVICE_START_FAILED));
-		registerReceiver(mServiceListener, new IntentFilter(
-				WebSMSToolService.SERVICE_STOPPING));
-		registerReceiver(mServiceListener, new IntentFilter(
-				WebSMSToolService.SERVICE_STOPPED));
-		registerReceiver(mServiceListener, new IntentFilter(
-				WebSMSToolService.SERVICE_STOP_FAILED));
-	
+		registerServiceStateChangeReceiver();
 		mButton.setOnClickListener(this);
+	}
+	
+	@Override
+	protected void onDestroy() {
+		unregisterServiceStateChangeReceiver();
+		super.onDestroy();
 	}
 
 	@Override
@@ -217,16 +212,36 @@ public class MainActivity extends ActionBarActivity implements
 		mInfoFieldView.setText("starting service...");
 	}
 	
+	private void registerServiceStateChangeReceiver() {
+		registerReceiver(mServiceListener, new IntentFilter(
+				WebSMSToolService.SERVICE_STARTING));
+		registerReceiver(mServiceListener, new IntentFilter(
+				WebSMSToolService.SERVICE_STARTED));
+		registerReceiver(mServiceListener, new IntentFilter(
+				WebSMSToolService.SERVICE_STARTED_BOGUS));
+		registerReceiver(mServiceListener, new IntentFilter(
+				WebSMSToolService.SERVICE_STOPPING));
+		registerReceiver(mServiceListener, new IntentFilter(
+				WebSMSToolService.SERVICE_STOPPED));
+		registerReceiver(mServiceListener, new IntentFilter(
+				WebSMSToolService.SERVICE_STOPPED_BOGUS));
+	}
+	
+	private void unregisterServiceStateChangeReceiver() {
+		unregisterReceiver(mServiceListener);
+	}
+	
 	public void webServiceStarting() {
 		displayStartigService();
 	}
 
 	public void webServiceStarted() {
 		displayConnectionUrl();
+		mButton.setChecked(true);
 	}
 
 	public void webServiceStartFailed() {
-		mInfoFieldView.setText("failed to start service");
+		mInfoFieldView.setText("service started bogusly ;( please destroy it manually");
 	}
 
 	public void webServiceStopping() {
@@ -235,9 +250,10 @@ public class MainActivity extends ActionBarActivity implements
 
 	public void webServiceStopped() {
 		mInfoFieldView.setText("");
+		mButton.setChecked(false);
 	}
 
 	public void webServiceStopFailed() {
-		mInfoFieldView.setText("failed to stop service");
+		mInfoFieldView.setText("service stopped bogusly ;( please destroy it manually");
 	}
 }
