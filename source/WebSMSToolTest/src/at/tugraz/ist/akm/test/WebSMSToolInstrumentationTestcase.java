@@ -22,12 +22,12 @@ import at.tugraz.ist.akm.test.trace.ThrowingLogSink;
 import at.tugraz.ist.akm.trace.Logable;
 import at.tugraz.ist.akm.trace.Logger;
 
-public class WebSMSToolTestcase extends InstrumentationTestCase {
+public class WebSMSToolInstrumentationTestcase extends InstrumentationTestCase {
 
 	protected ContentResolver mContentResolver = null;
 	private Logable mLog = null;
 
-	public WebSMSToolTestcase(final String logTag) {
+	public WebSMSToolInstrumentationTestcase(final String logTag) {
 		Logger.setSink(new ThrowingLogSink());
 		mLog = new Logable(logTag);
 	}

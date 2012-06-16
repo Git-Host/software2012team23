@@ -25,9 +25,12 @@ import my.org.apache.http.protocol.HttpRequestHandlerRegistry;
 import android.content.Context;
 import at.tugraz.ist.akm.io.FileReader;
 import at.tugraz.ist.akm.io.xml.XmlNode;
+import at.tugraz.ist.akm.trace.Logable;
 
 public class FileRequestHandler extends AbstractHttpRequestHandler {
 
+	private final Logable mLog = new Logable(getClass().getSimpleName());
+	
     public FileRequestHandler(final Context context, final XmlNode config,
             final HttpRequestHandlerRegistry registry) {
         super(context, config, registry);

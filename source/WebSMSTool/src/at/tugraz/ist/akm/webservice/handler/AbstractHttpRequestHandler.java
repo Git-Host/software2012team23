@@ -39,7 +39,7 @@ import at.tugraz.ist.akm.webservice.WebServerConfig;
 import at.tugraz.ist.akm.webservice.handler.interceptor.IRequestInterceptor;
 
 public abstract class AbstractHttpRequestHandler implements HttpRequestHandler {
-    protected final Logable mLog = new Logable(getClass().getSimpleName());
+    private final Logable mLog = new Logable(getClass().getSimpleName());
     protected final Context mContext;
     protected final XmlNode mConfig;
     protected final HttpRequestHandlerRegistry mRegistry;

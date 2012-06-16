@@ -20,9 +20,9 @@ import at.tugraz.ist.akm.content.SmsContent;
 import at.tugraz.ist.akm.content.query.ContentProviderQueryParameters;
 import at.tugraz.ist.akm.content.query.TextMessageFilter;
 import at.tugraz.ist.akm.content.query.TextMessageQueryBuilder;
-import at.tugraz.ist.akm.test.WebSMSToolTestcase;
+import at.tugraz.ist.akm.test.WebSMSToolInstrumentationTestcase;
 
-public class TextMessageQueryBuilderTest extends WebSMSToolTestcase {
+public class TextMessageQueryBuilderTest extends WebSMSToolInstrumentationTestcase {
 
 	public TextMessageQueryBuilderTest() {
 		super(TextMessageQueryBuilderTest.class.getSimpleName());

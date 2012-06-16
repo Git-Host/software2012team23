@@ -48,6 +48,7 @@ import at.tugraz.ist.akm.sms.SmsIOCallback;
 import at.tugraz.ist.akm.sms.TextMessage;
 import at.tugraz.ist.akm.texting.TextingAdapter;
 import at.tugraz.ist.akm.texting.TextingInterface;
+import at.tugraz.ist.akm.trace.Logable;
 import at.tugraz.ist.akm.webservice.WebServerConfig;
 import at.tugraz.ist.akm.webservice.protocol.json.JsonFactory;
 
@@ -56,6 +57,7 @@ public class JsonAPIRequestHandler extends AbstractHttpRequestHandler implements
     private final static String JSON_STATE_SUCCESS = "success";
     private final static String JSON_STATE_ERROR = "error";
 
+    private final Logable mLog = new Logable(getClass().getSimpleName());
     private JsonFactory mJsonFactory = new JsonFactory();
 
     private volatile TextingInterface mTextingAdapter;
@@ -78,7 +80,7 @@ public class JsonAPIRequestHandler extends AbstractHttpRequestHandler implements
             final HttpRequestHandlerRegistry registry) throws Throwable {
         super(context, config, registry);
         mTextingAdapter = new TextingAdapter(context, this, this);
-        // pre-caching contacts
+
         mLog.logVerbose("precaching contacts [start]");
         mJsonContactList = fetchContactsJsonArray();
         mLog.logVerbose("precaching contacts [done]");
@@ -86,8 +88,8 @@ public class JsonAPIRequestHandler extends AbstractHttpRequestHandler implements
         mSystemMonitor = new SystemMonitor(context);
         mSMSThreadMessageCount = 20;
         
-        mTextingAdapter.start();
         mSystemMonitor.start();
+        mTextingAdapter.start();
     }
 
     @Override
@@ -120,9 +122,9 @@ public class JsonAPIRequestHandler extends AbstractHttpRequestHandler implements
 
     @Override
     public void onClose() {
-        mSystemMonitor.stop();
-        mTextingAdapter.stop();
-
+    	mTextingAdapter.stop();
+    	mSystemMonitor.stop();
+        
         mJsonFactory = null;
         mTextingAdapter = null;
         mSystemMonitor = null;
@@ -130,6 +132,7 @@ public class JsonAPIRequestHandler extends AbstractHttpRequestHandler implements
         mSMSSentList = null;
         mSMSReceivedList = null;
         mSMSSentErrorList = null;
+    	
         super.onClose();
     }
 
@@ -380,7 +383,7 @@ public class JsonAPIRequestHandler extends AbstractHttpRequestHandler implements
             contactList.put(mJsonFactory.createJsonObject(contacts.get(0)));
             contacts.remove(0);
         }
-        mLog.logVerbose("fetch contacts from provider [stop]");
+        mLog.logVerbose("fetch contacts from provider [done]");
         return contactList;
     }
 

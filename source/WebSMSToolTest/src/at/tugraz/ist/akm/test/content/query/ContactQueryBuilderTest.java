@@ -20,9 +20,9 @@ import android.provider.ContactsContract;
 import at.tugraz.ist.akm.content.query.ContactFilter;
 import at.tugraz.ist.akm.content.query.ContactQueryBuilder;
 import at.tugraz.ist.akm.content.query.ContentProviderQueryParameters;
-import at.tugraz.ist.akm.test.WebSMSToolTestcase;
+import at.tugraz.ist.akm.test.WebSMSToolInstrumentationTestcase;
 
-public class ContactQueryBuilderTest extends WebSMSToolTestcase {
+public class ContactQueryBuilderTest extends WebSMSToolInstrumentationTestcase {
 
 	public ContactQueryBuilderTest() {
 		super(ContactQueryBuilderTest.class.getSimpleName());

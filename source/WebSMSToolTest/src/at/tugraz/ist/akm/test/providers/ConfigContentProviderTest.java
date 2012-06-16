@@ -23,9 +23,9 @@ import at.tugraz.ist.akm.content.Config;
 import at.tugraz.ist.akm.content.Config.Content;
 import at.tugraz.ist.akm.content.StandardSettings;
 import at.tugraz.ist.akm.providers.ConfigContentProvider;
-import at.tugraz.ist.akm.test.WebSMSToolTestcase;
+import at.tugraz.ist.akm.test.WebSMSToolInstrumentationTestcase;
 
-public class ConfigContentProviderTest extends WebSMSToolTestcase{
+public class ConfigContentProviderTest extends WebSMSToolInstrumentationTestcase{
 
 	private Uri uri = Uri.withAppendedPath(Content.CONTENT_URI, ConfigContentProvider.CONFIGURATION_TABLE_NAME);
 	public ConfigContentProviderTest() {

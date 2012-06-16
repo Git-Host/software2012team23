@@ -205,7 +205,7 @@ public class SimpleWebServer {
                 mServerSocket = new ServerSocket(mServerPort, 0, mSocketAddress);
             }
 
-            statusbarPrintConnectoinUrl();
+            statusbarPrintConnectionUrl();
             mServerSocket.setReuseAddress(true);
             mServerSocket.setSoTimeout(2000);
             
@@ -248,6 +248,11 @@ public class SimpleWebServer {
                     ;
                 }
             }
+            try {
+				mServerSocket.close();
+			} catch (IOException e) {
+				// i ton't care
+			}
             mIsServerRunning = false;
             statusbarClearConnectionUrl();
         }
@@ -300,7 +305,7 @@ public class SimpleWebServer {
     	}
     }
     
-    private void statusbarPrintConnectoinUrl()
+    private void statusbarPrintConnectionUrl()
     {
     	FireNotification notificator = new FireNotification(mContext);
     	FireNotification.NotificationInfo info = new FireNotification.NotificationInfo();

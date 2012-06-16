@@ -16,19 +16,27 @@
 
 package at.tugraz.ist.akm.test;
 
+import java.util.Iterator;
+import java.util.List;
+
+import android.app.ActivityManager;
+import android.content.Context;
+import android.content.Intent;
 import android.test.ActivityInstrumentationTestCase2;
-import android.widget.TextView;
 import android.widget.ToggleButton;
 import at.tugraz.ist.akm.MainActivity;
 import at.tugraz.ist.akm.R;
 import at.tugraz.ist.akm.test.trace.ThrowingLogSink;
 import at.tugraz.ist.akm.trace.Logable;
 import at.tugraz.ist.akm.trace.Logger;
+import at.tugraz.ist.akm.webservice.WebSMSToolService;
 
 import com.jayway.android.robotium.solo.Solo;
 
 public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActivity>
 {
+	private Intent mSmsServiceIntent = null;
+	private Context mContext = null;
 
 	private Logable mLog = null;
 
@@ -57,38 +65,25 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
 	public void testStartStopButton(){
 		Solo solo = new Solo(getInstrumentation(), getActivity());
 		ToggleButton startStop = (ToggleButton) getActivity().findViewById(R.id.start_stop_server);
+		
+		stopWebService();
 		solo.clickOnView(startStop);		
+		waitForServiceBeingStarted();
 		assertTrue(startStop.isChecked());
+		
 		solo.clickOnView(startStop);
+		waitForServiceBeingStopped();
 		assertFalse(startStop.isChecked());
+		stopWebService();
 	}
 	
-	
-	/**
-	 * Check if ip address is only displayed if the service has been started
-	 * @throws InterruptedException 
-	 */
-	public void testIpAdressOutputOnServiceStart() throws InterruptedException{
-		Solo solo = new Solo(getInstrumentation(), getActivity());
-		ToggleButton startStop = (ToggleButton) getActivity().findViewById(R.id.start_stop_server);
-		TextView ipView = (TextView) getActivity().findViewById(R.id.adress_data_field);
-		
-		assertTrue(ipView.getText().length() == 0);
-		solo.clickOnView(startStop);	
-		Thread.sleep(1000);
-		assertTrue(ipView.getText().length() > 0);
-		solo.clickOnView(startStop);
-		Thread.sleep(1000);
-		assertTrue(ipView.getText().length() == 0);
-	}	
-	
-	
-
 	@Override
 	protected void setUp() throws Exception
 	{
 		super.setUp();
 		log(getName() + ".setUp()");
+		mContext = getInstrumentation().getContext();
+		mSmsServiceIntent = new Intent(mContext, WebSMSToolService.class);
 	}
 
 	@Override
@@ -101,6 +96,67 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
 	protected void log(final String m)
 	{
 		mLog.logVerbose(m);
+	}
+
+
+	public void startWebService() {
+		mLog.logVerbose("Going to start web service");
+		mContext.startService(mSmsServiceIntent);
+		waitForServiceBeingStarted();
+	}
+	
+	public void stopWebService() {
+		mLog.logVerbose("Going to stop web service");
+		mContext.stopService(mSmsServiceIntent);
+		waitForServiceBeingStopped();
+	}
+	
+	private boolean isWebServiceRunning() {
+		boolean serviceRunning = false;
+		ActivityManager am = (ActivityManager) mContext.getSystemService(Context.ACTIVITY_SERVICE);
+		List<ActivityManager.RunningServiceInfo> l = am.getRunningServices(50);
+		Iterator<ActivityManager.RunningServiceInfo> i = l.iterator();
+		while (i.hasNext()) {
+			ActivityManager.RunningServiceInfo runningServiceInfo = (ActivityManager.RunningServiceInfo) i
+					.next();
+			mLog.logDebug("found service [" + runningServiceInfo.service.getClassName() + "]");
+			if (runningServiceInfo.service.getClassName().equals(WebSMSToolService.class.getName())) {
+				serviceRunning = true;
+			}
+		}
+		return serviceRunning;
+	}
+	
+	private void waitForServiceBeingStopped()
+	{
+		int maxTries = 20, delay = 200;
+		mLog.logDebug("waitForServiceBeingStopped");
+		try {
+			this.wait(2000);
+			while ( isWebServiceRunning() && (maxTries-- > 0) ) {
+				this.wait(delay);
+				mLog.logDebug("waiting ...");
+			}
+		} catch (Exception ex) {
+			// i don't care
+		}
+		mLog.logDebug("service has been stopped");
+	}
+
+	private void waitForServiceBeingStarted()
+	{
+		int maxTries = 20, delay = 200;
+		mLog.logDebug("waitForServiceBeingStarted");
+		try {
+			this.wait(5000);
+			while ( (!isWebServiceRunning()) && (maxTries-- > 0) ) {
+				this.wait(delay);
+				mLog.logDebug("waiting ...");
+			}
+		} catch (Exception ex) {
+			// i don't care
+		}
+		mLog.logDebug("service is running");
 	}
 
 }

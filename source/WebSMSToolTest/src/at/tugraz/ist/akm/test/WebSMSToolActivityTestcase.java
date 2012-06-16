@@ -39,6 +39,7 @@ public class WebSMSToolActivityTestcase extends ActivityTestCase {
 		super.setUp();
 		logVerbose(getName() + ".setUp()");
 		mContext = getInstrumentation().getTargetContext();
+		assertTrue(mContext != null);
 		mContentResolver = mContext.getContentResolver();
 		assertTrue(mContentResolver != null);
 	}

@@ -59,7 +59,7 @@ public class SystemMonitor extends PhoneStateListener {
 			mLog.logVerbose("passing signal strenth to external caller");
 			return new TelephonySignalStrength(mContext, mSingalStrength);
 		} else {
-			mLog.logError("FAILED to pass SignalStrength - no info available at the moment");	
+			mLog.logVerbose("Failed to pass SignalStrength - no info available at the moment");	
 			return null;
 		}
 	}
