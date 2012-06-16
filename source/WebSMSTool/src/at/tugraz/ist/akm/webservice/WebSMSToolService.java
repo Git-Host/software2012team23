@@ -17,7 +17,11 @@
 package at.tugraz.ist.akm.webservice;
 
 import android.app.Service;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.net.wifi.WifiManager;
 import android.os.Binder;
 import android.os.IBinder;
 import at.tugraz.ist.akm.MainActivity;
@@ -35,13 +39,33 @@ public class WebSMSToolService extends Service {
 	
 	private Intent mServiceStartedStickyIntend = null;
 	private String mSocketIp = null;
-	
     private final static Logable LOG = new Logable(
             WebSMSToolService.class.getSimpleName());
-
     private static boolean mServiceRunning = false;
     private SimpleWebServer mServer = null;
-
+    private final IBinder mBinder = new LocalBinder();
+    private static BroadcastReceiver mIntentReceiver = null;
+    
+    private class WebSMSToolBroadcastReceiver extends BroadcastReceiver {
+    	
+    	WebSMSToolService mCallback = null;
+    	
+    	public WebSMSToolBroadcastReceiver(WebSMSToolService callback) {
+			mCallback = callback;
+		}
+    	
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			String action = intent.getAction();
+			if ( 0 == action.compareTo(WifiManager.WIFI_STATE_CHANGED_ACTION) ) {
+				mCallback.wifiStateChanged(context, intent);
+			}
+			else {
+				mCallback.unknownIntent(context, intent);
+			}
+		}
+    }
+    
     public WebSMSToolService() {
     	mServiceStartedStickyIntend = new Intent(SERVICE_STARTED);
     }
@@ -56,11 +80,6 @@ public class WebSMSToolService extends Service {
     public IBinder onBind(Intent intent) {
         return mBinder;
     }
-
-    // This is the object that receives interactions from clients. See
-    // RemoteService for a more complete example.
-    private final IBinder mBinder = new LocalBinder();
-
     
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) 
@@ -68,6 +87,7 @@ public class WebSMSToolService extends Service {
     	synchronized (this) {
 	    	if ( !mServiceRunning )
 	    	{
+	    		registerIntentReceiver();
 	    		
 	    		mSocketIp = intent.getStringExtra(MainActivity.SERVER_IP_ADDRESS_INTENT_KEY);
 		        LOG.logVerbose("Try to start webserver.");
@@ -116,6 +136,7 @@ public class WebSMSToolService extends Service {
     	boolean stopped;
     	synchronized (this) {
     		stopped = false;
+    		unregisterIntentReceiver();
     		getApplicationContext().removeStickyBroadcast(mServiceStartedStickyIntend);
 	        try {
 	        	getApplicationContext().sendBroadcast(new Intent(SERVICE_STOPPING));
@@ -131,5 +152,39 @@ public class WebSMSToolService extends Service {
 	        }
     	}
     	return stopped;
+    }
+    
+    public void wifiStateChanged(Context context, Intent intent) {
+    	String extraKey ="wifi_state";
+    	boolean disabled = WifiManager.WIFI_STATE_DISABLED == intent.getIntExtra(extraKey, -1);
+    	boolean disabling = WifiManager.WIFI_STATE_DISABLING == intent.getIntExtra(extraKey, -1);
+    	boolean enabled = WifiManager.WIFI_STATE_ENABLED == intent.getIntExtra(extraKey, -1);
+    	boolean enabling = WifiManager.WIFI_STATE_ENABLING == intent.getIntExtra(extraKey, -1);
+    	boolean unknown = WifiManager.WIFI_STATE_UNKNOWN == intent.getIntExtra(extraKey, -1);
+    	
+    	LOG.logDebug("wifi statechanged: disabled [" + disabled + "], disabling [" + disabling + "], enabled [" + enabled + "], enabling [" + enabling + "], unknown [" + unknown + "]");
+    	
+    	if ( enabled ) {
+    		return;
+    	}
+    	LOG.logDebug("wifi state schanged: address may be invalid from now on - turning of service");
+    	stopSelf();
+    }
+    
+    public void unknownIntent(Context context, Intent intent) {
+    	LOG.logDebug("recived unhandled intent [" + intent.getAction() + "]");
+    }
+    
+    private void registerIntentReceiver()
+    {
+    	mIntentReceiver = new WebSMSToolBroadcastReceiver(this);
+    	IntentFilter filter = new IntentFilter();
+    	filter.addAction(WifiManager.WIFI_STATE_CHANGED_ACTION);
+    	registerReceiver(mIntentReceiver, filter);
+    }
+    
+    private void unregisterIntentReceiver()
+    {
+    	unregisterReceiver(mIntentReceiver);
     }
 }

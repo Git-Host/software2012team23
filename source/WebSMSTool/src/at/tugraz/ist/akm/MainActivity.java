@@ -168,7 +168,7 @@ public class MainActivity extends ActionBarActivity implements
 		WifiInfo connectionInfo = mWifiManager.getConnectionInfo();
 		
 		if ( !mWifiManager.isWifiEnabled() )
-			return "";
+			return "0.0.0.0";
 		
 		int ipAddress = connectionInfo.getIpAddress();
 		return Formatter.formatIpAddress(ipAddress);
