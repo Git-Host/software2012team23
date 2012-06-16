@@ -121,6 +121,16 @@ public class MainActivity extends ActionBarActivity implements
 	}
 	
 	@Override
+	protected void onResume() {
+		super.onResume();
+		if (isServiceRunning(mServiceName) )
+		{
+			mButton.setChecked(true);
+			displayConnectionUrl();
+		}
+	}
+	
+	@Override
 	protected void onDestroy() {
 		unregisterServiceStateChangeReceiver();
 		super.onDestroy();
