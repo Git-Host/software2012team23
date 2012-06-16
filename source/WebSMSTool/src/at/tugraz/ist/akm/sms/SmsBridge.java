@@ -95,7 +95,7 @@ public class SmsBridge extends Logable implements SmsIOCallback {
 	 * SmsSentBroadcastReceiver.
 	 */
 	@Override
-	public void smsSentCallback(Context context, List<TextMessage> messages) {
+	synchronized public void smsSentCallback(Context context, List<TextMessage> messages) {
 		boolean sentSuccessfully = storeMessageToCorrectBox(messages);
 
 		if (mExternalSmsSentCallback != null) {
@@ -118,7 +118,7 @@ public class SmsBridge extends Logable implements SmsIOCallback {
 	 * this interface method will be never called from SmsSentBroadcastReceiver.
 	 */
 	@Override
-	public void smsSentErrorCallback(Context context, List<TextMessage> messages) {
+	synchronized public void smsSentErrorCallback(Context context, List<TextMessage> messages) {
 		logError("failed to send [" + messages.size() + "] messages");
 	}
 
@@ -126,7 +126,7 @@ public class SmsBridge extends Logable implements SmsIOCallback {
 	 * bypass the event to external audience
 	 */
 	@Override
-	public void smsDeliveredCallback(Context context, List<TextMessage> messages) {
+	synchronized public void smsDeliveredCallback(Context context, List<TextMessage> messages) {
 		if (mExternalSmsSentCallback != null) {
 			logVerbose("bypassing SmsSentCallback.smsDeliveredCallback()");
 			mExternalSmsSentCallback.smsDeliveredCallback(context, messages);
@@ -139,7 +139,7 @@ public class SmsBridge extends Logable implements SmsIOCallback {
 	 * simply bypass the callback to external listener
 	 */
 	@Override
-	public void smsReceivedCallback(Context context, List<TextMessage> messages) {
+	synchronized public void smsReceivedCallback(Context context, List<TextMessage> messages) {
 		if (mExternalSmsSentCallback != null) {
 			logVerbose("bypassing mExternalSmsReceivedCallback.smsReceivedCallback()");
 			mExternalSmsSentCallback.smsReceivedCallback(context, messages);

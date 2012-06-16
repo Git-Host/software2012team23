@@ -82,9 +82,9 @@ public class SmsSender extends Logable {
 	private Bundle getSmsBundle(TextMessage message, String part) {
 		Bundle smsBundle = new Bundle();
 		smsBundle.putSerializable(
-				SmsSentBroadcastReceiver.EXTRA_BUNDLE_KEY_TEXTMESSAGE, message);
+				SmsSentBroadcastReceiver.EXTRA_BUNDLE_KEY_TEXTMESSAGE, new TextMessage(message));
 		smsBundle.putSerializable(
-				SmsSentBroadcastReceiver.EXTRA_BUNDLE_KEY_PART, part);
+				SmsSentBroadcastReceiver.EXTRA_BUNDLE_KEY_PART, new String(part));
 
 		return smsBundle;
 	}

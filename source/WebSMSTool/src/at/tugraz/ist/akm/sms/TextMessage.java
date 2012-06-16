@@ -42,6 +42,27 @@ public class TextMessage implements Serializable {
 	private String mSubject = "";
 	private String mErrorCode = "";
 
+	public TextMessage() {}
+	
+	public TextMessage(final TextMessage m) {
+		mId = new String(m.mId);
+		mThreadId = new String(m.mThreadId);
+		mPerson = new String (m.mPerson);
+		mDate = new String(m.mDate);
+		mAddress = new String (m.mAddress);
+		mSeen = new String (m.mSeen);
+		mRead = new String (m.mRead);
+		mBody = new String(m.mBody);
+		mProtocol = new String(m.mProtocol);
+		mStatus = new String(m.mStatus);
+		mType = new String (m.mType);
+		mServiceCenter = new String (m.mServiceCenter);
+		mLocked = new String (m.mLocked);
+		mReplyPathPresent = new String (m.mReplyPathPresent);
+		mSubject = new String (m.mSubject);
+		mErrorCode = new String(m.mErrorCode);
+	}
+
 	public String getReplyPathPresent() {
 		return mReplyPathPresent;
 	}

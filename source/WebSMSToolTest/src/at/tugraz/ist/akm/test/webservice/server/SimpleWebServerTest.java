@@ -34,7 +34,6 @@ import my.org.apache.http.client.methods.HttpPost;
 import my.org.apache.http.entity.StringEntity;
 import my.org.apache.http.impl.client.DefaultHttpClient;
 
-import org.json.JSONArray;
 import org.json.JSONObject;
 
 import at.tugraz.ist.akm.R;

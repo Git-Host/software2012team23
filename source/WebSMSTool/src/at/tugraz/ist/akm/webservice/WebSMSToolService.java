@@ -21,6 +21,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.net.NetworkInfo;
 import android.net.wifi.WifiManager;
 import android.os.Binder;
 import android.os.IBinder;
@@ -59,6 +60,8 @@ public class WebSMSToolService extends Service {
 			String action = intent.getAction();
 			if ( 0 == action.compareTo(WifiManager.WIFI_STATE_CHANGED_ACTION) ) {
 				mCallback.wifiStateChanged(context, intent);
+			} else if ( 0 == action.compareTo(WifiManager.NETWORK_STATE_CHANGED_ACTION)) {
+				mCallback.networkStateChanged(context, intent);
 			}
 			else {
 				mCallback.unknownIntent(context, intent);
@@ -90,6 +93,7 @@ public class WebSMSToolService extends Service {
 	    		registerIntentReceiver();
 	    		
 	    		mSocketIp = intent.getStringExtra(MainActivity.SERVER_IP_ADDRESS_INTENT_KEY);
+
 		        LOG.logVerbose("Try to start webserver.");
 		        try {
 		        	mServer = new SimpleWebServer(this, mSocketIp);
@@ -155,7 +159,7 @@ public class WebSMSToolService extends Service {
     }
     
     public void wifiStateChanged(Context context, Intent intent) {
-    	String extraKey ="wifi_state";
+    	String extraKey = WifiManager.EXTRA_WIFI_STATE;
     	boolean disabled = WifiManager.WIFI_STATE_DISABLED == intent.getIntExtra(extraKey, -1);
     	boolean disabling = WifiManager.WIFI_STATE_DISABLING == intent.getIntExtra(extraKey, -1);
     	boolean enabled = WifiManager.WIFI_STATE_ENABLED == intent.getIntExtra(extraKey, -1);
@@ -167,7 +171,18 @@ public class WebSMSToolService extends Service {
     	if ( enabled ) {
     		return;
     	}
-    	LOG.logDebug("wifi state schanged: address may be invalid from now on - turning of service");
+    	LOG.logDebug("wifi state changed: address may be invalid from now on - turning off service");
+    	stopSelf();
+    }
+    
+    public void networkStateChanged(Context context, Intent intent) 
+    {
+    	NetworkInfo networkInfo = (NetworkInfo) intent.getExtras().get(WifiManager.EXTRA_NETWORK_INFO);
+    	LOG.logDebug("network state: " + networkInfo );
+    	if ( 0 == NetworkInfo.State.CONNECTED.compareTo(networkInfo.getState()) ) {
+    		return;
+    	}
+    	LOG.logDebug("network state changed: address may be invalid from now on - turning off service");    	
     	stopSelf();
     }
     
@@ -180,6 +195,7 @@ public class WebSMSToolService extends Service {
     	mIntentReceiver = new WebSMSToolBroadcastReceiver(this);
     	IntentFilter filter = new IntentFilter();
     	filter.addAction(WifiManager.WIFI_STATE_CHANGED_ACTION);
+    	filter.addAction(WifiManager.NETWORK_STATE_CHANGED_ACTION);
     	registerReceiver(mIntentReceiver, filter);
     }
     

@@ -1,6 +1,5 @@
 package at.tugraz.ist.akm.trace;
 
-import android.os.Build;
 
 public class TraceSettings {
 	static final boolean ENABLE_TRACE = true;

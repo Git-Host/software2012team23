@@ -87,7 +87,7 @@ public class PhonebookBridge implements ContactModifiedCallback {
 	}
 
 	@Override
-	public void contactModifiedCallback() {
+	synchronized public void contactModifiedCallback() {
 		if (mExternalContactModifiedCallback != null) {
 			mExternalContactModifiedCallback.contactModifiedCallback();
 		}

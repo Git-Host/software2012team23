@@ -112,7 +112,7 @@ public class MainActivity extends ActionBarActivity implements
 			mButton.setChecked(true);
 		}
 		
-		mLog.logDebug("starting main activity on device [" + Build.PRODUCT + "]");
+		mLog.logDebug("launched activity on device [" + Build.PRODUCT + "]");
 		
 		registerServiceStateChangeReceiver();
 		mButton.setOnClickListener(this);
@@ -121,13 +121,25 @@ public class MainActivity extends ActionBarActivity implements
 	}
 	
 	@Override
+	protected void onStart() {
+		super.onStart();
+		mLog.logDebug("brought activity to front");
+	}
+	
+	@Override
 	protected void onResume() {
 		super.onResume();
+		mLog.logDebug("user returned to activity  - updating local ip address");
 		if (isServiceRunning(mServiceName) )
 		{
 			mButton.setChecked(true);
+			updateLocalIp();
 			displayConnectionUrl();
+		} else {
+			mInfoFieldView.setText("");
+			mButton.setChecked(false);
 		}
+			
 	}
 	
 	@Override
