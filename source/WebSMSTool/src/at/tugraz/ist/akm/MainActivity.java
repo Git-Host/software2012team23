@@ -26,6 +26,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.format.Formatter;
 import android.view.Menu;
@@ -50,6 +51,8 @@ public class MainActivity extends ActionBarActivity implements
 	private TextView mInfoFieldView = null;
 	private Config mApplicationConfig = null;
 	private ServiceStateListener mServiceListener = null;
+	
+	private WifiManager mWifiManager = null;
 	private String mLocalIp = null;
 
 	private class ServiceStateListener extends BroadcastReceiver {
@@ -102,16 +105,19 @@ public class MainActivity extends ActionBarActivity implements
 		mInfoFieldView = (TextView) findViewById(R.id.adress_data_field);
 		mApplicationConfig = new Config(getApplicationContext());
 
+		mWifiManager = (WifiManager) getSystemService(WIFI_SERVICE);
+		
 		mButton.setChecked(false);
 		if (isServiceRunning(mServiceName)) {
 			mButton.setChecked(true);
 		}
 		
+		mLog.logDebug("starting main activity on device [" + Build.PRODUCT + "]");
+		
 		registerServiceStateChangeReceiver();
 		mButton.setOnClickListener(this);
 		
-		mLocalIp = getLocalIpAddress();
-		mSmsServiceIntent.putExtra(SERVER_IP_ADDRESS_INTENT_KEY, mLocalIp);
+		updateLocalIp();
 	}
 	
 	@Override
@@ -151,25 +157,21 @@ public class MainActivity extends ActionBarActivity implements
 		return super.onOptionsItemSelected(item);
 	}
 
-	public String getLocalIpAddress() {
-		/*
-		 * //Lookup in all network interfaces try { for
-		 * (Enumeration<NetworkInterface> en =
-		 * NetworkInterface.getNetworkInterfaces(); en.hasMoreElements();) {
-		 * NetworkInterface intf = en.nextElement(); for
-		 * (Enumeration<InetAddress> enumIpAddr = intf.getInetAddresses();
-		 * enumIpAddr.hasMoreElements();) { InetAddress inetAddress =
-		 * enumIpAddr.nextElement(); if (!inetAddress.isLoopbackAddress()) {
-		 * return inetAddress.getHostAddress().toString(); } } } } catch
-		 * (SocketException ex) { Log.e("GetLocalIpAddress", ex.toString()); }
-		 */
-
-		// the direct wifi way
-		WifiManager wifiManager = (WifiManager) getSystemService(WIFI_SERVICE);
-		WifiInfo wifiInfo = wifiManager.getConnectionInfo();
-		int ipAddress = wifiInfo.getIpAddress();
-		String ip = Formatter.formatIpAddress(ipAddress);
-		return ip;
+	private boolean updateLocalIp()
+	{
+		mLocalIp = getLocalIpAddress();
+		mSmsServiceIntent.putExtra(SERVER_IP_ADDRESS_INTENT_KEY, mLocalIp);
+		return mWifiManager.isWifiEnabled();
+	}
+	
+	private String getLocalIpAddress() {
+		WifiInfo connectionInfo = mWifiManager.getConnectionInfo();
+		
+		if ( !mWifiManager.isWifiEnabled() )
+			return "";
+		
+		int ipAddress = connectionInfo.getIpAddress();
+		return Formatter.formatIpAddress(ipAddress);
 	}
 
 	private boolean isServiceRunning(String serviceName) {
@@ -193,8 +195,15 @@ public class MainActivity extends ActionBarActivity implements
 	public void onClick(View view) {
 		if (!isServiceRunning(mServiceName)) {
 			mLog.logVerbose("Going to start web service");
-			displayStartigService();
-			view.getContext().startService(mSmsServiceIntent);
+			if ( updateLocalIp() || DevelopmentSettings.IS_RUNNING_ON_EMULATOR ) {
+				displayStartigService();
+				view.getContext().startService(mSmsServiceIntent);
+			} else
+			{
+				displayNoWifiConnected();
+				mLog.logDebug("sorry, can not start service (no wifi connectoin)");
+				mButton.setChecked(false);
+			}
 		} else {
 			displayStoppingService();
 			view.getContext().stopService(mSmsServiceIntent);
@@ -216,6 +225,11 @@ public class MainActivity extends ActionBarActivity implements
 	private void displayStartigService()
 	{
 		mInfoFieldView.setText("starting service...");
+	}
+	
+	private void displayNoWifiConnected() 
+	{
+		mInfoFieldView.setText("no WIFI connection available");
 	}
 	
 	private void registerServiceStateChangeReceiver() {

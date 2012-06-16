@@ -16,10 +16,9 @@
 
 package at.tugraz.ist.akm.trace;
 
-
 public class Logger {
 
-    private static boolean mEnabled = true;
+    private static boolean mEnabled = TraceSettings.ENABLE_TRACE;
 	private static Logger mLogger = null;
 	private LogSink mSink = new AndroidLogSink();
 
@@ -49,22 +48,27 @@ public class Logger {
 		if (mEnabled) {
     	    switch (level) {
     		case ERROR:
-    			mSink.error(tag, formatMessage(message, t));
+    			if (TraceSettings.ENABLE_TRACE_ERROR)
+    				mSink.error(tag, formatMessage(message, t));
     			break;
     		case WARNING:
-    			mSink.warning(tag, formatMessage(message, t));
+    			if (TraceSettings.ENABLE_TRACE_WARNING)
+    				mSink.warning(tag, formatMessage(message, t));
     			break;
     	
     		case INFO:
-    			mSink.info(tag, formatMessage(message, t));
+    			if (TraceSettings.ENABLE_TRACE_INFO)
+    				mSink.info(tag, formatMessage(message, t));
     			break;
     	
     		case DEBUG:
-    			mSink.debug(tag, formatMessage(message, t));
+    			if (TraceSettings.ENABLE_TRACE_DEBUG)
+    				mSink.debug(tag, formatMessage(message, t));
     			break;
     	
     		case VERBOSE:
-    			mSink.verbose(tag, formatMessage(message, t));
+    			if (TraceSettings.ENABLE_TRACE_VERBOSE)
+    				mSink.verbose(tag, formatMessage(message, t));
     			break;
     		}
 		}
