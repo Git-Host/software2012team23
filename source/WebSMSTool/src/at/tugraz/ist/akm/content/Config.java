@@ -24,6 +24,8 @@ import android.net.Uri;
 import android.provider.BaseColumns;
 
 public class Config {
+	public final static Uri CONTENT_URI = Uri.parse("content://at.tugraz.ist.akm.providers.ConfigContentProvider");
+	
 	private ContentResolver mContentResolver;
 	private Uri mUri = Uri.withAppendedPath(Content.CONTENT_URI, "config");
 	
@@ -89,18 +91,17 @@ public class Config {
 			while(cursor.moveToNext()){
 				queriedValue = cursor.getString(0);
 			}
-			
 			cursor.close();
 		}
 		
 		return queriedValue;
 	}
-	private void updateSettings(ContentValues values, String where) {
-		mContentResolver.update(this.mUri, values, Content.NAME, new String[] {where});
+	private int updateSettings(ContentValues values, String where) {
+		return mContentResolver.update(this.mUri, values, Content.NAME, new String[] {where});
 	}
 	
 	public static final class Content implements BaseColumns {
-		public static final Uri CONTENT_URI = Uri.parse("content://at.tugraz.ist.akm.providers.ConfigContentProvider");
+		public static final Uri CONTENT_URI = Config.CONTENT_URI;
 		
 		public static final String CONTENT_TYPE = "at.tugraz.ist.akm.content.Config";
 		

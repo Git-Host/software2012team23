@@ -36,20 +36,27 @@ import at.tugraz.ist.akm.trace.Logable;
 public class ConfigContentProvider extends ContentProvider {
 
     public static final String AUTHORITY = "at.tugraz.ist.akm.providers.ConfigContentProvider";
-    private static String DATABASE_NAME = "ConfigContent";
     public static final String CONFIGURATION_TABLE_NAME = "config";
-
-    private static final UriMatcher uriMatcher;
-    private static HashMap<String, String> contentMap;
-    private DataBaseHelper dbHelper;
+    private static final String DATABASE_NAME = "ConfigContent";
+    
+    private static final UriMatcher URI_MATCHER;
+    private static HashMap<String, String> mContentMap;
+    private DataBaseHelper mDbHelper;
 
     private Logable mLog = new Logable(getClass().getSimpleName());
 
+    
+    public ConfigContentProvider()
+    {
+    	mLog.logDebug("constructing content provider api [" + getClass().getSimpleName() + "]");
+    
+    }
+    
     @Override
     public int delete(Uri uri, String selection, String[] selectionArgs) {
-        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        SQLiteDatabase db = mDbHelper.getWritableDatabase();
         int count = 0;
-        switch (uriMatcher.match(uri)) {
+        switch (URI_MATCHER.match(uri)) {
         case 1:
             try {
                 count = db.delete(CONFIGURATION_TABLE_NAME, selection + "=?", selectionArgs);
@@ -68,7 +75,7 @@ public class ConfigContentProvider extends ContentProvider {
 
     @Override
     public Uri insert(Uri uri, ContentValues initialValues) {
-        if (uriMatcher.match(uri) != 1) {
+        if (URI_MATCHER.match(uri) != 1) {
             throw new IllegalArgumentException("Unknown URI " + uri);
         }
 
@@ -79,7 +86,7 @@ public class ConfigContentProvider extends ContentProvider {
             values = new ContentValues();
         }
 
-        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        SQLiteDatabase db = mDbHelper.getWritableDatabase();
         long rowId = 0;
 
         rowId = db.insert(CONFIGURATION_TABLE_NAME, null, values);
@@ -98,11 +105,11 @@ public class ConfigContentProvider extends ContentProvider {
             String sortOrder) {
         SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
 
-        switch (uriMatcher.match(uri)) {
+        switch (URI_MATCHER.match(uri)) {
         case 1:
             try {
                 qb.setTables(CONFIGURATION_TABLE_NAME);
-                qb.setProjectionMap(contentMap);
+                qb.setProjectionMap(mContentMap);
             } catch (Exception ex) {
 
             }
@@ -112,11 +119,11 @@ public class ConfigContentProvider extends ContentProvider {
             throw new IllegalArgumentException("Unknown URI " + uri);
         }
 
-        SQLiteDatabase db = dbHelper.getReadableDatabase();
+        SQLiteDatabase db = mDbHelper.getReadableDatabase();
         Cursor cursor = null;
 
         try {
-            cursor = qb.query(db, projection, selection + "=?", selectionArgs, null, null, sortOrder);
+            cursor = qb.query(db, projection, selection + " =? ", selectionArgs, null, null, sortOrder);
 
             cursor.setNotificationUri(getContext().getContentResolver(), uri);
         } catch (Exception ex) {
@@ -127,9 +134,9 @@ public class ConfigContentProvider extends ContentProvider {
 
     @Override
     public int update(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
-        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        SQLiteDatabase db = mDbHelper.getWritableDatabase();
         int count = 0;
-        switch (uriMatcher.match(uri)) {
+        switch (URI_MATCHER.match(uri)) {
         case 1:
             try {
                 count = db
@@ -150,7 +157,7 @@ public class ConfigContentProvider extends ContentProvider {
 
     @Override
     public String getType(Uri uri) {
-        switch (uriMatcher.match(uri)) {
+        switch (URI_MATCHER.match(uri)) {
         case 1:
             return Config.Content.CONTENT_TYPE;
 
@@ -161,21 +168,21 @@ public class ConfigContentProvider extends ContentProvider {
 
     @Override
     public boolean onCreate() {
-        mLog.logVerbose("onCreate config-content-provider");
-        if (dbHelper == null) {
-            dbHelper = new DataBaseHelper(getContext());
+        mLog.logDebug(getClass().getSimpleName() + ".onCreate()");
+        if (mDbHelper == null) {
+            mDbHelper = new DataBaseHelper(getContext());
         }
-        return !dbHelper.equals(null);
+        return !mDbHelper.equals(null);
     }
 
     static {
-        uriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
-        uriMatcher.addURI(AUTHORITY, CONFIGURATION_TABLE_NAME, 1);
+        URI_MATCHER = new UriMatcher(UriMatcher.NO_MATCH);
+        URI_MATCHER.addURI(AUTHORITY, CONFIGURATION_TABLE_NAME, 1);
 
-        contentMap = new HashMap<String, String>();
-        contentMap.put(Config.Content._ID, Config.Content._ID);
-        contentMap.put(Config.Content.NAME, Config.Content.NAME);
-        contentMap.put(Config.Content.VALUE, Config.Content.VALUE);
+        mContentMap = new HashMap<String, String>();
+        mContentMap.put(Config.Content._ID, Config.Content._ID);
+        mContentMap.put(Config.Content.NAME, Config.Content.NAME);
+        mContentMap.put(Config.Content.VALUE, Config.Content.VALUE);
     }
 
     private static class DataBaseHelper extends SQLiteOpenHelper {

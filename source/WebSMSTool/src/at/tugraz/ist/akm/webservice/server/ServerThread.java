@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 
+import my.org.apache.http.ConnectionClosedException;
 import my.org.apache.http.HttpVersion;
 import my.org.apache.http.impl.DefaultHttpServerConnection;
 import my.org.apache.http.params.BasicHttpParams;
@@ -31,7 +32,7 @@ import at.tugraz.ist.akm.trace.Logable;
 import at.tugraz.ist.akm.webservice.WebserviceThreadPool;
 
 public class ServerThread extends Thread {
-    private final static Logable mLog = new Logable(SimpleWebServer.class.getSimpleName());	
+    private final static Logable mLog = new Logable(ServerThread.class.getSimpleName());	
     private final SimpleWebServer mWebServer;
     private final ServerSocket mServerSocket;
     private boolean mRunning = false;
@@ -76,9 +77,11 @@ public class ServerThread extends Thread {
                             serverConn.bind(tmpSocket, params);
                             HttpService httpService = mWebServer.initializeHTTPService();
                             httpService.handleRequest(serverConn, mWebServer.getHttpContext());
+                        } catch (ConnectionClosedException iDon_tCare) {
+                        	// some browser send connection closed, some not ...
+                            ;
                         } catch (Exception ex) {
-                            ex.printStackTrace();
-                            mLog.logError("Exception caught when processing HTTP client connection", ex);
+                            mLog.logError("Exception caught while processing HTTP client connection", ex);
                         }
                     }
                 });

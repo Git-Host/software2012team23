@@ -64,19 +64,19 @@ public class SystemMonitor extends PhoneStateListener {
 		}
 	}
 
-	private synchronized void setSignalStrength(SignalStrength signalStrength) {
+	private void setSignalStrength(SignalStrength signalStrength) {
 		mLog.logVerbose("signal strength changed");
 		mSingalStrength = signalStrength;
 	}
 
 	@Override
-	public void onSignalStrengthsChanged(SignalStrength signalStrength) {
+	public synchronized void onSignalStrengthsChanged(SignalStrength signalStrength) {
 		super.onSignalStrengthsChanged(signalStrength);
 		setSignalStrength(signalStrength);
 	}
 	
 	@Override
-	public void onSignalStrengthChanged(int asu) {
+	public synchronized void onSignalStrengthChanged(int asu) {
 		super.onSignalStrengthChanged(asu);
 	}
 }

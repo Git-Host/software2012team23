@@ -40,7 +40,7 @@ public class WebSMSToolService extends Service {
 	
 	private Intent mServiceStartedStickyIntend = null;
 	private String mSocketIp = null;
-    private final static Logable LOG = new Logable(
+    private final static Logable Log = new Logable(
             WebSMSToolService.class.getSimpleName());
     private static boolean mServiceRunning = false;
     private SimpleWebServer mServer = null;
@@ -92,9 +92,14 @@ public class WebSMSToolService extends Service {
 	    	{
 	    		registerIntentReceiver();
 	    		
-	    		mSocketIp = intent.getStringExtra(MainActivity.SERVER_IP_ADDRESS_INTENT_KEY);
+	    		try {
+	    			mSocketIp = intent.getStringExtra(MainActivity.SERVER_IP_ADDRESS_INTENT_KEY);
+	    		} catch (NullPointerException npe) {
+	    			Log.logDebug("got bad start intent - not starting service");
+	    			stopSelf();
+	    		}
 
-		        LOG.logVerbose("Try to start webserver.");
+		        Log.logVerbose("Try to start webserver.");
 		        try {
 		        	mServer = new SimpleWebServer(this, mSocketIp);
 		        	getApplicationContext().removeStickyBroadcast(mServiceStartedStickyIntend);
@@ -105,16 +110,16 @@ public class WebSMSToolService extends Service {
 		            if ( !mServiceRunning )
 		            	throw new Exception("server failed to start");
 		            getApplicationContext().sendStickyBroadcast(mServiceStartedStickyIntend);
-		            LOG.logInfo("Web service has been started");
+		            Log.logInfo("Web service has been started");
 		        } 
 		        catch (Exception ex) {
-		            LOG.logError("Couldn't start web service", ex);
+		            Log.logError("Couldn't start web service", ex);
 		            getApplicationContext().sendBroadcast(new Intent(SERVICE_STARTED_BOGUS));
 		        }
 	    	}
 	    	else 
 	    	{
-	    		LOG.logError("Couldn't start web service (already running)");
+	    		Log.logError("Couldn't start web service (already running)");
 	    	}
 	
 	        super.onStartCommand(intent, flags, startId);
@@ -151,7 +156,7 @@ public class WebSMSToolService extends Service {
 	            getApplicationContext().sendBroadcast(new Intent(SERVICE_STOPPED));
 	            stopped = true;
 	        } catch (Exception ex) {
-	            LOG.logError("Error while stopping server!", ex);
+	            Log.logError("Error while stopping server!", ex);
 	            getApplicationContext().sendBroadcast(new Intent(SERVICE_STOPPED_BOGUS));
 	        }
     	}
@@ -166,28 +171,28 @@ public class WebSMSToolService extends Service {
     	boolean enabling = WifiManager.WIFI_STATE_ENABLING == intent.getIntExtra(extraKey, -1);
     	boolean unknown = WifiManager.WIFI_STATE_UNKNOWN == intent.getIntExtra(extraKey, -1);
     	
-    	LOG.logDebug("wifi statechanged: disabled [" + disabled + "], disabling [" + disabling + "], enabled [" + enabled + "], enabling [" + enabling + "], unknown [" + unknown + "]");
+    	Log.logDebug("wifi statechanged: disabled [" + disabled + "], disabling [" + disabling + "], enabled [" + enabled + "], enabling [" + enabling + "], unknown [" + unknown + "]");
     	
     	if ( enabled ) {
     		return;
     	}
-    	LOG.logDebug("wifi state changed: address may be invalid from now on - turning off service");
+    	Log.logDebug("wifi state changed: address may be invalid from now on - turning off service");
     	stopSelf();
     }
     
     public void networkStateChanged(Context context, Intent intent) 
     {
     	NetworkInfo networkInfo = (NetworkInfo) intent.getExtras().get(WifiManager.EXTRA_NETWORK_INFO);
-    	LOG.logDebug("network state: " + networkInfo );
+    	Log.logDebug("network state: " + networkInfo );
     	if ( 0 == NetworkInfo.State.CONNECTED.compareTo(networkInfo.getState()) ) {
     		return;
     	}
-    	LOG.logDebug("network state changed: address may be invalid from now on - turning off service");    	
+    	Log.logDebug("network state changed: address may be invalid from now on - turning off service");    	
     	stopSelf();
     }
     
     public void unknownIntent(Context context, Intent intent) {
-    	LOG.logDebug("recived unhandled intent [" + intent.getAction() + "]");
+    	Log.logDebug("recived unhandled intent [" + intent.getAction() + "]");
     }
     
     private void registerIntentReceiver()

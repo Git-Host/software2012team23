@@ -75,6 +75,7 @@ public class JsonAPIRequestHandler extends AbstractHttpRequestHandler implements
     private volatile List<TextMessage> mSMSReceivedList = new ArrayList<TextMessage>();
     private volatile List<TextMessage> mSMSSentErrorList = new ArrayList<TextMessage>();
     private volatile JSONArray mJsonContactList = null;
+    private String mJsonContactListLock = "lock";
 
     public JsonAPIRequestHandler(final Context context, final XmlNode config,
             final HttpRequestHandlerRegistry registry) throws Throwable {
@@ -137,10 +138,12 @@ public class JsonAPIRequestHandler extends AbstractHttpRequestHandler implements
     }
 
     @Override
-    public synchronized void contactModifiedCallback() {
-        this.mContactsChanged = true;
+    public void contactModifiedCallback() {
         mLog.logVerbose("reloading all contacts from provider");
-        mJsonContactList = fetchContactsJsonArray();
+        synchronized (mJsonContactListLock) {
+        	mJsonContactList = fetchContactsJsonArray();
+        	this.mContactsChanged = true;
+        }
     }
 
 	@Override
@@ -349,24 +352,27 @@ public class JsonAPIRequestHandler extends AbstractHttpRequestHandler implements
         }
     }
 
-    private synchronized JSONObject getContacts() {
-        mLog.logInfo("Handle get_contacts request.");
-        JSONObject resultObject = new JSONObject();
-        try {
-            resultObject.put("contacts", mJsonContactList);
-        } catch (JSONException jsonException) {
-            mLog.logError("Could not append contact list to json object.", jsonException);
-            return new JSONObject();
-        }
-
-        if (resultObject.length() > 0) {
-            this.setSuccessState(resultObject);
-        } else {
-            this.setErrorState(resultObject,
-                    "No contacts could be found on the device.");
-        }
-
-        return resultObject;
+    private JSONObject getContacts() {
+    	
+    	synchronized (mJsonContactListLock) {
+	        mLog.logInfo("Handle get_contacts request.");
+	        JSONObject resultObject = new JSONObject();
+	        try {
+	            resultObject.put("contacts", mJsonContactList);
+	        } catch (JSONException jsonException) {
+	            mLog.logError("Could not append contact list to json object.", jsonException);
+	            return new JSONObject();
+	        }
+	
+	        if (resultObject.length() > 0) {
+	            this.setSuccessState(resultObject);
+	        } else {
+	            this.setErrorState(resultObject,
+	                    "No contacts could be found on the device.");
+	        }
+	
+	        return resultObject;
+    	}
     }
 
     private JSONArray fetchContactsJsonArray() {

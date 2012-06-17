@@ -80,7 +80,7 @@ public class TextingAdapter extends Logable implements TextingInterface,
 	 * ist.akm.sms.TextMessage)
 	 */
 	@Override
-	public int sendTextMessage(TextMessage message) {
+	synchronized public int sendTextMessage(TextMessage message) {
 		mOutgoingStatistics
 				.setNumPending(mOutgoingStatistics.getNumPending() + 1);
 		return mSmsBridge.sendTextMessage(message);

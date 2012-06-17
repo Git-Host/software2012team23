@@ -45,7 +45,7 @@ public class MainActivity extends ActionBarActivity implements
 	
 	public static final String SERVER_IP_ADDRESS_INTENT_KEY ="at.tugraz.ist.akm.SERVER_IP_ADDRESS_INTENT_KEY";
 	private Intent mSmsServiceIntent = null;
-	private Logable mLog = null;
+	private Logable mLog = new Logable(getClass().getSimpleName());;
 	final String mServiceName = WebSMSToolService.class.getName();
 	private ToggleButton mButton = null;
 	private TextView mInfoFieldView = null;
@@ -55,6 +55,7 @@ public class MainActivity extends ActionBarActivity implements
 	private WifiManager mWifiManager = null;
 	private String mLocalIp = null;
 
+	
 	private class ServiceStateListener extends BroadcastReceiver {
 
 		private MainActivity mCallback = null;
@@ -88,7 +89,7 @@ public class MainActivity extends ActionBarActivity implements
 	}
 
 	public MainActivity() {
-		mLog = new Logable(getClass().getSimpleName());
+		mLog.logDebug("constructing " + getClass().getSimpleName());
 		mServiceListener = new ServiceStateListener(this);
 	}
 
@@ -143,7 +144,20 @@ public class MainActivity extends ActionBarActivity implements
 	}
 	
 	@Override
+	protected void onPause() {
+		mLog.logDebug("activity goes to background");
+		super.onStop();
+	}
+	
+	@Override
+	protected void onStop() {
+		mLog.logDebug("activity no longer visible");
+		super.onStop();
+	}
+	
+	@Override
 	protected void onDestroy() {
+		mLog.logDebug("activity goes to Hades");
 		unregisterServiceStateChangeReceiver();
 		super.onDestroy();
 	}
@@ -197,20 +211,21 @@ public class MainActivity extends ActionBarActivity implements
 	}
 
 	private boolean isServiceRunning(String serviceName) {
-		boolean serviceRunning = false;
-		ActivityManager am = (ActivityManager) this
+		int serviceMaxCount = 75;
+		ActivityManager activityManager = (ActivityManager) this
 				.getSystemService(ACTIVITY_SERVICE);
-		List<ActivityManager.RunningServiceInfo> l = am.getRunningServices(50);
-		Iterator<ActivityManager.RunningServiceInfo> i = l.iterator();
-		while (i.hasNext()) {
-			ActivityManager.RunningServiceInfo runningServiceInfo = (ActivityManager.RunningServiceInfo) i
+		List<ActivityManager.RunningServiceInfo> runningServices = activityManager.getRunningServices(serviceMaxCount);
+		Iterator<ActivityManager.RunningServiceInfo> service = runningServices.iterator();
+		mLog.logDebug("found running [" + runningServices.size() + "] services ");
+		while (service.hasNext()) {
+			ActivityManager.RunningServiceInfo serviceInfo = (ActivityManager.RunningServiceInfo) service
 					.next();
-
-			if (runningServiceInfo.service.getClassName().equals(serviceName)) {
-				serviceRunning = true;
+			if (serviceInfo.service.getClassName().equals(serviceName)) {
+				mLog.logDebug("back service is actually running [" + serviceName + "]");
+				return true;
 			}
 		}
-		return serviceRunning;
+		return false;
 	}
 
 	@Override

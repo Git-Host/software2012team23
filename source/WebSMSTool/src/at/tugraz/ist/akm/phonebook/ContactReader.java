@@ -31,10 +31,12 @@ import android.provider.ContactsContract;
 import at.tugraz.ist.akm.content.query.ContactFilter;
 import at.tugraz.ist.akm.content.query.ContactQueryBuilder;
 import at.tugraz.ist.akm.content.query.ContentProviderQueryParameters;
+import at.tugraz.ist.akm.trace.Logable;
 
 public class ContactReader {
 
 	private ContentResolver mContentResolver = null;
+	private Logable mLog = new Logable(getClass().getSimpleName());
 
 	public ContactReader(ContentResolver contentResolver) {
 		mContentResolver = contentResolver;
@@ -45,13 +47,18 @@ public class ContactReader {
 		Cursor people = queryContacts(filter);
 		List<Contact> contacts = null;
 
-		if (people != null) {
-			contacts = new Vector<Contact>(people.getCount());
-			while (people.moveToNext()) {
-				contacts.add(parseToContact(people));
+		try {
+			if (people != null) {
+				contacts = new Vector<Contact>(people.getCount());
+				while (people.moveToNext()) {
+					contacts.add(parseToContact(people));
+				}
+				people.close();
 			}
-			people.close();
+		} catch (Exception ex) {
+			mLog.logError("can not get resouce [cursor to contacts]", ex);
 		}
+		
 		return contacts;
 	}
 
@@ -78,6 +85,7 @@ public class ContactReader {
 		collectPhoneNumberDetails(contact, contactId);
 		collectStructuredNameDetails(contact, contactId);
 
+		mLog.logDebug("parsed contact [" + contact.getDisplayName() + "] with id [" + contact.getId() + "]");
 		return contact;
 	}
 
@@ -92,7 +100,7 @@ public class ContactReader {
 				like, null);
 
 		if (phoneNumbers != null) {
-			List<Contact.Number> phoneNumberList = new ArrayList<Contact.Number>();
+			List<Contact.Number> phoneNumberList = new ArrayList<Contact.Number>(phoneNumbers.getCount());
 			while (phoneNumbers.moveToNext()) {
 
 				String phone = phoneNumbers
@@ -166,6 +174,7 @@ public class ContactReader {
 				photoUri = Uri.withAppendedPath(person,
 						ContactsContract.Contacts.Photo.CONTENT_DIRECTORY);
 			}
+			cur.close();
 		}
 		contact.setPhotoUri(photoUri);
 		contact.setPhotoBytes(getPhotoBytes(person));
