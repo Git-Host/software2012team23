@@ -257,7 +257,7 @@
 		var form = document.getElementById('send_form_'+contact_id);
 		if(form.length){
 			var address = form.number.options[form.number.selectedIndex].value;
-			var message = form.sms_text.value;
+			var message = encodeURI(form.sms_text.value);
 			
 			if(address.length > 0 && message.length > 0){
 				wstAPI.sendSMSMessage(address, message, function(json){

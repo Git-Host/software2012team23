@@ -89,6 +89,9 @@ public class SmsSentBroadcastReceiver extends BroadcastReceiver
 			if (extrasBundle != null) {
 				Serializable serializedTextMessage = extrasBundle
 						.getSerializable(SmsSentBroadcastReceiver.EXTRA_BUNDLE_KEY_TEXTMESSAGE);
+				
+				@SuppressWarnings("unused")
+				int smsPart = extrasBundle.getInt(SmsSentBroadcastReceiver.EXTRA_BUNDLE_KEY_PART);
 
 				if (serializedTextMessage != null) {
 					TextMessage sentMessage = (TextMessage) serializedTextMessage;

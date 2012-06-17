@@ -29,10 +29,8 @@ import at.tugraz.ist.akm.trace.Logable;
 public class SmsSender extends Logable {
 
 	private Context mContext = null;
-
 	protected ContentResolver mContentResolver = null;
 	private SmsManager mSmsManager = SmsManager.getDefault();
-
 	private int mIntentRequestCode = 1;
 
 	public SmsSender(Context context) {
@@ -58,25 +56,20 @@ public class SmsSender extends Logable {
 	}
 
 	private PendingIntent getSentPendingIntent(TextMessage message, String part) {
-		Intent sentIntent = new Intent(SmsSentBroadcastReceiver.ACTION_SMS_SENT);
-		sentIntent.putExtras(getSmsBundle(message, part));
+		return getSmsPendingIntent(message, part, SmsSentBroadcastReceiver.ACTION_SMS_SENT);
+	}
+	
+	private PendingIntent getDeliveredPendingIntent(TextMessage message, String part) {
+		return getSmsPendingIntent(message, part, SmsSentBroadcastReceiver.ACTION_SMS_DELIVERED);
+	}
+	
+	private PendingIntent getSmsPendingIntent(TextMessage message, String part, String action) {
+		Intent textMessageIntent = new Intent(action);
+		textMessageIntent.putExtras(getSmsBundle(message, part));
 		PendingIntent sentPIntent = PendingIntent.getBroadcast(mContext,
-				mIntentRequestCode++, sentIntent, PendingIntent.FLAG_ONE_SHOT);
+				mIntentRequestCode++, textMessageIntent, PendingIntent.FLAG_ONE_SHOT);
 
 		return sentPIntent;
-	}
-
-	private PendingIntent getDeliveredPendingIntent(TextMessage message,
-			String part) {
-		Intent deliveredIntent = new Intent(
-				SmsSentBroadcastReceiver.ACTION_SMS_DELIVERED);
-		deliveredIntent.putExtras(getSmsBundle(message, part));
-
-		PendingIntent deliveredPIntent = PendingIntent.getBroadcast(mContext,
-				mIntentRequestCode++, deliveredIntent,
-				PendingIntent.FLAG_ONE_SHOT);
-
-		return deliveredPIntent;
 	}
 
 	private Bundle getSmsBundle(TextMessage message, String part) {
@@ -86,6 +79,7 @@ public class SmsSender extends Logable {
 		smsBundle.putSerializable(
 				SmsSentBroadcastReceiver.EXTRA_BUNDLE_KEY_PART, new String(part));
 		
+		/*
 		// TODO: try to fix issue 24
 		// workaround [1], answer Mar 9 '11 at 23:52
 		// [1] http://stackoverflow.com/questions/5252841/classnotfoundexception-on-serializable-class-during-activity-start
@@ -93,7 +87,7 @@ public class SmsSender extends Logable {
 		TextMessage tm = (TextMessage) smsBundle.getSerializable(SmsSentBroadcastReceiver.EXTRA_BUNDLE_KEY_TEXTMESSAGE);
 		@SuppressWarnings("unused")
 		String pt = (String) smsBundle.getSerializable(SmsSentBroadcastReceiver.EXTRA_BUNDLE_KEY_PART);
-				
+		*/	
 		return smsBundle;
 	}
 

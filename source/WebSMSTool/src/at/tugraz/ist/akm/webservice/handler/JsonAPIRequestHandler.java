@@ -17,6 +17,7 @@
 package at.tugraz.ist.akm.webservice.handler;
 
 import java.io.IOException;
+import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -398,13 +399,13 @@ public class JsonAPIRequestHandler extends AbstractHttpRequestHandler implements
 
         String address = "";
         String message = "";
-
+        
         int paramsLength = params.length();
         try {
             if (paramsLength == 1) {
                 JSONObject jsonParams = params.getJSONObject(0);
                 address = jsonParams.getString("address");
-                message = jsonParams.getString("message");
+                message = URLDecoder.decode(jsonParams.getString("message"));
                 mLog.logVerbose("Fetch parameter adress: " + address
                         + " and message: " + message
                         + " from send sms request.");
