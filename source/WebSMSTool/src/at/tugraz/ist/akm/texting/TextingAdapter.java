@@ -59,7 +59,7 @@ public class TextingAdapter extends Logable implements TextingInterface,
 	}
 
 	public void start() {
-		logVerbose("power up ...");
+		logVerbose("starting " + getClass().getSimpleName());
 		registerSmsCallbacks();
 		registerPhonebookCallbacks();
 		mSmsBridge.start();
@@ -67,7 +67,7 @@ public class TextingAdapter extends Logable implements TextingInterface,
 	}
 
 	public void stop() {
-		logVerbose("power down ...");
+		logVerbose("stopping " + getClass().getSimpleName());
 		mPhoneBook.stop();
 		mSmsBridge.stop();
 	}

@@ -58,6 +58,7 @@ public class SmsBoxReader {
 				threadIdList.add(Integer.parseInt(threadIDs.getString(threadIDs
 						.getColumnIndex(SmsContent.Content.THREAD_ID))));
 			}
+			threadIDs.close();
 		}
 
 		return threadIdList;
@@ -87,6 +88,8 @@ public class SmsBoxReader {
 			while (inbox.moveToNext()) {
 				messages.add(parseToTextMessge(inbox));
 			}
+			inbox.close();
+			
 		}
 
 		log("read [" + messages.size() + "] messages from [" + filter.getBox()

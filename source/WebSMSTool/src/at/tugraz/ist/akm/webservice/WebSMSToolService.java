@@ -95,8 +95,9 @@ public class WebSMSToolService extends Service {
 	    		try {
 	    			mSocketIp = intent.getStringExtra(MainActivity.SERVER_IP_ADDRESS_INTENT_KEY);
 	    		} catch (NullPointerException npe) {
-	    			Log.logDebug("got bad start intent - not starting service");
+	    			Log.logError("got bad start intent - not starting service");
 	    			stopSelf();
+	    			return START_STICKY;
 	    		}
 
 		        Log.logVerbose("Try to start webserver.");
@@ -115,6 +116,7 @@ public class WebSMSToolService extends Service {
 		        catch (Exception ex) {
 		            Log.logError("Couldn't start web service", ex);
 		            getApplicationContext().sendBroadcast(new Intent(SERVICE_STARTED_BOGUS));
+		            stopSelf();
 		        }
 	    	}
 	    	else 
@@ -150,9 +152,11 @@ public class WebSMSToolService extends Service {
 	        try {
 	        	getApplicationContext().sendBroadcast(new Intent(SERVICE_STOPPING));
 	            mServer.stopServer();
+	            waitForServiceBeingStopped();
 	            mServiceRunning = mServer.isRunning();
-	            if ( mServiceRunning )
+	            if ( mServiceRunning ) {
 	            	throw new Exception("server failed to stop");
+	            }
 	            getApplicationContext().sendBroadcast(new Intent(SERVICE_STOPPED));
 	            stopped = true;
 	        } catch (Exception ex) {
@@ -207,5 +211,19 @@ public class WebSMSToolService extends Service {
     private void unregisterIntentReceiver()
     {
     	unregisterReceiver(mIntentReceiver);
+    }
+    
+    private void waitForServiceBeingStopped()
+    {
+    	int maxTries = 20, delayMs = 200;
+    	
+    	while ( mServer.isRunning()  && ( maxTries-- > 0))
+    	{
+    		try {
+    			this.wait(delayMs);
+    		} catch (Throwable ex) {
+    			; // don't care
+    		}
+    	}
     }
 }

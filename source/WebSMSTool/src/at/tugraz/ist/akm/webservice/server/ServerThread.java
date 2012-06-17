@@ -20,6 +20,8 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 
+import javax.net.ssl.SSLException;
+
 import my.org.apache.http.ConnectionClosedException;
 import my.org.apache.http.HttpVersion;
 import my.org.apache.http.impl.DefaultHttpServerConnection;
@@ -77,9 +79,12 @@ public class ServerThread extends Thread {
                             serverConn.bind(tmpSocket, params);
                             HttpService httpService = mWebServer.initializeHTTPService();
                             httpService.handleRequest(serverConn, mWebServer.getHttpContext());
+                        } catch (SSLException iDon_tCare) {
+                        	; // some browser send connection closed, some not ...
+                        	mLog.logVerbose("ignoring SSL-connection closed by peer");
                         } catch (ConnectionClosedException iDon_tCare) {
-                        	// some browser send connection closed, some not ...
-                            ;
+                        	; // some browser send connection closed, some not ...
+                        	mLog.logVerbose("ignoring SSL-connection closed by peer");
                         } catch (Exception ex) {
                             mLog.logError("Exception caught while processing HTTP client connection", ex);
                         }

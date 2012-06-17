@@ -56,10 +56,10 @@ public class SystemMonitor extends PhoneStateListener {
 
 	public synchronized TelephonySignalStrength getSignalStrength() {
 		if (null != mSingalStrength) {
-			mLog.logVerbose("passing signal strenth to external caller");
+			mLog.logDebug("passing signal strength to external caller");
 			return new TelephonySignalStrength(mContext, mSingalStrength);
 		} else {
-			mLog.logVerbose("Failed to pass SignalStrength - no info available at the moment");	
+			mLog.logWarning("failed to pass SignalStrength - no info available at the moment");	
 			return null;
 		}
 	}

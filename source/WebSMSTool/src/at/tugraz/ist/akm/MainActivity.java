@@ -231,14 +231,14 @@ public class MainActivity extends ActionBarActivity implements
 	@Override
 	public void onClick(View view) {
 		if (!isServiceRunning(mServiceName)) {
-			mLog.logVerbose("Going to start web service");
 			if ( updateLocalIp() || DevelopmentSettings.IS_RUNNING_ON_EMULATOR ) {
+				mLog.logVerbose("Going to start web service");
 				displayStartigService();
 				view.getContext().startService(mSmsServiceIntent);
 			} else
 			{
 				displayNoWifiConnected();
-				mLog.logDebug("sorry, can not start service (no wifi connectoin)");
+				mLog.logDebug("sorry, will not start service (no wifi connection)");
 				mButton.setChecked(false);
 			}
 		} else {

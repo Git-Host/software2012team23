@@ -77,7 +77,7 @@ public class Logger {
 	private String formatMessage(final String message, final Throwable t) {
 		StringBuilder sb = new StringBuilder(message);
 		if (t != null) {
-			sb.append(" => ").append("exception <").append(t.getMessage())
+			sb.append(" => ").append("exception message: <").append(t.getMessage() + "> type: <" + t.getClass().getSimpleName() + ">")
 					.append(">");
 		}
 		return sb.toString();
