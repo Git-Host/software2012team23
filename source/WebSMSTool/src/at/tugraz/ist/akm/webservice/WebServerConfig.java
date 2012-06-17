@@ -45,9 +45,12 @@ public class WebServerConfig {
     }
 
     public final static class HTTP {
-        public final static String KEY_CONTENT_TYPE = "Content-Type";
+    	public final static String KEY_CONTENT_TYPE = "Content-Type";
+    	public final static String KEY_CONTENT_LENGTH = "Content-Length";
         public final static String CONTENT_TYPE_JSON = "application/json";
         public final static String CONTENTY_TYPE_TEXT_HTML = "text/html";
+        public final static String CONTENTY_TYPE_IMAGE_PNG = "image/png";
+        public final static String CONTENTY_TYPE_IMAGE_GIF = "image/gif";
         public final static String REQUEST_TYPE_POST = "POST";
 
         public final static String HEADER_AUTHENTICATION = "Authorization";

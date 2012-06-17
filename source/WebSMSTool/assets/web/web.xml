@@ -49,4 +49,7 @@
     <requestHandler class="at.tugraz.ist.akm.webservice.handler.EchoJsonRequestHandler">  	
         <request uriPattern="/echo.html" dataFile="web/echo.html" contentType="text/html"/>
     </requestHandler>
+        <requestHandler class="at.tugraz.ist.akm.webservice.handler.FaviconLoader">  	
+        <request uriPattern="/favicon.png" dataFile="web/favicon.png" contentType="text/html"/>
+    </requestHandler>
 </webServerConfig>
