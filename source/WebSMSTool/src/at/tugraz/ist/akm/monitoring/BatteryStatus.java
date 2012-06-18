@@ -16,11 +16,16 @@
 
 package at.tugraz.ist.akm.monitoring;
 
+import java.io.ByteArrayOutputStream;
+import java.io.OutputStream;
+
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.BatteryManager;
+import android.util.Base64;
 import at.tugraz.ist.akm.R;
-import at.tugraz.ist.akm.resource.DrawableResource;
 
 public class BatteryStatus {
 
@@ -64,18 +69,23 @@ public class BatteryStatus {
 
 	public byte[] getBatteryIconBytes() {
 
-		int batteryIconId = R.drawable.battery_level0;
+		int batteryIconId = R.raw.battery_level0;
 		if (mBatteryLevel >= 80) {
-			batteryIconId = R.drawable.battery_level4;
+			batteryIconId = R.raw.battery_level4;
 		} else if (mBatteryLevel >= 60) {
-			batteryIconId = R.drawable.battery_level3;
+			batteryIconId = R.raw.battery_level3;
 		} else if (mBatteryLevel >= 40) {
-			batteryIconId = R.drawable.battery_level2;
+			batteryIconId = R.raw.battery_level2;
 		} else if (mBatteryLevel >= 20) {
-			batteryIconId = R.drawable.battery_level1;
+			batteryIconId = R.raw.battery_level1;
 		}
 
-		return new DrawableResource(mContext).getBase64EncodedBytes(batteryIconId);
+		Bitmap bmp = BitmapFactory.decodeResource(mContext.getResources(), batteryIconId);
+		ByteArrayOutputStream os=new ByteArrayOutputStream();
+		bmp.compress(android.graphics.Bitmap.CompressFormat.PNG, 100,(OutputStream) os);
+		byte[] byteArray = os.toByteArray();
+		
+		return Base64.encode(byteArray, Base64.DEFAULT);
 	}
 
 	public boolean getIsCharging() {

@@ -16,10 +16,15 @@
 
 package at.tugraz.ist.akm.monitoring;
 
+import java.io.ByteArrayOutputStream;
+import java.io.OutputStream;
+
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.telephony.SignalStrength;
+import android.util.Base64;
 import at.tugraz.ist.akm.R;
-import at.tugraz.ist.akm.resource.DrawableResource;
 
 public class TelephonySignalStrength {
 
@@ -40,20 +45,24 @@ public class TelephonySignalStrength {
 
 	public byte[] getSignalStrengthIconBytes() {
 		int signalStrength = getSignalStrength();
-		int mSignalIconId = R.drawable.signal_strength0;
+		int mSignalIconId = R.raw.signal_strength0;
 
 		if (signalStrength >= SIGNAL_STRENGTH_GREAT) {
-			mSignalIconId = R.drawable.signal_strength4;
+			mSignalIconId = R.raw.signal_strength4;
 		} else if (signalStrength >= SIGNAL_STRENGTH_GOOD) {
-			mSignalIconId = R.drawable.signal_strength3;
+			mSignalIconId = R.raw.signal_strength3;
 		} else if (signalStrength >= SIGNAL_STRENGTH_MODERATE) {
-			mSignalIconId = R.drawable.signal_strength2;
+			mSignalIconId = R.raw.signal_strength2;
 		} else if (signalStrength >= SIGNAL_STRENGTH_POOR) {
-			mSignalIconId = R.drawable.signal_strength1;
+			mSignalIconId = R.raw.signal_strength1;
 		}
 
-		return new DrawableResource(mContext)
-				.getBase64EncodedBytes(mSignalIconId);
+		Bitmap bmp = BitmapFactory.decodeResource(mContext.getResources(), mSignalIconId);
+		ByteArrayOutputStream os=new ByteArrayOutputStream();
+		bmp.compress(android.graphics.Bitmap.CompressFormat.PNG, 100,(OutputStream) os);
+		byte[] byteArray = os.toByteArray();
+		
+		return Base64.encode(byteArray, Base64.DEFAULT);
 	}
 
 	public int getSignalIconId() {
