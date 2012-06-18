@@ -74,20 +74,10 @@ public class SmsSender extends Logable {
 
 	private Bundle getSmsBundle(TextMessage message, String part) {
 		Bundle smsBundle = new Bundle();
+		TextMessage messageForIntent = new TextMessage(message);
+		messageForIntent.setBody(new String(part));
 		smsBundle.putSerializable(
-				SmsSentBroadcastReceiver.EXTRA_BUNDLE_KEY_TEXTMESSAGE, new TextMessage(message));
-		smsBundle.putSerializable(
-				SmsSentBroadcastReceiver.EXTRA_BUNDLE_KEY_PART, new String(part));
-		
-		/*
-		// TODO: try to fix issue 24
-		// workaround [1], answer Mar 9 '11 at 23:52
-		// [1] http://stackoverflow.com/questions/5252841/classnotfoundexception-on-serializable-class-during-activity-start
-		@SuppressWarnings("unused")
-		TextMessage tm = (TextMessage) smsBundle.getSerializable(SmsSentBroadcastReceiver.EXTRA_BUNDLE_KEY_TEXTMESSAGE);
-		@SuppressWarnings("unused")
-		String pt = (String) smsBundle.getSerializable(SmsSentBroadcastReceiver.EXTRA_BUNDLE_KEY_PART);
-		*/	
+				SmsSentBroadcastReceiver.EXTRA_BUNDLE_KEY_TEXTMESSAGE, messageForIntent);
 		return smsBundle;
 	}
 
