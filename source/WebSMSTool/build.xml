@@ -92,7 +92,7 @@
 <taskdef name="findbugs" classname="edu.umd.cs.findbugs.anttask.FindBugsTask"/>
 
     <target name="findbugs">
-        <mkdir dir="reports" />
+        <mkdir dir="bin/reports" />
         <findbugs home="${findbugs.home}" output="xml" outputFile="bin/reports/findbugs.xml" excludeFilter="findbugs-exclude.xml">
             <auxClasspath path="${android.jar}" />
             <class location="${out.dir}" />
