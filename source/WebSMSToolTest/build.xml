@@ -87,6 +87,25 @@
          in order to avoid having your file be overridden by tools such as "android update project"
     -->
     <!-- version-tag: custom -->
+
+        <import file="${sdk.dir}/tools/ant/build.xml" />
+
+    <path id="findbugs_jar">
+        <pathelement path="${findbugs.home}/lib/findbugs-ant.jar">
+        </pathelement>
+    </path>
+
+    <taskdef name="findbugs" classname="edu.umd.cs.findbugs.anttask.FindBugsTask" classpathref="findbugs_jar" />
+
+    <target name="findbugs">
+        <mkdir dir="${out.dir}/reports" />
+        <findbugs home="${findbugs.home}" outputFile="${out.dir}/reports/findbugs.xml" output="xml:withMessages" excludeFilter="findbugs-exclude.xml">
+            <auxClasspath path="${android.jar}" />
+            <class location="${out.dir}" />
+        </findbugs>
+    </target>
+
+
     
      <target name="test" depends="-test-project-check"
                 description="Runs tests from the package defined in test.package property">
