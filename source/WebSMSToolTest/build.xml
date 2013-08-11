@@ -88,28 +88,27 @@
     -->
     <!-- version-tag: custom -->
 
-        <import file="${sdk.dir}/tools/ant/build.xml" />
+    <import file="${sdk.dir}/tools/ant/build.xml" />
 
     <path id="findbugs_jar">
-        <pathelement path="${findbugs.home}/lib/findbugs-ant.jar">
-        </pathelement>
+        <pathelement location="${findbugs.home}/lib/findbugs-ant.jar"></pathelement>
     </path>
-
     <taskdef name="findbugs" classname="edu.umd.cs.findbugs.anttask.FindBugsTask" classpathref="findbugs_jar" />
+
 
     <target name="findbugs">
         <mkdir dir="${out.dir}/reports" />
         <findbugs home="${findbugs.home}" outputFile="${out.dir}/reports/findbugs.xml" output="xml:withMessages" excludeFilter="findbugs-exclude.xml">
-            <auxClasspath path="${android.jar}" />
+            <auxClasspath path="${project.target.android.jar}" />
             <class location="${out.dir}" />
         </findbugs>
     </target>
 
-
     
      <target name="test" depends="-test-project-check"
                 description="Runs tests from the package defined in test.package property">
-        <property name="test.runner" value="android.test.InstrumentationTestRunner" />
+    <!--<property name="test.runner" value="android.test.InstrumentationTestRunner" />-->
+        <property name="test.runner" value="com.zutubi.android.junitreport.JUnitReportTestRunner" />
 
         <if condition="${project.is.test}">
         <then>
@@ -201,9 +200,14 @@
                 <run-tests-helper />
             </else>
         </if>
+
+   <mkdir dir="${out.absolute.dir}/junit-results"/>
+    <exec executable="${adb}" failonerror="true" dir="${out.absolute.dir}/junit-results">
+        <arg line="${adb.device.arg}" />
+        <arg value="pull" />
+        <arg value="/data/data/${tested.project.app.package}/files/" />
+    </exec> 
+
     </target>
-
-
-    <import file="${sdk.dir}/tools/ant/build.xml" />
 
 </project>

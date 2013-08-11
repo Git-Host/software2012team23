@@ -99,7 +99,7 @@
     <target name="findbugs">
         <mkdir dir="${out.dir}/reports" />
         <findbugs home="${findbugs.home}" outputFile="${out.dir}/reports/findbugs.xml" output="xml:withMessages" excludeFilter="findbugs-exclude.xml">
-            <auxClasspath path="${android.jar}" />
+            <auxClasspath path="${project.target.android.jar}" />
             <class location="${out.dir}" />
         </findbugs>
     </target>
