@@ -86,7 +86,15 @@
          In all cases you must update the value of version-tag below to read 'custom' instead of an integer,
          in order to avoid having your file be overridden by tools such as "android update project"
     -->
+
+
+
+    <!--*********************-->
     <!-- version-tag: custom -->
+    <!--*********************-->
+
+
+
     <import file="${sdk.dir}/tools/ant/build.xml" />
 
     <path id="findbugs_jar">
@@ -99,8 +107,8 @@
     <target name="findbugs">
         <mkdir dir="${out.dir}/reports" />
         <findbugs home="${findbugs.home}" outputFile="${out.dir}/reports/findbugs.xml" output="xml:withMessages" excludeFilter="findbugs-exclude.xml">
-            <auxClasspath path="${project.target.android.jar}" />
-            <class location="${out.dir}" />
+            <auxClasspath path="${project.target.android.jar};./libs/my-http-core.jar" />
+            <class location="${out.dir}/classes" />
         </findbugs>
     </target>
 

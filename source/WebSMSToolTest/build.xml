@@ -86,7 +86,14 @@
          In all cases you must update the value of version-tag below to read 'custom' instead of an integer,
          in order to avoid having your file be overridden by tools such as "android update project"
     -->
+
+
+
+    <!--*********************-->
     <!-- version-tag: custom -->
+    <!--*********************-->
+
+
 
     <import file="${sdk.dir}/tools/ant/build.xml" />
 
@@ -96,18 +103,20 @@
     <taskdef name="findbugs" classname="edu.umd.cs.findbugs.anttask.FindBugsTask" classpathref="findbugs_jar" />
 
 
+
     <target name="findbugs">
         <mkdir dir="${out.dir}/reports" />
         <findbugs home="${findbugs.home}" outputFile="${out.dir}/reports/findbugs.xml" output="xml:withMessages" excludeFilter="findbugs-exclude.xml">
-            <auxClasspath path="${project.target.android.jar}" />
-            <class location="${out.dir}" />
+            <auxClasspath path="${project.target.android.jar};./libs/android-junit-report-1.5.8.jar;./libs/my-http-client.jar;./libs/robotium-solo-3.1.jar;${tested.project.dir}/libs/my-http-core.jar" />
+            <class location="${out.dir}/classes" />
+            <class location="${tested.project.dir}/bin/classes" />
         </findbugs>
     </target>
 
     
      <target name="test" depends="-test-project-check"
                 description="Runs tests from the package defined in test.package property">
-    <!--<property name="test.runner" value="android.test.InstrumentationTestRunner" />-->
+     <!--property name="test.runner" value="android.test.InstrumentationTestRunner" /-->
         <property name="test.runner" value="com.zutubi.android.junitreport.JUnitReportTestRunner" />
 
         <if condition="${project.is.test}">
