@@ -18,11 +18,16 @@ package at.tugraz.ist.akm.test.sms;
 
 import java.util.List;
 
+import android.test.AssertionFailedError;
 import at.tugraz.ist.akm.content.SmsContent;
 import at.tugraz.ist.akm.content.query.TextMessageFilter;
 import at.tugraz.ist.akm.sms.SmsBridge;
 import at.tugraz.ist.akm.sms.TextMessage;
 import at.tugraz.ist.akm.test.WebSMSToolActivityTestcase;
+import at.tugraz.ist.akm.test.trace.ThrowingLogSink;
+import at.tugraz.ist.akm.trace.AndroidLogSink;
+import at.tugraz.ist.akm.trace.LogSink;
+import at.tugraz.ist.akm.trace.Logger;
 
 public class SmsBridgeTest extends WebSMSToolActivityTestcase {
 
@@ -30,17 +35,28 @@ public class SmsBridgeTest extends WebSMSToolActivityTestcase {
 		super(SmsBridgeTest.class.getSimpleName());
 	}
 
-	public void testSmsBridgeSendSms() {
-
+	public void testSmsBridgeSendSms() 
+	{
+		android.telephony.ServiceState voiceService = new android.telephony.ServiceState();
+		LogSink oldSink = Logger.getSink();
+		
+		if ( android.telephony.ServiceState.STATE_IN_SERVICE != voiceService.getState() ) {
+			Logger.setSink(new AndroidLogSink());
+		}
+		
 		try {
 			SmsBridge smsBridge = new SmsBridge(mContext);
 			smsBridge.start();
 			smsBridge.sendTextMessage(SmsHelper.getDummyTextMessage());
 			Thread.sleep(1000);
 			smsBridge.stop();
-		} catch (Exception ex) {
+		}
+		catch (Exception ex) {
 			ex.printStackTrace();
 			assertTrue(false);
+		}
+		finally {
+			Logger.setSink(oldSink);
 		}
 	}
 

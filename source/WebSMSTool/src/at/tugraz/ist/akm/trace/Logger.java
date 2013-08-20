@@ -36,6 +36,10 @@ public class Logger {
 		getInstance().mSink = newSink;
 	}
 	
+	public static LogSink getSink() {
+		return getInstance().mSink;
+	}
+	
 	private static Logger getInstance() {
 		if (mLogger == null ) {
 			mLogger = new Logger();
