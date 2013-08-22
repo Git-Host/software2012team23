@@ -48,86 +48,99 @@ public class MainActivityActionBarTest extends ActivityInstrumentationTestCase2<
 
 
 	public void testSettingsActivity() throws Exception {
+		long fivesecs = 5000;
+		
+		
 	    Instrumentation instrumentation = getInstrumentation();
 	    
 	    Solo mainSolo = new Solo(instrumentation, getActivity());
-		mainSolo.assertCurrentActivity("Actual activty is MainActivity", MainActivity.class);
-
-		Instrumentation.ActivityMonitor monitor = instrumentation.addMonitor(SettingsActivity.class.getName(), null, false);
+		mainSolo.assertCurrentActivity("Current activty is MainActivity", MainActivity.class);
 		
-		ImageButton settingsBtn = (ImageButton) getActivity().findViewById(R.id.actionbar_compat_item_settings);
+		mainSolo.setActivityOrientation(Solo.LANDSCAPE);
+		mainSolo.setActivityOrientation(Solo.PORTRAIT);
+		mainSolo.setActivityOrientation(Solo.LANDSCAPE);
+		Thread.sleep(4000);
+		
+		Instrumentation.ActivityMonitor monitor = instrumentation.addMonitor(SettingsActivity.class.getName(), null, false);
+		ImageButton settingsBtn = (ImageButton) mainSolo.getView(R.id.actionbar_compat_item_settings);
 		mainSolo.clickOnView(settingsBtn);
 		
-		Activity settings = instrumentation.waitForMonitorWithTimeout(monitor, 5000);
-	    assertNotNull("The actual activity should have switched", settings);
+		Activity settings = instrumentation.waitForMonitorWithTimeout(monitor, fivesecs);
 		
+	    assertNotNull("Current activity should have switched", settings);
 		Solo settingsSolo = new Solo(instrumentation, settings);
-        settingsSolo.assertCurrentActivity("Actual activty is SettingsActivity", SettingsActivity.class);
+        settingsSolo.assertCurrentActivity("Current activty is SettingsActivity", SettingsActivity.class);
 		
-        EditText username = (EditText) settings.findViewById(R.id.username);
-        settingsSolo.clickOnView(username);
+        EditText username = (EditText) settingsSolo.getView(R.id.username);
+        EditText password = (EditText) settingsSolo.getView(R.id.password);
+        EditText port = (EditText) settingsSolo.getView(R.id.port);
+        RadioButton http = (RadioButton) settingsSolo.getView(R.id.http);
+        RadioButton https = (RadioButton) settingsSolo.getView(R.id.https);
+        Button save = (Button) settingsSolo.getView(R.id.savesettings);
+       
         settingsSolo.clearEditText(username);
-        
-        EditText password = (EditText) settings.findViewById(R.id.password);
-        settingsSolo.clickOnView(password);
         settingsSolo.clearEditText(password);
-        
-        settingsSolo.sendKey(KeyEvent.KEYCODE_BACK);
-        
-        EditText port = (EditText) settings.findViewById(R.id.port);
-        settingsSolo.clickOnView(port);
         settingsSolo.clearEditText(port);
+        
+        settingsSolo.clickOnView(port);
         instrumentation.sendStringSync("8887");
-        
-        settingsSolo.sendKey(KeyEvent.KEYCODE_BACK);
-        
-        RadioButton http = (RadioButton) settings.findViewById(R.id.http);
+
         settingsSolo.clickOnView(http);
-        
-        Button save = (Button) settings.findViewById(R.id.savesettings);
         settingsSolo.clickOnView(save);
         
-        Thread.sleep(100);
-        
+        Thread.sleep(1000);
         Context context = instrumentation.getTargetContext().getApplicationContext();
         Config config = new Config(context);
-        assertEquals("First save user should be empty.", "", config.getUserName());
-        assertEquals("First save password should be empty.", "", config.getPassWord());
-        assertEquals("First save port should be 8887.", "8887", config.getPort());
-        assertEquals("First save protocol should http.", "http", config.getProtocol());
+        assertEquals("", config.getUserName());
+        assertEquals("", config.getPassWord());
+        assertEquals("8887", config.getPort());
+        assertEquals("http", config.getProtocol());
         
-        settingsSolo.assertCurrentActivity("Actual activty is SettingsActivity", MainActivity.class);
         
-        mainSolo.clickOnView(settingsBtn);
+        mainSolo.setActivityOrientation(Solo.LANDSCAPE);
+		mainSolo.setActivityOrientation(Solo.PORTRAIT);
+		mainSolo.setActivityOrientation(Solo.LANDSCAPE);
+		Thread.sleep(4000);
+		
+        settingsSolo.assertCurrentActivity("Current activty should be MainActivity", MainActivity.class);
+        mainSolo = new Solo(instrumentation, getActivity());
+        monitor = instrumentation.addMonitor(SettingsActivity.class.getName(), null, false);
+		settingsBtn = (ImageButton) mainSolo.getView(R.id.actionbar_compat_item_settings);
+		mainSolo.clickOnView(settingsBtn);
+		settings = instrumentation.waitForMonitorWithTimeout(monitor, fivesecs);
+	    assertNotNull("Current activity should have switched", settings);
+		settingsSolo = new Solo(instrumentation, settings);
+        settingsSolo.assertCurrentActivity("Current activty should be SettingsActivity", SettingsActivity.class);
         
-        settingsSolo.assertCurrentActivity("Actual activty is SettingsActivity", SettingsActivity.class);
+        username = (EditText) settingsSolo.getView(R.id.username);
+        password = (EditText) settingsSolo.getView(R.id.password);
+        port = (EditText) settingsSolo.getView(R.id.port);
+        http = (RadioButton) settingsSolo.getView(R.id.http);
+        https = (RadioButton) settingsSolo.getView(R.id.https);
+        save = (Button) settingsSolo.getView(R.id.savesettings);
         
-        settingsSolo.clickOnView(username);
-        instrumentation.sendStringSync("MyUsername");
-        
-        settingsSolo.clickOnView(password);
-        instrumentation.sendStringSync("MyPassword");
-        
-        settingsSolo.sendKey(KeyEvent.KEYCODE_BACK);
-        
-        settingsSolo.clickOnView(port);
-        settingsSolo.clearEditText(port);
-        instrumentation.sendStringSync("8998");
-        
-        settingsSolo.sendKey(KeyEvent.KEYCODE_BACK);
-        
-        RadioButton https = (RadioButton) settings.findViewById(R.id.https);
-        settingsSolo.clickOnView(https);
-        settingsSolo.clickOnView(save);
-        
-        Thread.sleep(200);
-        
+		settingsSolo.clearEditText(port);
+	   
+		settingsSolo.clickOnView(username);
+		instrumentation.sendStringSync("MyUsername");
+	   
+		settingsSolo.clickOnView(password);
+		instrumentation.sendStringSync("MyPassword");
+	    
+		settingsSolo.clickOnView(port);
+		instrumentation.sendStringSync("8998");
+	   
+		settingsSolo.clickOnView(https);
+		settingsSolo.clickOnView(save);        
+		
+		Thread.sleep(1000);
         Config config2 = new Config(context);
-        assertEquals("Second save user should not empty.", "MyUsername", config2.getUserName());
-        assertEquals("Second save password should not empty.", "MyPassword", config2.getPassWord());
-        assertEquals("Second save port should be 8998.", "8998", config2.getPort());
-        assertEquals("Second save protocol should https.", "https", config2.getProtocol());
+        assertEquals("MyUsername", config2.getUserName());
+        assertEquals("MyPassword", config2.getPassWord());
+        assertEquals("8998", config2.getPort());
+        assertEquals("https", config2.getProtocol());
         
+        settingsSolo.sendKey(KeyEvent.KEYCODE_BACK);
         settingsSolo.assertCurrentActivity("Actual activty is SettingsActivity", MainActivity.class);
 	}
 	
@@ -151,8 +164,6 @@ public class MainActivityActionBarTest extends ActivityInstrumentationTestCase2<
         EditText port = (EditText) settings.findViewById(R.id.port);
         settingsSolo.clickOnView(port);
         settingsSolo.clearEditText(port);
-        
-        settingsSolo.sendKey(KeyEvent.KEYCODE_BACK);
         
         Button save = (Button) settings.findViewById(R.id.savesettings);
         settingsSolo.clickOnView(save);

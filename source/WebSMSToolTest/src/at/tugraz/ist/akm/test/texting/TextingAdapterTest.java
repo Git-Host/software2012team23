@@ -30,6 +30,9 @@ import at.tugraz.ist.akm.test.WebSMSToolActivityTestcase;
 import at.tugraz.ist.akm.test.sms.SmsHelper;
 import at.tugraz.ist.akm.texting.TextingAdapter;
 import at.tugraz.ist.akm.texting.TextingInterface;
+import at.tugraz.ist.akm.trace.AndroidLogSink;
+import at.tugraz.ist.akm.trace.LogSink;
+import at.tugraz.ist.akm.trace.Logger;
 
 public class TextingAdapterTest extends WebSMSToolActivityTestcase implements SmsIOCallback, ContactModifiedCallback
 {
@@ -45,35 +48,43 @@ public class TextingAdapterTest extends WebSMSToolActivityTestcase implements Sm
 
 	public void testSendLongText() throws Exception
 	{
-		mIsTestcaseSendLongText = true;
 		TextingInterface texting = new TextingAdapter(mContext, this, this);
-		texting.start();
-		TextMessage message = SmsHelper.getDummyMultiTextMessage();
-		texting.sendTextMessage(message);
-
-		// try check for callbacks, else wait some time
 		int awaitedCallbacks = 3, tries = 30, durationMs = 200;
-		while ((tries-- >= 0) && (mCountSent < awaitedCallbacks))
-		{
-			Thread.sleep(durationMs);
+		android.telephony.ServiceState voiceService = new android.telephony.ServiceState();
+		
+		if ( android.telephony.ServiceState.STATE_IN_SERVICE == voiceService.getState() ) {
+		
+			mIsTestcaseSendLongText = true;
+			texting.start();
+			TextMessage message = SmsHelper.getDummyMultiTextMessage();
+			texting.sendTextMessage(message);
+	
+			// try check for callbacks, else wait some time
+			while ((tries-- >= 0) && (mCountSent < awaitedCallbacks))
+			{
+				Thread.sleep(durationMs);
+			}
+			assertTrue(mCountSent >= awaitedCallbacks);
+				texting.stop();
 		}
-
-		assertTrue(mCountSent >= awaitedCallbacks);
-		texting.stop();
 	}
 
 	public void testSendNoException() throws Exception
 	{
-		mIsTestcaseSendNoFail = true;
-		TextingInterface texting = new TextingAdapter(mContext, this, this);
-		texting.start();
-		TextMessage message = new TextMessage();
-		message.setAddress("01234");
-		message.setBody("foobar foo baz");
-		texting.sendTextMessage(message);
-		Thread.sleep(1000);
-		assertTrue(mCountSent > 0);
-		texting.stop();
+		android.telephony.ServiceState voiceService = new android.telephony.ServiceState();
+		
+		if ( android.telephony.ServiceState.STATE_IN_SERVICE == voiceService.getState() ) {
+			mIsTestcaseSendNoFail = true;
+			TextingInterface texting = new TextingAdapter(mContext, this, this);
+			texting.start();
+			TextMessage message = new TextMessage();
+			message.setAddress("01234");
+			message.setBody("foobar foo baz");
+			texting.sendTextMessage(message);
+			Thread.sleep(1000);
+			assertTrue(mCountSent > 0);
+			texting.stop();
+		}
 	}
 
 	public void testFetchContactsNoException()

@@ -18,13 +18,11 @@ package at.tugraz.ist.akm.test.sms;
 
 import java.util.List;
 
-import android.test.AssertionFailedError;
 import at.tugraz.ist.akm.content.SmsContent;
 import at.tugraz.ist.akm.content.query.TextMessageFilter;
 import at.tugraz.ist.akm.sms.SmsBridge;
 import at.tugraz.ist.akm.sms.TextMessage;
 import at.tugraz.ist.akm.test.WebSMSToolActivityTestcase;
-import at.tugraz.ist.akm.test.trace.ThrowingLogSink;
 import at.tugraz.ist.akm.trace.AndroidLogSink;
 import at.tugraz.ist.akm.trace.LogSink;
 import at.tugraz.ist.akm.trace.Logger;

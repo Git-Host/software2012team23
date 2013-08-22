@@ -22,6 +22,7 @@ import java.util.List;
 import android.app.ActivityManager;
 import android.content.Context;
 import android.content.Intent;
+import android.net.wifi.WifiManager;
 import android.test.ActivityInstrumentationTestCase2;
 import android.widget.ToggleButton;
 import at.tugraz.ist.akm.MainActivity;
@@ -57,24 +58,35 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
 	}
 	
 	
-	
-	/**
-	 * Test start button (state after it should be checked) and click again to stop service
-	 * (state should be not checked)
-	 */
-	public void testStartStopButton(){
+	public void testStartStopButton() throws InterruptedException {
 		Solo solo = new Solo(getInstrumentation(), getActivity());
-		ToggleButton startStop = (ToggleButton) getActivity().findViewById(R.id.start_stop_server);
+		solo.assertCurrentActivity("Actual activty is MainActivity", MainActivity.class);
+		WifiManager wm = (WifiManager) mContext.getSystemService(Context.WIFI_SERVICE);
+
 		
+		ToggleButton startStop = (ToggleButton) getActivity().findViewById(R.id.start_stop_server);
+		assertFalse(startStop.isChecked());		
 		stopWebService();
+
 		solo.clickOnView(startStop);		
 		waitForServiceBeingStarted();
-		assertTrue(startStop.isChecked());
 		
-		solo.clickOnView(startStop);
-		waitForServiceBeingStopped();
-		assertFalse(startStop.isChecked());
-		stopWebService();
+		if (wm.isWifiEnabled()) {
+			assertTrue(startStop.isChecked());
+			
+			solo.clickOnView(startStop);
+			waitForServiceBeingStopped();
+			assertFalse(startStop.isChecked());
+			stopWebService();
+		} 
+		else {
+			assertFalse(startStop.isChecked());
+			
+			solo.clickOnView(startStop);
+			waitForServiceBeingStopped();
+			assertFalse(startStop.isChecked());
+			stopWebService();
+		}
 	}
 	
 	@Override
