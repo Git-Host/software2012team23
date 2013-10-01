@@ -30,9 +30,6 @@ import at.tugraz.ist.akm.test.WebSMSToolActivityTestcase;
 import at.tugraz.ist.akm.test.sms.SmsHelper;
 import at.tugraz.ist.akm.texting.TextingAdapter;
 import at.tugraz.ist.akm.texting.TextingInterface;
-import at.tugraz.ist.akm.trace.AndroidLogSink;
-import at.tugraz.ist.akm.trace.LogSink;
-import at.tugraz.ist.akm.trace.Logger;
 
 public class TextingAdapterTest extends WebSMSToolActivityTestcase implements SmsIOCallback, ContactModifiedCallback
 {
