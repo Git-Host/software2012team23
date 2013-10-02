@@ -59,7 +59,6 @@ public class MainActivityActionBarTest extends ActivityInstrumentationTestCase2<
 		mainSolo.setActivityOrientation(Solo.LANDSCAPE);
 		mainSolo.setActivityOrientation(Solo.PORTRAIT);
 		mainSolo.setActivityOrientation(Solo.LANDSCAPE);
-		Thread.sleep(4000);
 		
 		Instrumentation.ActivityMonitor monitor = instrumentation.addMonitor(SettingsActivity.class.getName(), null, false);
 		mainSolo.clickOnActionBarItem(R.id.actionbar_settings);
@@ -99,14 +98,13 @@ public class MainActivityActionBarTest extends ActivityInstrumentationTestCase2<
         mainSolo.setActivityOrientation(Solo.LANDSCAPE);
 		mainSolo.setActivityOrientation(Solo.PORTRAIT);
 		mainSolo.setActivityOrientation(Solo.LANDSCAPE);
-		Thread.sleep(4000);
 		
         settingsSolo.assertCurrentActivity("Current activty should be MainActivity", MainActivity.class);
         mainSolo = new Solo(instrumentation, getActivity());
         monitor = instrumentation.addMonitor(SettingsActivity.class.getName(), null, false);
 		mainSolo.clickOnActionBarItem(R.id.actionbar_settings);
 		settings = instrumentation.waitForMonitorWithTimeout(monitor, fivesecs);
-	    assertNotNull("Current activity should have switched", settings);
+	    assertNotNull("wrong activity", settings);
 		settingsSolo = new Solo(instrumentation, settings);
         settingsSolo.assertCurrentActivity("Current activty should be SettingsActivity", SettingsActivity.class);
         
@@ -152,10 +150,10 @@ public class MainActivityActionBarTest extends ActivityInstrumentationTestCase2<
         mainSolo.clickOnActionBarItem(R.id.actionbar_settings);
         
         Activity settings = instrumentation.waitForMonitorWithTimeout(monitor, 5000);
-        assertNotNull("The actual activity should have switched", settings);
+        assertNotNull("not switched to settings activity", settings);
         
         Solo settingsSolo = new Solo(instrumentation, settings);
-        settingsSolo.assertCurrentActivity("Actual activty is SettingsActivity", SettingsActivity.class);
+        settingsSolo.assertCurrentActivity("wrong activity", SettingsActivity.class);
         
         EditText port = (EditText) settings.findViewById(R.id.port);
         settingsSolo.clickOnView(port);
@@ -164,16 +162,16 @@ public class MainActivityActionBarTest extends ActivityInstrumentationTestCase2<
         Button save = (Button) settings.findViewById(R.id.savesettings);
         settingsSolo.clickOnView(save);
         
-        settingsSolo.assertCurrentActivity("Actual activty is SettingsActivity", SettingsActivity.class);
+        settingsSolo.assertCurrentActivity("wrong activity", SettingsActivity.class);
         
         settingsSolo.clickOnView(port);
         instrumentation.sendStringSync("8887");
         
-        settingsSolo.sendKey(KeyEvent.KEYCODE_BACK);
+        settingsSolo.sendKey(KeyEvent.KEYCODE_ENTER);
         
         settingsSolo.clickOnView(save);
         
-        settingsSolo.assertCurrentActivity("Actual activty is SettingsActivity", MainActivity.class);
+        settingsSolo.assertCurrentActivity("wrong activity", MainActivity.class);
     }
 
 	@Override

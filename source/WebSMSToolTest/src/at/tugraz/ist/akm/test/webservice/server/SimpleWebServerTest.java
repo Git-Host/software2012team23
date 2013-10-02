@@ -92,7 +92,7 @@ public class SimpleWebServerTest extends WebSMSToolActivityTestcase {
     	
     	try {
 	    	Config c = new Config(mContext);
-	    	mWebserver = new SimpleWebServer(mContext, c.getPort());
+	    	mWebserver = new SimpleWebServer(mContext, "0.0.0.0");
 	    	mWebserver.startServer();
 	    	
 	    	waitForServiceBeingStarted(20, 200);

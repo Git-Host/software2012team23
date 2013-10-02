@@ -247,7 +247,7 @@ public class MainActivity extends DefaultActionBar implements
             } else
             {
                 displayNoWifiConnected();
-                mLog.logDebug("sorry, will not start service (no wifi connection)");
+                mLog.logDebug("will not start service without wifi connection");
                 mButton.setChecked(false);
             }
         } else
@@ -324,7 +324,7 @@ public class MainActivity extends DefaultActionBar implements
     public void webServiceStartFailed()
     {
         mInfoFieldView
-                .setText("service started bogusly ;( please destroy it manually");
+                .setText("service started erroneous - please stop it manually before starting again");
     }
 
 
@@ -344,6 +344,6 @@ public class MainActivity extends DefaultActionBar implements
     public void webServiceStopFailed()
     {
         mInfoFieldView
-                .setText("service stopped bogusly ;( please destroy it manually");
+                .setText("service stopped erroneous - please stop it manually");
     }
 }
