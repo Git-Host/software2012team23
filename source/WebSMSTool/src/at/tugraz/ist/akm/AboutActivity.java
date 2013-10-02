@@ -20,10 +20,9 @@ import android.os.Bundle;
 import android.text.util.Linkify;
 import android.view.MenuItem;
 import android.widget.TextView;
-import at.tugraz.ist.akm.actionbar.ActionBarActivity;
 
 
-public class AboutActivity extends ActionBarActivity {
+public class AboutActivity extends DefaultActionBar {
 
     @Override
     public void onCreate(Bundle savedInstanceState)

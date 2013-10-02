@@ -62,8 +62,7 @@ public class MainActivityActionBarTest extends ActivityInstrumentationTestCase2<
 		Thread.sleep(4000);
 		
 		Instrumentation.ActivityMonitor monitor = instrumentation.addMonitor(SettingsActivity.class.getName(), null, false);
-		ImageButton settingsBtn = (ImageButton) mainSolo.getView(R.id.actionbar_compat_item_settings);
-		mainSolo.clickOnView(settingsBtn);
+		mainSolo.clickOnActionBarItem(R.id.actionbar_settings);
 		
 		Activity settings = instrumentation.waitForMonitorWithTimeout(monitor, fivesecs);
 		
@@ -105,8 +104,7 @@ public class MainActivityActionBarTest extends ActivityInstrumentationTestCase2<
         settingsSolo.assertCurrentActivity("Current activty should be MainActivity", MainActivity.class);
         mainSolo = new Solo(instrumentation, getActivity());
         monitor = instrumentation.addMonitor(SettingsActivity.class.getName(), null, false);
-		settingsBtn = (ImageButton) mainSolo.getView(R.id.actionbar_compat_item_settings);
-		mainSolo.clickOnView(settingsBtn);
+		mainSolo.clickOnActionBarItem(R.id.actionbar_settings);
 		settings = instrumentation.waitForMonitorWithTimeout(monitor, fivesecs);
 	    assertNotNull("Current activity should have switched", settings);
 		settingsSolo = new Solo(instrumentation, settings);
@@ -151,9 +149,7 @@ public class MainActivityActionBarTest extends ActivityInstrumentationTestCase2<
         mainSolo.assertCurrentActivity("Actual activty is MainActivity", MainActivity.class);
 
         Instrumentation.ActivityMonitor monitor = instrumentation.addMonitor(SettingsActivity.class.getName(), null, false);
-        
-        ImageButton settingsBtn = (ImageButton) getActivity().findViewById(R.id.actionbar_compat_item_settings);
-        mainSolo.clickOnView(settingsBtn);
+        mainSolo.clickOnActionBarItem(R.id.actionbar_settings);
         
         Activity settings = instrumentation.waitForMonitorWithTimeout(monitor, 5000);
         assertNotNull("The actual activity should have switched", settings);

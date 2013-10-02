@@ -21,10 +21,9 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.RadioButton;
-import at.tugraz.ist.akm.actionbar.ActionBarActivity;
 import at.tugraz.ist.akm.content.Config;
 
-public class SettingsActivity extends ActionBarActivity {
+public class SettingsActivity extends DefaultActionBar {
 	EditText userName = null;
 	EditText passWord = null;
 	EditText port = null;

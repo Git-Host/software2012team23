@@ -16,7 +16,7 @@
 
 package at.tugraz.ist.akm.trace;
 
-public interface LogSink {
+public interface ILogSink {
 
 	public void warning(final String tag, final String message);
 

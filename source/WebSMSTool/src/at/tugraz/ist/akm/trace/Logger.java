@@ -20,7 +20,7 @@ public class Logger {
 
     private static boolean mEnabled = TraceSettings.ENABLE_TRACE;
 	private static Logger mLogger = null;
-	private LogSink mSink = new AndroidLogSink();
+	private ILogSink mSink = new AndroidLogSink();
 
 	public enum LogLevel {
 		ERROR, WARNING, INFO, DEBUG, VERBOSE
@@ -32,11 +32,11 @@ public class Logger {
 		}
 	}
 
-	public static void setSink(LogSink newSink) {
+	public static void setSink(ILogSink newSink) {
 		getInstance().mSink = newSink;
 	}
 	
-	public static LogSink getSink() {
+	public static ILogSink getSink() {
 		return getInstance().mSink;
 	}
 	
