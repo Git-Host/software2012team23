@@ -49,7 +49,7 @@ import at.tugraz.ist.akm.sms.SmsIOCallback;
 import at.tugraz.ist.akm.sms.TextMessage;
 import at.tugraz.ist.akm.texting.TextingAdapter;
 import at.tugraz.ist.akm.texting.TextingInterface;
-import at.tugraz.ist.akm.trace.Logable;
+import at.tugraz.ist.akm.trace.LogClient;
 import at.tugraz.ist.akm.webservice.WebServerConfig;
 import at.tugraz.ist.akm.webservice.protocol.json.JsonFactory;
 
@@ -58,7 +58,7 @@ public class JsonAPIRequestHandler extends AbstractHttpRequestHandler implements
     private final static String JSON_STATE_SUCCESS = "success";
     private final static String JSON_STATE_ERROR = "error";
 
-    private final Logable mLog = new Logable(getClass().getSimpleName());
+    private final LogClient mLog = new LogClient(this);
     private JsonFactory mJsonFactory = new JsonFactory();
 
     private volatile TextingInterface mTextingAdapter;

@@ -24,11 +24,11 @@ import junit.framework.TestCase;
 import org.json.JSONObject;
 
 import at.tugraz.ist.akm.phonebook.Contact;
-import at.tugraz.ist.akm.trace.Logable;
+import at.tugraz.ist.akm.trace.LogClient;
 import at.tugraz.ist.akm.webservice.protocol.json.JsonFactory;
 
 public class JsonFactoryTest extends TestCase {
-    private final Logable log = new Logable(getClass().getSimpleName());
+    private final LogClient log = new LogClient(this);
 
     public void test() {
         JsonFactory factory = new JsonFactory();

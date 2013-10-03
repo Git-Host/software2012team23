@@ -17,11 +17,12 @@
 package at.tugraz.ist.akm;
 
 import android.os.Bundle;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.RadioButton;
+import android.widget.ToggleButton;
 import at.tugraz.ist.akm.content.Config;
+import at.tugraz.ist.akm.trace.LogClient;
 
 public class SettingsActivity extends DefaultActionBar
 {
@@ -88,5 +89,13 @@ public class SettingsActivity extends DefaultActionBar
             http.setChecked(false);
             https.setChecked(true);
         }
+    }
+
+
+    public void onToggleHttpRestriction(View v)
+    {
+        LogClient l = new LogClient(this);
+        boolean isChecked = ((ToggleButton) v).isChecked();
+        l.logInfo("restriction toggled: [" + isChecked + "]");
     }
 }

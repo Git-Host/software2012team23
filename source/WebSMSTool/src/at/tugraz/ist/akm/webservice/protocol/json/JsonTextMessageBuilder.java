@@ -24,13 +24,13 @@ import org.json.JSONObject;
 
 import at.tugraz.ist.akm.phonebook.Contact;
 import at.tugraz.ist.akm.sms.TextMessage;
-import at.tugraz.ist.akm.trace.Logable;
+import at.tugraz.ist.akm.trace.LogClient;
 
 public class JsonTextMessageBuilder implements IJsonBuilder {
 
 	@Override
 	public JSONObject build(Object data) {
-    	Logable log = new Logable(this.getClass().getSimpleName());
+    	LogClient log = new LogClient(this);
 		TextMessage message = (TextMessage) data;
 		
         JSONObject json = new JSONObject();

@@ -30,9 +30,9 @@ import at.tugraz.ist.akm.sms.TextMessage;
 import at.tugraz.ist.akm.texting.reports.VolatileIncomingReport;
 import at.tugraz.ist.akm.texting.reports.VolatileOutgoingReport;
 import at.tugraz.ist.akm.texting.reports.VolatilePhonebookReport;
-import at.tugraz.ist.akm.trace.Logable;
+import at.tugraz.ist.akm.trace.LogClient;
 
-public class TextingAdapter extends Logable implements TextingInterface,
+public class TextingAdapter extends LogClient implements TextingInterface,
 		SmsIOCallback, ContactModifiedCallback {
 
 	private Context mContext = null;

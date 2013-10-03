@@ -30,20 +30,20 @@ import at.tugraz.ist.akm.R;
 import at.tugraz.ist.akm.SettingsActivity;
 import at.tugraz.ist.akm.content.Config;
 import at.tugraz.ist.akm.test.trace.ThrowingLogSink;
-import at.tugraz.ist.akm.trace.Logable;
-import at.tugraz.ist.akm.trace.Logger;
+import at.tugraz.ist.akm.trace.LogClient;
+import at.tugraz.ist.akm.trace.TraceService;
 
 import com.jayway.android.robotium.solo.Solo;
 
 public class MainActivityActionBarTest extends ActivityInstrumentationTestCase2<MainActivity> {
 
-	private Logable mLog = null;
+	private LogClient mLog = null;
 	
 	public MainActivityActionBarTest()
 	{
 		super("at.tugraz.ist.akm", MainActivity.class);
-		Logger.setSink(new ThrowingLogSink());
-		mLog = new Logable(MainActivityActionBarTest.class.getSimpleName());
+		TraceService.setSink(new ThrowingLogSink());
+		mLog = new LogClient(this);
 	}
 
 

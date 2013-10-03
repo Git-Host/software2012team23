@@ -31,7 +31,7 @@ import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 import at.tugraz.ist.akm.content.Config;
 import at.tugraz.ist.akm.content.StandardSettings;
-import at.tugraz.ist.akm.trace.Logable;
+import at.tugraz.ist.akm.trace.LogClient;
 
 public class ConfigContentProvider extends ContentProvider {
 
@@ -43,7 +43,7 @@ public class ConfigContentProvider extends ContentProvider {
     private static HashMap<String, String> mContentMap;
     private DataBaseHelper mDbHelper;
 
-    private Logable mLog = new Logable(getClass().getSimpleName());
+    private LogClient mLog = new LogClient(this);
 
     
     public ConfigContentProvider()
@@ -186,7 +186,7 @@ public class ConfigContentProvider extends ContentProvider {
     }
 
     private static class DataBaseHelper extends SQLiteOpenHelper {
-        private Logable mLog = new Logable(getClass().getSimpleName());
+        private LogClient mLog = new LogClient(this);
 
         DataBaseHelper(Context context) {
             super(context, DATABASE_NAME, null, 1);

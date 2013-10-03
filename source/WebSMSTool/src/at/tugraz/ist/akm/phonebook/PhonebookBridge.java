@@ -25,13 +25,13 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.provider.ContactsContract;
 import at.tugraz.ist.akm.content.query.ContactFilter;
-import at.tugraz.ist.akm.trace.Logable;
+import at.tugraz.ist.akm.trace.LogClient;
 
 public class PhonebookBridge implements ContactModifiedCallback {
 
 	private Context mContext = null;
 	private ContentResolver mContentResolver = null;
-	private Logable mLog = new Logable(getClass().getSimpleName());
+	private LogClient mLog = new LogClient(this);
 
 	private ContactReader mContactReader = null;
 

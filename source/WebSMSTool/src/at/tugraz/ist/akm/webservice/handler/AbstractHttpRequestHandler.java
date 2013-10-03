@@ -33,13 +33,13 @@ import my.org.apache.http.protocol.HttpRequestHandlerRegistry;
 import my.org.apache.http.util.EntityUtils;
 import android.content.Context;
 import at.tugraz.ist.akm.io.xml.XmlNode;
-import at.tugraz.ist.akm.trace.Logable;
+import at.tugraz.ist.akm.trace.LogClient;
 import at.tugraz.ist.akm.webservice.HttpResponseDataAppender;
 import at.tugraz.ist.akm.webservice.WebServerConfig;
 import at.tugraz.ist.akm.webservice.handler.interceptor.IRequestInterceptor;
 
 public abstract class AbstractHttpRequestHandler implements HttpRequestHandler {
-    private final Logable mLog = new Logable(getClass().getSimpleName());
+    private final LogClient mLog = new LogClient(this);
     protected final Context mContext;
     protected final XmlNode mConfig;
     protected final HttpRequestHandlerRegistry mRegistry;

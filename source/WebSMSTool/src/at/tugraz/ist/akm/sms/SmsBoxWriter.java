@@ -23,9 +23,9 @@ import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.net.Uri;
 import at.tugraz.ist.akm.content.SmsContent;
-import at.tugraz.ist.akm.trace.Logable;
+import at.tugraz.ist.akm.trace.LogClient;
 
-public class SmsBoxWriter extends Logable {
+public class SmsBoxWriter extends LogClient {
 
 	private ContentResolver mContentResolver = null;
 

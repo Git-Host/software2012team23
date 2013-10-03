@@ -26,12 +26,12 @@ import at.tugraz.ist.akm.content.SmsContent;
 import at.tugraz.ist.akm.content.query.ContentProviderQueryParameters;
 import at.tugraz.ist.akm.content.query.TextMessageFilter;
 import at.tugraz.ist.akm.content.query.TextMessageQueryBuilder;
-import at.tugraz.ist.akm.trace.Logable;
+import at.tugraz.ist.akm.trace.LogClient;
 
 public class SmsBoxReader {
 
 	private ContentResolver mContentResolver = null;
-	private Logable mLog = new Logable(getClass().getSimpleName());
+	private LogClient mLog = new LogClient(this);
 
 	public SmsBoxReader(ContentResolver contentResolver) {
 		mContentResolver = contentResolver;

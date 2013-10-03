@@ -30,11 +30,11 @@ import my.org.apache.http.params.HttpParams;
 import my.org.apache.http.params.HttpProtocolParams;
 import my.org.apache.http.protocol.HTTP;
 import my.org.apache.http.protocol.HttpService;
-import at.tugraz.ist.akm.trace.Logable;
+import at.tugraz.ist.akm.trace.LogClient;
 import at.tugraz.ist.akm.webservice.WebserviceThreadPool;
 
 public class ServerThread extends Thread {
-    private final static Logable mLog = new Logable(ServerThread.class.getSimpleName());	
+    private final static LogClient mLog = new LogClient(ServerThread.class);	
     private final SimpleWebServer mWebServer;
     private final ServerSocket mServerSocket;
     private boolean mRunning = false;

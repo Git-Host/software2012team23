@@ -12,12 +12,12 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import at.tugraz.ist.akm.R;
 import at.tugraz.ist.akm.io.xml.XmlNode;
-import at.tugraz.ist.akm.trace.Logable;
+import at.tugraz.ist.akm.trace.LogClient;
 import at.tugraz.ist.akm.webservice.WebServerConfig;
 
 public class FaviconLoader extends AbstractHttpRequestHandler {
 
-	private final Logable mLog = new Logable(getClass().getSimpleName());
+	private final LogClient mLog = new LogClient(this);
 
 	public FaviconLoader(Context context, XmlNode config,
 			HttpRequestHandlerRegistry registry) {

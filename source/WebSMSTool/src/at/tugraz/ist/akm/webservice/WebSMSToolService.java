@@ -26,7 +26,7 @@ import android.net.wifi.WifiManager;
 import android.os.Binder;
 import android.os.IBinder;
 import at.tugraz.ist.akm.MainActivity;
-import at.tugraz.ist.akm.trace.Logable;
+import at.tugraz.ist.akm.trace.LogClient;
 import at.tugraz.ist.akm.webservice.server.SimpleWebServer;
 
 public class WebSMSToolService extends Service {
@@ -40,8 +40,7 @@ public class WebSMSToolService extends Service {
 	
 	private Intent mServiceStartedStickyIntend = null;
 	private String mSocketIp = null;
-    private final static Logable Log = new Logable(
-            WebSMSToolService.class.getSimpleName());
+    private final static LogClient Log = new LogClient(WebSMSToolService.class);
     private static boolean mServiceRunning = false;
     private SimpleWebServer mServer = null;
     private final IBinder mBinder = new LocalBinder();

@@ -16,10 +16,10 @@
 
 package at.tugraz.ist.akm.trace;
 
-public class Logger {
+public class TraceService {
 
     private static boolean mEnabled = TraceSettings.ENABLE_TRACE;
-	private static Logger mLogger = null;
+	private static TraceService mLogger = null;
 	private ILogSink mSink = new AndroidLogSink();
 
 	public enum LogLevel {
@@ -40,9 +40,9 @@ public class Logger {
 		return getInstance().mSink;
 	}
 	
-	private static Logger getInstance() {
+	private static TraceService getInstance() {
 		if (mLogger == null ) {
-			mLogger = new Logger();
+			mLogger = new TraceService();
 		}
 		return mLogger;
 	}

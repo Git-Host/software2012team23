@@ -20,13 +20,13 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import at.tugraz.ist.akm.monitoring.BatteryStatus;
-import at.tugraz.ist.akm.trace.Logable;
+import at.tugraz.ist.akm.trace.LogClient;
 
 public class JsonBatteryStatusBuilder implements IJsonBuilder {
 
 	@Override
 	public JSONObject build(Object data) {
-    	Logable log = new Logable(this.getClass().getSimpleName());
+    	LogClient log = new LogClient(this);
 		BatteryStatus status = (BatteryStatus) data;
 		
         JSONObject json = new JSONObject();

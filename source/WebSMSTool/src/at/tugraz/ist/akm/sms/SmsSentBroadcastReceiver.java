@@ -26,7 +26,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.telephony.SmsMessage;
-import at.tugraz.ist.akm.trace.Logable;
+import at.tugraz.ist.akm.trace.LogClient;
 
 public class SmsSentBroadcastReceiver extends BroadcastReceiver
 {
@@ -41,7 +41,7 @@ public class SmsSentBroadcastReceiver extends BroadcastReceiver
 	private static final String EXTRA_BUNDLE_KEY_PDU = "pdus";
 
 	private SmsIOCallback mCallback = null;
-	private Logable mLog = new Logable(getClass().getSimpleName());
+	private LogClient mLog = new LogClient(this);
 
 	public SmsSentBroadcastReceiver(SmsIOCallback callback)
 	{

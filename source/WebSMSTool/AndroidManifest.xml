@@ -47,21 +47,29 @@
             android:launchMode="singleInstance">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
         <service android:name=".webservice.WebSMSToolService"></service>
         <provider android:name=".providers.ConfigContentProvider" android:authorities="at.tugraz.ist.akm.providers.ConfigContentProvider"></provider>
 
+        <service android:name=".webservice.WebSMSToolService" ></service>
+        
+        <activity android:name="SettingsActivity"></activity>
+        
+        <activity android:name="SettingsActivity2">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.PREFERENCE" />
+            </intent-filter>
+        </activity>
+        
+        <activity android:name="AboutActivity"></activity>
+        
         <activity
             android:name=".test.MainActivityTest"
             android:label="@string/app_name" >
         </activity>
-
-        <service android:name=".webservice.WebSMSToolService" >
-        </service>
-        <activity android:name="SettingsActivity"></activity>
-        <activity android:name="AboutActivity"></activity>
+        
     </application>
 </manifest>

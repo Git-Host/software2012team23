@@ -31,12 +31,12 @@ import android.provider.ContactsContract;
 import at.tugraz.ist.akm.content.query.ContactFilter;
 import at.tugraz.ist.akm.content.query.ContactQueryBuilder;
 import at.tugraz.ist.akm.content.query.ContentProviderQueryParameters;
-import at.tugraz.ist.akm.trace.Logable;
+import at.tugraz.ist.akm.trace.LogClient;
 
 public class ContactReader {
 
 	private ContentResolver mContentResolver = null;
-	private Logable mLog = new Logable(getClass().getSimpleName());
+	private LogClient mLog = new LogClient(this);
 
 	public ContactReader(ContentResolver contentResolver) {
 		mContentResolver = contentResolver;

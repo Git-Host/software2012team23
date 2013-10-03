@@ -58,13 +58,13 @@ import at.tugraz.ist.akm.content.Config;
 import at.tugraz.ist.akm.io.xml.XmlNode;
 import at.tugraz.ist.akm.io.xml.XmlReader;
 import at.tugraz.ist.akm.statusbar.FireNotification;
-import at.tugraz.ist.akm.trace.Logable;
+import at.tugraz.ist.akm.trace.LogClient;
 import at.tugraz.ist.akm.webservice.WebServerConfig;
 import at.tugraz.ist.akm.webservice.handler.AbstractHttpRequestHandler;
 import at.tugraz.ist.akm.webservice.handler.interceptor.IRequestInterceptor;
 
 public class SimpleWebServer {
-    private final static Logable mLog = new Logable(SimpleWebServer.class.getSimpleName());
+    private final static LogClient mLog = new LogClient(SimpleWebServer.class);
 
     HttpRequestHandlerRegistry mRegistry = new HttpRequestHandlerRegistry();
     private BasicHttpContext mHttpContext = new BasicHttpContext();

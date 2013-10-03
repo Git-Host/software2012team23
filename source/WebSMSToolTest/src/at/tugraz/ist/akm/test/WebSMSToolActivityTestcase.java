@@ -20,18 +20,18 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.test.ActivityTestCase;
 import at.tugraz.ist.akm.test.trace.ThrowingLogSink;
-import at.tugraz.ist.akm.trace.Logable;
-import at.tugraz.ist.akm.trace.Logger;
+import at.tugraz.ist.akm.trace.LogClient;
+import at.tugraz.ist.akm.trace.TraceService;
 
 public class WebSMSToolActivityTestcase extends ActivityTestCase {
 
 	protected Context mContext = null;
 	protected ContentResolver mContentResolver = null;
-	private Logable mLog = null;
+	private LogClient mLog = null;
 
-	public WebSMSToolActivityTestcase(final String logTag) {
-		Logger.setSink(new ThrowingLogSink());
-		mLog = new Logable(logTag);
+	public WebSMSToolActivityTestcase(String foo) {
+		TraceService.setSink(new ThrowingLogSink());
+		mLog = new LogClient(this);
 	}
 
 	@Override

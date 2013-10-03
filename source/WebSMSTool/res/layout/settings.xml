@@ -29,6 +29,14 @@
         android:layout_gravity="top|left"
         android:orientation="vertical" >
 
+    <ToggleButton 
+			    android:id="@+id/http_restricted"
+			    android:layout_width="wrap_content"
+			    android:layout_height="wrap_content"
+			    android:textOn="Protection ON"
+			    android:textOff="Protection OFF"
+			    android:onClick="onToggleHttpRestriction"/>
+        
 	    <TextView
 	        android:id="@+id/tv_properties"
 	        android:layout_width="wrap_content"

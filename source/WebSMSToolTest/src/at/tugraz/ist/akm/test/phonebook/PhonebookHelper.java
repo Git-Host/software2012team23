@@ -28,11 +28,11 @@ import android.provider.ContactsContract;
 import android.provider.ContactsContract.PhoneLookup;
 import android.provider.ContactsContract.RawContacts;
 import at.tugraz.ist.akm.phonebook.Contact;
-import at.tugraz.ist.akm.trace.Logable;
+import at.tugraz.ist.akm.trace.LogClient;
 
 public class PhonebookHelper {
 
-    private static Logable mLog = new Logable(PhonebookHelper.class.getSimpleName());
+    private static LogClient mLog = new LogClient(PhonebookHelper.class);
     
 	public static void storeContact(String[] record,
 			ContentResolver contentResolver) throws Throwable {

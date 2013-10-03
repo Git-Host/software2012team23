@@ -23,11 +23,11 @@ import android.content.Context;
 import android.util.Base64;
 import at.tugraz.ist.akm.content.Config;
 import at.tugraz.ist.akm.io.FileReader;
-import at.tugraz.ist.akm.trace.Logable;
+import at.tugraz.ist.akm.trace.LogClient;
 import at.tugraz.ist.akm.webservice.WebServerConfig;
 
 public class AuthorizationInterceptor extends AbstractRequestInterceptor {
-    protected final Logable mLog = new Logable(getClass().getSimpleName());
+    protected final LogClient mLog = new LogClient(this);
     private Config mConfig;
 
     public AuthorizationInterceptor(Context context) {

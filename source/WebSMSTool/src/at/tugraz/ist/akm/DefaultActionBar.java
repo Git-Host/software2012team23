@@ -19,7 +19,7 @@ public class DefaultActionBar extends Activity {
             startActivity(i);
             return true;
         case R.id.actionbar_settings:
-            i = new Intent(this, SettingsActivity.class);
+            i = new Intent(this, SettingsActivity2.class);
             startActivity(i);
             return true;
         default:

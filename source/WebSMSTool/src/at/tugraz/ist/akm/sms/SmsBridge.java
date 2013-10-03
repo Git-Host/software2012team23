@@ -25,9 +25,9 @@ import android.content.Context;
 import android.content.IntentFilter;
 import android.telephony.SmsManager;
 import at.tugraz.ist.akm.content.query.TextMessageFilter;
-import at.tugraz.ist.akm.trace.Logable;
+import at.tugraz.ist.akm.trace.LogClient;
 
-public class SmsBridge extends Logable implements SmsIOCallback {
+public class SmsBridge extends LogClient implements SmsIOCallback {
 
 	private Context mContext = null;
 	private ContentResolver mContentResolver = null;

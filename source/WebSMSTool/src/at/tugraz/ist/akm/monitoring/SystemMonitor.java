@@ -22,14 +22,14 @@ import android.content.IntentFilter;
 import android.telephony.PhoneStateListener;
 import android.telephony.SignalStrength;
 import android.telephony.TelephonyManager;
-import at.tugraz.ist.akm.trace.Logable;
+import at.tugraz.ist.akm.trace.LogClient;
 
 public class SystemMonitor extends PhoneStateListener {
 
 	private Context mContext = null;
 	private TelephonyManager mTel = null;
 	private SignalStrength mSingalStrength = null;
-	private Logable mLog = new Logable(SystemMonitor.class.getSimpleName());
+	private LogClient mLog = new LogClient(this);
 
 	public SystemMonitor(Context context) {
 		mContext = context;

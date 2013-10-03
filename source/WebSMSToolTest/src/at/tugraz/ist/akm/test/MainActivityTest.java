@@ -28,8 +28,8 @@ import android.widget.ToggleButton;
 import at.tugraz.ist.akm.MainActivity;
 import at.tugraz.ist.akm.R;
 import at.tugraz.ist.akm.test.trace.ThrowingLogSink;
-import at.tugraz.ist.akm.trace.Logable;
-import at.tugraz.ist.akm.trace.Logger;
+import at.tugraz.ist.akm.trace.LogClient;
+import at.tugraz.ist.akm.trace.TraceService;
 import at.tugraz.ist.akm.webservice.WebSMSToolService;
 
 import com.jayway.android.robotium.solo.Solo;
@@ -39,13 +39,13 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
 	private Intent mSmsServiceIntent = null;
 	private Context mContext = null;
 
-	private Logable mLog = null;
+	private LogClient mLog = null;
 
 	public MainActivityTest()
 	{
 		super("at.tugraz.ist.akm", MainActivity.class);
-		Logger.setSink(new ThrowingLogSink());
-		mLog = new Logable(MainActivityTest.class.getSimpleName());
+		TraceService.setSink(new ThrowingLogSink());
+		mLog = new LogClient(this);
 	}
 
 	/**

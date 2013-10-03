@@ -29,11 +29,15 @@ import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.format.Formatter;
+import android.view.ContextMenu;
+import android.view.ContextMenu.ContextMenuInfo;
+import android.view.MenuInflater;
 import android.view.View;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 import at.tugraz.ist.akm.content.Config;
-import at.tugraz.ist.akm.trace.Logable;
+import at.tugraz.ist.akm.trace.LogClient;
 import at.tugraz.ist.akm.webservice.WebSMSToolService;
 
 public class MainActivity extends DefaultActionBar implements
@@ -42,7 +46,7 @@ public class MainActivity extends DefaultActionBar implements
 
     public static final String SERVER_IP_ADDRESS_INTENT_KEY = "at.tugraz.ist.akm.SERVER_IP_ADDRESS_INTENT_KEY";
     private Intent mSmsServiceIntent = null;
-    private Logable mLog = new Logable(getClass().getSimpleName());;
+    private LogClient mLog = new LogClient(this);
     final String mServiceName = WebSMSToolService.class.getName();
     private ToggleButton mButton = null;
     private TextView mInfoFieldView = null;

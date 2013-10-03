@@ -25,10 +25,10 @@ import at.tugraz.ist.akm.monitoring.BatteryStatus;
 import at.tugraz.ist.akm.monitoring.TelephonySignalStrength;
 import at.tugraz.ist.akm.phonebook.Contact;
 import at.tugraz.ist.akm.sms.TextMessage;
-import at.tugraz.ist.akm.trace.Logable;
+import at.tugraz.ist.akm.trace.LogClient;
 
 public class JsonFactory {
-    private Logable log = new Logable(getClass().getSimpleName());
+    private LogClient log = new LogClient(this);
     private HashMap<Class<?>, IJsonBuilder> jsonObjectBuilders = new HashMap<Class<?>, IJsonBuilder>();
 
     public JsonFactory() {

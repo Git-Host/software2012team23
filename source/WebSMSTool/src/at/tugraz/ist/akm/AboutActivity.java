@@ -16,13 +16,14 @@
 
 package at.tugraz.ist.akm;
 
+import android.app.Activity;
 import android.os.Bundle;
 import android.text.util.Linkify;
 import android.view.MenuItem;
 import android.widget.TextView;
 
 
-public class AboutActivity extends DefaultActionBar {
+public class AboutActivity extends Activity {
 
     @Override
     public void onCreate(Bundle savedInstanceState)

@@ -25,13 +25,13 @@ import org.json.JSONObject;
 import android.util.Base64;
 import at.tugraz.ist.akm.phonebook.Contact;
 import at.tugraz.ist.akm.phonebook.Contact.Number;
-import at.tugraz.ist.akm.trace.Logable;
+import at.tugraz.ist.akm.trace.LogClient;
 
 public class JsonContactBuilder implements IJsonBuilder {
 
     @Override
     public JSONObject build(Object data) {
-    	Logable log = new Logable(this.getClass().getSimpleName());
+    	LogClient log = new LogClient(this);
     	
         Contact contact = (Contact) data;
         try {

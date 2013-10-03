@@ -24,9 +24,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.telephony.SmsManager;
-import at.tugraz.ist.akm.trace.Logable;
+import at.tugraz.ist.akm.trace.LogClient;
 
-public class SmsSender extends Logable {
+public class SmsSender extends LogClient {
 
 	private Context mContext = null;
 	protected ContentResolver mContentResolver = null;

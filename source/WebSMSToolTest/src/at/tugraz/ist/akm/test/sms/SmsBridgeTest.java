@@ -25,7 +25,7 @@ import at.tugraz.ist.akm.sms.TextMessage;
 import at.tugraz.ist.akm.test.WebSMSToolActivityTestcase;
 import at.tugraz.ist.akm.trace.AndroidLogSink;
 import at.tugraz.ist.akm.trace.ILogSink;
-import at.tugraz.ist.akm.trace.Logger;
+import at.tugraz.ist.akm.trace.TraceService;
 
 public class SmsBridgeTest extends WebSMSToolActivityTestcase {
 
@@ -36,10 +36,10 @@ public class SmsBridgeTest extends WebSMSToolActivityTestcase {
 	public void testSmsBridgeSendSms() 
 	{
 		android.telephony.ServiceState voiceService = new android.telephony.ServiceState();
-		ILogSink oldSink = Logger.getSink();
+		ILogSink oldSink = TraceService.getSink();
 		
 		if ( android.telephony.ServiceState.STATE_IN_SERVICE != voiceService.getState() ) {
-			Logger.setSink(new AndroidLogSink());
+			TraceService.setSink(new AndroidLogSink());
 		}
 		
 		try {
@@ -54,7 +54,7 @@ public class SmsBridgeTest extends WebSMSToolActivityTestcase {
 			assertTrue(false);
 		}
 		finally {
-			Logger.setSink(oldSink);
+			TraceService.setSink(oldSink);
 		}
 	}
 

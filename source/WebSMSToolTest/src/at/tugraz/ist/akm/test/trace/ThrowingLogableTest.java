@@ -17,17 +17,17 @@
 package at.tugraz.ist.akm.test.trace;
 
 import junit.framework.TestCase;
-import at.tugraz.ist.akm.trace.Logable;
-import at.tugraz.ist.akm.trace.Logger;
+import at.tugraz.ist.akm.trace.LogClient;
+import at.tugraz.ist.akm.trace.TraceService;
 
 public class ThrowingLogableTest extends TestCase {
 
-	protected Logable mLog = new Logable(ThrowingLogSink.class.getSimpleName());
+	protected LogClient mLog = new LogClient(this);
 	
 	@Override
 	public void setUp() throws Exception {
 		super.setUp();
-		Logger.setSink(new ThrowingLogSink());
+		TraceService.setSink(new ThrowingLogSink());
 	}
 	
 	public void testLogVerbose() {
