@@ -48,7 +48,7 @@ public class ConfigContentProvider extends ContentProvider {
     
     public ConfigContentProvider()
     {
-    	mLog.logDebug("constructing content provider api [" + getClass().getSimpleName() + "]");
+    	mLog.debug("constructing content provider api [" + getClass().getSimpleName() + "]");
     
     }
     
@@ -127,7 +127,7 @@ public class ConfigContentProvider extends ContentProvider {
 
             cursor.setNotificationUri(getContext().getContentResolver(), uri);
         } catch (Exception ex) {
-            mLog.logVerbose("Query" + ex.toString());
+            mLog.verbose("Query" + ex.toString());
         }
         return cursor;
     }
@@ -168,7 +168,7 @@ public class ConfigContentProvider extends ContentProvider {
 
     @Override
     public boolean onCreate() {
-        mLog.logDebug(getClass().getSimpleName() + ".onCreate()");
+        mLog.debug(getClass().getSimpleName() + ".onCreate()");
         if (mDbHelper == null) {
             mDbHelper = new DataBaseHelper(getContext());
         }
@@ -194,7 +194,7 @@ public class ConfigContentProvider extends ContentProvider {
 
         @Override
         public void onCreate(SQLiteDatabase db) {
-            mLog.logVerbose("onCreate sqlitedatabase invoked");
+            mLog.verbose("onCreate sqlitedatabase invoked");
             db.execSQL("CREATE TABLE " + CONFIGURATION_TABLE_NAME + " (" + Config.Content._ID
                     + " INTEGER PRIMARY KEY AUTOINCREMENT," + Config.Content.NAME
                     + " VARCHAR(255)," + Config.Content.VALUE + " VARCHAR(255)" + ");");

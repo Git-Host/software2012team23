@@ -116,6 +116,6 @@ public class PhonebookBridge implements ContactModifiedCallback {
 	}
 
 	private void log(final String message) {
-		mLog.logVerbose(message);
+		mLog.verbose(message);
 	}
 }

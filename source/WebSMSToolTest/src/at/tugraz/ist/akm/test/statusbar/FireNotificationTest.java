@@ -17,7 +17,7 @@
 package at.tugraz.ist.akm.test.statusbar;
 
 import at.tugraz.ist.akm.statusbar.FireNotification;
-import at.tugraz.ist.akm.test.WebSMSToolActivityTestcase;
+import at.tugraz.ist.akm.test.base.WebSMSToolActivityTestcase;
 
 public class FireNotificationTest extends WebSMSToolActivityTestcase {
 

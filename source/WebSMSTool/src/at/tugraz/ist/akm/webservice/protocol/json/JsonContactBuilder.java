@@ -52,7 +52,7 @@ public class JsonContactBuilder implements IJsonBuilder {
             //log.logInfo(json.toString());
             return json;
         } catch (JSONException jsonException) {
-			log.logError("Could not create jsonContact Object",jsonException);
+			log.error("Could not create jsonContact Object",jsonException);
         }
         return null;
     }

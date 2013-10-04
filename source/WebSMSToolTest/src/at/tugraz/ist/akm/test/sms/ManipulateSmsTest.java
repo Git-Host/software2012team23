@@ -30,7 +30,7 @@ import at.tugraz.ist.akm.sms.SmsIOCallback;
 import at.tugraz.ist.akm.sms.SmsSender;
 import at.tugraz.ist.akm.sms.SmsSentBroadcastReceiver;
 import at.tugraz.ist.akm.sms.TextMessage;
-import at.tugraz.ist.akm.test.WebSMSToolActivityTestcase;
+import at.tugraz.ist.akm.test.base.WebSMSToolActivityTestcase;
 
 public class ManipulateSmsTest extends WebSMSToolActivityTestcase implements
 		SmsIOCallback {

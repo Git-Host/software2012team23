@@ -1,10 +1,12 @@
-package at.tugraz.ist.akm;
+package at.tugraz.ist.akm.activities;
 
 import android.app.Activity;
 import android.content.Intent;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import at.tugraz.ist.akm.R;
+import at.tugraz.ist.akm.activities.PreferencesActivity;
 
 public class DefaultActionBar extends Activity {
 
@@ -19,7 +21,7 @@ public class DefaultActionBar extends Activity {
             startActivity(i);
             return true;
         case R.id.actionbar_settings:
-            i = new Intent(this, SettingsActivity2.class);
+            i = new Intent(this, PreferencesActivity.class);
             startActivity(i);
             return true;
         default:

@@ -22,7 +22,7 @@ import at.tugraz.ist.akm.content.SmsContent;
 import at.tugraz.ist.akm.content.query.TextMessageFilter;
 import at.tugraz.ist.akm.sms.SmsBridge;
 import at.tugraz.ist.akm.sms.TextMessage;
-import at.tugraz.ist.akm.test.WebSMSToolActivityTestcase;
+import at.tugraz.ist.akm.test.base.WebSMSToolActivityTestcase;
 import at.tugraz.ist.akm.trace.AndroidLogSink;
 import at.tugraz.ist.akm.trace.ILogSink;
 import at.tugraz.ist.akm.trace.TraceService;

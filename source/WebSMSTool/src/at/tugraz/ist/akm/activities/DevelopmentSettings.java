@@ -1,4 +1,4 @@
-package at.tugraz.ist.akm;
+package at.tugraz.ist.akm.activities;
 
 import android.os.Build;
 

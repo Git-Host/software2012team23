@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package at.tugraz.ist.akm.test;
+package at.tugraz.ist.akm.test.activities;
 
 import java.util.Iterator;
 import java.util.List;
@@ -25,8 +25,8 @@ import android.content.Intent;
 import android.net.wifi.WifiManager;
 import android.test.ActivityInstrumentationTestCase2;
 import android.widget.ToggleButton;
-import at.tugraz.ist.akm.MainActivity;
 import at.tugraz.ist.akm.R;
+import at.tugraz.ist.akm.activities.MainActivity;
 import at.tugraz.ist.akm.test.trace.ThrowingLogSink;
 import at.tugraz.ist.akm.trace.LogClient;
 import at.tugraz.ist.akm.trace.TraceService;
@@ -45,7 +45,7 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
 	{
 		super("at.tugraz.ist.akm", MainActivity.class);
 		TraceService.setSink(new ThrowingLogSink());
-		mLog = new LogClient(this);
+		mLog = new LogClient(MainActivityTest.class.getName());
 	}
 
 	/**
@@ -107,18 +107,18 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
 
 	protected void log(final String m)
 	{
-		mLog.logVerbose(m);
+		mLog.verbose(m);
 	}
 
 
 	public void startWebService() {
-		mLog.logVerbose("Going to start web service");
+		mLog.verbose("Going to start web service");
 		mContext.startService(mSmsServiceIntent);
 		waitForServiceBeingStarted();
 	}
 	
 	public void stopWebService() {
-		mLog.logVerbose("Going to stop web service");
+		mLog.verbose("Going to stop web service");
 		mContext.stopService(mSmsServiceIntent);
 		waitForServiceBeingStopped();
 	}
@@ -131,7 +131,7 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
 		while (i.hasNext()) {
 			ActivityManager.RunningServiceInfo runningServiceInfo = (ActivityManager.RunningServiceInfo) i
 					.next();
-			mLog.logDebug("found service [" + runningServiceInfo.service.getClassName() + "]");
+			mLog.debug("found service [" + runningServiceInfo.service.getClassName() + "]");
 			if (runningServiceInfo.service.getClassName().equals(WebSMSToolService.class.getName())) {
 				serviceRunning = true;
 			}
@@ -142,33 +142,33 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
 	private void waitForServiceBeingStopped()
 	{
 		int maxTries = 20, delay = 200;
-		mLog.logDebug("waitForServiceBeingStopped");
+		mLog.debug("waitForServiceBeingStopped");
 		try {
 			this.wait(2000);
 			while ( isWebServiceRunning() && (maxTries-- > 0) ) {
 				this.wait(delay);
-				mLog.logDebug("waiting ...");
+				mLog.debug("waiting ...");
 			}
 		} catch (Exception ex) {
 			// i don't care
 		}
-		mLog.logDebug("service has been stopped");
+		mLog.debug("service has been stopped");
 	}
 
 	private void waitForServiceBeingStarted()
 	{
 		int maxTries = 20, delay = 200;
-		mLog.logDebug("waitForServiceBeingStarted");
+		mLog.debug("waitForServiceBeingStarted");
 		try {
 			this.wait(5000);
 			while ( (!isWebServiceRunning()) && (maxTries-- > 0) ) {
 				this.wait(delay);
-				mLog.logDebug("waiting ...");
+				mLog.debug("waiting ...");
 			}
 		} catch (Exception ex) {
 			// i don't care
 		}
-		mLog.logDebug("service is running");
+		mLog.debug("service is running");
 	}
 
 }

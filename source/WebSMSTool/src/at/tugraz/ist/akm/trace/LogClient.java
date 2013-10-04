@@ -16,50 +16,80 @@
 
 package at.tugraz.ist.akm.trace;
 
-public class LogClient {
-	private String mTag = "<notag>";
+public class LogClient
+{
+    private String mTag = "<notag>";
 
-	public LogClient(Object o) {
-	    mTag = new String(o.getClass().getName());
-	}
-	
-	public void logVerbose(String message) {
-		logVerbose(message, null);
-	}
 
-	public void logVerbose(String message, Throwable t) {
-		TraceService.log(TraceService.LogLevel.VERBOSE, mTag, message, t);
-	}
+    public LogClient(String tag)
+    {
+        mTag = new String(tag);
+        debug("log client constructed");
+    }
 
-	public void logError(String message) {
-		logError(message, null);
-	}
 
-	public void logError(String message, Throwable t) {
-		TraceService.log(TraceService.LogLevel.ERROR, mTag, message, t);
-	}
+    public LogClient(Object o)
+    {
+        mTag = new String(o.getClass().getName());
+    }
 
-	public void logWarning(String message) {
-		logWarning(message, null);
-	}
 
-	public void logWarning(String message, Throwable t) {
-		TraceService.log(TraceService.LogLevel.WARNING, mTag, message, t);
-	}
+    public void verbose(String message)
+    {
+        verbose(message, null);
+    }
 
-	public void logInfo(String message) {
-		logInfo(message, null);
-	}
 
-	public void logInfo(String message, Throwable t) {
-		TraceService.log(TraceService.LogLevel.INFO, mTag, message, t);
-	}
+    public void verbose(String message, Throwable t)
+    {
+        TraceService.log(TraceService.LogLevel.VERBOSE, mTag, message, t);
+    }
 
-	public void logDebug(String message) {
-		logDebug(message, null);
-	}
 
-	public void logDebug(String message, Throwable t) {
-		TraceService.log(TraceService.LogLevel.DEBUG, mTag, message, t);
-	}
+    public void error(String message)
+    {
+        error(message, null);
+    }
+
+
+    public void error(String message, Throwable t)
+    {
+        TraceService.log(TraceService.LogLevel.ERROR, mTag, message, t);
+    }
+
+
+    public void warning(String message)
+    {
+        warning(message, null);
+    }
+
+
+    public void warning(String message, Throwable t)
+    {
+        TraceService.log(TraceService.LogLevel.WARNING, mTag, message, t);
+    }
+
+
+    public void info(String message)
+    {
+        info(message, null);
+    }
+
+
+    public void info(String message, Throwable t)
+    {
+        TraceService.log(TraceService.LogLevel.INFO, mTag, message, t);
+    }
+
+
+    public void debug(String message)
+    {
+        debug(message, null);
+    }
+
+
+    public void debug(String message, Throwable t)
+    {
+        TraceService.log(TraceService.LogLevel.DEBUG, mTag, message, t);
+    }
 }

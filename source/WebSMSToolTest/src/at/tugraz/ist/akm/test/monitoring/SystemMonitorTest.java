@@ -19,7 +19,7 @@ package at.tugraz.ist.akm.test.monitoring;
 import at.tugraz.ist.akm.monitoring.BatteryStatus;
 import at.tugraz.ist.akm.monitoring.SystemMonitor;
 import at.tugraz.ist.akm.monitoring.TelephonySignalStrength;
-import at.tugraz.ist.akm.test.WebSMSToolActivityTestcase;
+import at.tugraz.ist.akm.test.base.WebSMSToolActivityTestcase;
 
 public class SystemMonitorTest extends WebSMSToolActivityTestcase {
 

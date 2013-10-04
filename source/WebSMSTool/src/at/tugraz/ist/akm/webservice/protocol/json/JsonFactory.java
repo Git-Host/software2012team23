@@ -28,7 +28,7 @@ import at.tugraz.ist.akm.sms.TextMessage;
 import at.tugraz.ist.akm.trace.LogClient;
 
 public class JsonFactory {
-    private LogClient log = new LogClient(this);
+    private LogClient log = new LogClient(JsonFactory.class.getName());
     private HashMap<Class<?>, IJsonBuilder> jsonObjectBuilders = new HashMap<Class<?>, IJsonBuilder>();
 
     public JsonFactory() {
@@ -43,7 +43,7 @@ public class JsonFactory {
         if (builder != null) {
             return builder.build(object);
         }
-        log.logWarning("no json builder available for object <" + object.getClass() + ">");
+        log.warning("no json builder available for object <" + object.getClass() + ">");
         return null;
     }
 

@@ -55,7 +55,7 @@ public class SmsSentBroadcastReceiver extends BroadcastReceiver
 		
 		if (action.compareTo(ACTION_SMS_SENT) == 0)
 		{
-			mLog.logDebug("passing callback [ACTION_SMS_SENT]");
+			mLog.debug("passing callback [ACTION_SMS_SENT]");
 			TextMessage message = extractSmsFromIntent(intent);
 			List<TextMessage> messages = new ArrayList<TextMessage>();
 			messages.add(message);
@@ -64,20 +64,20 @@ public class SmsSentBroadcastReceiver extends BroadcastReceiver
 		}
 		else if (action.compareTo(ACTION_SMS_DELIVERED) == 0)
 		{
-			mLog.logDebug("passing callback [ACTION_SMS_DELIVERED]");
+			mLog.debug("passing callback [ACTION_SMS_DELIVERED]");
 			List<TextMessage> messages = new ArrayList<TextMessage>();
 			messages.add(extractSmsFromIntent(intent));
 			mCallback.smsDeliveredCallback(context, messages);
 		}
 		else if (action.compareTo(ACTION_SMS_RECEIVED) == 0)
 		{
-			mLog.logDebug("passing callback [ACTION_SMS_RECEIVED]");
+			mLog.debug("passing callback [ACTION_SMS_RECEIVED]");
 			List<TextMessage> messages = extractSmsListFromIntentPdu(intent);
 			mCallback.smsReceivedCallback(context, messages);
 		}
 		else
 		{
-			 mLog.logVerbose("unknown action received: " + action);
+			 mLog.verbose("unknown action received: " + action);
 		}
 	}
 	
@@ -119,7 +119,7 @@ public class SmsSentBroadcastReceiver extends BroadcastReceiver
 				}
 			}
 			else {
-				mLog.logVerbose("bundle contains no pdu(s)");
+				mLog.verbose("bundle contains no pdu(s)");
 			}
 		}
 		return messages;

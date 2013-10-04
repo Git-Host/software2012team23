@@ -34,7 +34,7 @@ public class SmsSender extends LogClient {
 	private int mIntentRequestCode = 1;
 
 	public SmsSender(Context context) {
-		super(SmsSender.class.getSimpleName());
+		super(SmsSender.class.getName());
 		mContext = context;
 		mContentResolver = mContext.getContentResolver();
 	}
@@ -44,7 +44,7 @@ public class SmsSender extends LogClient {
 
 		int partNum = 0;
 		for (String part : parts) {
-			logVerbose("sending part [" + partNum++ + "] to [" + message.getAddress()
+			verbose("sending part [" + partNum++ + "] to [" + message.getAddress()
 					+ "] size in chars [" + part.length() + "] (" + part + ")");
 			PendingIntent sentPIntent = getSentPendingIntent(message, part);
 			PendingIntent deliveredPIntent = getDeliveredPendingIntent(message,

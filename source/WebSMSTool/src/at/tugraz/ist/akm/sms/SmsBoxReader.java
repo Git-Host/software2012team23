@@ -121,7 +121,7 @@ public class SmsBoxReader {
 	}
 
 	private void log(final String message) {
-		mLog.logVerbose(message);
+		mLog.verbose(message);
 	}
 
 }

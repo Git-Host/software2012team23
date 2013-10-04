@@ -21,7 +21,7 @@ import java.util.List;
 import at.tugraz.ist.akm.content.query.ContactFilter;
 import at.tugraz.ist.akm.phonebook.Contact;
 import at.tugraz.ist.akm.phonebook.ContactReader;
-import at.tugraz.ist.akm.test.WebSMSToolActivityTestcase;
+import at.tugraz.ist.akm.test.base.WebSMSToolActivityTestcase;
 
 public class ContactReaderTest extends WebSMSToolActivityTestcase {
 

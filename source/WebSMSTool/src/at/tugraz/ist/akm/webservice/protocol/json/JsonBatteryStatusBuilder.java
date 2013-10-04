@@ -38,7 +38,7 @@ public class JsonBatteryStatusBuilder implements IJsonBuilder {
 			json.put("is_usb_charge", status.getIsUsbCharge());
 			json.put("is_full", status.getIsFull());
 		} catch (JSONException jsonException) {
-			log.logError("Could not create jsonBatteryStatus Object",jsonException);
+			log.error("Could not create jsonBatteryStatus Object",jsonException);
 		}
 		return json;
 	}

@@ -48,7 +48,7 @@ public class TextingAdapter extends LogClient implements TextingInterface,
 
 	public TextingAdapter(Context context, SmsIOCallback smsIOCallback,
 			ContactModifiedCallback contactModifiedCallback) {
-		super(TextingAdapter.class.getSimpleName());
+		super(TextingAdapter.class.getName());
 		mContext = context;
 
 		mExternalTextMessageCallback = smsIOCallback;
@@ -59,7 +59,7 @@ public class TextingAdapter extends LogClient implements TextingInterface,
 	}
 
 	public void start() {
-		logVerbose("starting " + getClass().getSimpleName());
+		verbose("starting " + getClass().getSimpleName());
 		registerSmsCallbacks();
 		registerPhonebookCallbacks();
 		mSmsBridge.start();
@@ -67,7 +67,7 @@ public class TextingAdapter extends LogClient implements TextingInterface,
 	}
 
 	public void stop() {
-		logVerbose("stopping " + getClass().getSimpleName());
+		verbose("stopping " + getClass().getSimpleName());
 		mPhoneBook.stop();
 		mSmsBridge.stop();
 	}
@@ -105,7 +105,7 @@ public class TextingAdapter extends LogClient implements TextingInterface,
 
 	@Override
 	public void smsSentCallback(Context context, List<TextMessage> message) {
-		logVerbose("sms sent successfully");
+		verbose("sms sent successfully");
 		mOutgoingStatistics
 				.setNumPending(mOutgoingStatistics.getNumPending() - 1);
 		if (mExternalTextMessageCallback != null) {
@@ -115,7 +115,7 @@ public class TextingAdapter extends LogClient implements TextingInterface,
 
 	@Override
 	public void smsSentErrorCallback(Context context, List<TextMessage> message) {
-		logVerbose("failed to send sms");
+		verbose("failed to send sms");
 		mOutgoingStatistics.setNumErroneous(mOutgoingStatistics
 				.getNumErroneous() + 1);
 		if (mExternalTextMessageCallback != null) {
@@ -126,7 +126,7 @@ public class TextingAdapter extends LogClient implements TextingInterface,
 	@Override
 	public void smsDeliveredCallback(Context context, List<TextMessage> messages) {
 		TextMessage message = messages.get(0);
-		logVerbose("sms was delivered (to address ["+message.getAddress() +"] on ["+message.getDate()+"] text ["+message.getBody()+"])");
+		verbose("sms was delivered (to address ["+message.getAddress() +"] on ["+message.getDate()+"] text ["+message.getBody()+"])");
 		
 		if (mExternalTextMessageCallback != null) {
 			mExternalTextMessageCallback.smsDeliveredCallback(context, messages);
@@ -136,7 +136,7 @@ public class TextingAdapter extends LogClient implements TextingInterface,
 
 	@Override
 	public void smsReceivedCallback(Context context, List<TextMessage> message) {
-		logVerbose("sms received");
+		verbose("sms received");
 		mIncomingStatistics
 				.setNumReceived(mIncomingStatistics.getNumReceived() + 1);
 		if (mExternalTextMessageCallback != null) {
@@ -146,7 +146,7 @@ public class TextingAdapter extends LogClient implements TextingInterface,
 
 	@Override
 	public void contactModifiedCallback() {
-		logVerbose("contact modified");
+		verbose("contact modified");
 		mPhonebookStatistics
 				.setNumChanges(mPhonebookStatistics.getNumChanges() + 1);
 		if (mExternalPhonebookModifiedCallback != null) {

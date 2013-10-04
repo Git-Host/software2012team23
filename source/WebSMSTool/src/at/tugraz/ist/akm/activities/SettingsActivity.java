@@ -14,13 +14,16 @@
  * limitations under the License.
  */
 
-package at.tugraz.ist.akm;
+package at.tugraz.ist.akm.activities;
 
 import android.os.Bundle;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.RadioButton;
 import android.widget.ToggleButton;
+import at.tugraz.ist.akm.R;
+import at.tugraz.ist.akm.R.id;
+import at.tugraz.ist.akm.R.layout;
 import at.tugraz.ist.akm.content.Config;
 import at.tugraz.ist.akm.trace.LogClient;
 
@@ -96,6 +99,6 @@ public class SettingsActivity extends DefaultActionBar
     {
         LogClient l = new LogClient(this);
         boolean isChecked = ((ToggleButton) v).isChecked();
-        l.logInfo("restriction toggled: [" + isChecked + "]");
+        l.info("restriction toggled: [" + isChecked + "]");
     }
 }

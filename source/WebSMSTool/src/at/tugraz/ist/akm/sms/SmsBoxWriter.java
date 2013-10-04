@@ -30,7 +30,7 @@ public class SmsBoxWriter extends LogClient {
 	private ContentResolver mContentResolver = null;
 
 	public SmsBoxWriter(ContentResolver contentResolver) {
-		super(SmsBoxWriter.class.getSimpleName());
+		super(SmsBoxWriter.class.getName());
 		mContentResolver = contentResolver;
 	}
 
@@ -101,7 +101,7 @@ public class SmsBoxWriter extends LogClient {
 		int rows = mContentResolver.update(destination,
 				textMessageToValues(message), where.toString(), like);
 
-		logVerbose("Updated [" + rows + "] rows on [" + destination.toString() + "]");
+		verbose("Updated [" + rows + "] rows on [" + destination.toString() + "]");
 		return rows;
 	}
 

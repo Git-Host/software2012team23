@@ -21,8 +21,8 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
-import at.tugraz.ist.akm.MainActivity;
 import at.tugraz.ist.akm.R;
+import at.tugraz.ist.akm.activities.MainActivity;
 
 public class FireNotification {
 

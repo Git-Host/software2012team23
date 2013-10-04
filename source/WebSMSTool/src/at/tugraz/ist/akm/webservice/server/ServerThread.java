@@ -34,7 +34,7 @@ import at.tugraz.ist.akm.trace.LogClient;
 import at.tugraz.ist.akm.webservice.WebserviceThreadPool;
 
 public class ServerThread extends Thread {
-    private final static LogClient mLog = new LogClient(ServerThread.class);	
+    private final static LogClient mLog = new LogClient(ServerThread.class.getName());	
     private final SimpleWebServer mWebServer;
     private final ServerSocket mServerSocket;
     private boolean mRunning = false;
@@ -63,7 +63,7 @@ public class ServerThread extends Thread {
                 break;
             }
             if (socket != null) {
-                mLog.logDebug("connection request from ip <" + socket.getInetAddress()
+                mLog.debug("connection request from ip <" + socket.getInetAddress()
                         + "> on port <" + socket.getPort() + ">");
             
                 final Socket tmpSocket = socket;
@@ -81,11 +81,11 @@ public class ServerThread extends Thread {
                             httpService.handleRequest(serverConn, mWebServer.getHttpContext());
                         } catch (SSLException iDon_tCare) {
                         	; // some browser send connection closed, some not ...
-                        	mLog.logVerbose("ignore SSL-connection closed by peer");
+                        	mLog.verbose("ignore SSL-connection closed by peer");
                         } catch (ConnectionClosedException iDon_tCare) {
-                        	mLog.logVerbose("ignore connection closed by peer");
+                        	mLog.verbose("ignore connection closed by peer");
                         } catch (Exception ex) {
-                            mLog.logError("Exception caught while processing HTTP client connection", ex);
+                            mLog.error("Exception caught while processing HTTP client connection", ex);
                         }
                     }
                 });
@@ -93,7 +93,7 @@ public class ServerThread extends Thread {
         }
 
         mRunning = false;
-        mLog.logInfo("Webserver stopped");
+        mLog.info("Webserver stopped");
     }
 
     public void stopThread() {
@@ -102,7 +102,7 @@ public class ServerThread extends Thread {
         try {
 			mServerSocket.close();
 		} catch (IOException exp) {
-			mLog.logWarning("Could not close server socket on stopping server thread", exp);
+			mLog.warning("Could not close server socket on stopping server thread", exp);
 		}
     }
 

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package at.tugraz.ist.akm;
+package at.tugraz.ist.akm.activities;
 
 import java.util.Iterator;
 import java.util.List;
@@ -36,6 +36,9 @@ import android.view.View;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.ToggleButton;
+import at.tugraz.ist.akm.R;
+import at.tugraz.ist.akm.R.id;
+import at.tugraz.ist.akm.R.layout;
 import at.tugraz.ist.akm.content.Config;
 import at.tugraz.ist.akm.trace.LogClient;
 import at.tugraz.ist.akm.webservice.WebSMSToolService;
@@ -104,7 +107,7 @@ public class MainActivity extends DefaultActionBar implements
 
     public MainActivity()
     {
-        mLog.logDebug("constructing " + getClass().getSimpleName());
+        mLog.debug("constructing " + getClass().getSimpleName());
         mServiceListener = new ServiceStateListener(this);
     }
 
@@ -131,7 +134,7 @@ public class MainActivity extends DefaultActionBar implements
             mButton.setChecked(true);
         }
 
-        mLog.logDebug("launched activity on device [" + Build.PRODUCT + "]");
+        mLog.debug("launched activity on device [" + Build.PRODUCT + "]");
 
         registerServiceStateChangeReceiver();
         mButton.setOnClickListener(this);
@@ -144,7 +147,7 @@ public class MainActivity extends DefaultActionBar implements
     protected void onStart()
     {
         super.onStart();
-        mLog.logDebug("brought activity to front");
+        mLog.debug("brought activity to front");
     }
 
 
@@ -152,7 +155,7 @@ public class MainActivity extends DefaultActionBar implements
     protected void onResume()
     {
         super.onResume();
-        mLog.logDebug("user returned to activity  - updating local ip address");
+        mLog.debug("user returned to activity  - updating local ip address");
         if (isServiceRunning(mServiceName))
         {
             mButton.setChecked(true);
@@ -170,7 +173,7 @@ public class MainActivity extends DefaultActionBar implements
     @Override
     protected void onPause()
     {
-        mLog.logDebug("activity goes to background");
+        mLog.debug("activity goes to background");
         super.onStop();
     }
 
@@ -178,7 +181,7 @@ public class MainActivity extends DefaultActionBar implements
     @Override
     protected void onStop()
     {
-        mLog.logDebug("activity no longer visible");
+        mLog.debug("activity no longer visible");
         super.onStop();
     }
 
@@ -186,7 +189,7 @@ public class MainActivity extends DefaultActionBar implements
     @Override
     protected void onDestroy()
     {
-        mLog.logDebug("activity goes to Hades");
+        mLog.debug("activity goes to Hades");
         unregisterServiceStateChangeReceiver();
         super.onDestroy();
     }
@@ -221,7 +224,7 @@ public class MainActivity extends DefaultActionBar implements
                 .getRunningServices(serviceMaxCount);
         Iterator<ActivityManager.RunningServiceInfo> service = runningServices
                 .iterator();
-        mLog.logDebug("found running [" + runningServices.size()
+        mLog.debug("found running [" + runningServices.size()
                 + "] services ");
         while (service.hasNext())
         {
@@ -229,7 +232,7 @@ public class MainActivity extends DefaultActionBar implements
                     .next();
             if (serviceInfo.service.getClassName().equals(serviceName))
             {
-                mLog.logDebug("back service is actually running ["
+                mLog.debug("back service is actually running ["
                         + serviceName + "]");
                 return true;
             }
@@ -245,13 +248,13 @@ public class MainActivity extends DefaultActionBar implements
         {
             if (updateLocalIp() || DevelopmentSettings.IS_RUNNING_ON_EMULATOR)
             {
-                mLog.logVerbose("Going to start web service");
+                mLog.verbose("Going to start web service");
                 displayStartigService();
                 view.getContext().startService(mSmsServiceIntent);
             } else
             {
                 displayNoWifiConnected();
-                mLog.logDebug("will not start service without wifi connection");
+                mLog.debug("will not start service without wifi connection");
                 mButton.setChecked(false);
             }
         } else
@@ -265,7 +268,7 @@ public class MainActivity extends DefaultActionBar implements
     private void displayConnectionUrl()
     {
         String wifiIp = mLocalIp;
-        mLog.logDebug("Actual IP: " + wifiIp);
+        mLog.debug("Actual IP: " + wifiIp);
         mInfoFieldView.setText(mApplicationConfig.getProtocol() + "://"
                 + wifiIp + ":" + mApplicationConfig.getPort());
     }

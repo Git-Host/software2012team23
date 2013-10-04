@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package at.tugraz.ist.akm.test;
+package at.tugraz.ist.akm.test.base;
 
 import android.content.ContentResolver;
 import android.test.InstrumentationTestCase;
@@ -27,9 +27,9 @@ public class WebSMSToolInstrumentationTestcase extends InstrumentationTestCase {
 	protected ContentResolver mContentResolver = null;
 	private LogClient mLog = null;
 
-	public WebSMSToolInstrumentationTestcase(String foo) {
+	public WebSMSToolInstrumentationTestcase(String logTag) {
 		TraceService.setSink(new ThrowingLogSink());
-		mLog = new LogClient(this);
+		mLog = new LogClient(logTag);
 	}
 
 	@Override
@@ -49,35 +49,35 @@ public class WebSMSToolInstrumentationTestcase extends InstrumentationTestCase {
 	}
 
 	protected void logDebug(final String message, Throwable throwable) {
-		mLog.logDebug(message, throwable);
+		mLog.debug(message, throwable);
 	}
 	
 	protected void logDebug(final String message) {
-		mLog.logDebug(message);
+		mLog.debug(message);
 	}
 	
 	protected void logError(final String message, Throwable throwable) {
-		mLog.logError(message, throwable);
+		mLog.error(message, throwable);
 	}
 	
 	protected void logError(final String message) {
-		mLog.logError(message);
+		mLog.error(message);
 	}
 	
 	protected void logInfo(final String message, Throwable throwable) {
-		mLog.logInfo(message, throwable);
+		mLog.info(message, throwable);
 	}
 	
 	protected void logInfo(final String message) {
-		mLog.logInfo(message);
+		mLog.info(message);
 	}
 	
 	protected void logVerbose(final String message, Throwable throwable) {
-		mLog.logVerbose(message, throwable);
+		mLog.verbose(message, throwable);
 	}
 	
 	protected void logVerbose(final String message) {
-		mLog.logVerbose(message);
+		mLog.verbose(message);
 	}
 
 }

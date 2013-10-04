@@ -39,7 +39,7 @@ import org.json.JSONObject;
 import at.tugraz.ist.akm.R;
 import at.tugraz.ist.akm.content.Config;
 import at.tugraz.ist.akm.io.FileReader;
-import at.tugraz.ist.akm.test.WebSMSToolActivityTestcase;
+import at.tugraz.ist.akm.test.base.WebSMSToolActivityTestcase;
 import at.tugraz.ist.akm.webservice.server.SimpleWebServer;
 
 public class SimpleWebServerTest extends WebSMSToolActivityTestcase {

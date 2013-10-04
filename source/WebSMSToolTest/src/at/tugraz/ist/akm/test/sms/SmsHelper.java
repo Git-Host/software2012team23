@@ -25,10 +25,10 @@ import at.tugraz.ist.akm.trace.LogClient;
 
 public class SmsHelper {
 
-	private static LogClient mLog = new LogClient(SmsHelper.class);
+	private static LogClient mLog = new LogClient(SmsHelper.class.getName());
 	
 	private static void log(final String message) {
-		mLog.logVerbose(message);
+		mLog.verbose(message);
 	}
 	
 	public static String getDateNowString() {

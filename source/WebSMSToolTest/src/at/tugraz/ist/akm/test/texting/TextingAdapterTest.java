@@ -26,7 +26,7 @@ import at.tugraz.ist.akm.phonebook.Contact;
 import at.tugraz.ist.akm.phonebook.ContactModifiedCallback;
 import at.tugraz.ist.akm.sms.SmsIOCallback;
 import at.tugraz.ist.akm.sms.TextMessage;
-import at.tugraz.ist.akm.test.WebSMSToolActivityTestcase;
+import at.tugraz.ist.akm.test.base.WebSMSToolActivityTestcase;
 import at.tugraz.ist.akm.test.sms.SmsHelper;
 import at.tugraz.ist.akm.texting.TextingAdapter;
 import at.tugraz.ist.akm.texting.TextingInterface;

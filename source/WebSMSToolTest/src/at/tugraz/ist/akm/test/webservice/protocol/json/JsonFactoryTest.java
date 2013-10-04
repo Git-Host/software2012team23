@@ -28,7 +28,7 @@ import at.tugraz.ist.akm.trace.LogClient;
 import at.tugraz.ist.akm.webservice.protocol.json.JsonFactory;
 
 public class JsonFactoryTest extends TestCase {
-    private final LogClient log = new LogClient(this);
+    private final LogClient log = new LogClient(JsonFactoryTest.class.getName());
 
     public void test() {
         JsonFactory factory = new JsonFactory();
@@ -51,7 +51,7 @@ public class JsonFactoryTest extends TestCase {
         contact.setPhoneNumbers(phoneNumbers);
 
         JSONObject createdObject = factory.createJsonObject(contact);
-        log.logVerbose("created object: " + createdObject.toString());
+        log.verbose("created object: " + createdObject.toString());
         
         //TODO: add ASSERT statement
     }

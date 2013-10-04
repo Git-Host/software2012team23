@@ -23,7 +23,7 @@ import at.tugraz.ist.akm.content.Config;
 import at.tugraz.ist.akm.content.Config.Content;
 import at.tugraz.ist.akm.content.StandardSettings;
 import at.tugraz.ist.akm.providers.ConfigContentProvider;
-import at.tugraz.ist.akm.test.WebSMSToolInstrumentationTestcase;
+import at.tugraz.ist.akm.test.base.WebSMSToolInstrumentationTestcase;
 
 public class ConfigContentProviderTest extends WebSMSToolInstrumentationTestcase{
 

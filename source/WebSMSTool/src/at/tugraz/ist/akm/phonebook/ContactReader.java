@@ -56,7 +56,7 @@ public class ContactReader {
 				people.close();
 			}
 		} catch (Exception ex) {
-			mLog.logError("can not get resouce [cursor to contacts]", ex);
+			mLog.error("can not get resouce [cursor to contacts]", ex);
 		}
 		
 		return contacts;
@@ -85,7 +85,7 @@ public class ContactReader {
 		collectPhoneNumberDetails(contact, contactId);
 		collectStructuredNameDetails(contact, contactId);
 
-		mLog.logDebug("parsed contact [" + contact.getDisplayName() + "] with id [" + contact.getId() + "]");
+		mLog.debug("parsed contact [" + contact.getDisplayName() + "] with id [" + contact.getId() + "]");
 		return contact;
 	}
 

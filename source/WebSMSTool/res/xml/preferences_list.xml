@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <PreferenceCategory
+        android:title="@string/preferences_user"
+        android:dependency="prefrences_access_restriction" >
+        <CheckBoxPreference 
+            android:title="@string/preferences_checkbox"
+            android:key="prefrences_access_restriction"
+            android:summaryOff="@string/preferences_checkbox_summary_off"
+            android:summaryOn="user/preferences_checkbox_summary_off"
+            android:defaultValue="false"
+        />
+        <EditTextPreference
+            android:title="@string/preferences_username"
+            android:key="@string/preferences_username_key"
+            android:inputType="textNoSuggestions"
+            android:defaultValue=""
+            android:dependency="prefrences_access_restriction"
+        />
+        <EditTextPreference 
+            android:title="@string/preferences_password"
+            android:key="@string/preferences_password_key"
+            android:inputType="textVisiblePassword"
+            android:defaultValue=""
+            android:dependency="prefrences_access_restriction" 
+        />
+    </PreferenceCategory>
+    <PreferenceCategory 
+        android:title="@string/preferences_server">
+        <EditTextPreference 
+            android:title="@string/preferences_server_port"
+            android:key="@string/preferences_server_port_key"
+            android:defaultValue="8888"
+            android:inputType="number"
+        />
+        <ListPreference 
+            android:title="@string/preferences_server_protocol"
+            android:key="@string/preferences_server_protocol_key"
+            android:entries="@array/preference_server_protocol_entries"
+            android:entryValues="@array/preference_server_prococol_values"
+            android:defaultValue="@string/preference_server_protocol_default_value"
+        />
+    </PreferenceCategory>
+</PreferenceScreen>

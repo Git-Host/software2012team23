@@ -29,8 +29,12 @@
     <item>https (more secure)</item>
   </string-array>
 	<string-array name="preference_server_prococol_values">
-	    <item>http</item>
-	    <item>https</item>
+    <item>http</item>
+    <item>https</item>
 	</string-array>
   <string name="preference_server_protocol_default_value">https</string>
+  <string name="preferences_username_key">preferences_username_key</string>
+  <string name="preferences_password_key">preferences_password_key</string>
+  <string name="preferences_server_protocol_key">preference_server_protocol_key</string>
+  <string name="preferences_server_port_key">preferences_server_port_key</string>
 </resources>

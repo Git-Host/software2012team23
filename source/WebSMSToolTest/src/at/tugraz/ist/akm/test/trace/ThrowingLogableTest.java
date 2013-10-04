@@ -32,7 +32,7 @@ public class ThrowingLogableTest extends TestCase {
 	
 	public void testLogVerbose() {
 		try {
-			mLog.logVerbose("testLogVerbose");
+			mLog.verbose("testLogVerbose");
 		} catch (Exception ex) {
 			assertTrue(false);
 		}
@@ -40,7 +40,7 @@ public class ThrowingLogableTest extends TestCase {
 	
 	public void testLogVerboseE() {
 		try {			
-			mLog.logVerbose("testLogVerboseE", null);
+			mLog.verbose("testLogVerboseE", null);
 		} catch (Exception ex) {
 			assertTrue(false);
 		}
@@ -48,7 +48,7 @@ public class ThrowingLogableTest extends TestCase {
 	
 	public void testLogDebug() {
 		try {
-			mLog.logDebug("testLogDebug");
+			mLog.debug("testLogDebug");
 		} catch (Exception ex) {
 			assertTrue(false);
 		}
@@ -56,7 +56,7 @@ public class ThrowingLogableTest extends TestCase {
 	
 	public void testLogDebugE() {
 		try {
-			mLog.logDebug("testLogDebugE", null);
+			mLog.debug("testLogDebugE", null);
 		} catch (Exception ex) {
 			assertTrue(false);
 		}
@@ -64,7 +64,7 @@ public class ThrowingLogableTest extends TestCase {
 	
 	public void testLogError() {
 		try {
-			mLog.logError("testLogError: If you read this message don't panik - it's just a test!");
+			mLog.error("testLogError: If you read this message don't panik - it's just a test!");
 		} catch (Throwable throwable) {
 			// ok
 			return;
@@ -74,7 +74,7 @@ public class ThrowingLogableTest extends TestCase {
 	
 	public void testLogErrorE() {
 		try {
-			mLog.logError("testLogErrorE: If you read this message don't panik - it's just a test!", null);
+			mLog.error("testLogErrorE: If you read this message don't panik - it's just a test!", null);
 		} catch (Throwable throwable) {
 			// ok
 			return;
@@ -84,7 +84,7 @@ public class ThrowingLogableTest extends TestCase {
 	
 	public void testLogInfo() {
 		try {
-			mLog.logInfo("testLogInfo");
+			mLog.info("testLogInfo");
 		} catch (Exception ex) {
 			assertTrue(false);
 		}
@@ -92,7 +92,7 @@ public class ThrowingLogableTest extends TestCase {
 	
 	public void testLogInfoE() {
 		try {
-			mLog.logInfo("testLogInfoE", null);
+			mLog.info("testLogInfoE", null);
 		} catch (Exception ex) {
 			assertTrue(false);
 		}
@@ -100,7 +100,7 @@ public class ThrowingLogableTest extends TestCase {
 	
 	public void testLogWarn() {
 		try {
-			mLog.logWarning("testLogWarn");
+			mLog.warning("testLogWarn");
 		} catch (Exception ex) {
 			assertTrue(false);
 		}
@@ -108,7 +108,7 @@ public class ThrowingLogableTest extends TestCase {
 	
 	public void testLogWarnE() {
 		try {
-			mLog.logWarning("testLogWarnE", null);
+			mLog.warning("testLogWarnE", null);
 		} catch (Exception ex) {
 			assertTrue(false);
 		}

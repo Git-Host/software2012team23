@@ -37,7 +37,7 @@ public class FaviconLoader extends AbstractHttpRequestHandler {
 			responseDataAppender.appendHttpResponseMediaType(httpResponse,
 					WebServerConfig.HTTP.CONTENTY_TYPE_IMAGE_PNG, imageBytes);
 		} catch (Exception ex) {
-			mLog.logError("what a terrible failure", ex);
+			mLog.error("what a terrible failure", ex);
 		}
 	}
 }

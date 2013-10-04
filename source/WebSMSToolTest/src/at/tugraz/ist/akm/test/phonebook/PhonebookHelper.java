@@ -32,7 +32,7 @@ import at.tugraz.ist.akm.trace.LogClient;
 
 public class PhonebookHelper {
 
-    private static LogClient mLog = new LogClient(PhonebookHelper.class);
+    private static LogClient mLog = new LogClient(PhonebookHelper.class.getName());
     
 	public static void storeContact(String[] record,
 			ContentResolver contentResolver) throws Throwable {
@@ -132,7 +132,7 @@ public class PhonebookHelper {
 					+ contact.getFamilyName() + " GName: " + contact.getName()
 					+ " PhotoUri: " + contact.getPhotoUri() + " IsStarred: "
 					+ contact.isStarred() + " Numbers: " + numbers.toString());
-			mLog.logVerbose(details.toString());
+			mLog.verbose(details.toString());
 		}
 
 	}

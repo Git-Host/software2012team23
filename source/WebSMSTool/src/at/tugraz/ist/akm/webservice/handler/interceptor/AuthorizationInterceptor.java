@@ -52,7 +52,7 @@ public class AuthorizationInterceptor extends AbstractRequestInterceptor {
         boolean authSuccess = false;
         
         if (header != null) {
-            mLog.logDebug("login!");
+            mLog.debug("login!");
             String headerValue = header.getValue();
             int idx = headerValue.indexOf(" ");
             String user = "";
@@ -73,7 +73,7 @@ public class AuthorizationInterceptor extends AbstractRequestInterceptor {
         
         
         if(authSuccess == false) {
-            mLog.logVerbose("require authentication");
+            mLog.verbose("require authentication");
             httpResponse.setStatusCode(WebServerConfig.HTTP.HTTP_CODE_UNAUTHORIZED);
             httpResponse.setHeader(WebServerConfig.HTTP.HEADER_WWW_AUTHENTICATE,
                     String.format("Basic realm=\"%s\"", WebServerConfig.HTTP.AUTHENTICATION_REALM));

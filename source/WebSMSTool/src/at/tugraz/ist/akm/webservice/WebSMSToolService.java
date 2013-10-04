@@ -25,7 +25,7 @@ import android.net.NetworkInfo;
 import android.net.wifi.WifiManager;
 import android.os.Binder;
 import android.os.IBinder;
-import at.tugraz.ist.akm.MainActivity;
+import at.tugraz.ist.akm.activities.MainActivity;
 import at.tugraz.ist.akm.trace.LogClient;
 import at.tugraz.ist.akm.webservice.server.SimpleWebServer;
 
@@ -40,7 +40,7 @@ public class WebSMSToolService extends Service {
 	
 	private Intent mServiceStartedStickyIntend = null;
 	private String mSocketIp = null;
-    private final static LogClient Log = new LogClient(WebSMSToolService.class);
+    private final LogClient mLog =  new LogClient(this);
     private static boolean mServiceRunning = false;
     private SimpleWebServer mServer = null;
     private final IBinder mBinder = new LocalBinder();
@@ -94,12 +94,12 @@ public class WebSMSToolService extends Service {
 	    		try {
 	    			mSocketIp = intent.getStringExtra(MainActivity.SERVER_IP_ADDRESS_INTENT_KEY);
 	    		} catch (NullPointerException npe) {
-	    			Log.logError("got bad start intent - not starting service");
+	    			mLog.error("got bad start intent - not starting service");
 	    			stopSelf();
 	    			return START_STICKY;
 	    		}
 
-		        Log.logVerbose("Try to start webserver.");
+		        mLog.verbose("Try to start webserver.");
 		        try {
 		        	mServer = new SimpleWebServer(this, mSocketIp);
 		        	getApplicationContext().removeStickyBroadcast(mServiceStartedStickyIntend);
@@ -110,17 +110,17 @@ public class WebSMSToolService extends Service {
 		            if ( !mServiceRunning )
 		            	throw new Exception("server failed to start");
 		            getApplicationContext().sendStickyBroadcast(mServiceStartedStickyIntend);
-		            Log.logInfo("Web service has been started");
+		            mLog.info("Web service has been started");
 		        } 
 		        catch (Exception ex) {
-		            Log.logError("Couldn't start web service", ex);
+		            mLog.error("Couldn't start web service", ex);
 		            getApplicationContext().sendBroadcast(new Intent(SERVICE_STARTED_BOGUS));
 		            stopSelf();
 		        }
 	    	}
 	    	else 
 	    	{
-	    		Log.logError("Couldn't start web service (already running)");
+	    		mLog.error("Couldn't start web service (already running)");
 	    	}
 	
 	        super.onStartCommand(intent, flags, startId);
@@ -159,7 +159,7 @@ public class WebSMSToolService extends Service {
 	            getApplicationContext().sendBroadcast(new Intent(SERVICE_STOPPED));
 	            stopped = true;
 	        } catch (Exception ex) {
-	            Log.logError("Error while stopping server!", ex);
+	            mLog.error("Error while stopping server!", ex);
 	            getApplicationContext().sendBroadcast(new Intent(SERVICE_STOPPED_BOGUS));
 	        }
     	}
@@ -174,28 +174,28 @@ public class WebSMSToolService extends Service {
     	boolean enabling = WifiManager.WIFI_STATE_ENABLING == intent.getIntExtra(extraKey, -1);
     	boolean unknown = WifiManager.WIFI_STATE_UNKNOWN == intent.getIntExtra(extraKey, -1);
     	
-    	Log.logDebug("wifi statechanged: disabled [" + disabled + "], disabling [" + disabling + "], enabled [" + enabled + "], enabling [" + enabling + "], unknown [" + unknown + "]");
+    	mLog.debug("wifi statechanged: disabled [" + disabled + "], disabling [" + disabling + "], enabled [" + enabled + "], enabling [" + enabling + "], unknown [" + unknown + "]");
     	
     	if ( enabled ) {
     		return;
     	}
-    	Log.logDebug("wifi state changed: address may be invalid from now on - turning off service");
+    	mLog.debug("wifi state changed: address may be invalid from now on - turning off service");
     	stopSelf();
     }
     
     public void networkStateChanged(Context context, Intent intent) 
     {
     	NetworkInfo networkInfo = (NetworkInfo) intent.getExtras().get(WifiManager.EXTRA_NETWORK_INFO);
-    	Log.logDebug("network state: " + networkInfo );
+    	mLog.debug("network state: " + networkInfo );
     	if ( 0 == NetworkInfo.State.CONNECTED.compareTo(networkInfo.getState()) ) {
     		return;
     	}
-    	Log.logDebug("network state changed: address may be invalid from now on - turning off service");    	
+    	mLog.debug("network state changed: address may be invalid from now on - turning off service");    	
     	stopSelf();
     }
     
     public void unknownIntent(Context context, Intent intent) {
-    	Log.logDebug("recived unhandled intent [" + intent.getAction() + "]");
+    	mLog.debug("recived unhandled intent [" + intent.getAction() + "]");
     }
     
     private void registerIntentReceiver()

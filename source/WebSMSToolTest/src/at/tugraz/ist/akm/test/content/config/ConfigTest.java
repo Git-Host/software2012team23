@@ -17,7 +17,7 @@
 package at.tugraz.ist.akm.test.content.config;
 
 import at.tugraz.ist.akm.content.Config;
-import at.tugraz.ist.akm.test.WebSMSToolActivityTestcase;
+import at.tugraz.ist.akm.test.base.WebSMSToolActivityTestcase;
 
 public class ConfigTest extends WebSMSToolActivityTestcase {
 	private Config mConfig = null;

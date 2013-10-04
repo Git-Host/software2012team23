@@ -39,7 +39,7 @@ public class JsonTelephonySignalStrengthBuilder implements IJsonBuilder {
             json.put("evdo_level", signal.getEvdoLevel());
             return json;
         } catch (JSONException jsonException) {
-			log.logError("Could not create jsonTelephonySignalStrength Object",jsonException);
+			log.error("Could not create jsonTelephonySignalStrength Object",jsonException);
         }
         return null;
     }
