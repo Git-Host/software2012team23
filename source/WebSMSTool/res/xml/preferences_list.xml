@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
     <PreferenceCategory
-        android:title="@string/preferences_user"
-        android:dependency="prefrences_access_restriction" >
+        android:title="@string/preferences_user">
         <CheckBoxPreference 
             android:title="@string/preferences_checkbox"
-            android:key="prefrences_access_restriction"
+            android:key="@string/prefrences_access_restriction_key"
             android:summaryOff="@string/preferences_checkbox_summary_off"
             android:summaryOn="user/preferences_checkbox_summary_off"
             android:defaultValue="false"
@@ -15,14 +14,14 @@
             android:key="@string/preferences_username_key"
             android:inputType="textNoSuggestions"
             android:defaultValue=""
-            android:dependency="prefrences_access_restriction"
+            android:dependency="@string/prefrences_access_restriction_key"
         />
         <EditTextPreference 
             android:title="@string/preferences_password"
             android:key="@string/preferences_password_key"
             android:inputType="textVisiblePassword"
             android:defaultValue=""
-            android:dependency="prefrences_access_restriction" 
+            android:dependency="@string/prefrences_access_restriction_key" 
         />
     </PreferenceCategory>
     <PreferenceCategory 

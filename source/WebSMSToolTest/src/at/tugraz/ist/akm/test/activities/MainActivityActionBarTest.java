@@ -62,7 +62,7 @@ public class MainActivityActionBarTest extends
     }
 
 
-    private void clickAndCloseActivty(Class<?> activtyClass)
+    private void clickAndCloseActivty(Class<?> activityClass)
     {
         try
         {
@@ -73,7 +73,7 @@ public class MainActivityActionBarTest extends
                     "current activit is not as expected", MainActivity.class);
 
             Instrumentation.ActivityMonitor monitor = instrumentation
-                    .addMonitor(activtyClass.getName(), null, false);
+                    .addMonitor(activityClass.getName(), null, false);
             mainSolo.clickOnActionBarItem(R.id.actionbar_settings);
 
             Activity activityToBeClicked = instrumentation
@@ -81,7 +81,7 @@ public class MainActivityActionBarTest extends
             assertNotNull("not switched to next activity", activityToBeClicked);
             Solo clickedSolo = new Solo(instrumentation, activityToBeClicked);
             clickedSolo.assertCurrentActivity(
-                    "current acitvity is not as expected", activtyClass);
+                    "current acitvity is not as expected", activityClass);
 
             monitor = instrumentation.addMonitor(MainActivity.class.getName(),
                     null, false);
@@ -95,6 +95,85 @@ public class MainActivityActionBarTest extends
         {
             assertTrue(false);
         }
+    }
+
+
+    private Solo clickActivity(Class<?> activity)
+    {
+        Instrumentation instrumentation = getInstrumentation();
+
+        Solo mainSolo = new Solo(instrumentation, getActivity());
+        mainSolo.assertCurrentActivity("current activit is not as expected",
+                MainActivity.class);
+
+        Instrumentation.ActivityMonitor monitor = instrumentation.addMonitor(
+                activity.getName(), null, false);
+        mainSolo.clickOnActionBarItem(R.id.actionbar_settings);
+
+        Activity activityToBeClicked = instrumentation
+                .waitForMonitorWithTimeout(monitor, 5000);
+        assertNotNull("not switched to next activity", activityToBeClicked);
+        Solo clickedSolo = new Solo(instrumentation, activityToBeClicked);
+        clickedSolo.assertCurrentActivity(
+                "current acitvity is not as expected", activity);
+        return clickedSolo;
+    }
+
+
+    public void testCheckboxDisabledIfPasswordEmpty()
+    {
+        Solo preferencesSolo = clickActivity(PreferencesActivity.class);
+        setUsernamePasswort(preferencesSolo, "foo", "");
+        preferencesSolo.getCurrentActivity().finish();
+        preferencesSolo = clickActivity(PreferencesActivity.class);
+        assertFalse(preferencesSolo.isCheckBoxChecked(0));
+    }
+
+    public void testCheckboxDisabledIfUsernameEmpty()
+    {
+        Solo preferencesSolo = clickActivity(PreferencesActivity.class);
+        setUsernamePasswort(preferencesSolo, "foo", "");
+        preferencesSolo.getCurrentActivity().finish();
+        preferencesSolo = clickActivity(PreferencesActivity.class);
+        assertFalse(preferencesSolo.isCheckBoxChecked(0));
+    }
+    
+    public void testCheckboxDisabledIfNoCredentials()
+    {
+        Solo preferencesSolo = clickActivity(PreferencesActivity.class);
+        setUsernamePasswort(preferencesSolo, "", "bar");
+        preferencesSolo.getCurrentActivity().finish();
+        preferencesSolo = clickActivity(PreferencesActivity.class);
+        assertFalse(preferencesSolo.isCheckBoxChecked(0));
+    }
+    
+    public void testCheckboxEnabled()
+    {
+        Solo preferencesSolo = clickActivity(PreferencesActivity.class);
+        setUsernamePasswort(preferencesSolo, "foo", "bar");
+        preferencesSolo.getCurrentActivity().finish();
+        preferencesSolo = clickActivity(PreferencesActivity.class);
+        assertTrue(preferencesSolo.isCheckBoxChecked(0));
+    }
+
+    private void setUsernamePasswort(Solo preferencesSolo, String username,
+            String password)
+    {
+        if (false == preferencesSolo.isCheckBoxChecked(0))
+        {
+            preferencesSolo.clickOnCheckBox(0);
+        }
+        preferencesSolo.clickOnText(getActivity().getString(
+                R.string.preferences_username));
+        preferencesSolo.clearEditText(0);
+        preferencesSolo.enterText(0, username);
+        preferencesSolo.clickOnButton("OK");
+        preferencesSolo.clickOnText(getActivity().getString(
+                R.string.preferences_password));
+        preferencesSolo.clearEditText(0);
+        preferencesSolo.enterText(0, password);
+        preferencesSolo.clickOnButton("OK");
+
     }
 
 

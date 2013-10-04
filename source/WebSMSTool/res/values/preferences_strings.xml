@@ -17,6 +17,7 @@
 <resources>
   <string name="preferences_user">Access</string>
   <string name="preferences_checkbox">Access Protection</string>
+  <string name="prefrences_access_restriction_key">prefrences_access_restriction_key</string>
   <string name="preferences_checkbox_summary_off">password protection disabled</string>
   <string name="preferences_checkbox_summary_on">password protection enabled</string>
 	<string name="preferences_username">User</string>
@@ -25,12 +26,12 @@
   <string name="preferences_server_port">Port</string>
   <string name="preferences_server_protocol">Protocol</string>
   <string-array name="preference_server_protocol_entries">
-    <item>http (less secure)</item>
     <item>https (more secure)</item>
+    <item>http (less secure)</item>
   </string-array>
 	<string-array name="preference_server_prococol_values">
-    <item>http</item>
     <item>https</item>
+    <item>http</item>
 	</string-array>
   <string name="preference_server_protocol_default_value">https</string>
   <string name="preferences_username_key">preferences_username_key</string>
