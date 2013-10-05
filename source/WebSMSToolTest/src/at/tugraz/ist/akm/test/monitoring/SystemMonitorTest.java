@@ -32,7 +32,6 @@ public class SystemMonitorTest extends WebSMSToolActivityTestcase {
 			SystemMonitor sm = new SystemMonitor(mContext);
 			sm.start();
 			BatteryStatus bStats = sm.getBatteryStatus();
-			assertTrue(null != bStats);
 			logBStats(bStats);
 			assertTrue(bStats.getBatteryIconId() > 0);
 			byte[] bytes = bStats.getBatteryIconBytes();

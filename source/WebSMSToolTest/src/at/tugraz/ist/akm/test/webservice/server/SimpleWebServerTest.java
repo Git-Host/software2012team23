@@ -46,6 +46,7 @@ public class SimpleWebServerTest extends WebSMSToolActivityTestcase {
 
     private HttpClient mHttpClient = null;
     private static SimpleWebServer mWebserver = null;
+    private static final String DEFAULT_ENCODING="UTF8";
 
     public SimpleWebServerTest()
     {
@@ -156,7 +157,7 @@ public class SimpleWebServerTest extends WebSMSToolActivityTestcase {
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             httpresponse.getEntity().writeTo(baos);
 
-            JSONObject response = new JSONObject(baos.toString());
+            JSONObject response = new JSONObject(baos.toString(DEFAULT_ENCODING));
             JSONObject batteryStatus = response.getJSONObject("battery");
             String batteryIsCharging = batteryStatus.getString("is_charging");
             String batteryLevel = batteryStatus.getString("battery_level");
@@ -224,7 +225,7 @@ public class SimpleWebServerTest extends WebSMSToolActivityTestcase {
 
             Assert.assertEquals(
                     new FileReader(mContext, "web/index.html").read(),
-                    new String(baos.toByteArray()));
+                    new String(baos.toByteArray(), DEFAULT_ENCODING));
 
         } catch (Exception ex) {
             Assert.fail(ex.getMessage());

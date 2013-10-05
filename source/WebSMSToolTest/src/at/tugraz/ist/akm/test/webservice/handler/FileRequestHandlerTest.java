@@ -40,6 +40,7 @@ public class FileRequestHandlerTest extends InstrumentationTestCase {
     private final static String URI = "/xyz";
     private final static String DATA_FILE = "web/index.html";
     private final static String CONTENT_TYPE = "text/html";
+    private final static String DEFAULT_ENCODING="UTF8";
 
     private HttpRequestHandlerRegistry registry = null;
     private FileRequestHandler testInstance = null;
@@ -87,9 +88,10 @@ public class FileRequestHandlerTest extends InstrumentationTestCase {
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             httpResponse.getEntity().writeTo(baos);
 
+
             Assert.assertEquals(
                     new FileReader(getInstrumentation().getContext(), DATA_FILE).read(),
-                    new String(baos.toByteArray()));
+                    new String(baos.toByteArray(), DEFAULT_ENCODING));
 
         } catch (HttpException httpException) {
             Assert.fail("Exception => " + httpException.getMessage());

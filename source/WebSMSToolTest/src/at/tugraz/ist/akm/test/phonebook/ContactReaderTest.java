@@ -34,41 +34,79 @@ public class ContactReaderTest extends WebSMSToolActivityTestcase {
 				{ "Speedy", "R", "0" }, { "", "Baz", "0" }, { "Bar", "", "0" } };
 	}
 
-	public void testFetchContacts() {
-		try {
-			PhonebookHelper.storeContacts(mTestContacts, mContentResolver);
-			ContactReader contactReader = new ContactReader(mContentResolver);
+    public void testFetchContactsWithPhone() {
+        try {
+            PhonebookHelper.storeContacts(mTestContacts, mContentResolver);
+            ContactReader contactReader = new ContactReader(mContentResolver);
 
-			logVerbose("get contacts with phone");
-			ContactFilter filterWithPhone = new ContactFilter();
-			filterWithPhone.setWithPhone(true);
-			List<Contact> contacts = contactReader
-					.fetchContacts(filterWithPhone);
-			PhonebookHelper.logContacts(contacts);
+            logVerbose("get contacts with phone");
+            ContactFilter filterWithPhone = new ContactFilter();
+            filterWithPhone.setWithPhone(true);
+            List<Contact> contacts = contactReader
+                    .fetchContacts(filterWithPhone);
+            PhonebookHelper.logContacts(contacts);
 
-			logVerbose("get contacts with phone AND starred");
-			ContactFilter filterWithPhoneAndStarred = new ContactFilter();
-			filterWithPhoneAndStarred.setWithPhone(true);
-			filterWithPhoneAndStarred.setIsStarred(true);
-			contacts = contactReader.fetchContacts(filterWithPhoneAndStarred);
-			PhonebookHelper.logContacts(contacts);
+            PhonebookHelper.deleteContacts(mTestContacts, mContentResolver);
+        } catch (Throwable throwable) {
+            throwable.printStackTrace();
+            assertTrue(false);
+        }
+    }
+    
+    public void testFetchContactsWithPhoneAndStarred() {
+        try {
+            PhonebookHelper.storeContacts(mTestContacts, mContentResolver);
+            ContactReader contactReader = new ContactReader(mContentResolver);
 
-			logVerbose("get starred contacts");
-			ContactFilter filterStarred = new ContactFilter();
-			filterStarred.setIsStarred(true);
-			contacts = contactReader.fetchContacts(filterStarred);
-			PhonebookHelper.logContacts(contacts);
 
-			logVerbose("get contacts unfiltered");
-			ContactFilter noFilter = new ContactFilter();
-			contacts = contactReader.fetchContacts(noFilter);
-			PhonebookHelper.logContacts(contacts);
+            logVerbose("get contacts with phone AND starred");
+            ContactFilter filterWithPhoneAndStarred = new ContactFilter();
+            filterWithPhoneAndStarred.setWithPhone(true);
+            filterWithPhoneAndStarred.setIsStarred(true);
+            List<Contact> contacts = contactReader.fetchContacts(filterWithPhoneAndStarred);
+            PhonebookHelper.logContacts(contacts);
 
-			PhonebookHelper.deleteContacts(mTestContacts, mContentResolver);
-		} catch (Throwable throwable) {
-		    throwable.printStackTrace();
-			assertTrue(false);
-		}
-	}
+            PhonebookHelper.deleteContacts(mTestContacts, mContentResolver);
+        } catch (Throwable throwable) {
+            throwable.printStackTrace();
+            assertTrue(false);
+        }
+    }
+    
+    public void testFetchContactsWithStar() {
+        try {
+            PhonebookHelper.storeContacts(mTestContacts, mContentResolver);
+            ContactReader contactReader = new ContactReader(mContentResolver);
+
+            logVerbose("get starred contacts");
+            ContactFilter filterStarred = new ContactFilter();
+            filterStarred.setIsStarred(true);
+            List<Contact> contacts = contactReader.fetchContacts(filterStarred);
+            PhonebookHelper.logContacts(contacts);
+          
+            PhonebookHelper.deleteContacts(mTestContacts, mContentResolver);
+        } catch (Throwable throwable) {
+            throwable.printStackTrace();
+            assertTrue(false);
+        }
+    }
+    
+    
+    public void testFetchContacts() {
+        try {
+            PhonebookHelper.storeContacts(mTestContacts, mContentResolver);
+            ContactReader contactReader = new ContactReader(mContentResolver);
+
+            logVerbose("get contacts unfiltered");
+            ContactFilter noFilter = new ContactFilter();
+            List<Contact> contacts = contactReader.fetchContacts(noFilter);
+            PhonebookHelper.logContacts(contacts);
+
+            PhonebookHelper.deleteContacts(mTestContacts, mContentResolver);
+        } catch (Throwable throwable) {
+            throwable.printStackTrace();
+            assertTrue(false);
+        }
+    }
 
 }

@@ -26,7 +26,7 @@ import at.tugraz.ist.akm.trace.LogClient;
 
 public class JsonTelephonySignalStrengthBuilder implements IJsonBuilder {
 
-    private final static String mDefaultEncoding = "UTF8";
+    private final static String DEFAULT_ENCODING = "UTF8";
     
     @Override
     public JSONObject build(Object data) {
@@ -36,7 +36,7 @@ public class JsonTelephonySignalStrengthBuilder implements IJsonBuilder {
         try {
             JSONObject json = new JSONObject();
             json.put("signal_strength", signal.getSignalStrength());
-            json.put("signal_icon", new String(signal.getSignalStrengthIconBytes(), mDefaultEncoding));
+            json.put("signal_icon", new String(signal.getSignalStrengthIconBytes(), DEFAULT_ENCODING));
             json.put("level", signal.getLevel());
             json.put("cdma_level", signal.getCdmaLevel());
             json.put("gsm_level", signal.getGsmLevel());
