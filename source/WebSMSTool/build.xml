@@ -106,7 +106,7 @@
 
     <target name="findbugs">
         <mkdir dir="${out.dir}/reports" />
-        <findbugs home="${findbugs.home}" outputFile="${out.dir}/reports/findbugs.xml" output="xml:withMessages" excludeFilter="findbugs-exclude.xml">
+        <findbugs home="${findbugs.home}" outputFile="${out.dir}/reports/findbugs.xml" output="xml:withMessages" excludeFilter="./findbugs-exclude.xml">
             <auxClasspath path="${project.target.android.jar};./libs/${http-core.jar}" />
             <class location="${out.dir}/classes" />
         </findbugs>
