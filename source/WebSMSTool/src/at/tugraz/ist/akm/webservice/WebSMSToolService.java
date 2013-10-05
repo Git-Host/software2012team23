@@ -46,7 +46,7 @@ public class WebSMSToolService extends Service {
     private final IBinder mBinder = new LocalBinder();
     private static BroadcastReceiver mIntentReceiver = null;
     
-    private class WebSMSToolBroadcastReceiver extends BroadcastReceiver {
+    private static class WebSMSToolBroadcastReceiver extends BroadcastReceiver {
     	
     	WebSMSToolService mCallback = null;
     	

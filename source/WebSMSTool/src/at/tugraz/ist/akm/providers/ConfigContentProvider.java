@@ -62,7 +62,7 @@ public class ConfigContentProvider extends ContentProvider {
                 count = db.delete(CONFIGURATION_TABLE_NAME, selection + "=?", selectionArgs);
                 db.close();
             } catch (Exception ex) {
-
+                mLog.error("failed to delete [" + CONFIGURATION_TABLE_NAME + "] " + ex.getMessage());
             }
             break;
         default:
@@ -143,7 +143,7 @@ public class ConfigContentProvider extends ContentProvider {
                         .update(CONFIGURATION_TABLE_NAME, values, selection + "=?", selectionArgs);
                 db.close();
             } catch (Exception ex) {
-
+                mLog.error("failed to update [" + CONFIGURATION_TABLE_NAME + "] " + ex.getMessage());
             }
             break;
 
@@ -172,7 +172,7 @@ public class ConfigContentProvider extends ContentProvider {
         if (mDbHelper == null) {
             mDbHelper = new DataBaseHelper(getContext());
         }
-        return !mDbHelper.equals(null);
+        return true;
     }
 
     static {

@@ -59,7 +59,7 @@ public class MainActivity extends DefaultActionBar implements
     private WifiManager mWifiManager = null;
     private String mLocalIp = null;
 
-    private class ServiceStateListener extends BroadcastReceiver
+    private static class ServiceStateListener extends BroadcastReceiver
     {
 
         private MainActivity mCallback = null;

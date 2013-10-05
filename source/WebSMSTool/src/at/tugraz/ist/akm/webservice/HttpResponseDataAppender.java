@@ -28,6 +28,8 @@ import org.json.JSONObject;
 
 public class HttpResponseDataAppender {
 
+    private final String mDefaultEncoding = "UTF8";
+    
 	public void appendHttpResponseData(HttpResponse httpResponse,
 			final JSONObject data) {
 		appendHttpResponseData(httpResponse,
@@ -40,7 +42,7 @@ public class HttpResponseDataAppender {
 		httpResponse.setEntity(new EntityTemplate(new ContentProducer() {
 			@Override
 			public void writeTo(OutputStream outstream) throws IOException {
-				OutputStreamWriter writer = new OutputStreamWriter(outstream);
+				OutputStreamWriter writer = new OutputStreamWriter(outstream, mDefaultEncoding);
 				writer.write(data);
 				writer.flush();
 				writer.close();

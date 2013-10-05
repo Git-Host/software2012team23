@@ -16,6 +16,8 @@
 
 package at.tugraz.ist.akm.webservice.protocol.json;
 
+import java.io.UnsupportedEncodingException;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -24,6 +26,8 @@ import at.tugraz.ist.akm.trace.LogClient;
 
 public class JsonBatteryStatusBuilder implements IJsonBuilder {
 
+    private final String mDefaultEncoding="UTF8";
+    
 	@Override
 	public JSONObject build(Object data) {
     	LogClient log = new LogClient(this);
@@ -32,14 +36,18 @@ public class JsonBatteryStatusBuilder implements IJsonBuilder {
         JSONObject json = new JSONObject();
         try {
 			json.put("battery_level", status.getBatteryLevel());
-			json.put("battery_level_icon", new String(status.getBatteryIconBytes()));
+            json.put("battery_level_icon", new String(status.getBatteryIconBytes(), mDefaultEncoding ));
 			json.put("is_charging", status.getIsCharging());
         	json.put("is_ac_charge", status.getIsAcCharge());
 			json.put("is_usb_charge", status.getIsUsbCharge());
 			json.put("is_full", status.getIsFull());
 		} catch (JSONException jsonException) {
-			log.error("Could not create jsonBatteryStatus Object",jsonException);
+			log.error("failed to create jsonBatteryStatus Object",jsonException);
 		}
-		return json;
+    	catch (UnsupportedEncodingException e)
+    	{
+    	    log.error("failed to create jsonBatteryStatus Object due to encoding error", e);
+    	}
+        return json;
 	}
 }

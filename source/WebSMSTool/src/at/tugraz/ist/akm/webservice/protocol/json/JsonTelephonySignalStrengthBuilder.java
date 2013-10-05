@@ -16,6 +16,8 @@
 
 package at.tugraz.ist.akm.webservice.protocol.json;
 
+import java.io.UnsupportedEncodingException;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -24,6 +26,8 @@ import at.tugraz.ist.akm.trace.LogClient;
 
 public class JsonTelephonySignalStrengthBuilder implements IJsonBuilder {
 
+    private final String mDefaultEncoding = "UTF8";
+    
     @Override
     public JSONObject build(Object data) {
     	LogClient log = new LogClient(this);
@@ -32,14 +36,16 @@ public class JsonTelephonySignalStrengthBuilder implements IJsonBuilder {
         try {
             JSONObject json = new JSONObject();
             json.put("signal_strength", signal.getSignalStrength());
-            json.put("signal_icon", new String(signal.getSignalStrengthIconBytes()));
+            json.put("signal_icon", new String(signal.getSignalStrengthIconBytes(), mDefaultEncoding));
             json.put("level", signal.getLevel());
             json.put("cdma_level", signal.getCdmaLevel());
             json.put("gsm_level", signal.getGsmLevel());
             json.put("evdo_level", signal.getEvdoLevel());
             return json;
         } catch (JSONException jsonException) {
-			log.error("Could not create jsonTelephonySignalStrength Object",jsonException);
+			log.error("failed to create jsonTelephonySignalStrength Object",jsonException);
+        } catch(UnsupportedEncodingException encEx) {
+            log.error("failed to create jsonTelephonySignalStrength Object due to encoding error", encEx);
         }
         return null;
     }

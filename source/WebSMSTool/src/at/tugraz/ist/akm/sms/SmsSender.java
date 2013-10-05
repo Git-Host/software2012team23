@@ -75,7 +75,7 @@ public class SmsSender extends LogClient {
 	private Bundle getSmsBundle(TextMessage message, String part) {
 		Bundle smsBundle = new Bundle();
 		TextMessage messageForIntent = new TextMessage(message);
-		messageForIntent.setBody(new String(part));
+		messageForIntent.setBody(part);
 		smsBundle.putSerializable(
 				SmsSentBroadcastReceiver.EXTRA_BUNDLE_KEY_TEXTMESSAGE, messageForIntent);
 		return smsBundle;

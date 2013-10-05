@@ -16,6 +16,10 @@
 
 package at.tugraz.ist.akm.trace;
 
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.PrintStream;
+
 public class TraceService {
 
     private static boolean mEnabled = TraceSettings.ENABLE_TRACE;
@@ -80,9 +84,11 @@ public class TraceService {
 
 	private String formatMessage(final String message, final Throwable t) {
 		StringBuilder sb = new StringBuilder(message);
-		if (t != null) {
-			sb.append(" => ").append("exception message: <").append(t.getMessage() + "> type: <" + t.getClass().getSimpleName() + ">")
-					.append(">");
+		if (t != null) 
+		{
+			sb.append(" => " + 
+			        "type: <" + t.getClass().getSimpleName() + "> " + 
+			        "message: <" + t.getMessage() + ">");
 		}
 		return sb.toString();
 	}

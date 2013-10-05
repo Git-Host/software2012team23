@@ -22,10 +22,12 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 
 import android.content.Context;
+import at.tugraz.ist.akm.trace.LogClient;
 
 public class FileReader {
     private final Context mContext;
     private final String mFilePath;
+    private final String mDefaultCharset = "UTF8";
 
     public FileReader(final Context context, final String filePath) {
         this.mContext = context;
@@ -40,7 +42,7 @@ public class FileReader {
         StringBuilder builder = new StringBuilder();
         try {
             is = mContext.getAssets().open(mFilePath);
-            isr = new InputStreamReader(is);
+            isr = new InputStreamReader(is, mDefaultCharset);
             reader = new BufferedReader(isr);
 
             String line;

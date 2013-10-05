@@ -19,6 +19,7 @@ package at.tugraz.ist.akm.io.xml;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,16 +34,25 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import android.content.Context;
+import at.tugraz.ist.akm.trace.LogClient;
 
 public class XmlReader {
     private Document mDom = null;
+    private final String mInputCharset = "UTF8";
+    private LogClient mLog = new LogClient(this);
 
     /**
      * 
      * @param data
      */
     public XmlReader(final String data) {
-        read(new ByteArrayInputStream(data.getBytes()));
+        try
+        {
+            read(new ByteArrayInputStream(data.getBytes(mInputCharset)));
+        } catch (UnsupportedEncodingException e)
+        {
+            mLog.debug("unsupported encoding: " + e.getMessage());
+        }
     }
 
     /**

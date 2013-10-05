@@ -45,22 +45,22 @@ public class TextMessage implements Serializable {
 	public TextMessage() {}
 	
 	public TextMessage(final TextMessage m) {
-		mId = new String(m.mId);
-		mThreadId = new String(m.mThreadId);
-		mPerson = new String (m.mPerson);
-		mDate = new String(m.mDate);
-		mAddress = new String (m.mAddress);
-		mSeen = new String (m.mSeen);
-		mRead = new String (m.mRead);
-		mBody = new String(m.mBody);
-		mProtocol = new String(m.mProtocol);
-		mStatus = new String(m.mStatus);
-		mType = new String (m.mType);
-		mServiceCenter = new String (m.mServiceCenter);
-		mLocked = new String (m.mLocked);
-		mReplyPathPresent = new String (m.mReplyPathPresent);
-		mSubject = new String (m.mSubject);
-		mErrorCode = new String(m.mErrorCode);
+		mId = m.mId;
+		mThreadId = m.mThreadId;
+		mPerson = m.mPerson;
+		mDate = m.mDate;
+		mAddress = m.mAddress;
+		mSeen = m.mSeen;
+		mRead = m.mRead;
+		mBody = m.mBody;
+		mProtocol = m.mProtocol;
+		mStatus = m.mStatus;
+		mType = m.mType;
+		mServiceCenter = m.mServiceCenter;
+		mLocked = m.mLocked;
+		mReplyPathPresent = m.mReplyPathPresent;
+		mSubject = m.mSubject;
+		mErrorCode = m.mErrorCode;
 	}
 
 	public String getReplyPathPresent() {

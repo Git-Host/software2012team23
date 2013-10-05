@@ -39,7 +39,7 @@ public class PhonebookBridge implements ContactModifiedCallback {
 	private ContactContentObserver mContactContentObserver = null;
 	private ContactModifiedCallback mExternalContactModifiedCallback = null;
 
-	private class ContactContentObserver extends ContentObserver {
+	static private class ContactContentObserver extends ContentObserver {
 
 		private ContactModifiedCallback mCallback = null;
 
@@ -81,7 +81,7 @@ public class PhonebookBridge implements ContactModifiedCallback {
 		return mContactReader.fetchContacts(filter);
 	}
 
-	public void setContactModifiedCallback(ContactModifiedCallback callback) {
+	synchronized public void setContactModifiedCallback(ContactModifiedCallback callback) {
 		log("registered new [ContactModifiedCallback] callback");
 		mExternalContactModifiedCallback = callback;
 	}

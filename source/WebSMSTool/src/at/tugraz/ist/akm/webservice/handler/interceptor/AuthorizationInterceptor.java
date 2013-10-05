@@ -16,6 +16,8 @@
 
 package at.tugraz.ist.akm.webservice.handler.interceptor;
 
+import java.io.UnsupportedEncodingException;
+
 import my.org.apache.http.Header;
 import my.org.apache.http.HttpRequest;
 import my.org.apache.http.HttpResponse;
@@ -29,7 +31,8 @@ import at.tugraz.ist.akm.webservice.WebServerConfig;
 public class AuthorizationInterceptor extends AbstractRequestInterceptor {
     protected final LogClient mLog = new LogClient(this);
     private Config mConfig;
-
+    private final String mDefaultEncoding = "UTF8";
+    
     public AuthorizationInterceptor(Context context) {
     	super(context);
     	mConfig = new Config(context);
@@ -58,10 +61,17 @@ public class AuthorizationInterceptor extends AbstractRequestInterceptor {
             String user = "";
             String pass = "";
             if (idx >= 0) {
-                String userCredentials = new String(
-                        Base64.decode(headerValue.substring(idx + 1), 0));
-                user = getUsername(userCredentials);
-                pass = getPassword(userCredentials);
+                String userCredentials;
+                try
+                {
+                    userCredentials = new String(
+                            Base64.decode(headerValue.substring(idx + 1), 0), mDefaultEncoding);
+                    user = getUsername(userCredentials);
+                    pass = getPassword(userCredentials);
+                } catch (UnsupportedEncodingException e)
+                {
+                    mLog.error("failed to extract string from header: " + e.getMessage());
+                }
             }
             
             

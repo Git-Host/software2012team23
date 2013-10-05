@@ -23,14 +23,14 @@ public class LogClient
 
     public LogClient(String tag)
     {
-        mTag = new String(tag);
+        mTag = tag;
         debug("log client constructed");
     }
 
 
     public LogClient(Object o)
     {
-        mTag = new String(o.getClass().getName());
+        mTag = o.getClass().getName();
     }
 
 

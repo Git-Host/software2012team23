@@ -54,7 +54,6 @@ public class FireNotification {
 				notificationIntent, PendingIntent.FLAG_CANCEL_CURRENT);
 		notification.setLatestEventInfo(mContext, wInfos.title, wInfos.text,
 				contentIntent);
-		notification.flags = Notification.FLAG_ONGOING_EVENT;
 		notification.flags = Notification.FLAG_NO_CLEAR;
 		mNotificationManager.notify(NOTIFICATION_ID, notification);
 	}

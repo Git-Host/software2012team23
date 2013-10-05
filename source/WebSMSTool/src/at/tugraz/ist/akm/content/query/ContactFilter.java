@@ -87,7 +87,7 @@ public class ContactFilter {
 	
 	public void setOrderByDisplayName(boolean orderByDisplayName, String sortOrder){
 		mSetOrderByDisplayName = orderByDisplayName;
-		if(sortOrder == SORT_ORDER_ASCENDING){
+		if(sortOrder.equals(SORT_ORDER_ASCENDING)){
 			mSortOrder = SORT_ORDER_ASCENDING;
 		} else {
 			mSortOrder = SORT_ORDER_DESCENDING;

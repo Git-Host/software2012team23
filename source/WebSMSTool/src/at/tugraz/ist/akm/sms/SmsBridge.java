@@ -69,7 +69,7 @@ public class SmsBridge extends LogClient implements SmsIOCallback {
 		return mSmsBoxReader.getThreadIds(address);
 	}
 
-	public void setSmsSentCallback(SmsIOCallback callback) {
+	synchronized public void setSmsSentCallback(SmsIOCallback callback) {
 		verbose("registered new [SmsSentCallback] callback");
 		mExternalSmsSentCallback = callback;
 	}
@@ -186,7 +186,8 @@ public class SmsBridge extends LogClient implements SmsIOCallback {
 
 		for(TextMessage sentMessage : messages)
 		{
-			switch (mSmsSentNotifier.getResultCode()) {
+		    int resultCode = mSmsSentNotifier.getResultCode();
+			switch (resultCode) {
 			case Activity.RESULT_OK:
 				verboseSentState = "to address [" + sentMessage.getAddress()
 						+ "] on [" + sentMessage.getDate() + "] ("
@@ -223,6 +224,9 @@ public class SmsBridge extends LogClient implements SmsIOCallback {
 				sentMessage.setErrorCode("");
 				mSmsBoxWriter.writeOutboxTextMessage(sentMessage);
 				break;
+			default:
+			    verboseSentState="uncaught state: ["+ resultCode +"]";
+			    break;
 			}
 		}
 

@@ -56,7 +56,7 @@ public class ContactReader {
 				people.close();
 			}
 		} catch (Exception ex) {
-			mLog.error("can not get resouce [cursor to contacts]", ex);
+			mLog.error("can not get cursor to contacts", ex);
 		}
 		
 		return contacts;
@@ -107,7 +107,7 @@ public class ContactReader {
 						.getString(phoneNumbers
 								.getColumnIndex(ContactsContract.CommonDataKinds.Phone.TYPE));
 				if (phone == null) {
-					phone = new String("0");
+					phone = "0";
 				}
 
 				phoneNumberList

@@ -16,6 +16,7 @@
 
 package at.tugraz.ist.akm.webservice.protocol.json;
 
+import java.io.UnsupportedEncodingException;
 import java.util.List;
 
 import org.json.JSONArray;
@@ -29,6 +30,8 @@ import at.tugraz.ist.akm.trace.LogClient;
 
 public class JsonContactBuilder implements IJsonBuilder {
 
+    private final String mDefaultEncoding="UTF8";
+    
     @Override
     public JSONObject build(Object data) {
     	LogClient log = new LogClient(this);
@@ -44,7 +47,7 @@ public class JsonContactBuilder implements IJsonBuilder {
             byte[] imageBytes = contact.getPhotoBytes();
             if(imageBytes != null){
             	byte[] imageEncoded = Base64.encode(imageBytes, Base64.DEFAULT);
-                json.put("image", new String(imageEncoded));       
+                json.put("image", new String(imageEncoded, mDefaultEncoding));       
             }
             
             json.put("phone_numbers", buildPhoneNumbers(contact.getPhoneNumbers()));
@@ -52,7 +55,9 @@ public class JsonContactBuilder implements IJsonBuilder {
             //log.logInfo(json.toString());
             return json;
         } catch (JSONException jsonException) {
-			log.error("Could not create jsonContact Object",jsonException);
+			log.error("failed to create jsonContact Object",jsonException);
+        } catch (UnsupportedEncodingException encEx) {
+            log.error("failed to create jsonContact Object due to encoding error", encEx);
         }
         return null;
     }

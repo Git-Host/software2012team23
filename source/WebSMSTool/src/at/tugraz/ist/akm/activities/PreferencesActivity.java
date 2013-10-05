@@ -135,7 +135,7 @@ public class PreferencesActivity extends PreferenceActivity implements
             Preference preferenceItem = findPreference(key);
             if (null != preferenceItem)
             {
-                String summary = new String(sharedPref.getString(key, ""));
+                String summary = sharedPref.getString(key, "");
                 if (key.equals(resourceString(R.string.preferences_password_key)))
                 {
                     summary = getCoveredPassword(summary);
