@@ -67,8 +67,10 @@ public class PreferencesActivityTest extends
         spEdit.commit();
         spEdit.putString(resourceString(R.string.preferences_password_key), outPassword);
         spEdit.commit();
+        mOutstandingSaredPreferencesCallbacks = 2;
         spEdit.putString(resourceString(R.string.preferences_server_port_key), outPortNumber);
         spEdit.commit();
+        busyWaitForOutstandingCallsToBeFinished();
         spEdit.putString(resourceString(R.string.preferences_server_protocol_key), outProtocolName);
         spEdit.commit();
         
@@ -129,12 +131,17 @@ public class PreferencesActivityTest extends
         
         spEdit.putString(serverProtocolResourceKey, outProto);
         spEdit.commit();
-        while ( mOutstandingSaredPreferencesCallbacks > 0);
+        busyWaitForOutstandingCallsToBeFinished();
         
         String inProto = mSharedPreferences.getString(serverProtocolResourceKey, "");  
         assertEquals(expectedProto, inProto);
     }
     
+    
+    private void busyWaitForOutstandingCallsToBeFinished()
+    {
+        while ( mOutstandingSaredPreferencesCallbacks > 0);
+    }
     
     public void assertExpectedPortValues(int outPortNumber, int expectedInPort) throws Exception
     {

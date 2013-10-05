@@ -56,7 +56,7 @@ public class PreferencesActivity extends PreferenceActivity implements
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences,
             String key)
     {
-        mLog.debug("shared pref. changed key: " + key);
+        mLog.debug("shared preferences key changed: [" + key + "]");
         if (key.equals(resourceString(R.string.preferences_server_port_key)))
         {
             int changedPortNumber = 0;

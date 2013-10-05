@@ -18,17 +18,10 @@ package at.tugraz.ist.akm.test.activities;
 
 import android.app.Activity;
 import android.app.Instrumentation;
-import android.content.Context;
 import android.test.ActivityInstrumentationTestCase2;
-import android.view.KeyEvent;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.RadioButton;
 import at.tugraz.ist.akm.R;
 import at.tugraz.ist.akm.activities.MainActivity;
 import at.tugraz.ist.akm.activities.PreferencesActivity;
-import at.tugraz.ist.akm.activities.SettingsActivity;
-import at.tugraz.ist.akm.content.Config;
 import at.tugraz.ist.akm.test.trace.ThrowingLogSink;
 import at.tugraz.ist.akm.trace.LogClient;
 import at.tugraz.ist.akm.trace.TraceService;
