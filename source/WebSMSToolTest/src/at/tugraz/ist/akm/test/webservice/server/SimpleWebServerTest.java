@@ -91,7 +91,6 @@ public class SimpleWebServerTest extends WebSMSToolActivityTestcase {
     public void testStartStopServer() {
     	
     	try {
-	    	Config c = new Config(mContext);
 	    	mWebserver = new SimpleWebServer(mContext, "0.0.0.0");
 	    	mWebserver.startServer();
 	    	

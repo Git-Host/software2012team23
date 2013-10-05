@@ -28,7 +28,7 @@ import org.json.JSONObject;
 
 public class HttpResponseDataAppender {
 
-    private final String mDefaultEncoding = "UTF8";
+    private final static String mDefaultEncoding = "UTF8";
     
 	public void appendHttpResponseData(HttpResponse httpResponse,
 			final JSONObject data) {

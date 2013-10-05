@@ -31,7 +31,7 @@ import at.tugraz.ist.akm.webservice.WebServerConfig;
 public class AuthorizationInterceptor extends AbstractRequestInterceptor {
     protected final LogClient mLog = new LogClient(this);
     private Config mConfig;
-    private final String mDefaultEncoding = "UTF8";
+    private final static String mDefaultEncoding = "UTF8";
     
     public AuthorizationInterceptor(Context context) {
     	super(context);

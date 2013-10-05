@@ -148,9 +148,12 @@ public class Contact
     }
 
 
-    public final byte[] getPhotoBytes()
+    public byte[] getPhotoBytes()
     {
-        return mPhotoBytes;
+        if ( null == mPhotoBytes ) {
+            return null;
+        }
+        return mPhotoBytes.clone();
     }
 
 

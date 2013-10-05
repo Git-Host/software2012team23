@@ -16,9 +16,6 @@
 
 package at.tugraz.ist.akm.trace;
 
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.PrintStream;
 
 public class TraceService {
 

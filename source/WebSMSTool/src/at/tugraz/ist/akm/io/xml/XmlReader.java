@@ -38,7 +38,7 @@ import at.tugraz.ist.akm.trace.LogClient;
 
 public class XmlReader {
     private Document mDom = null;
-    private final String mInputCharset = "UTF8";
+    private final static String mInputCharset = "UTF8";
     private LogClient mLog = new LogClient(this);
 
     /**

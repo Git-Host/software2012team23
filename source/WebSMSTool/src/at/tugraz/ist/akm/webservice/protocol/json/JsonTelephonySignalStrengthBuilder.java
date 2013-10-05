@@ -26,7 +26,7 @@ import at.tugraz.ist.akm.trace.LogClient;
 
 public class JsonTelephonySignalStrengthBuilder implements IJsonBuilder {
 
-    private final String mDefaultEncoding = "UTF8";
+    private final static String mDefaultEncoding = "UTF8";
     
     @Override
     public JSONObject build(Object data) {

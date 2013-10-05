@@ -238,7 +238,7 @@ public class JsonAPIRequestHandler extends AbstractHttpRequestHandler implements
     }
 
     
-    private class TextMessageThreadSort implements Comparator<TextMessage> {
+    private static class TextMessageThreadSort implements Comparator<TextMessage> {
         @Override
         public int compare(TextMessage message1, TextMessage message2) {
             Date date1 = new Date(Long.parseLong(message1.getDate()));
