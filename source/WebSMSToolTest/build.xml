@@ -107,7 +107,7 @@
     <target name="findbugs">
         <mkdir dir="${out.dir}/reports" />
         <findbugs home="${findbugs.home}" outputFile="${out.dir}/reports/findbugs.xml" output="xml:withMessages" excludeFilter="findbugs-exclude.xml">
-            <auxClasspath path="${project.target.android.jar};./libs/${junit-reporter.jar};${tested.project.dir}/libs/${robotium.jar};${tested.project.dir}/libs/${http-client.jar}" />
+            <auxClasspath path="${project.target.android.jar};./libs/${junit-reporter.jar};./libs/${robotium.jar};./libs/${http-client.jar}" />
             <class location="${out.dir}/classes" />
             <class location="${tested.project.dir}/bin/classes" />
         </findbugs>
