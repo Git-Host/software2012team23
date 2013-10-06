@@ -20,6 +20,7 @@ import android.app.Activity;
 import android.app.Instrumentation;
 import android.test.ActivityInstrumentationTestCase2;
 import at.tugraz.ist.akm.R;
+import at.tugraz.ist.akm.activities.AboutActivity;
 import at.tugraz.ist.akm.activities.MainActivity;
 import at.tugraz.ist.akm.activities.PreferencesActivity;
 import at.tugraz.ist.akm.test.trace.ThrowingLogSink;
@@ -33,6 +34,8 @@ public class MainActivityActionBarTest extends
 {
 
     private LogClient mLog = null;
+    private static final int WAIT_FOR_MONITOR_TIMEOUT = 5000;
+    private static final int ACTIVITY_SHOW_TIMEOUT = 1000;
 
 
     public MainActivityActionBarTest()
@@ -45,45 +48,30 @@ public class MainActivityActionBarTest extends
 
     public void testClickAndClosePreferencesActivty()
     {
-        clickAndCloseActivty(PreferencesActivity.class);
+        clickAndCloseActivtyStartingFromMainActivity(PreferencesActivity.class,
+                R.id.actionbar_settings);
     }
 
 
     public void testClickAndCloseAboutActivty()
     {
-        clickAndCloseActivty(PreferencesActivity.class);
+        clickAndCloseActivtyStartingFromMainActivity(AboutActivity.class,
+                R.id.actionbar_about);
     }
 
 
-    private void clickAndCloseActivty(Class<?> activityClass)
+    private void clickAndCloseActivtyStartingFromMainActivity(
+            Class<?> activity, int resourceId)
     {
         try
         {
             Instrumentation instrumentation = getInstrumentation();
-
+            Solo clickedActivity = clickActivity(activity, resourceId);
+            Thread.sleep(ACTIVITY_SHOW_TIMEOUT);
+            clickedActivity.getCurrentActivity().finish();
             Solo mainSolo = new Solo(instrumentation, getActivity());
-            mainSolo.assertCurrentActivity(
-                    "current activit is not as expected", MainActivity.class);
-
-            Instrumentation.ActivityMonitor monitor = instrumentation
-                    .addMonitor(activityClass.getName(), null, false);
-            mainSolo.clickOnActionBarItem(R.id.actionbar_settings);
-
-            Activity activityToBeClicked = instrumentation
-                    .waitForMonitorWithTimeout(monitor, 5000);
-            assertNotNull("not switched to next activity", activityToBeClicked);
-            Solo clickedSolo = new Solo(instrumentation, activityToBeClicked);
-            clickedSolo.assertCurrentActivity(
-                    "current acitvity is not as expected", activityClass);
-
-            monitor = instrumentation.addMonitor(MainActivity.class.getName(),
-                    null, false);
-            clickedSolo.getCurrentActivity().finish();
-            Activity main = instrumentation.waitForMonitorWithTimeout(monitor,
-                    5000);
-            assertNotNull("not switched to main activty", main);
-
             mainSolo.assertCurrentActivity("wrong activity", MainActivity.class);
+            Thread.sleep(ACTIVITY_SHOW_TIMEOUT);
         } catch (Exception e)
         {
             assertTrue(false);
@@ -91,63 +79,67 @@ public class MainActivityActionBarTest extends
     }
 
 
-    private Solo clickActivity(Class<?> activity)
+    private Solo clickActivity(Class<?> activity, int resourceId)
     {
         Instrumentation instrumentation = getInstrumentation();
 
         Solo mainSolo = new Solo(instrumentation, getActivity());
-        mainSolo.assertCurrentActivity("current activit is not as expected",
+        mainSolo.assertCurrentActivity("wrong activity",
                 MainActivity.class);
 
+        mainSolo.clickOnActionBarItem(resourceId);
         Instrumentation.ActivityMonitor monitor = instrumentation.addMonitor(
                 activity.getName(), null, false);
-        mainSolo.clickOnActionBarItem(R.id.actionbar_settings);
 
         Activity activityToBeClicked = instrumentation
-                .waitForMonitorWithTimeout(monitor, 5000);
-        assertNotNull("not switched to next activity", activityToBeClicked);
+                .waitForMonitorWithTimeout(monitor, WAIT_FOR_MONITOR_TIMEOUT);
+        assertNotNull("wrong activity", activityToBeClicked);
         Solo clickedSolo = new Solo(instrumentation, activityToBeClicked);
         clickedSolo.assertCurrentActivity(
-                "current acitvity is not as expected", activity);
+                "wrong activity", activity);
         return clickedSolo;
     }
 
 
     public void testCheckboxDisabledIfPasswordEmpty()
     {
-        Solo preferencesSolo = clickActivity(PreferencesActivity.class);
+        Solo preferencesSolo = clickActivity(PreferencesActivity.class, R.id.actionbar_settings);
         setUsernamePasswort(preferencesSolo, "foo", "");
         preferencesSolo.getCurrentActivity().finish();
-        preferencesSolo = clickActivity(PreferencesActivity.class);
+        preferencesSolo = clickActivity(PreferencesActivity.class, R.id.actionbar_settings);
         assertFalse(preferencesSolo.isCheckBoxChecked(0));
     }
 
+
     public void testCheckboxDisabledIfUsernameEmpty()
     {
-        Solo preferencesSolo = clickActivity(PreferencesActivity.class);
-        setUsernamePasswort(preferencesSolo, "foo", "");
-        preferencesSolo.getCurrentActivity().finish();
-        preferencesSolo = clickActivity(PreferencesActivity.class);
-        assertFalse(preferencesSolo.isCheckBoxChecked(0));
-    }
-    
-    public void testCheckboxDisabledIfNoCredentials()
-    {
-        Solo preferencesSolo = clickActivity(PreferencesActivity.class);
+        Solo preferencesSolo = clickActivity(PreferencesActivity.class, R.id.actionbar_settings);
         setUsernamePasswort(preferencesSolo, "", "bar");
         preferencesSolo.getCurrentActivity().finish();
-        preferencesSolo = clickActivity(PreferencesActivity.class);
+        preferencesSolo = clickActivity(PreferencesActivity.class, R.id.actionbar_settings);
         assertFalse(preferencesSolo.isCheckBoxChecked(0));
     }
-    
+
+
+    public void testCheckboxDisabledIfNoCredentials()
+    {
+        Solo preferencesSolo = clickActivity(PreferencesActivity.class, R.id.actionbar_settings);
+        setUsernamePasswort(preferencesSolo, "", "");
+        preferencesSolo.getCurrentActivity().finish();
+        preferencesSolo = clickActivity(PreferencesActivity.class, R.id.actionbar_settings);
+        assertFalse(preferencesSolo.isCheckBoxChecked(0));
+    }
+
+
     public void testCheckboxEnabled()
     {
-        Solo preferencesSolo = clickActivity(PreferencesActivity.class);
+        Solo preferencesSolo = clickActivity(PreferencesActivity.class, R.id.actionbar_settings);
         setUsernamePasswort(preferencesSolo, "foo", "bar");
         preferencesSolo.getCurrentActivity().finish();
-        preferencesSolo = clickActivity(PreferencesActivity.class);
+        preferencesSolo = clickActivity(PreferencesActivity.class, R.id.actionbar_settings);
         assertTrue(preferencesSolo.isCheckBoxChecked(0));
     }
+
 
     private void setUsernamePasswort(Solo preferencesSolo, String username,
             String password)
@@ -181,6 +173,8 @@ public class MainActivityActionBarTest extends
     @Override
     protected void tearDown() throws Exception
     {
+        Solo s = new Solo(getInstrumentation());
+        s.finishOpenedActivities();
         log(getName() + ".tearDown()");
         super.tearDown();
     }

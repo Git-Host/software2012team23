@@ -16,24 +16,33 @@
 
 package at.tugraz.ist.akm.texting.reports;
 
-public class VolatileIncomingReport extends VolatileReport {
+public class VolatileIncomingReport extends VolatileReport
+{
 
-	public int mNumReceived = 0;
+    public int mNumReceived = 0;
 
-	public VolatileIncomingReport(final VolatileIncomingReport src) {
-		super(src);
-		mNumReceived = getNumReceived();
-	}
 
-	public VolatileIncomingReport() {
-	}
+    public VolatileIncomingReport(final VolatileIncomingReport src)
+    {
+        super(src);
+        mNumReceived = getNumReceived();
+    }
 
-	public int getNumReceived() {
-		return mNumReceived;
-	}
 
-	public void setNumReceived(int num) {
-		mNumReceived = num;
-		super.update();
-	}
+    public VolatileIncomingReport()
+    {
+    }
+
+
+    public int getNumReceived()
+    {
+        return mNumReceived;
+    }
+
+
+    public void setNumReceived(int num)
+    {
+        mNumReceived = num;
+        super.update();
+    }
 }

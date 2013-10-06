@@ -76,7 +76,7 @@ public class JsonAPIRequestHandler extends AbstractHttpRequestHandler implements
     private volatile List<TextMessage> mSMSReceivedList = new ArrayList<TextMessage>();
     private volatile List<TextMessage> mSMSSentErrorList = new ArrayList<TextMessage>();
     private volatile JSONArray mJsonContactList = null;
-    private String mJsonContactListLock = "lock";
+    private Object mJsonContactListLock = new Object();
 
     public JsonAPIRequestHandler(final Context context, final XmlNode config,
             final HttpRequestHandlerRegistry registry) throws Throwable {
@@ -123,7 +123,7 @@ public class JsonAPIRequestHandler extends AbstractHttpRequestHandler implements
     }
 
     @Override
-    public void onClose() {
+    public synchronized void onClose() {
     	mTextingAdapter.stop();
     	mSystemMonitor.stop();
         
@@ -376,7 +376,7 @@ public class JsonAPIRequestHandler extends AbstractHttpRequestHandler implements
     	}
     }
 
-    private JSONArray fetchContactsJsonArray() {
+    private synchronized JSONArray fetchContactsJsonArray() {
 
     	mLog.verbose("fetch contacts from provider [start]");
         ContactFilter allFilter = new ContactFilter();

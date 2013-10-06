@@ -16,6 +16,8 @@
 
 package at.tugraz.ist.akm.test.activities;
 
+import com.jayway.android.robotium.solo.Solo;
+
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
@@ -172,6 +174,8 @@ public class PreferencesActivityTest extends
     protected void tearDown() throws Exception
     {
         mSharedPreferences.unregisterOnSharedPreferenceChangeListener(this);
+        Solo s = new Solo(getInstrumentation());
+        s.finishOpenedActivities();
         mLog.debug(getName() + ".tearDown()");
         super.tearDown();
     }

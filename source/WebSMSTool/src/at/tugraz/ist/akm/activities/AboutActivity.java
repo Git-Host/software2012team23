@@ -19,11 +19,8 @@ package at.tugraz.ist.akm.activities;
 import android.app.Activity;
 import android.os.Bundle;
 import android.text.util.Linkify;
-import android.view.MenuItem;
 import android.widget.TextView;
 import at.tugraz.ist.akm.R;
-import at.tugraz.ist.akm.R.id;
-import at.tugraz.ist.akm.R.layout;
 
 
 public class AboutActivity extends Activity {

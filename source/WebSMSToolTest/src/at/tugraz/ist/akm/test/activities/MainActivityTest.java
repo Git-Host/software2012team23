@@ -101,6 +101,8 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
 	@Override
 	protected void tearDown() throws Exception
 	{
+        Solo s = new Solo(getInstrumentation());
+        s.finishOpenedActivities();
 		log(getName() + ".tearDown()");
 		super.tearDown();
 	}

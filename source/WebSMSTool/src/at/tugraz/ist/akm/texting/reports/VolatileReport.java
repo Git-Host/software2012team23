@@ -18,28 +18,39 @@ package at.tugraz.ist.akm.texting.reports;
 
 import java.util.Date;
 
-public class VolatileReport {
+public class VolatileReport
+{
 
-	private long mTimestamp = 0;
+    private long mTimestamp = 0;
 
-	public VolatileReport(final VolatileReport src) {
-		mTimestamp = src.mTimestamp;
-	}
 
-	public VolatileReport() {
-		update();
-	}
+    public VolatileReport(final VolatileReport src)
+    {
+        mTimestamp = src.mTimestamp;
+    }
 
-	public long getTimestamp() {
-		return mTimestamp;
-	}
 
-	protected void update() {
-		mTimestamp = millisecondNow();
-	}
+    public VolatileReport()
+    {
+        update();
+    }
 
-	private long millisecondNow() {
-		return (new Date().getTime());
-	}
+
+    public long getTimestamp()
+    {
+        return mTimestamp;
+    }
+
+
+    protected void update()
+    {
+        mTimestamp = millisecondNow();
+    }
+
+
+    private long millisecondNow()
+    {
+        return (new Date().getTime());
+    }
 
 }
