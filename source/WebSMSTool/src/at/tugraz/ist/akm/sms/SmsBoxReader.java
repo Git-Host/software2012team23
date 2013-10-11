@@ -21,7 +21,7 @@ import java.util.List;
 
 import android.content.ContentResolver;
 import android.database.Cursor;
-import at.tugraz.ist.akm.content.SmsContent;
+import at.tugraz.ist.akm.content.SmsContentConstants;
 import at.tugraz.ist.akm.content.query.ContentProviderQueryParameters;
 import at.tugraz.ist.akm.content.query.TextMessageFilter;
 import at.tugraz.ist.akm.content.query.TextMessageQueryBuilder;
@@ -42,12 +42,12 @@ public class SmsBoxReader {
 	}
 
 	public List<Integer> getThreadIds(final String address) {
-	    android.net.Uri select = SmsContent.Uri.BASE_URI;
-		String[] as = { SmsContent.Column.THREAD_ID };
-		String where = SmsContent.Column.ADDRESS
+	    android.net.Uri select = SmsContentConstants.Uri.BASE_URI;
+		String[] as = { SmsContentConstants.Column.THREAD_ID };
+		String where = SmsContentConstants.Column.ADDRESS
 				+ " = ? ) GROUP BY ( thread_id ";
 		String[] like = { address };
-		String sortBy = SmsContent.Column.DATE + " ASC";
+		String sortBy = SmsContentConstants.Column.DATE + " ASC";
 		Cursor threadIDs = mContentResolver.query(select, as, where, like,
 				sortBy);
 
@@ -55,7 +55,7 @@ public class SmsBoxReader {
 		if (threadIDs != null) {
 			while (threadIDs.moveToNext()) {
 				threadIdList.add(Integer.parseInt(threadIDs.getString(threadIDs
-						.getColumnIndex(SmsContent.Column.THREAD_ID))));
+						.getColumnIndex(SmsContentConstants.Column.THREAD_ID))));
 			}
 			threadIDs.close();
 		}
@@ -99,23 +99,23 @@ public class SmsBoxReader {
 	private TextMessage parseToTextMessge(Cursor sms) {
 		TextMessage message = new TextMessage();
 		message.setAddress(sms.getString(sms
-				.getColumnIndex(SmsContent.Column.ADDRESS)));
-		message.setBody(sms.getString(sms.getColumnIndex(SmsContent.Column.BODY)));
-		message.setDate(sms.getString(sms.getColumnIndex(SmsContent.Column.DATE)));
-		message.setId(sms.getString(sms.getColumnIndex(SmsContent.Column.ID)));
-		message.setLocked(sms.getString(sms.getColumnIndex(SmsContent.Column.LOCKED)));
-		message.setPerson(sms.getString(sms.getColumnIndex(SmsContent.Column.PERSON)));
+				.getColumnIndex(SmsContentConstants.Column.ADDRESS)));
+		message.setBody(sms.getString(sms.getColumnIndex(SmsContentConstants.Column.BODY)));
+		message.setDate(sms.getString(sms.getColumnIndex(SmsContentConstants.Column.DATE)));
+		message.setId(sms.getString(sms.getColumnIndex(SmsContentConstants.Column.ID)));
+		message.setLocked(sms.getString(sms.getColumnIndex(SmsContentConstants.Column.LOCKED)));
+		message.setPerson(sms.getString(sms.getColumnIndex(SmsContentConstants.Column.PERSON)));
 		message.setProtocol(sms.getString(sms
-				.getColumnIndex(SmsContent.Column.PROTOCOL)));
-		message.setRead(sms.getString(sms.getColumnIndex(SmsContent.Column.READ)));
-		message.setSeen(sms.getString(sms.getColumnIndex(SmsContent.Column.SEEN)));
+				.getColumnIndex(SmsContentConstants.Column.PROTOCOL)));
+		message.setRead(sms.getString(sms.getColumnIndex(SmsContentConstants.Column.READ)));
+		message.setSeen(sms.getString(sms.getColumnIndex(SmsContentConstants.Column.SEEN)));
 		message.setServiceCenter(sms.getString(sms
-				.getColumnIndex(SmsContent.Column.SERVICE_CENTER)));
-		message.setStatus(sms.getString(sms.getColumnIndex(SmsContent.Column.STATUS)));
+				.getColumnIndex(SmsContentConstants.Column.SERVICE_CENTER)));
+		message.setStatus(sms.getString(sms.getColumnIndex(SmsContentConstants.Column.STATUS)));
 		message.setThreadId(sms.getString(sms
-				.getColumnIndex(SmsContent.Column.THREAD_ID)));
+				.getColumnIndex(SmsContentConstants.Column.THREAD_ID)));
 		message.setType(sms.getString(sms
-				.getColumnIndex(SmsContent.Column.MESSAGE_TYPE)));
+				.getColumnIndex(SmsContentConstants.Column.MESSAGE_TYPE)));
 		return message;
 	}
 

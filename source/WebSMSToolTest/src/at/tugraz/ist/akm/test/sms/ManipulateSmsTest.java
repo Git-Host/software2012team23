@@ -22,7 +22,7 @@ import android.content.Context;
 import android.content.IntentFilter;
 import android.database.Cursor;
 import android.net.Uri;
-import at.tugraz.ist.akm.content.SmsContent;
+import at.tugraz.ist.akm.content.SmsContentConstants;
 import at.tugraz.ist.akm.content.query.TextMessageFilter;
 import at.tugraz.ist.akm.sms.SmsBoxReader;
 import at.tugraz.ist.akm.sms.SmsBoxWriter;
@@ -45,23 +45,23 @@ public class ManipulateSmsTest extends WebSMSToolActivityTestcase implements
 	public void testGetSmsContentProviderTables() {
 		try {
 			SmsHelper.logCursor(mContentResolver.query(
-					SmsContent.Uri.INBOX_URI, null, null, null, null));
+					SmsContentConstants.Uri.INBOX_URI, null, null, null, null));
 			SmsHelper.logCursor(mContentResolver.query(
-					SmsContent.Uri.QUEUED_URI, null, null, null, null));
+					SmsContentConstants.Uri.QUEUED_URI, null, null, null, null));
 			SmsHelper.logCursor(mContentResolver.query(
-					SmsContent.Uri.BASE_URI, null, null, null, null));
+					SmsContentConstants.Uri.BASE_URI, null, null, null, null));
 			SmsHelper.logCursor(mContentResolver.query(
-					SmsContent.Uri.DRAFT_URI, null, null, null, null));
+					SmsContentConstants.Uri.DRAFT_URI, null, null, null, null));
 
 			SmsHelper.logCursor(mContentResolver.query(
-					SmsContent.Uri.FAILED_URI, null, null, null, null));
+					SmsContentConstants.Uri.FAILED_URI, null, null, null, null));
 			SmsHelper.logCursor(mContentResolver.query(
-					SmsContent.Uri.OUTBOX_URI, null, null, null, null));
+					SmsContentConstants.Uri.OUTBOX_URI, null, null, null, null));
 			SmsHelper.logCursor(mContentResolver.query(
-					SmsContent.Uri.UNDELIVERED_URI, null, null, null,
+					SmsContentConstants.Uri.UNDELIVERED_URI, null, null, null,
 					null));
 			SmsHelper.logCursor(mContentResolver.query(
-					SmsContent.Uri.SENT_URI, null, null, null, null));
+					SmsContentConstants.Uri.SENT_URI, null, null, null, null));
 
 		} catch (Exception ex) {
 			ex.printStackTrace();
@@ -110,7 +110,7 @@ public class ManipulateSmsTest extends WebSMSToolActivityTestcase implements
 		try {
 			SmsBoxReader smsSource = new SmsBoxReader(mContentResolver);
 			TextMessageFilter filter = new TextMessageFilter();
-			filter.setBox(SmsContent.Uri.INBOX_URI);
+			filter.setBox(SmsContentConstants.Uri.INBOX_URI);
 			List<TextMessage> inbox = smsSource.getTextMessages(filter);
 			for (TextMessage m : inbox) {
 				SmsHelper.logTextMessage(m);
@@ -139,9 +139,9 @@ public class ManipulateSmsTest extends WebSMSToolActivityTestcase implements
 
 			// 3.
 			message.setId(messageCursor.getString(messageCursor
-					.getColumnIndex(SmsContent.Column.ID)));
+					.getColumnIndex(SmsContentConstants.Column.ID)));
 			message.setThreadId(messageCursor.getString(messageCursor
-					.getColumnIndex(SmsContent.Column.THREAD_ID)));
+					.getColumnIndex(SmsContentConstants.Column.THREAD_ID)));
 
 			// 4.
 			message.setBody(message.getBody()
@@ -154,7 +154,7 @@ public class ManipulateSmsTest extends WebSMSToolActivityTestcase implements
 			messageCursor.moveToNext();
 			String messageBodyFromContentprovider = messageCursor
 					.getString(messageCursor
-							.getColumnIndex(SmsContent.Column.BODY));
+							.getColumnIndex(SmsContentConstants.Column.BODY));
 			assertTrue(0 == messageBodyFromContentprovider.compareTo(message
 					.getBody()));
 		} catch (Exception ex) {
@@ -167,7 +167,7 @@ public class ManipulateSmsTest extends WebSMSToolActivityTestcase implements
 		try {
 			SmsBoxReader smsSource = new SmsBoxReader(mContentResolver);
 			TextMessageFilter filter = new TextMessageFilter();
-			filter.setBox(SmsContent.Uri.OUTBOX_URI);
+			filter.setBox(SmsContentConstants.Uri.OUTBOX_URI);
 			List<TextMessage> outbox = smsSource.getTextMessages(filter);
 			for (TextMessage m : outbox) {
 				SmsHelper.logTextMessage(m);

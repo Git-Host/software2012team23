@@ -29,28 +29,45 @@ import org.json.JSONObject;
 
 import android.content.Context;
 import at.tugraz.ist.akm.io.xml.XmlNode;
+import at.tugraz.ist.akm.trace.LogClient;
 import at.tugraz.ist.akm.webservice.WebServerConfig;
 
-public class EchoJsonRequestHandler extends AbstractHttpRequestHandler {
-
+public class EchoJsonRequestHandler extends AbstractHttpRequestHandler
+{
+    private final LogClient mLog = new LogClient(this);
+    
     public EchoJsonRequestHandler(final Context context, final XmlNode config,
-            final HttpRequestHandlerRegistry registry) {
+            final HttpRequestHandlerRegistry registry)
+    {
         super(context, config, registry);
     }
 
+
     @Override
-    public void handleRequest(RequestLine requestLine, String requestData, HttpResponse httpResponse)
-            throws HttpException, IOException {
-        if (requestLine.getMethod().equals(WebServerConfig.HTTP.REQUEST_TYPE_POST)) {
+    public void handleRequest(RequestLine requestLine, String requestData,
+            HttpResponse httpResponse) throws HttpException, IOException
+    {
+        if (requestLine.getMethod().equals(
+                WebServerConfig.HTTP.REQUEST_TYPE_POST))
+        {
             final JSONObject json;
-            try {
+            try
+            {
                 json = new JSONObject(requestData);
-                responseDataAppender.appendHttpResponseData(httpResponse, json);
-            } catch (ParseException parseException) {
+                mResponseDataAppender.appendHttpResponseData(httpResponse, json);
+            } catch (ParseException parseException)
+            {
                 parseException.printStackTrace();
-            } catch (JSONException jsonException) {
+            } catch (JSONException jsonException)
+            {
                 jsonException.printStackTrace();
+            } finally
+            {
+                mLog.error("failed to parse json request");
             }
+        } else
+        {
+            mLog.debug("ignoring request type: " + requestLine.getMethod());
         }
     }
 }

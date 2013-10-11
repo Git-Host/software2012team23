@@ -19,7 +19,7 @@ package at.tugraz.ist.akm.test.texting;
 import java.util.List;
 
 import android.content.Context;
-import at.tugraz.ist.akm.content.SmsContent;
+import at.tugraz.ist.akm.content.SmsContentConstants;
 import at.tugraz.ist.akm.content.query.ContactFilter;
 import at.tugraz.ist.akm.content.query.TextMessageFilter;
 import at.tugraz.ist.akm.phonebook.Contact;
@@ -102,7 +102,7 @@ public class TextingAdapterTest extends WebSMSToolActivityTestcase implements Sm
 		TextingInterface texting = new TextingAdapter(mContext, this, this);
 		texting.start();
 		TextMessageFilter filter = new TextMessageFilter();
-		filter.setBox(SmsContent.Uri.INBOX_URI);
+		filter.setBox(SmsContentConstants.Uri.INBOX_URI);
 		filter.setAddress("01906666");
 		texting.fetchTextMessages(filter);
 		texting.stop();

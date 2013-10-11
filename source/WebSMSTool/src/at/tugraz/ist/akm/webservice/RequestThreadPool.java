@@ -20,12 +20,12 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-public class WebserviceThreadPool {
+public class RequestThreadPool {
     private ArrayBlockingQueue<Runnable> taskQueue = new ArrayBlockingQueue<Runnable>(5);
 
     private final ThreadPoolExecutor threadPool;
 
-    public WebserviceThreadPool() {
+    public RequestThreadPool() {
         threadPool = new ThreadPoolExecutor(3, 6, 10, TimeUnit.SECONDS, taskQueue);
     }
 

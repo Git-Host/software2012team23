@@ -31,7 +31,7 @@ import my.org.apache.http.params.HttpProtocolParams;
 import my.org.apache.http.protocol.HTTP;
 import my.org.apache.http.protocol.HttpService;
 import at.tugraz.ist.akm.trace.LogClient;
-import at.tugraz.ist.akm.webservice.WebserviceThreadPool;
+import at.tugraz.ist.akm.webservice.RequestThreadPool;
 
 public class ServerThread extends Thread {
     private final static LogClient mLog = new LogClient(ServerThread.class.getName());	
@@ -40,12 +40,12 @@ public class ServerThread extends Thread {
     private boolean mRunning = false;
     private boolean mStopServerThread = false;
 
-    private final WebserviceThreadPool mThreadPool;
+    private final RequestThreadPool mThreadPool;
     
     public ServerThread(final SimpleWebServer webServer, final ServerSocket serverSocket) {
         this.mWebServer = webServer;
         this.mServerSocket = serverSocket;
-        this.mThreadPool = new WebserviceThreadPool();
+        this.mThreadPool = new RequestThreadPool();
     }
 
     @Override

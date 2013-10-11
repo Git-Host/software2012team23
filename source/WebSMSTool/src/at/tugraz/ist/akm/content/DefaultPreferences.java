@@ -29,7 +29,7 @@ public class DefaultPreferences {
 	public static final String PROTOCOL = "protocol";
 	public static final String KEYSTOREPASSWORD = "keystorepassword";
 	
-	public static void setStandardSettings(SQLiteDatabase db) {
+	public static void storeDefaultPreferences(SQLiteDatabase db) {
 		mDb = db;
 		insertKeyValuePair(USERNAME, "");
 		insertKeyValuePair(PASSWORD, "");

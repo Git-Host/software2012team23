@@ -34,7 +34,7 @@ public class FaviconLoader extends AbstractHttpRequestHandler {
 			bmp.compress(Bitmap.CompressFormat.PNG, 100, os); 
 			byte[] imageBytes = os.toByteArray();
 			
-			responseDataAppender.appendHttpResponseMediaType(httpResponse,
+			mResponseDataAppender.appendHttpResponseMediaType(httpResponse,
 					WebServerConfig.HTTP.CONTENTY_TYPE_IMAGE_PNG, imageBytes);
 		} catch (Exception ex) {
 			mLog.error("what a terrible failure", ex);

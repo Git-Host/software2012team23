@@ -43,9 +43,9 @@ public abstract class AbstractHttpRequestHandler implements HttpRequestHandler {
     protected final Context mContext;
     protected final XmlNode mConfig;
     protected final HttpRequestHandlerRegistry mRegistry;
-    private final List<IRequestInterceptor> requestInterceptorList = new ArrayList<IRequestInterceptor>();
+    private final List<IRequestInterceptor> mRequestInterceptorList = new ArrayList<IRequestInterceptor>();
 
-    protected HttpResponseDataAppender responseDataAppender = new HttpResponseDataAppender();
+    protected HttpResponseDataAppender mResponseDataAppender = new HttpResponseDataAppender();
 
     protected HashMap<String, FileInfo> mUri2FileInfo = new HashMap<String, AbstractHttpRequestHandler.FileInfo>();
 
@@ -76,7 +76,7 @@ public abstract class AbstractHttpRequestHandler implements HttpRequestHandler {
     }
 
     public void addRequestInterceptor(IRequestInterceptor interceptor) {
-        requestInterceptorList.add(interceptor);
+        mRequestInterceptorList.add(interceptor);
     }
 
     private void assignUriMappingToRegistry() {
@@ -112,11 +112,11 @@ public abstract class AbstractHttpRequestHandler implements HttpRequestHandler {
 
     protected void register(String uri) {
         if (mRegistry != null) {
-            mLog.info("register for uri '" + uri + "'");
+            mLog.debug("register for uri '" + uri + "'");
             mUriPattern = uri;
             mRegistry.register(mUriPattern, this);
         } else {
-            mLog.warning("cannot register uri '" + uri + "' => no registry provided!");
+            mLog.error("cannot register uri '" + uri + "' => no registry provided!");
         }
     }
 
@@ -132,7 +132,7 @@ public abstract class AbstractHttpRequestHandler implements HttpRequestHandler {
                 requestData = EntityUtils.toString(entitiy);
             }
         }
-        for (IRequestInterceptor interceptor : requestInterceptorList) {
+        for (IRequestInterceptor interceptor : mRequestInterceptorList) {
             if (!interceptor.process(httpRequest, requestData, httpResponse)) {
                 return;
             }
@@ -151,6 +151,6 @@ public abstract class AbstractHttpRequestHandler implements HttpRequestHandler {
             mLog.info("close request handler for URI [" + mUriPattern + "]");
             mRegistry.unregister(mUriPattern);
         }
-        requestInterceptorList.clear();
+        mRequestInterceptorList.clear();
     }
 }

@@ -36,7 +36,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.content.Context;
-import at.tugraz.ist.akm.content.SmsContent;
+import at.tugraz.ist.akm.content.SmsContentConstants;
 import at.tugraz.ist.akm.content.query.ContactFilter;
 import at.tugraz.ist.akm.content.query.TextMessageFilter;
 import at.tugraz.ist.akm.io.xml.XmlNode;
@@ -108,7 +108,7 @@ public class JsonAPIRequestHandler extends AbstractHttpRequestHandler implements
                         jsonParams = json.getJSONArray(WebServerConfig.JSON.PARAMS);
                     }
                     JSONObject jsonResponse = processMethod(method, jsonParams);
-                    responseDataAppender.appendHttpResponseData(httpResponse, jsonResponse);
+                    mResponseDataAppender.appendHttpResponseData(httpResponse, jsonResponse);
                 } else {
                     mLog.error("no method defined in JSON post request ==> <" + json.toString()
                             + ">");
@@ -283,7 +283,7 @@ public class JsonAPIRequestHandler extends AbstractHttpRequestHandler implements
                             }
                             TextMessageFilter msgFilter = new TextMessageFilter();
                             msgFilter.setThreadId(threadId.longValue());
-                            msgFilter.setBox(SmsContent.Uri.BASE_URI);
+                            msgFilter.setBox(SmsContentConstants.Uri.BASE_URI);
                             mLog.info("Fetch SMS Thread with threadID: "+ threadId);
                             List<TextMessage> threadMessages = mTextingAdapter.fetchTextMessages(msgFilter);
 

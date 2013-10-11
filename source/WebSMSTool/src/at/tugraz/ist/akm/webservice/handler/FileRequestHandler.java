@@ -50,6 +50,6 @@ public class FileRequestHandler extends AbstractHttpRequestHandler {
         }
 
         final String data = new FileReader(mContext, fileInfo.mFile).read();
-        responseDataAppender.appendHttpResponseData(httpResponse, fileInfo.mContentType, data);
+        mResponseDataAppender.appendHttpResponseData(httpResponse, fileInfo.mContentType, data);
     }
 }

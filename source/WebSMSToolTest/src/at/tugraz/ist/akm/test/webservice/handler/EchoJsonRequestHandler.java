@@ -46,7 +46,7 @@ public class EchoJsonRequestHandler extends JsonAPIRequestHandler {
             final JSONObject json;
             try {
                 json = new JSONObject(requestData);
-                responseDataAppender.appendHttpResponseData(httpResponse, json);
+                mResponseDataAppender.appendHttpResponseData(httpResponse, json);
             } catch (ParseException parseException) {
                 parseException.printStackTrace();
             } catch (JSONException jsonException) {

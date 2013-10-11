@@ -18,7 +18,7 @@ package at.tugraz.ist.akm.test.sms;
 
 import java.util.List;
 
-import at.tugraz.ist.akm.content.SmsContent;
+import at.tugraz.ist.akm.content.SmsContentConstants;
 import at.tugraz.ist.akm.content.query.TextMessageFilter;
 import at.tugraz.ist.akm.sms.SmsBridge;
 import at.tugraz.ist.akm.sms.TextMessage;
@@ -63,7 +63,7 @@ public class SmsBridgeTest extends WebSMSToolActivityTestcase {
 			SmsBridge smsBridge = new SmsBridge(mContext);
 			smsBridge.start();
 			TextMessageFilter filter = new TextMessageFilter();
-			filter.setBox(SmsContent.Uri.INBOX_URI);
+			filter.setBox(SmsContentConstants.Uri.INBOX_URI);
 			List<TextMessage> inMessages = smsBridge.fetchTextMessages(filter);
 			for (TextMessage message : inMessages) {
 				SmsHelper.logTextMessage(message);
@@ -80,7 +80,7 @@ public class SmsBridgeTest extends WebSMSToolActivityTestcase {
 			SmsBridge smsBridge = new SmsBridge(mContext);
 			smsBridge.start();
 			TextMessageFilter filter = new TextMessageFilter();
-			filter.setBox(SmsContent.Uri.OUTBOX_URI);
+			filter.setBox(SmsContentConstants.Uri.OUTBOX_URI);
 			List<TextMessage> inMessages = smsBridge.fetchTextMessages(filter);
 			for (TextMessage message : inMessages) {
 				SmsHelper.logTextMessage(message);

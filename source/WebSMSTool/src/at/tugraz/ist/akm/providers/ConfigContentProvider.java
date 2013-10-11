@@ -35,9 +35,9 @@ import at.tugraz.ist.akm.trace.LogClient;
 
 public class ConfigContentProvider extends ContentProvider {
 
-    public static final String AUTHORITY = "at.tugraz.ist.akm.providers.ConfigContentProvider";
-    public static final String CONFIGURATION_TABLE_NAME = "config";
-    private static final String DATABASE_NAME = "ConfigContent";
+    public static final String AUTHORITY = ConfigContentProvider.class.getCanonicalName();
+    public static final String CONFIGURATION_TABLE_NAME = "preferences";
+    private static final String DATABASE_NAME = "PreferencesDB";
     
     private static final UriMatcher URI_MATCHER;
     private static HashMap<String, String> mContentMap;
@@ -198,7 +198,7 @@ public class ConfigContentProvider extends ContentProvider {
             db.execSQL("CREATE TABLE " + CONFIGURATION_TABLE_NAME + " (" + Config.Content._ID
                     + " INTEGER PRIMARY KEY AUTOINCREMENT," + Config.Content.NAME
                     + " VARCHAR(255)," + Config.Content.VALUE + " VARCHAR(255)" + ");");
-            DefaultPreferences.setStandardSettings(db);
+            DefaultPreferences.storeDefaultPreferences(db);
         }
 
         @Override

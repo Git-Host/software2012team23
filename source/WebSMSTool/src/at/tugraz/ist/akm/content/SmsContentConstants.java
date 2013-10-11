@@ -16,7 +16,7 @@
 
 package at.tugraz.ist.akm.content;
 
-public class SmsContent
+public class SmsContentConstants
 {
     public static class Uri
     {

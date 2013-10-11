@@ -20,7 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import android.net.Uri;
-import at.tugraz.ist.akm.content.SmsContent;
+import at.tugraz.ist.akm.content.SmsContentConstants;
 
 public class TextMessageQueryBuilder {
 
@@ -74,7 +74,7 @@ public class TextMessageQueryBuilder {
 	 */
 	private void collectAddressQueryPart() {
 		if (mFilter.getIsAddressActive()) {
-			appendWhereQueryString(SmsContent.Column.ADDRESS + " = ? ");
+			appendWhereQueryString(SmsContentConstants.Column.ADDRESS + " = ? ");
 			mLikeArgs.add(mFilter.getAddress());
 		}
 	}
@@ -84,35 +84,35 @@ public class TextMessageQueryBuilder {
 	 */
 	private void collectThreadIdQueryPart() {
 		if (mFilter.getIsThreadIdActive()) {
-			appendWhereQueryString(SmsContent.Column.THREAD_ID + " = ? ");
+			appendWhereQueryString(SmsContentConstants.Column.THREAD_ID + " = ? ");
 			mLikeArgs.add(mFilter.getThreadId());
 		}
 	}
 
 	private void collectIdQueryPart() {
 		if (mFilter.getIsIdActive()) {
-			appendWhereQueryString(SmsContent.Column.ID + " = ? ");
+			appendWhereQueryString(SmsContentConstants.Column.ID + " = ? ");
 			mLikeArgs.add(mFilter.getId());
 		}
 	}
 
 	private void collectPersonQueryPart() {
 		if (mFilter.getIsPersonActive()) {
-			appendWhereQueryString(SmsContent.Column.PERSON + " = ? ");
+			appendWhereQueryString(SmsContentConstants.Column.PERSON + " = ? ");
 			mLikeArgs.add(mFilter.getPerson());
 		}
 	}
 
 	private void collectSeenQueryPart() {
 		if (mFilter.getIsSeenActive()) {
-			appendWhereQueryString(SmsContent.Column.SEEN + " = ? ");
+			appendWhereQueryString(SmsContentConstants.Column.SEEN + " = ? ");
 			mLikeArgs.add(mFilter.getSeen());
 		}
 	}
 
 	private void collectReadQueryPart() {
 		if (mFilter.getIsReadActive()) {
-			appendWhereQueryString(SmsContent.Column.READ + " = ? ");
+			appendWhereQueryString(SmsContentConstants.Column.READ + " = ? ");
 			mLikeArgs.add(mFilter.getRead());
 		}
 	}

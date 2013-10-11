@@ -62,6 +62,7 @@ public class WebServerConfig {
         
     }
 
+    
     public final static class JSON {
         public final static String METHOD = "method";
         public final static String PARAMS = "params";

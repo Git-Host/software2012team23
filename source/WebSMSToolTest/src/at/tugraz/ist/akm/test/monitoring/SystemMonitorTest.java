@@ -16,6 +16,7 @@
 
 package at.tugraz.ist.akm.test.monitoring;
 
+import android.test.IsolatedContext;
 import at.tugraz.ist.akm.monitoring.BatteryStatus;
 import at.tugraz.ist.akm.monitoring.SystemMonitor;
 import at.tugraz.ist.akm.monitoring.TelephonySignalStrength;
