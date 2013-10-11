@@ -21,7 +21,6 @@ import java.util.List;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;
-import android.net.Uri;
 import at.tugraz.ist.akm.content.SmsContent;
 import at.tugraz.ist.akm.trace.LogClient;
 
@@ -41,8 +40,8 @@ public class SmsBoxWriter extends LogClient {
 	 * @param message
 	 * @return @see putTextMessageToUri
 	 */
-	public Uri writeOutboxTextMessage(TextMessage message) {
-		return putTextMessageToUri(message, SmsContent.ContentUri.OUTBOX_URI);
+	public android.net.Uri writeOutboxTextMessage(TextMessage message) {
+		return putTextMessageToUri(message, SmsContent.Uri.OUTBOX_URI);
 	}
 
 	/**
@@ -52,17 +51,17 @@ public class SmsBoxWriter extends LogClient {
 	 * @param message
 	 * @return @see putTextMessageToUri
 	 */
-	public Uri writeSentboxTextMessage(TextMessage message) {
-		return putTextMessageToUri(message, SmsContent.ContentUri.SENT_URI);
+	public android.net.Uri writeSentboxTextMessage(TextMessage message) {
+		return putTextMessageToUri(message, SmsContent.Uri.SENT_URI);
 	}
 
 	/**
 	 * Update the (non-auto-generated) fields of a TextMessage stored in content://sms
-	 * @param message Threaad-id and messagei-id must be set correctly to match the message that has to be updated
+	 * @param message Threaad-id and message-id must be set correctly to match the message that has to be updated
 	 * @return amount of affected rows; usually 1 else 0
 	 */
 	public int updateTextMessage(TextMessage message) {
-		return updateTextMessage(message, SmsContent.ContentUri.BASE_URI);
+		return updateTextMessage(message, SmsContent.Uri.BASE_URI);
 	}
 
 	/**
@@ -73,7 +72,7 @@ public class SmsBoxWriter extends LogClient {
 	 *            to content://sms/*
 	 * @return the Uri pointing to the newly inserted text message
 	 */
-	private Uri putTextMessageToUri(TextMessage message, Uri destination) {
+	private android.net.Uri putTextMessageToUri(TextMessage message, android.net.Uri destination) {
 		return mContentResolver.insert(destination,
 				textMessageToValues(message));
 	}
@@ -86,12 +85,12 @@ public class SmsBoxWriter extends LogClient {
 	 *            content://sms/*
 	 * @return number of affected rows; normally 0 or 1
 	 */
-	private int updateTextMessage(TextMessage message, Uri destination) {
+	private int updateTextMessage(TextMessage message, android.net.Uri destination) {
 		StringBuffer where = new StringBuffer();
 		List<String> likeArgs = new ArrayList<String>();
 
-		where.append(SmsContent.Content.ID + " = ? AND ");
-		where.append(SmsContent.Content.THREAD_ID + " = ? ");
+		where.append(SmsContent.Column.ID + " = ? AND ");
+		where.append(SmsContent.Column.THREAD_ID + " = ? ");
 
 		likeArgs.add(message.getId());
 		likeArgs.add(message.getThreadId());
@@ -101,7 +100,7 @@ public class SmsBoxWriter extends LogClient {
 		int rows = mContentResolver.update(destination,
 				textMessageToValues(message), where.toString(), like);
 
-		verbose("Updated [" + rows + "] rows on [" + destination.toString() + "]");
+		info("Updated [" + rows + "] rows on [" + destination.toString() + "]");
 		return rows;
 	}
 
@@ -114,21 +113,21 @@ public class SmsBoxWriter extends LogClient {
 	 */
 	private ContentValues textMessageToValues(TextMessage message) {
 		ContentValues values = new ContentValues();
-		values.put(SmsContent.Content.ADDRESS, message.getAddress());
-		values.put(SmsContent.Content.BODY, message.getBody());
-		values.put(SmsContent.Content.DATE, message.getDate());
-		values.put(SmsContent.Content.ERROR_CODE, message.getErrorCode());
-		values.put(SmsContent.Content.LOCKED, message.getLocked());
-		values.put(SmsContent.Content.SUBJECT, message.getSubject());
-		values.put(SmsContent.Content.PERSON, message.getPerson());
-		values.put(SmsContent.Content.PROTOCOL, message.getProtocol());
-		values.put(SmsContent.Content.READ, message.getRead());
-		values.put(SmsContent.Content.REPLY_PATH_PRESENT,
+		values.put(SmsContent.Column.ADDRESS, message.getAddress());
+		values.put(SmsContent.Column.BODY, message.getBody());
+		values.put(SmsContent.Column.DATE, message.getDate());
+		values.put(SmsContent.Column.ERROR_CODE, message.getErrorCode());
+		values.put(SmsContent.Column.LOCKED, message.getLocked());
+		values.put(SmsContent.Column.SUBJECT, message.getSubject());
+		values.put(SmsContent.Column.PERSON, message.getPerson());
+		values.put(SmsContent.Column.PROTOCOL, message.getProtocol());
+		values.put(SmsContent.Column.READ, message.getRead());
+		values.put(SmsContent.Column.REPLY_PATH_PRESENT,
 				message.getReplyPathPresent());
-		values.put(SmsContent.Content.SEEN, message.getSeen());
-		values.put(SmsContent.Content.SERVICE_CENTER,
+		values.put(SmsContent.Column.SEEN, message.getSeen());
+		values.put(SmsContent.Column.SERVICE_CENTER,
 				message.getServiceCenter());
-		values.put(SmsContent.Content.STATUS, message.getStatus());
+		values.put(SmsContent.Column.STATUS, message.getStatus());
 		// the following ones will be auto generated
 		// values.put(SmsContent.Content.ID, message.getId());
 		// values.put(SmsContent.Content.THREAD_ID, message.getThreadId());

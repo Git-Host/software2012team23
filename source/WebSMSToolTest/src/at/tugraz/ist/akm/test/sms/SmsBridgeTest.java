@@ -63,7 +63,7 @@ public class SmsBridgeTest extends WebSMSToolActivityTestcase {
 			SmsBridge smsBridge = new SmsBridge(mContext);
 			smsBridge.start();
 			TextMessageFilter filter = new TextMessageFilter();
-			filter.setBox(SmsContent.ContentUri.INBOX_URI);
+			filter.setBox(SmsContent.Uri.INBOX_URI);
 			List<TextMessage> inMessages = smsBridge.fetchTextMessages(filter);
 			for (TextMessage message : inMessages) {
 				SmsHelper.logTextMessage(message);
@@ -80,7 +80,7 @@ public class SmsBridgeTest extends WebSMSToolActivityTestcase {
 			SmsBridge smsBridge = new SmsBridge(mContext);
 			smsBridge.start();
 			TextMessageFilter filter = new TextMessageFilter();
-			filter.setBox(SmsContent.ContentUri.OUTBOX_URI);
+			filter.setBox(SmsContent.Uri.OUTBOX_URI);
 			List<TextMessage> inMessages = smsBridge.fetchTextMessages(filter);
 			for (TextMessage message : inMessages) {
 				SmsHelper.logTextMessage(message);

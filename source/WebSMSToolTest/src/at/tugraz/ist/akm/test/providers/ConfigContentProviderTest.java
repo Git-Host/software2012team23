@@ -21,7 +21,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import at.tugraz.ist.akm.content.Config;
 import at.tugraz.ist.akm.content.Config.Content;
-import at.tugraz.ist.akm.content.StandardSettings;
+import at.tugraz.ist.akm.content.DefaultPreferences;
 import at.tugraz.ist.akm.providers.ConfigContentProvider;
 import at.tugraz.ist.akm.test.base.WebSMSToolInstrumentationTestcase;
 
@@ -63,7 +63,7 @@ public class ConfigContentProviderTest extends WebSMSToolInstrumentationTestcase
 	
 	public void testQuery() {
 		try {
-			String[] names = {StandardSettings.PORT};
+			String[] names = {DefaultPreferences.PORT};
 			Cursor cursor = mContentResolver.query(uri, new String[] {Config.Content.VALUE}, Config.Content.NAME, names, null);
 			if (cursor != null) {
 				while (cursor.moveToNext()) {
@@ -83,7 +83,7 @@ public class ConfigContentProviderTest extends WebSMSToolInstrumentationTestcase
 		ContentValues values = new ContentValues();
 		values.put(Config.Content.VALUE, "admin");
 		
-		String[] names = {StandardSettings.USERNAME};
+		String[] names = {DefaultPreferences.USERNAME};
 		
 		assertTrue("no values updated at first update", mContentResolver.update(uri, values, Config.Content.NAME, names) != 0);
 		values.clear();

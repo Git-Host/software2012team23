@@ -109,18 +109,18 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
 
 	protected void log(final String m)
 	{
-		mLog.verbose(m);
+		mLog.info(m);
 	}
 
 
 	public void startWebService() {
-		mLog.verbose("Going to start web service");
+		mLog.info("Going to start web service");
 		mContext.startService(mSmsServiceIntent);
 		waitForServiceBeingStarted();
 	}
 	
 	public void stopWebService() {
-		mLog.verbose("Going to stop web service");
+		mLog.info("Going to stop web service");
 		mContext.stopService(mSmsServiceIntent);
 		waitForServiceBeingStopped();
 	}

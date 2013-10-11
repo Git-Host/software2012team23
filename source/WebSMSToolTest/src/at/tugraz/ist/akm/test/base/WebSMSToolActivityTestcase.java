@@ -75,11 +75,11 @@ public class WebSMSToolActivityTestcase extends ActivityTestCase {
 	}
 	
 	protected void logVerbose(final String message, Throwable throwable) {
-		mLog.verbose(message, throwable);
+		mLog.info(message, throwable);
 	}
 	
 	protected void logVerbose(final String message) {
-		mLog.verbose(message);
+		mLog.info(message);
 	}
 	
 	protected void logWarning(final String message, Throwable throwable) {

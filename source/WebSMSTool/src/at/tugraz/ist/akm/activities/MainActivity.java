@@ -242,7 +242,7 @@ public class MainActivity extends DefaultActionBar implements
         {
             if (updateLocalIp() || DevelopmentSettings.IS_RUNNING_ON_EMULATOR)
             {
-                mLog.verbose("Going to start web service");
+                mLog.info("Going to start web service");
                 displayStartigService();
                 view.getContext().startService(mSmsServiceIntent);
             } else

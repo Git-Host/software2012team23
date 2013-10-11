@@ -59,7 +59,7 @@ public class TextingAdapter extends LogClient implements TextingInterface,
 	}
 
 	public void start() {
-		verbose("starting " + getClass().getSimpleName());
+	    info("starting " + getClass().getSimpleName());
 		registerSmsCallbacks();
 		registerPhonebookCallbacks();
 		mSmsBridge.start();
@@ -67,7 +67,7 @@ public class TextingAdapter extends LogClient implements TextingInterface,
 	}
 
 	public void stop() {
-		verbose("stopping " + getClass().getSimpleName());
+	    info("stopping " + getClass().getSimpleName());
 		mPhoneBook.stop();
 		mSmsBridge.stop();
 	}
@@ -105,7 +105,7 @@ public class TextingAdapter extends LogClient implements TextingInterface,
 
 	@Override
 	public void smsSentCallback(Context context, List<TextMessage> message) {
-		verbose("sms sent successfully");
+	    info("sms sent successfully");
 		mOutgoingStatistics
 				.setNumPending(mOutgoingStatistics.getNumPending() - 1);
 		if (mExternalTextMessageCallback != null) {
@@ -115,7 +115,7 @@ public class TextingAdapter extends LogClient implements TextingInterface,
 
 	@Override
 	public void smsSentErrorCallback(Context context, List<TextMessage> message) {
-		verbose("failed to send sms");
+	    info("failed to send sms");
 		mOutgoingStatistics.setNumErroneous(mOutgoingStatistics
 				.getNumErroneous() + 1);
 		if (mExternalTextMessageCallback != null) {
@@ -126,7 +126,7 @@ public class TextingAdapter extends LogClient implements TextingInterface,
 	@Override
 	public void smsDeliveredCallback(Context context, List<TextMessage> messages) {
 		TextMessage message = messages.get(0);
-		verbose("sms was delivered (to address ["+message.getAddress() +"] on ["+message.getDate()+"] text ["+message.getBody()+"])");
+		info("sms was delivered (to address ["+message.getAddress() +"] on ["+message.getDate()+"] text ["+message.getBody()+"])");
 		
 		if (mExternalTextMessageCallback != null) {
 			mExternalTextMessageCallback.smsDeliveredCallback(context, messages);
@@ -136,7 +136,7 @@ public class TextingAdapter extends LogClient implements TextingInterface,
 
 	@Override
 	public void smsReceivedCallback(Context context, List<TextMessage> message) {
-		verbose("sms received");
+	    info("sms received");
 		mIncomingStatistics
 				.setNumReceived(mIncomingStatistics.getNumReceived() + 1);
 		if (mExternalTextMessageCallback != null) {
@@ -146,7 +146,7 @@ public class TextingAdapter extends LogClient implements TextingInterface,
 
 	@Override
 	public void contactModifiedCallback() {
-		verbose("contact modified");
+	    info("contact modified");
 		mPhonebookStatistics
 				.setNumChanges(mPhonebookStatistics.getNumChanges() + 1);
 		if (mExternalPhonebookModifiedCallback != null) {

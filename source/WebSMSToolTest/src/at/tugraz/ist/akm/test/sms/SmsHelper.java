@@ -28,7 +28,7 @@ public class SmsHelper {
 	private static LogClient mLog = new LogClient(SmsHelper.class.getName());
 	
 	private static void log(final String message) {
-		mLog.verbose(message);
+		mLog.info(message);
 	}
 	
 	public static String getDateNowString() {

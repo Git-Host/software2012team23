@@ -81,9 +81,9 @@ public class ServerThread extends Thread {
                             httpService.handleRequest(serverConn, mWebServer.getHttpContext());
                         } catch (SSLException iDon_tCare) {
                         	; // some browser send connection closed, some not ...
-                        	mLog.verbose("ignore SSL-connection closed by peer");
+                        	mLog.info("ignore SSL-connection closed by peer");
                         } catch (ConnectionClosedException iDon_tCare) {
-                        	mLog.verbose("ignore connection closed by peer");
+                        	mLog.info("ignore connection closed by peer");
                         } catch (Exception ex) {
                             mLog.error("Exception caught while processing HTTP client connection", ex);
                         }

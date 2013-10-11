@@ -73,18 +73,10 @@ public class TelephonySignalStrength {
 	 * Signal strength for voice connection - range [0...4]
 	 */
 	public int getSignalStrength() {
-		return getLevel();
-	}
-
-	/**
-	 * Get signal level as an int from 0..4
-	 */
-	public int getLevel() {
 		int level;
 
 		if (mSignalStrength.isGsm()) {
 			// If the connection is LTE the I really F****** DON'T care!
-			// Damn SignalStrength API - really!
 //			if ((mLteSignalStrength == -1) && (mLteRsrp == -1)
 //					&& (mLteRsrq == -1) && (mLteCqi == -1)) {
 				level = getGsmLevel();
@@ -111,7 +103,7 @@ public class TelephonySignalStrength {
 	/**
 	 * Get cdma as level 0..4
 	 */
-	public int getCdmaLevel() {
+	private int getCdmaLevel() {
 		final int cdmaDbm = mSignalStrength.getCdmaDbm();
 		// What is Ec/Io? See:
 		// http://www.telecomhall.com/what-is-ecio-and-ebno.aspx
@@ -149,7 +141,7 @@ public class TelephonySignalStrength {
 	/**
 	 * Get Evdo as level 0..4
 	 */
-	public int getEvdoLevel() {
+	private int getEvdoLevel() {
 		int evdoDbm = mSignalStrength.getEvdoDbm();
 		int evdoSnr = mSignalStrength.getEvdoSnr();
 		int levelEvdoDbm;
@@ -184,7 +176,7 @@ public class TelephonySignalStrength {
     /**
      * Get gsm as level 0..4
      */
-    public int getGsmLevel() {
+    private int getGsmLevel() {
         int level;
 
         // ASU ranges from 0 to 31 - TS 27.007 Sec 8.5

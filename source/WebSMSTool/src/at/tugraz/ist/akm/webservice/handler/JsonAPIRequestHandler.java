@@ -83,9 +83,9 @@ public class JsonAPIRequestHandler extends AbstractHttpRequestHandler implements
         super(context, config, registry);
         mTextingAdapter = new TextingAdapter(context, this, this);
 
-        mLog.verbose("precaching contacts [start]");
+        mLog.info("precaching contacts [start]");
         mJsonContactList = fetchContactsJsonArray();
-        mLog.verbose("precaching contacts [done]");
+        mLog.info("precaching contacts [done]");
         
         mSystemMonitor = new SystemMonitor(context);
         mSMSThreadMessageCount = 20;
@@ -140,7 +140,7 @@ public class JsonAPIRequestHandler extends AbstractHttpRequestHandler implements
 
     @Override
     public void contactModifiedCallback() {
-        mLog.verbose("reloading all contacts from provider");
+        mLog.info("reloading all contacts from provider");
         synchronized (mJsonContactListLock) {
         	mJsonContactList = fetchContactsJsonArray();
         	this.mContactsChanged = true;
@@ -152,7 +152,7 @@ public class JsonAPIRequestHandler extends AbstractHttpRequestHandler implements
 		if(messages.isEmpty() == false){
 			for(TextMessage message : messages) {
 				String address = message.getAddress();
-				mLog.verbose("Looking for address in waiting queue with :" + address);
+				mLog.info("Looking for address in waiting queue with :" + address);
 				if (mSMSWaitingForSentCallback.containsKey(address)) {
 					int tmpCount = mSMSWaitingForSentCallback.get(address);
 					tmpCount = tmpCount - 1;
@@ -163,11 +163,11 @@ public class JsonAPIRequestHandler extends AbstractHttpRequestHandler implements
 						mSMSSentSuccess = true;
 						mSMSSentList.add(message);
 						mSMSWaitingForSentCallback.remove(address);
-						mLog.verbose("Received all sms callbacks for address "
+						mLog.info("Received all sms callbacks for address "
 								+ address + " going to notify webapp.");
 					} else {
 						mSMSWaitingForSentCallback.put(address, tmpCount);
-						mLog.verbose("Received sms callback for address " + address
+						mLog.info("Received sms callback for address " + address
 								+ " - count is: " + tmpCount);
 					}
 				} else {
@@ -197,7 +197,7 @@ public class JsonAPIRequestHandler extends AbstractHttpRequestHandler implements
 	public synchronized void smsReceivedCallback(Context context, List<TextMessage> messages) {
 		this.mSMSReceived = true;
 		for ( TextMessage message : messages ) {
-			mLog.verbose("Textmessage from "+message.getAddress()+" received in api request handler.");
+			mLog.info("Textmessage from "+message.getAddress()+" received in api request handler.");
 			this.mSMSReceivedList.add(message);
 		}
 	}
@@ -259,14 +259,14 @@ public class JsonAPIRequestHandler extends AbstractHttpRequestHandler implements
                 
                 JSONObject jsonParams = params.getJSONObject(0);
                 contact_id = jsonParams.getString("contact_id");
-                mLog.verbose("Fetch SMS Thread with given contact_id: "
+                mLog.info("Fetch SMS Thread with given contact_id: "
                         + contact_id);
 
                 ContactFilter conFilter = new ContactFilter();
                 conFilter.setId(Integer.parseInt(contact_id));
                 List<Contact> contact = mTextingAdapter
                         .fetchContacts(conFilter);
-                mLog.verbose("Found contact - list size:  "+ contact.size());              
+                mLog.info("Found contact - list size:  "+ contact.size());              
                 if (contact.size() == 1) {
                     Contact con = contact.get(0);
                     List<Contact.Number> phoneNumbers = con.getPhoneNumbers();
@@ -275,7 +275,7 @@ public class JsonAPIRequestHandler extends AbstractHttpRequestHandler implements
                         	break;
                         }
                         String number = entry.getNumber();
-                        mLog.verbose("Fetch SMS Thread with number: "+ entry.getNumber()+" replaced to: "+number);
+                        mLog.info("Fetch SMS Thread with number: "+ entry.getNumber()+" replaced to: "+number);
                         List<Integer> threadIds = mTextingAdapter.fetchThreadIds(number);
                         for(Integer threadId : threadIds){
                             if(messageCount <= 0){
@@ -283,8 +283,8 @@ public class JsonAPIRequestHandler extends AbstractHttpRequestHandler implements
                             }
                             TextMessageFilter msgFilter = new TextMessageFilter();
                             msgFilter.setThreadId(threadId.longValue());
-                            msgFilter.setBox(SmsContent.ContentUri.BASE_URI);
-                            mLog.verbose("Fetch SMS Thread with threadID: "+ threadId);
+                            msgFilter.setBox(SmsContent.Uri.BASE_URI);
+                            mLog.info("Fetch SMS Thread with threadID: "+ threadId);
                             List<TextMessage> threadMessages = mTextingAdapter.fetchTextMessages(msgFilter);
 
                             for(TextMessage msg : threadMessages){
@@ -292,7 +292,7 @@ public class JsonAPIRequestHandler extends AbstractHttpRequestHandler implements
                                 	break;
                                 }
                                 threadList.add(msg);
-                                mLog.verbose("Adding sms to thread list with message-id: "+ msg.getId()+ " and Person-id: "+msg.getPerson());
+                                mLog.info("Adding sms to thread list with message-id: "+ msg.getId()+ " and Person-id: "+msg.getPerson());
                                 messageCount--;
                             }
                         }
@@ -378,7 +378,7 @@ public class JsonAPIRequestHandler extends AbstractHttpRequestHandler implements
 
     private synchronized JSONArray fetchContactsJsonArray() {
 
-    	mLog.verbose("fetch contacts from provider [start]");
+    	mLog.info("fetch contacts from provider [start]");
         ContactFilter allFilter = new ContactFilter();
         allFilter.setWithPhone(true);
         allFilter.setOrderByDisplayName(true, ContactFilter.SORT_ORDER_ASCENDING);
@@ -386,11 +386,11 @@ public class JsonAPIRequestHandler extends AbstractHttpRequestHandler implements
         
         JSONArray contactList = new JSONArray();
         while ( contacts.size() > 0 ) {
-        	mLog.verbose("fetched contact from provider [" + contacts.get(0).getDisplayName() + "] id [" + contacts.get(0).getId() + "]"); 
+        	mLog.info("fetched contact from provider [" + contacts.get(0).getDisplayName() + "] id [" + contacts.get(0).getId() + "]"); 
             contactList.put(mJsonFactory.createJsonObject(contacts.get(0)));
             contacts.remove(0);
         }
-        mLog.verbose("fetch contacts from provider [done]");
+        mLog.info("fetch contacts from provider [done]");
         return contactList;
     }
 
@@ -406,7 +406,7 @@ public class JsonAPIRequestHandler extends AbstractHttpRequestHandler implements
                 JSONObject jsonParams = params.getJSONObject(0);
                 address = jsonParams.getString("address");
                 message = URLDecoder.decode(jsonParams.getString("message"));
-                mLog.verbose("Fetch parameter adress: " + address
+                mLog.info("Fetch parameter adress: " + address
                         + " and message: " + message
                         + " from send sms request.");
             } else {
@@ -435,7 +435,7 @@ public class JsonAPIRequestHandler extends AbstractHttpRequestHandler implements
             } else {
                 this.mSMSWaitingForSentCallback.put(address, parts);
             }
-            mLog.verbose("Message queued to waiting for sent list with address "
+            mLog.info("Message queued to waiting for sent list with address "
                     + address + " and parts " + parts);
 
             this.setSuccessState(resultObject);
@@ -460,14 +460,14 @@ public class JsonAPIRequestHandler extends AbstractHttpRequestHandler implements
         mLog.info("Create polling json object");
         try {
 
-            mLog.verbose("Evaluate contact changed state.");
+            mLog.info("Evaluate contact changed state.");
             result.put("contact_changed", this.mContactsChanged);
             if (this.mContactsChanged) {
                 result.put("contacts", this.mJsonContactList);
                 this.mContactsChanged = false;
             }
 
-            mLog.verbose("Evaluate sms sent error.");
+            mLog.info("Evaluate sms sent error.");
             result.put("sms_sent_error", this.mSMSSentError);
             if (this.mSMSSentError) {
                 JSONArray errorList = new JSONArray();
@@ -479,7 +479,7 @@ public class JsonAPIRequestHandler extends AbstractHttpRequestHandler implements
                 this.mSMSSentError = false;
             }
 
-            mLog.verbose("Evaluate sms sent success.");
+            mLog.info("Evaluate sms sent success.");
             result.put("sms_sent_success", this.mSMSSentSuccess);
             if (this.mSMSSentSuccess) {
                 JSONArray sentList = new JSONArray();
@@ -491,7 +491,7 @@ public class JsonAPIRequestHandler extends AbstractHttpRequestHandler implements
                 this.mSMSSentSuccess = false;
             }
 
-            mLog.verbose("Evaluate sms received.");
+            mLog.info("Evaluate sms received.");
             result.put("sms_received", this.mSMSReceived);
             if (this.mSMSReceived) {                
                 JSONArray recvList = new JSONArray();
@@ -503,12 +503,12 @@ public class JsonAPIRequestHandler extends AbstractHttpRequestHandler implements
                 this.mSMSReceived = false;
             }
 
-            mLog.verbose("Clear temporary member lists.");
+            mLog.info("Clear temporary member lists.");
             this.mSMSSentErrorList.clear();
             this.mSMSSentList.clear();
             this.mSMSReceivedList.clear();
 
-            mLog.verbose("Evaluate actual telephone state.");
+            mLog.info("Evaluate actual telephone state.");
             BatteryStatus status = this.mSystemMonitor.getBatteryStatus();
             TelephonySignalStrength signal = this.mSystemMonitor
                     .getSignalStrength();

@@ -83,7 +83,7 @@ public class AuthorizationInterceptor extends AbstractRequestInterceptor {
         
         
         if(authSuccess == false) {
-            mLog.verbose("require authentication");
+            mLog.info("require authentication");
             httpResponse.setStatusCode(WebServerConfig.HTTP.HTTP_CODE_UNAUTHORIZED);
             httpResponse.setHeader(WebServerConfig.HTTP.HEADER_WWW_AUTHENTICATE,
                     String.format("Basic realm=\"%s\"", WebServerConfig.HTTP.AUTHENTICATION_REALM));

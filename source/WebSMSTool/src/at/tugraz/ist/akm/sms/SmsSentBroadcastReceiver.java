@@ -77,7 +77,7 @@ public class SmsSentBroadcastReceiver extends BroadcastReceiver
 		}
 		else
 		{
-			 mLog.verbose("unknown action received: " + action);
+			 mLog.info("unknown action received: " + action);
 		}
 	}
 	
@@ -119,7 +119,7 @@ public class SmsSentBroadcastReceiver extends BroadcastReceiver
 				}
 			}
 			else {
-				mLog.verbose("bundle contains no pdu(s)");
+				mLog.info("bundle contains no pdu(s)");
 			}
 		}
 		return messages;

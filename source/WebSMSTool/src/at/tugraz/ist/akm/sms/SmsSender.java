@@ -44,7 +44,7 @@ public class SmsSender extends LogClient {
 
 		int partNum = 0;
 		for (String part : parts) {
-			verbose("sending part [" + partNum++ + "] to [" + message.getAddress()
+		    info("sending part [" + partNum++ + "] to [" + message.getAddress()
 					+ "] size in chars [" + part.length() + "] (" + part + ")");
 			PendingIntent sentPIntent = getSentPendingIntent(message, part);
 			PendingIntent deliveredPIntent = getDeliveredPendingIntent(message,

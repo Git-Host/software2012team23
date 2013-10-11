@@ -102,7 +102,7 @@ public class TextingAdapterTest extends WebSMSToolActivityTestcase implements Sm
 		TextingInterface texting = new TextingAdapter(mContext, this, this);
 		texting.start();
 		TextMessageFilter filter = new TextMessageFilter();
-		filter.setBox(SmsContent.ContentUri.INBOX_URI);
+		filter.setBox(SmsContent.Uri.INBOX_URI);
 		filter.setAddress("01906666");
 		texting.fetchTextMessages(filter);
 		texting.stop();

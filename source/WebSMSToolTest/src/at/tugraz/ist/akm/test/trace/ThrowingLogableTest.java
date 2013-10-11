@@ -20,97 +20,165 @@ import junit.framework.TestCase;
 import at.tugraz.ist.akm.trace.LogClient;
 import at.tugraz.ist.akm.trace.TraceService;
 
-public class ThrowingLogableTest extends TestCase {
+public class ThrowingLogableTest extends TestCase
+{
 
-	protected LogClient mLog = new LogClient(this);
-	
-	@Override
-	public void setUp() throws Exception {
-		super.setUp();
-		TraceService.setSink(new ThrowingLogSink());
-	}
-	
-	public void testLogVerbose() {
-		try {
-			mLog.verbose("testLogVerbose");
-		} catch (Exception ex) {
-			assertTrue(false);
-		}
-	}
-	
-	public void testLogVerboseE() {
-		try {			
-			mLog.verbose("testLogVerboseE", null);
-		} catch (Exception ex) {
-			assertTrue(false);
-		}
-	}
-	
-	public void testLogDebug() {
-		try {
-			mLog.debug("testLogDebug");
-		} catch (Exception ex) {
-			assertTrue(false);
-		}
-	}
-	
-	public void testLogDebugE() {
-		try {
-			mLog.debug("testLogDebugE", null);
-		} catch (Exception ex) {
-			assertTrue(false);
-		}
-	}
-	
-	public void testLogError() {
-		try {
-			mLog.error("testLogError: If you read this message don't panik - it's just a test!");
-		} catch (Throwable throwable) {
-			// ok
-			return;
-		}
-		assertTrue(false);
-	}
-	
-	public void testLogErrorE() {
-		try {
-			mLog.error("testLogErrorE: If you read this message don't panik - it's just a test!", null);
-		} catch (Throwable throwable) {
-			// ok
-			return;
-		}
-		assertTrue(false);
-	}
-	
-	public void testLogInfo() {
-		try {
-			mLog.info("testLogInfo");
-		} catch (Exception ex) {
-			assertTrue(false);
-		}
-	}
-	
-	public void testLogInfoE() {
-		try {
-			mLog.info("testLogInfoE", null);
-		} catch (Exception ex) {
-			assertTrue(false);
-		}
-	}
-	
-	public void testLogWarn() {
-		try {
-			mLog.warning("testLogWarn");
-		} catch (Exception ex) {
-			assertTrue(false);
-		}
-	}
-	
-	public void testLogWarnE() {
-		try {
-			mLog.warning("testLogWarnE", null);
-		} catch (Exception ex) {
-			assertTrue(false);
-		}
-	}
+    protected LogClient mLog = new LogClient(this);
+
+
+    @Override
+    public void setUp() throws Exception
+    {
+        super.setUp();
+        TraceService.setSink(new ThrowingLogSink());
+    }
+
+
+    public void testLogDebug()
+    {
+        try
+        {
+            mLog.debug("testLogDebug");
+        } catch (Exception ex)
+        {
+            assertTrue(false);
+        }
+    }
+
+
+    public void testLogDebug_nullException()
+    {
+        try
+        {
+            mLog.debug("testLogDebug_nullExceptoion", null);
+        } catch (Exception ex)
+        {
+            assertTrue(false);
+        }
+    }
+
+    public void testLogDebug_exception()
+    {
+        try
+        {
+            mLog.debug("testLogDebug_exception", new Throwable("test exception"));
+        } catch (Exception ex)
+        {
+            assertTrue(false);
+        }
+    }
+    
+    public void testLogError()
+    {
+        try
+        {
+            mLog.error("testLogError: If you read this message don't panik - it's just a test!");
+        } catch (Throwable throwable)
+        {
+            // ok
+            return;
+        }
+        assertTrue(false);
+    }
+
+
+    public void testLogError_nullException()
+    {
+        try
+        {
+            mLog.error(
+                    "testLogErrorE: If you read this message don't panik - it's just a test!",
+                    null);
+        } catch (Throwable throwable)
+        {
+            // ok
+            return;
+        }
+        assertTrue(false);
+    }
+    
+    
+    public void testLogError_eception()
+    {
+        try
+        {
+            mLog.error(
+                    "testLogErrorE: If you read this message don't panik - it's just a test!",
+                    new Throwable("test exceptoin"));
+        } catch (Throwable throwable)
+        {
+            // ok
+            return;
+        }
+        assertTrue(false);
+    }
+
+
+    public void testLogInfo()
+    {
+        try
+        {
+            mLog.info("testLogInfo");
+        } catch (Exception ex)
+        {
+            assertTrue(false);
+        }
+    }
+
+
+    public void testLogInfo_nullException()
+    {
+        try
+        {
+            mLog.info("testLogInfo_nullException", null);
+        } catch (Exception ex)
+        {
+            assertTrue(false);
+        }
+    }
+    public void testLogInfo_exception()
+    {
+        try
+        {
+            mLog.info("testLogInfo_exception", new Throwable("test exception"));
+        } catch (Exception ex)
+        {
+            assertTrue(false);
+        }
+    }
+
+
+    public void testLogWarn()
+    {
+        try
+        {
+            mLog.warning("testLogWarn");
+        } catch (Exception ex)
+        {
+            assertTrue(false);
+        }
+    }
+
+
+    public void testLogWarn_nullException()
+    {
+        try
+        {
+            mLog.warning("testLogWarn_nullExceptoin", null);
+        } catch (Exception ex)
+        {
+            assertTrue(false);
+        }
+    }
+    
+    public void testLogWarn_exception()
+    {
+        try
+        {
+            mLog.warning("testLogWarn_exceptoin", new Throwable("test exception"));
+        } catch (Exception ex)
+        {
+            assertTrue(false);
+        }
+    }
 }

@@ -34,53 +34,53 @@ public class Config {
 	}
 	
 	public String getUserName() {
-		return this.getSettings(StandardSettings.USERNAME);
+		return this.getSettings(DefaultPreferences.USERNAME);
 	}
 	
 	public void setUserName(String userName) {
 		ContentValues values = new ContentValues();
 		values.put(Content.VALUE, userName);
-		this.updateSettings(values, StandardSettings.USERNAME);
+		this.updateSettings(values, DefaultPreferences.USERNAME);
 	}
 	
 	public String getPassWord() {
-		return this.getSettings(StandardSettings.PASSWORD);
+		return this.getSettings(DefaultPreferences.PASSWORD);
 	}
 	
 	public void setPassword(String password) {
 		ContentValues values = new ContentValues();
 		values.put(Content.VALUE, password);
-		this.updateSettings(values, StandardSettings.PASSWORD);
+		this.updateSettings(values, DefaultPreferences.PASSWORD);
 	}
 	
 	public String getPort() {
-		return this.getSettings(StandardSettings.PORT);
+		return this.getSettings(DefaultPreferences.PORT);
 	}
 	
 	public void setPort(String port) {
 		ContentValues values = new ContentValues();
 		values.put(Content.VALUE, port);
-		this.updateSettings(values, StandardSettings.PORT);
+		this.updateSettings(values, DefaultPreferences.PORT);
 	}
 	
 	public String getProtocol() {
-		return this.getSettings(StandardSettings.PROTOCOL);
+		return this.getSettings(DefaultPreferences.PROTOCOL);
 	}
 	
 	public void setProtocol(String protocol) {
 		ContentValues values = new ContentValues();
 		values.put(Content.VALUE, protocol);
-		this.updateSettings(values, StandardSettings.PROTOCOL);
+		this.updateSettings(values, DefaultPreferences.PROTOCOL);
 	}
 	
 	public String getKeyStorePassword() {
-		return this.getSettings(StandardSettings.KEYSTOREPASSWORD);
+		return this.getSettings(DefaultPreferences.KEYSTOREPASSWORD);
 	}
 	
 	public void setKeyStorePassword(String keyStorePassword) {
 		ContentValues values = new ContentValues();
 		values.put(Content.VALUE, keyStorePassword);
-		this.updateSettings(values, StandardSettings.KEYSTOREPASSWORD);
+		this.updateSettings(values, DefaultPreferences.KEYSTOREPASSWORD);
 	}
 
 	private String getSettings(String name) {

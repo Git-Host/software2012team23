@@ -39,12 +39,12 @@ public class SystemMonitor extends PhoneStateListener {
 	}
 
 	public void start() {
-		mLog.verbose("start: registering phone state listener");
+		mLog.info("start: registering phone state listener");
 		mTel.listen(this, PhoneStateListener.LISTEN_SIGNAL_STRENGTHS | PhoneStateListener.LISTEN_SIGNAL_STRENGTH);
 	}
 
 	public void stop() {
-		mLog.verbose("stop: unregistering phone state listener");
+		mLog.info("stop: unregistering phone state listener");
 		mTel.listen(this, PhoneStateListener.LISTEN_NONE);
 	}
 
@@ -65,7 +65,7 @@ public class SystemMonitor extends PhoneStateListener {
 	}
 
 	private void setSignalStrength(SignalStrength signalStrength) {
-		mLog.verbose("signal strength changed");
+		mLog.info("signal strength changed");
 		mSingalStrength = signalStrength;
 	}
 

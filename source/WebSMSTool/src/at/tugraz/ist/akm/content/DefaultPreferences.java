@@ -20,7 +20,7 @@ import android.content.ContentValues;
 import android.database.sqlite.SQLiteDatabase;
 import at.tugraz.ist.akm.providers.ConfigContentProvider;
 
-public class StandardSettings {
+public class DefaultPreferences {
 	private static SQLiteDatabase mDb;
 	
 	public static final String USERNAME = "username";

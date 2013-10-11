@@ -30,7 +30,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 import at.tugraz.ist.akm.content.Config;
-import at.tugraz.ist.akm.content.StandardSettings;
+import at.tugraz.ist.akm.content.DefaultPreferences;
 import at.tugraz.ist.akm.trace.LogClient;
 
 public class ConfigContentProvider extends ContentProvider {
@@ -127,7 +127,7 @@ public class ConfigContentProvider extends ContentProvider {
 
             cursor.setNotificationUri(getContext().getContentResolver(), uri);
         } catch (Exception ex) {
-            mLog.verbose("Query" + ex.toString());
+            mLog.info("Query" + ex.toString());
         }
         return cursor;
     }
@@ -194,11 +194,11 @@ public class ConfigContentProvider extends ContentProvider {
 
         @Override
         public void onCreate(SQLiteDatabase db) {
-            mLog.verbose("onCreate sqlitedatabase invoked");
+            mLog.info("onCreate sqlitedatabase invoked");
             db.execSQL("CREATE TABLE " + CONFIGURATION_TABLE_NAME + " (" + Config.Content._ID
                     + " INTEGER PRIMARY KEY AUTOINCREMENT," + Config.Content.NAME
                     + " VARCHAR(255)," + Config.Content.VALUE + " VARCHAR(255)" + ");");
-            StandardSettings.setStandardSettings(db);
+            DefaultPreferences.setStandardSettings(db);
         }
 
         @Override

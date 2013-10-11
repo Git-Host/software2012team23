@@ -37,10 +37,6 @@ public class JsonTelephonySignalStrengthBuilder implements IJsonBuilder {
             JSONObject json = new JSONObject();
             json.put("signal_strength", signal.getSignalStrength());
             json.put("signal_icon", new String(signal.getSignalStrengthIconBytes(), DEFAULT_ENCODING));
-            json.put("level", signal.getLevel());
-            json.put("cdma_level", signal.getCdmaLevel());
-            json.put("gsm_level", signal.getGsmLevel());
-            json.put("evdo_level", signal.getEvdoLevel());
             return json;
         } catch (JSONException jsonException) {
 			log.error("failed to create jsonTelephonySignalStrength Object",jsonException);

@@ -182,7 +182,7 @@ public class MainActivityActionBarTest extends
 
     protected void log(final String m)
     {
-        mLog.verbose(m);
+        mLog.info(m);
     }
 
 }

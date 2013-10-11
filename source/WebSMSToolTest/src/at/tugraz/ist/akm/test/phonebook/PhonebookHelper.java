@@ -132,7 +132,7 @@ public class PhonebookHelper {
 					+ contact.getFamilyName() + " GName: " + contact.getName()
 					+ " PhotoUri: " + contact.getPhotoUri() + " IsStarred: "
 					+ contact.isStarred() + " Numbers: " + numbers.toString());
-			mLog.verbose(details.toString());
+			mLog.info(details.toString());
 		}
 
 	}

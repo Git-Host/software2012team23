@@ -99,7 +99,7 @@ public class WebSMSToolService extends Service {
 	    			return START_STICKY;
 	    		}
 
-		        mLog.verbose("Try to start webserver.");
+		        mLog.info("Try to start webserver.");
 		        try {
 		        	mServer = new SimpleWebServer(this, mSocketIp);
 		        	getApplicationContext().removeStickyBroadcast(mServiceStartedStickyIntend);

@@ -34,18 +34,6 @@ public class LogClient
     }
 
 
-    public void verbose(String message)
-    {
-        verbose(message, null);
-    }
-
-
-    public void verbose(String message, Throwable t)
-    {
-        TraceService.log(TraceService.LogLevel.VERBOSE, mTag, message, t);
-    }
-
-
     public void error(String message)
     {
         error(message, null);

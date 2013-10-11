@@ -141,7 +141,7 @@ public class SimpleWebServer {
                 stopServer();
             }
         }
-        mLog.verbose("request handlers read from configuration");
+        mLog.info("request handlers read from configuration");
     }
 
     private void readRequestInterceptors() {
@@ -173,7 +173,7 @@ public class SimpleWebServer {
                 stopServer();
             }
         }
-        mLog.verbose("request interceptors read from configuration");
+        mLog.info("request interceptors read from configuration");
     }
 
     protected void setInterceptor(IRequestInterceptor reqInterceptor) {
@@ -238,7 +238,7 @@ public class SimpleWebServer {
 	}
 
 	public synchronized void stopServer() {
-        mLog.verbose("stop web server");
+        mLog.info("stop web server");
         if (mServerThread != null) {
             mServerThread.stopThread();
             while (mServerThread.isRunning()) {
