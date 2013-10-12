@@ -8,7 +8,8 @@ import android.view.MenuItem;
 import at.tugraz.ist.akm.R;
 import at.tugraz.ist.akm.activities.PreferencesActivity;
 
-public class DefaultActionBar extends Activity {
+public class DefaultActionBar extends Activity
+{
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item)
@@ -30,6 +31,7 @@ public class DefaultActionBar extends Activity {
             return true;
         }
     }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu)

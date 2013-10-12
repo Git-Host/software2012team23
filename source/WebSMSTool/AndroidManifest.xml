@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE manifest>
 <!--
   Copyright 2012 software2012team23
  
@@ -13,16 +14,15 @@
   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
   See the License for the specific language governing permissions and
   limitations under the License.
-  -->
+-->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="at.tugraz.ist.akm"
     android:versionCode="1"
     android:versionName="1.0" >
 
     <uses-sdk
-        android:maxSdkVersion="11"
         android:minSdkVersion="11"
-        android:targetSdkVersion="11" />
+        android:targetSdkVersion="18" />
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.READ_CONTACTS" />
@@ -31,43 +31,49 @@
     <uses-permission android:name="android.permission.WRITE_SMS" />
     <uses-permission android:name="android.permission.WRITE_CONTACTS" />
     <uses-permission android:name="android.permission.RECEIVE_SMS" />
-    <uses-permission android:name="android.permission.BATTERY_STATS"/>
-    <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
-    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
-    <uses-permission android:name="android.permission.BROADCAST_STICKY"/>
+    <uses-permission android:name="android.permission.BATTERY_STATS" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.BROADCAST_STICKY" />
 
-    <supports-screens android:anyDensity="true"/> 
-    
+    <supports-screens android:anyDensity="true" />
+
     <application
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name" >
         <activity
             android:name="at.tugraz.ist.akm.activities.MainActivity"
-            android:label="@string/app_name" 
-            android:launchMode="singleInstance">
+            android:label="@string/app_name"
+            android:launchMode="singleInstance" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <service android:name=".webservice.WebSMSToolService"></service>
 
-        <provider android:name="at.tugraz.ist.akm.providers.ApplicationContentProvider" android:authorities="at.tugraz.ist.akm.providers.ApplicationContentProvider"></provider>
+        <service android:name=".webservice.WebSMSToolService" >
+        </service>
 
-        <activity android:name="at.tugraz.ist.akm.activities.PreferencesActivity">
+        <provider
+            android:name="at.tugraz.ist.akm.providers.ApplicationContentProvider"
+            android:authorities="at.tugraz.ist.akm.providers.ApplicationContentProvider"
+            android:exported="false" >
+        </provider>
+
+        <activity
+            android:name="at.tugraz.ist.akm.activities.PreferencesActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.PREFERENCE" />
             </intent-filter>
         </activity>
-        
-        <activity android:name="at.tugraz.ist.akm.activities.AboutActivity"></activity>
-        
         <activity
-            android:name=".test.MainActivityTest"
-            android:label="@string/app_name" >
+            android:name="at.tugraz.ist.akm.activities.AboutActivity">
         </activity>
-        
+        <activity android:name="at.tugraz.ist.akm.activities.DefaultActionBar">
+        </activity>
     </application>
+
 </manifest>

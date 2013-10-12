@@ -43,7 +43,7 @@ public class FireNotification {
 	}
 
 	public void fireStickyInfos(NotificationInfo wInfos) {
-		int icon = R.drawable.ic_launcher;
+		int icon = R.drawable.ic_notification;
 		CharSequence tickerText = wInfos.tickerText;
 		long when = System.currentTimeMillis();
 		Notification notification = new Notification(icon, tickerText, when);

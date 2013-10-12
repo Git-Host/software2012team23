@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-    
+<!DOCTYPE activity>    
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
        <item android:id="@+id/actionbar_settings"
           android:icon="@drawable/ic_menu_preferences"
@@ -7,7 +7,7 @@
           android:showAsAction="ifRoom" />
        
        <item android:id="@+id/actionbar_about"
-          android:icon="@drawable/ic_menu_info"
+          android:icon="@drawable/ic_menu_about"
           android:title="@string/actionbar_about"
           android:showAsAction="ifRoom" />
 </menu>

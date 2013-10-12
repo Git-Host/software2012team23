@@ -29,7 +29,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
-import at.tugraz.ist.akm.content.DefaultPreferences;
+import at.tugraz.ist.akm.content.DefaultPreferencesInserter;
 import at.tugraz.ist.akm.preferences.PreferencesProvider;
 import at.tugraz.ist.akm.trace.LogClient;
 
@@ -199,7 +199,7 @@ public class ApplicationContentProvider extends ContentProvider {
             db.execSQL("CREATE TABLE " + CONFIGURATION_TABLE_NAME + " (" + PreferencesProvider.Content._ID
                     + " INTEGER PRIMARY KEY AUTOINCREMENT," + PreferencesProvider.Content.NAME
                     + " VARCHAR(255)," + PreferencesProvider.Content.VALUE + " VARCHAR(255)" + ");");
-            DefaultPreferences.storeDefaultPreferences(db);
+            DefaultPreferencesInserter.storeDefaultPreferences(db);
         }
 
         @Override

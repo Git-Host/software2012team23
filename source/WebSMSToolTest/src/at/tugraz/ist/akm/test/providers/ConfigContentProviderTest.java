@@ -19,7 +19,7 @@ package at.tugraz.ist.akm.test.providers;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
-import at.tugraz.ist.akm.content.DefaultPreferences;
+import at.tugraz.ist.akm.content.DefaultPreferencesInserter;
 import at.tugraz.ist.akm.preferences.PreferencesProvider;
 import at.tugraz.ist.akm.preferences.PreferencesProvider.Content;
 import at.tugraz.ist.akm.providers.ApplicationContentProvider;
@@ -63,7 +63,7 @@ public class ConfigContentProviderTest extends WebSMSToolInstrumentationTestcase
 	
 	public void testQuery() {
 		try {
-			String[] names = {DefaultPreferences.PORT};
+			String[] names = {DefaultPreferencesInserter.PORT};
 			Cursor cursor = mContentResolver.query(uri, new String[] {PreferencesProvider.Content.VALUE}, PreferencesProvider.Content.NAME, names, null);
 			if (cursor != null) {
 				while (cursor.moveToNext()) {
@@ -83,7 +83,7 @@ public class ConfigContentProviderTest extends WebSMSToolInstrumentationTestcase
 		ContentValues values = new ContentValues();
 		values.put(PreferencesProvider.Content.VALUE, "admin");
 		
-		String[] names = {DefaultPreferences.USERNAME};
+		String[] names = {DefaultPreferencesInserter.USERNAME};
 		
 		assertTrue("no values updated at first update", mContentResolver.update(uri, values, PreferencesProvider.Content.NAME, names) != 0);
 		values.clear();

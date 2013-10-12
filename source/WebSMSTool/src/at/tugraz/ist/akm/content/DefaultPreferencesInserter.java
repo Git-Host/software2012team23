@@ -21,7 +21,7 @@ import android.database.sqlite.SQLiteDatabase;
 import at.tugraz.ist.akm.preferences.PreferencesProvider;
 import at.tugraz.ist.akm.providers.ApplicationContentProvider;
 
-public class DefaultPreferences {
+public class DefaultPreferencesInserter {
 	private static SQLiteDatabase mDb;
 	
 	public static final String USERNAME = "username";

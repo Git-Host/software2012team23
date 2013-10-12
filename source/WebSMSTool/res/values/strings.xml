@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE values>
 <!--
   Copyright 2012 software2012team23
  
@@ -15,24 +16,7 @@
   limitations under the License.
   -->
 <resources>
-
-    <string name="hello">Hello World, MainActivity!</string>
     <string name="app_name">WebSMSTool</string>
-    
-    <string name="settings">Settings</string>
-    <string name="properties">Properties</string>
-    <string name="username">User name</string>
-    <string name="password">Password</string>
-    <string name="serverconfig">Server configuration</string>
-    <string name="port">Port</string>
-    <string name="default_port">8887</string>
-    <string name="security">Security</string>
-    <string name="http">http</string>
-    <string name="https">https</string>
-    <string name="savesettings">Save</string>
-    <string name="startstop">Starts/Stops the server</string>
-    <string name="info">Info</string>
-    <string name="aboutTitle">About</string>
     <string name="aboutDeveloperTitle">\nDevelopers</string>
     <string name="aboutDevelopers">Martin Decker\nHerman Felbinger\nThomas Gödl\nStefan Lexow\nRaoul Rubien</string>
     <string name="aboutDesignerTitle">\nDesigner</string>
@@ -43,6 +27,5 @@
     <string name="aboutSupervisorTitle">\nSupervisor</string>
     <string name="aboutSupervisor">Wolfgang Slany</string>
     <string name="actionbar_about">About SMSTool</string>
-    <string name="actionbar_home">Home</string>
     <string name="actionbar_settings">Settings</string>
 </resources>

@@ -26,7 +26,7 @@ import android.net.Uri;
 import android.preference.PreferenceManager;
 import android.provider.BaseColumns;
 import at.tugraz.ist.akm.R;
-import at.tugraz.ist.akm.content.DefaultPreferences;
+import at.tugraz.ist.akm.content.DefaultPreferencesInserter;
 import at.tugraz.ist.akm.providers.ApplicationContentProvider;
 
 public class PreferencesProvider
@@ -119,13 +119,13 @@ public class PreferencesProvider
     public String getKeyStorePassword()
     {
         return this
-                .getSettingFromContentProvider(DefaultPreferences.KEYSTOREPASSWORD);
+                .getSettingFromContentProvider(DefaultPreferencesInserter.KEYSTOREPASSWORD);
     }
 
 
     public void setKeyStorePassword(String keyStorePassword)
     {
-        putSettingToContentProvider(DefaultPreferences.KEYSTOREPASSWORD,
+        putSettingToContentProvider(DefaultPreferencesInserter.KEYSTOREPASSWORD,
                 keyStorePassword);
     }
 

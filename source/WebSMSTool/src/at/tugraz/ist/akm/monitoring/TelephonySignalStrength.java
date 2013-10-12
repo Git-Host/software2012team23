@@ -32,7 +32,8 @@ public class TelephonySignalStrength {
 	public static final int SIGNAL_STRENGTH_POOR = 1;
 	public static final int SIGNAL_STRENGTH_MODERATE = 2;
 	public static final int SIGNAL_STRENGTH_GOOD = 3;
-	public static final int SIGNAL_STRENGTH_GREAT = 4;
+    public static final int SIGNAL_STRENGTH_GREAT = 4;
+    public static final int SIGNAL_STRENGTH_BEST = 5;
 
 	private SignalStrength mSignalStrength = null;
 	private int mSignalIconId = 0;
@@ -47,9 +48,11 @@ public class TelephonySignalStrength {
 		int signalStrength = getSignalStrength();
 		int mSignalIconId = R.raw.signal_strength0;
 
-		if (signalStrength >= SIGNAL_STRENGTH_GREAT) {
-			mSignalIconId = R.raw.signal_strength4;
-		} else if (signalStrength >= SIGNAL_STRENGTH_GOOD) {
+        if (signalStrength >= SIGNAL_STRENGTH_BEST) {
+            mSignalIconId = R.raw.signal_strength5;
+        } else if (signalStrength >= SIGNAL_STRENGTH_GREAT) {
+            mSignalIconId = R.raw.signal_strength4;
+        } else if (signalStrength >= SIGNAL_STRENGTH_GOOD) {
 			mSignalIconId = R.raw.signal_strength3;
 		} else if (signalStrength >= SIGNAL_STRENGTH_MODERATE) {
 			mSignalIconId = R.raw.signal_strength2;

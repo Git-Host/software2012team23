@@ -218,20 +218,26 @@ public class MainActivity extends DefaultActionBar implements
                 .getRunningServices(serviceMaxCount);
         Iterator<ActivityManager.RunningServiceInfo> service = runningServices
                 .iterator();
-        mLog.debug("found running [" + runningServices.size()
-                + "] services ");
+        mLog.debug("found running [" + runningServices.size() + "] services ");
         while (service.hasNext())
         {
             ActivityManager.RunningServiceInfo serviceInfo = (ActivityManager.RunningServiceInfo) service
                     .next();
             if (serviceInfo.service.getClassName().equals(serviceName))
             {
-                mLog.debug("back service is actually running ["
-                        + serviceName + "]");
+                mLog.debug("back service is actually running [" + serviceName
+                        + "]");
                 return true;
             }
         }
         return false;
+    }
+
+
+    private boolean isRunningOnEmulator()
+    {
+        return "google_sdk".equals(Build.PRODUCT);
+
     }
 
 
@@ -240,7 +246,7 @@ public class MainActivity extends DefaultActionBar implements
     {
         if (!isServiceRunning(mServiceName))
         {
-            if (updateLocalIp() || DevelopmentSettings.IS_RUNNING_ON_EMULATOR)
+            if (updateLocalIp() || isRunningOnEmulator())
             {
                 mLog.info("Going to start web service");
                 displayStartigService();

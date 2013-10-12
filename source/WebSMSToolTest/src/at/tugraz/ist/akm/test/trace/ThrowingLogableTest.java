@@ -17,6 +17,8 @@
 package at.tugraz.ist.akm.test.trace;
 
 import junit.framework.TestCase;
+import at.tugraz.ist.akm.trace.AndroidLogSink;
+import at.tugraz.ist.akm.trace.ILogSink;
 import at.tugraz.ist.akm.trace.LogClient;
 import at.tugraz.ist.akm.trace.TraceService;
 
@@ -76,6 +78,10 @@ public class ThrowingLogableTest extends TestCase
         } catch (Throwable throwable)
         {
             // ok
+            ILogSink oldSink = TraceService.getSink();
+            TraceService.setSink(new AndroidLogSink());
+            mLog.error("this log is just for test coverage");
+            TraceService.setSink(oldSink);
             return;
         }
         assertTrue(false);
@@ -92,6 +98,10 @@ public class ThrowingLogableTest extends TestCase
         } catch (Throwable throwable)
         {
             // ok
+            ILogSink oldSink = TraceService.getSink();
+            TraceService.setSink(new AndroidLogSink());
+            mLog.error("this log is just for test coverage");
+            TraceService.setSink(oldSink);
             return;
         }
         assertTrue(false);
@@ -104,10 +114,14 @@ public class ThrowingLogableTest extends TestCase
         {
             mLog.error(
                     "testLogErrorE: If you read this message don't panik - it's just a test!",
-                    new Throwable("test exceptoin"));
+                    new Throwable("test exception"));
         } catch (Throwable throwable)
         {
             // ok
+            ILogSink oldSink = TraceService.getSink();
+            TraceService.setSink(new AndroidLogSink());
+            mLog.error("this log is just for test coverage");
+            TraceService.setSink(oldSink);
             return;
         }
         assertTrue(false);
