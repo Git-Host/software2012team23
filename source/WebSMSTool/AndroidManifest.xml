@@ -53,7 +53,7 @@
         </activity>
         <service android:name=".webservice.WebSMSToolService"></service>
 
-        <provider android:name=".providers.ConfigContentProvider" android:authorities="at.tugraz.ist.akm.providers.ConfigContentProvider"></provider>
+        <provider android:name="at.tugraz.ist.akm.providers.ApplicationContentProvider" android:authorities="at.tugraz.ist.akm.providers.ApplicationContentProvider"></provider>
 
         <activity android:name="at.tugraz.ist.akm.activities.PreferencesActivity">
             <intent-filter>
