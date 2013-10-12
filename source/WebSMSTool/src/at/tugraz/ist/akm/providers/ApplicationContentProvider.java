@@ -29,27 +29,28 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
-import at.tugraz.ist.akm.content.Config;
 import at.tugraz.ist.akm.content.DefaultPreferences;
+import at.tugraz.ist.akm.preferences.PreferencesProvider;
 import at.tugraz.ist.akm.trace.LogClient;
 
-public class ConfigContentProvider extends ContentProvider {
+public class ApplicationContentProvider extends ContentProvider {
 
-    public static final String AUTHORITY = ConfigContentProvider.class.getCanonicalName();
-    public static final String CONFIGURATION_TABLE_NAME = "preferences";
-    private static final String DATABASE_NAME = "PreferencesDB";
+    private static final String AUTHORITY = ApplicationContentProvider.class.getCanonicalName();
+    public static final String CONFIGURATION_TABLE_NAME = "ValuesTable";
+    private static final String DATABASE_NAME = "ApplicationContentDB";
+    
+    public static final Uri CONTENT_URI = Uri.parse("content://" + AUTHORITY);
+    public static final Uri PREFERENCES_URI = Uri.withAppendedPath(CONTENT_URI, CONFIGURATION_TABLE_NAME); 
     
     private static final UriMatcher URI_MATCHER;
     private static HashMap<String, String> mContentMap;
     private DataBaseHelper mDbHelper;
-
     private LogClient mLog = new LogClient(this);
 
     
-    public ConfigContentProvider()
+    public ApplicationContentProvider()
     {
-    	mLog.debug("constructing content provider api [" + getClass().getSimpleName() + "]");
-    
+    	mLog.debug("constructing content provider api instance [" + getClass().getSimpleName() + "]");
     }
     
     @Override
@@ -92,7 +93,7 @@ public class ConfigContentProvider extends ContentProvider {
         rowId = db.insert(CONFIGURATION_TABLE_NAME, null, values);
         db.close();
         if (rowId > 0) {
-            Uri noteUri = ContentUris.withAppendedId(Config.Content.CONTENT_URI, rowId);
+            Uri noteUri = ContentUris.withAppendedId(PreferencesProvider.Content.CONTENT_URI, rowId);
             getContext().getContentResolver().notifyChange(noteUri, null);
             return noteUri;
         }
@@ -159,7 +160,7 @@ public class ConfigContentProvider extends ContentProvider {
     public String getType(Uri uri) {
         switch (URI_MATCHER.match(uri)) {
         case 1:
-            return Config.Content.CONTENT_TYPE;
+            return PreferencesProvider.Content.CONTENT_TYPE;
 
         default:
             throw new IllegalArgumentException("unknown URI" + uri);
@@ -180,9 +181,9 @@ public class ConfigContentProvider extends ContentProvider {
         URI_MATCHER.addURI(AUTHORITY, CONFIGURATION_TABLE_NAME, 1);
 
         mContentMap = new HashMap<String, String>();
-        mContentMap.put(Config.Content._ID, Config.Content._ID);
-        mContentMap.put(Config.Content.NAME, Config.Content.NAME);
-        mContentMap.put(Config.Content.VALUE, Config.Content.VALUE);
+        mContentMap.put(PreferencesProvider.Content._ID, PreferencesProvider.Content._ID);
+        mContentMap.put(PreferencesProvider.Content.NAME, PreferencesProvider.Content.NAME);
+        mContentMap.put(PreferencesProvider.Content.VALUE, PreferencesProvider.Content.VALUE);
     }
 
     private static class DataBaseHelper extends SQLiteOpenHelper {
@@ -195,9 +196,9 @@ public class ConfigContentProvider extends ContentProvider {
         @Override
         public void onCreate(SQLiteDatabase db) {
             mLog.info("onCreate sqlitedatabase invoked");
-            db.execSQL("CREATE TABLE " + CONFIGURATION_TABLE_NAME + " (" + Config.Content._ID
-                    + " INTEGER PRIMARY KEY AUTOINCREMENT," + Config.Content.NAME
-                    + " VARCHAR(255)," + Config.Content.VALUE + " VARCHAR(255)" + ");");
+            db.execSQL("CREATE TABLE " + CONFIGURATION_TABLE_NAME + " (" + PreferencesProvider.Content._ID
+                    + " INTEGER PRIMARY KEY AUTOINCREMENT," + PreferencesProvider.Content.NAME
+                    + " VARCHAR(255)," + PreferencesProvider.Content.VALUE + " VARCHAR(255)" + ");");
             DefaultPreferences.storeDefaultPreferences(db);
         }
 

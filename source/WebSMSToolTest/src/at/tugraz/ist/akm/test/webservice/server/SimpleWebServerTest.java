@@ -37,8 +37,8 @@ import my.org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONObject;
 
 import at.tugraz.ist.akm.R;
-import at.tugraz.ist.akm.content.Config;
 import at.tugraz.ist.akm.io.FileReader;
+import at.tugraz.ist.akm.preferences.PreferencesProvider;
 import at.tugraz.ist.akm.test.base.WebSMSToolActivityTestcase;
 import at.tugraz.ist.akm.webservice.server.SimpleWebServer;
 
@@ -84,7 +84,7 @@ public class SimpleWebServerTest extends WebSMSToolActivityTestcase {
     @Override
     protected void setUp() throws Exception {
     	super.setUp();
-    	Config serverConfig = new Config(mContext);
+    	PreferencesProvider serverConfig = new PreferencesProvider(mContext);
     	serverConfig.setProtocol("http");
     	serverConfig.setPort("8888");
     }
@@ -235,9 +235,10 @@ public class SimpleWebServerTest extends WebSMSToolActivityTestcase {
     public void testStartSecureServer() {
         logDebug("testStartSecureServer");
         
-    	Config serverConfig = new Config(mContext);
+    	PreferencesProvider serverConfig = new PreferencesProvider(mContext);
     	serverConfig.setProtocol("https");
     	serverConfig.setPort("8888");
+    	serverConfig.setKeyStorePassword("foobar64");
     	
     	try {
 	        startServer(true);

@@ -19,15 +19,15 @@ package at.tugraz.ist.akm.test.providers;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
-import at.tugraz.ist.akm.content.Config;
-import at.tugraz.ist.akm.content.Config.Content;
 import at.tugraz.ist.akm.content.DefaultPreferences;
-import at.tugraz.ist.akm.providers.ConfigContentProvider;
+import at.tugraz.ist.akm.preferences.PreferencesProvider;
+import at.tugraz.ist.akm.preferences.PreferencesProvider.Content;
+import at.tugraz.ist.akm.providers.ApplicationContentProvider;
 import at.tugraz.ist.akm.test.base.WebSMSToolInstrumentationTestcase;
 
 public class ConfigContentProviderTest extends WebSMSToolInstrumentationTestcase{
 
-	private Uri uri = Uri.withAppendedPath(Content.CONTENT_URI, ConfigContentProvider.CONFIGURATION_TABLE_NAME);
+	private Uri uri = Uri.withAppendedPath(Content.CONTENT_URI, ApplicationContentProvider.CONFIGURATION_TABLE_NAME);
 	public ConfigContentProviderTest() {
 		super(ConfigContentProviderTest.class.getSimpleName());
 	}
@@ -44,27 +44,27 @@ public class ConfigContentProviderTest extends WebSMSToolInstrumentationTestcase
 	
 	public void testInsert() {
 		ContentValues values = new ContentValues();
-		values.put(Config.Content.NAME, "bla");
-		values.put(Config.Content.VALUE, "bla");
+		values.put(PreferencesProvider.Content.NAME, "bla");
+		values.put(PreferencesProvider.Content.VALUE, "bla");
 		assertTrue("values not inserted", !(mContentResolver.insert(uri, values) == null));
 		
-		mContentResolver.delete(uri, Config.Content.NAME, new String[] {"bla"});
+		mContentResolver.delete(uri, PreferencesProvider.Content.NAME, new String[] {"bla"});
 	}
 	
 	public void testDelete() {
 		ContentValues values = new ContentValues();
-		values.put(Config.Content.NAME, "bla");
-		values.put(Config.Content.VALUE, "bla");
+		values.put(PreferencesProvider.Content.NAME, "bla");
+		values.put(PreferencesProvider.Content.VALUE, "bla");
 		mContentResolver.insert(uri, values);
 		
 		String[] names = {"bla"};
-		assertTrue("no users deleted", mContentResolver.delete(uri, Config.Content.NAME, names) != 0);
+		assertTrue("no users deleted", mContentResolver.delete(uri, PreferencesProvider.Content.NAME, names) != 0);
 	}
 	
 	public void testQuery() {
 		try {
 			String[] names = {DefaultPreferences.PORT};
-			Cursor cursor = mContentResolver.query(uri, new String[] {Config.Content.VALUE}, Config.Content.NAME, names, null);
+			Cursor cursor = mContentResolver.query(uri, new String[] {PreferencesProvider.Content.VALUE}, PreferencesProvider.Content.NAME, names, null);
 			if (cursor != null) {
 				while (cursor.moveToNext()) {
 					logDebug(cursor.getString(0));
@@ -81,14 +81,14 @@ public class ConfigContentProviderTest extends WebSMSToolInstrumentationTestcase
 
 	public void testUpdate() {
 		ContentValues values = new ContentValues();
-		values.put(Config.Content.VALUE, "admin");
+		values.put(PreferencesProvider.Content.VALUE, "admin");
 		
 		String[] names = {DefaultPreferences.USERNAME};
 		
-		assertTrue("no values updated at first update", mContentResolver.update(uri, values, Config.Content.NAME, names) != 0);
+		assertTrue("no values updated at first update", mContentResolver.update(uri, values, PreferencesProvider.Content.NAME, names) != 0);
 		values.clear();
-		values.put(Config.Content.VALUE, "");
-		assertTrue("no values updated at second update", mContentResolver.update(uri, values, Config.Content.NAME, names) != 0);
+		values.put(PreferencesProvider.Content.VALUE, "");
+		assertTrue("no values updated at second update", mContentResolver.update(uri, values, PreferencesProvider.Content.NAME, names) != 0);
 	}
 	
 	public void testGetType() {

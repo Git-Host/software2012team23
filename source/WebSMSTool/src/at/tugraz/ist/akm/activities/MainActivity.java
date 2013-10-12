@@ -33,7 +33,7 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 import at.tugraz.ist.akm.R;
-import at.tugraz.ist.akm.content.Config;
+import at.tugraz.ist.akm.preferences.PreferencesProvider;
 import at.tugraz.ist.akm.trace.LogClient;
 import at.tugraz.ist.akm.webservice.WebSMSToolService;
 
@@ -47,7 +47,7 @@ public class MainActivity extends DefaultActionBar implements
     final String mServiceName = WebSMSToolService.class.getName();
     private ToggleButton mButton = null;
     private TextView mInfoFieldView = null;
-    private Config mApplicationConfig = null;
+    private PreferencesProvider mApplicationConfig = null;
     private ServiceStateListener mServiceListener = null;
 
     private WifiManager mWifiManager = null;
@@ -118,7 +118,7 @@ public class MainActivity extends DefaultActionBar implements
                 WebSMSToolService.class);
         mButton = (ToggleButton) findViewById(R.id.start_stop_server);
         mInfoFieldView = (TextView) findViewById(R.id.adress_data_field);
-        mApplicationConfig = new Config(getApplicationContext());
+        mApplicationConfig = new PreferencesProvider(getApplicationContext());
 
         mWifiManager = (WifiManager) getSystemService(WIFI_SERVICE);
 

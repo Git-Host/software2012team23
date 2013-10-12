@@ -18,7 +18,8 @@ package at.tugraz.ist.akm.content;
 
 import android.content.ContentValues;
 import android.database.sqlite.SQLiteDatabase;
-import at.tugraz.ist.akm.providers.ConfigContentProvider;
+import at.tugraz.ist.akm.preferences.PreferencesProvider;
+import at.tugraz.ist.akm.providers.ApplicationContentProvider;
 
 public class DefaultPreferences {
 	private static SQLiteDatabase mDb;
@@ -40,8 +41,8 @@ public class DefaultPreferences {
 	
 	private static void insertKeyValuePair(String name, String value) {
 		ContentValues values = new ContentValues();
-		values.put(Config.Content.NAME, name);
-		values.put(Config.Content.VALUE, value);
-		mDb.insert(ConfigContentProvider.CONFIGURATION_TABLE_NAME, null, values);
+		values.put(PreferencesProvider.Content.NAME, name);
+		values.put(PreferencesProvider.Content.VALUE, value);
+		mDb.insert(ApplicationContentProvider.CONFIGURATION_TABLE_NAME, null, values);
 	}
 }

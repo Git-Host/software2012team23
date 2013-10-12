@@ -54,9 +54,9 @@ import my.org.apache.http.protocol.ResponseDate;
 import my.org.apache.http.protocol.ResponseServer;
 import android.content.Context;
 import at.tugraz.ist.akm.R;
-import at.tugraz.ist.akm.content.Config;
 import at.tugraz.ist.akm.io.xml.XmlNode;
 import at.tugraz.ist.akm.io.xml.XmlReader;
+import at.tugraz.ist.akm.preferences.PreferencesProvider;
 import at.tugraz.ist.akm.statusbar.FireNotification;
 import at.tugraz.ist.akm.trace.LogClient;
 import at.tugraz.ist.akm.webservice.WebServerConfig;
@@ -225,7 +225,7 @@ public class SimpleWebServer {
     }
 
     private void updateWebServerConfiguration() {
-        Config config = new Config(mContext);
+        PreferencesProvider config = new PreferencesProvider(mContext);
         
         if(config.getProtocol().compareTo("https") == 0){
         	mHttps = true;

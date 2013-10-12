@@ -27,6 +27,7 @@ import android.test.ActivityInstrumentationTestCase2;
 import android.widget.ToggleButton;
 import at.tugraz.ist.akm.R;
 import at.tugraz.ist.akm.activities.MainActivity;
+import at.tugraz.ist.akm.preferences.PreferencesProvider;
 import at.tugraz.ist.akm.test.trace.ThrowingLogSink;
 import at.tugraz.ist.akm.trace.LogClient;
 import at.tugraz.ist.akm.trace.TraceService;
@@ -59,6 +60,8 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
 	
 	
 	public void testStartStopButton() throws InterruptedException {
+	    PreferencesProvider prefs = new PreferencesProvider(getActivity().getApplicationContext());
+	    prefs.setKeyStorePassword("foobar64");
 		Solo solo = new Solo(getInstrumentation(), getActivity());
 		solo.assertCurrentActivity("Actual activty is MainActivity", MainActivity.class);
 		WifiManager wm = (WifiManager) mContext.getSystemService(Context.WIFI_SERVICE);
