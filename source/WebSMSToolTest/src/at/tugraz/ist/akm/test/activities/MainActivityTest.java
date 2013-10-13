@@ -27,6 +27,7 @@ import android.test.ActivityInstrumentationTestCase2;
 import android.widget.ToggleButton;
 import at.tugraz.ist.akm.R;
 import at.tugraz.ist.akm.activities.MainActivity;
+import at.tugraz.ist.akm.keystore.ApplicationKeyStore;
 import at.tugraz.ist.akm.preferences.PreferencesProvider;
 import at.tugraz.ist.akm.test.trace.ThrowingLogSink;
 import at.tugraz.ist.akm.trace.LogClient;
@@ -35,145 +36,182 @@ import at.tugraz.ist.akm.webservice.WebSMSToolService;
 
 import com.jayway.android.robotium.solo.Solo;
 
-public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActivity>
+public class MainActivityTest extends
+        ActivityInstrumentationTestCase2<MainActivity>
 {
-	private Intent mSmsServiceIntent = null;
-	private Context mContext = null;
+    private Intent mSmsServiceIntent = null;
+    private Context mContext = null;
 
-	private LogClient mLog = null;
+    private LogClient mLog = null;
 
-	public MainActivityTest()
-	{
-		super("at.tugraz.ist.akm", MainActivity.class);
-		TraceService.setSink(new ThrowingLogSink());
-		mLog = new LogClient(MainActivityTest.class.getName());
-	}
 
-	/**
-	 * just show that the main activity starts without crashing
-	 */
-	public void testMainActivityStart() throws Exception
-	{
-		MainActivity activity = getActivity();
-		assertTrue(null != activity);
-	}
-	
-	
-	public void testStartStopButton() throws InterruptedException {
-	    PreferencesProvider prefs = new PreferencesProvider(getActivity().getApplicationContext());
-	    prefs.setKeyStorePassword("foobar64");
-		Solo solo = new Solo(getInstrumentation(), getActivity());
-		solo.assertCurrentActivity("Actual activty is MainActivity", MainActivity.class);
-		WifiManager wm = (WifiManager) mContext.getSystemService(Context.WIFI_SERVICE);
+    public MainActivityTest()
+    {
+        super("at.tugraz.ist.akm", MainActivity.class);
+        TraceService.setSink(new ThrowingLogSink());
+        mLog = new LogClient(MainActivityTest.class.getName());
+    }
 
-		
-		ToggleButton startStop = (ToggleButton) getActivity().findViewById(R.id.start_stop_server);
-		assertFalse(startStop.isChecked());		
-		stopWebService();
 
-		solo.clickOnView(startStop);		
-		waitForServiceBeingStarted();
-		
-		if (wm.isWifiEnabled()) {
-			assertTrue(startStop.isChecked());
-			
-			solo.clickOnView(startStop);
-			waitForServiceBeingStopped();
-			assertFalse(startStop.isChecked());
-			stopWebService();
-		} 
-		else {
-			assertFalse(startStop.isChecked());
-			
-			solo.clickOnView(startStop);
-			waitForServiceBeingStopped();
-			assertFalse(startStop.isChecked());
-			stopWebService();
-		}
-	}
-	
-	@Override
-	protected void setUp() throws Exception
-	{
-		super.setUp();
-		log(getName() + ".setUp()");
-		mContext = getInstrumentation().getContext();
-		mSmsServiceIntent = new Intent(mContext, WebSMSToolService.class);
-	}
+    /**
+     * just show that the main activity starts without crashing
+     */
+    public void testMainActivityStart() throws Exception
+    {
+        MainActivity activity = getActivity();
+        assertTrue(null != activity);
+    }
 
-	@Override
-	protected void tearDown() throws Exception
-	{
+
+    public void testStartStopButton() throws InterruptedException
+    {
+        PreferencesProvider prefs = new PreferencesProvider(getActivity()
+                .getApplicationContext());
+        String keyStorePassword = "foobar64";
+        prefs.setKeyStorePassword(keyStorePassword);
+        ApplicationKeyStore appKeystore = new ApplicationKeyStore();
+        mLog.info("keystorefilepath kfp:" + mContext.getFilesDir().getPath().toString());
+        String keystoreFilePath = mContext.getFilesDir().getPath().toString()
+                + "/keystore.bks";
+        ;
+        appKeystore.loadKeystore(keyStorePassword, keystoreFilePath);
+
+        Solo solo = new Solo(getInstrumentation(), getActivity());
+        solo.assertCurrentActivity("Actual activty is MainActivity",
+                MainActivity.class);
+        WifiManager wm = (WifiManager) mContext
+                .getSystemService(Context.WIFI_SERVICE);
+
+        ToggleButton startStop = (ToggleButton) getActivity().findViewById(
+                R.id.start_stop_server);
+        assertFalse(startStop.isChecked());
+        stopWebService();
+
+        solo.clickOnView(startStop);
+        waitForServiceBeingStarted();
+
+        if (wm.isWifiEnabled())
+        {
+            assertTrue(startStop.isChecked());
+
+            solo.clickOnView(startStop);
+            waitForServiceBeingStopped();
+            assertFalse(startStop.isChecked());
+            stopWebService();
+        } else
+        {
+            assertFalse(startStop.isChecked());
+
+            solo.clickOnView(startStop);
+            waitForServiceBeingStopped();
+            assertFalse(startStop.isChecked());
+            stopWebService();
+        }
+    }
+
+
+    @Override
+    protected void setUp() throws Exception
+    {
+        super.setUp();
+        log(getName() + ".setUp()");
+        mContext = getInstrumentation().getContext();
+        mSmsServiceIntent = new Intent(mContext, WebSMSToolService.class);
+    }
+
+
+    @Override
+    protected void tearDown() throws Exception
+    {
         Solo s = new Solo(getInstrumentation());
         s.finishOpenedActivities();
-		log(getName() + ".tearDown()");
-		super.tearDown();
-	}
-
-	protected void log(final String m)
-	{
-		mLog.info(m);
-	}
+        log(getName() + ".tearDown()");
+        super.tearDown();
+    }
 
 
-	public void startWebService() {
-		mLog.info("Going to start web service");
-		mContext.startService(mSmsServiceIntent);
-		waitForServiceBeingStarted();
-	}
-	
-	public void stopWebService() {
-		mLog.info("Going to stop web service");
-		mContext.stopService(mSmsServiceIntent);
-		waitForServiceBeingStopped();
-	}
-	
-	private boolean isWebServiceRunning() {
-		boolean serviceRunning = false;
-		ActivityManager am = (ActivityManager) mContext.getSystemService(Context.ACTIVITY_SERVICE);
-		List<ActivityManager.RunningServiceInfo> l = am.getRunningServices(50);
-		Iterator<ActivityManager.RunningServiceInfo> i = l.iterator();
-		while (i.hasNext()) {
-			ActivityManager.RunningServiceInfo runningServiceInfo = (ActivityManager.RunningServiceInfo) i
-					.next();
-			mLog.debug("found service [" + runningServiceInfo.service.getClassName() + "]");
-			if (runningServiceInfo.service.getClassName().equals(WebSMSToolService.class.getName())) {
-				serviceRunning = true;
-			}
-		}
-		return serviceRunning;
-	}
-	
-	private void waitForServiceBeingStopped()
-	{
-		int maxTries = 20, delay = 200;
-		mLog.debug("waitForServiceBeingStopped");
-		try {
-			this.wait(2000);
-			while ( isWebServiceRunning() && (maxTries-- > 0) ) {
-				this.wait(delay);
-				mLog.debug("waiting ...");
-			}
-		} catch (Exception ex) {
-			// i don't care
-		}
-		mLog.debug("service has been stopped");
-	}
+    protected void log(final String m)
+    {
+        mLog.info(m);
+    }
 
-	private void waitForServiceBeingStarted()
-	{
-		int maxTries = 20, delay = 200;
-		mLog.debug("waitForServiceBeingStarted");
-		try {
-			this.wait(5000);
-			while ( (!isWebServiceRunning()) && (maxTries-- > 0) ) {
-				this.wait(delay);
-				mLog.debug("waiting ...");
-			}
-		} catch (Exception ex) {
-			// i don't care
-		}
-		mLog.debug("service is running");
-	}
+
+    public void startWebService()
+    {
+        mLog.info("Going to start web service");
+        mContext.startService(mSmsServiceIntent);
+        waitForServiceBeingStarted();
+    }
+
+
+    public void stopWebService()
+    {
+        mLog.info("Going to stop web service");
+        mContext.stopService(mSmsServiceIntent);
+        waitForServiceBeingStopped();
+    }
+
+
+    private boolean isWebServiceRunning()
+    {
+        boolean serviceRunning = false;
+        ActivityManager am = (ActivityManager) mContext
+                .getSystemService(Context.ACTIVITY_SERVICE);
+        List<ActivityManager.RunningServiceInfo> l = am.getRunningServices(50);
+        Iterator<ActivityManager.RunningServiceInfo> i = l.iterator();
+        while (i.hasNext())
+        {
+            ActivityManager.RunningServiceInfo runningServiceInfo = (ActivityManager.RunningServiceInfo) i
+                    .next();
+            mLog.debug("found service ["
+                    + runningServiceInfo.service.getClassName() + "]");
+            if (runningServiceInfo.service.getClassName().equals(
+                    WebSMSToolService.class.getName()))
+            {
+                serviceRunning = true;
+            }
+        }
+        return serviceRunning;
+    }
+
+
+    private void waitForServiceBeingStopped()
+    {
+        int maxTries = 20, delay = 200;
+        mLog.debug("waitForServiceBeingStopped");
+        try
+        {
+            this.wait(2000);
+            while (isWebServiceRunning() && (maxTries-- > 0))
+            {
+                this.wait(delay);
+                mLog.debug("waiting ...");
+            }
+        } catch (Exception ex)
+        {
+            // i don't care
+        }
+        mLog.debug("service has been stopped");
+    }
+
+
+    private void waitForServiceBeingStarted()
+    {
+        int maxTries = 20, delay = 200;
+        mLog.debug("waitForServiceBeingStarted");
+        try
+        {
+            this.wait(5000);
+            while ((!isWebServiceRunning()) && (maxTries-- > 0))
+            {
+                this.wait(delay);
+                mLog.debug("waiting ...");
+            }
+        } catch (Exception ex)
+        {
+            // i don't care
+        }
+        mLog.debug("service is running");
+    }
 
 }

@@ -38,34 +38,40 @@ import org.json.JSONObject;
 
 import at.tugraz.ist.akm.R;
 import at.tugraz.ist.akm.io.FileReader;
+import at.tugraz.ist.akm.keystore.ApplicationKeyStore;
 import at.tugraz.ist.akm.preferences.PreferencesProvider;
 import at.tugraz.ist.akm.test.base.WebSMSToolActivityTestcase;
 import at.tugraz.ist.akm.webservice.server.SimpleWebServer;
 
-public class SimpleWebServerTest extends WebSMSToolActivityTestcase {
+public class SimpleWebServerTest extends WebSMSToolActivityTestcase
+{
 
     private HttpClient mHttpClient = null;
     private static SimpleWebServer mWebserver = null;
-    private static final String DEFAULT_ENCODING="UTF8";
+    private static final String DEFAULT_ENCODING = "UTF8";
+
 
     public SimpleWebServerTest()
     {
-    	super(SimpleWebServer.class.getSimpleName());
+        super(SimpleWebServer.class.getSimpleName());
     }
-    
-    
-    private void startServer(final boolean useMockServer) throws Exception {
-    	logDebug("start server");
-        if (mWebserver != null) {
-        	if (mWebserver.isRunning()) {
-        		stopServer();
-        	}
-        	mWebserver = null;
-        } 
-        
-        mWebserver = useMockServer ? new MockSimpleWebServer(mContext) : 
-        	new SimpleWebServer(mContext, "0.0.0.0");
-        
+
+
+    private void startServer(final boolean useMockServer) throws Exception
+    {
+        logDebug("start server");
+        if (mWebserver != null)
+        {
+            if (mWebserver.isRunning())
+            {
+                stopServer();
+            }
+            mWebserver = null;
+        }
+
+        mWebserver = useMockServer ? new MockSimpleWebServer(mContext)
+                : new SimpleWebServer(mContext, "0.0.0.0");
+
         mHttpClient = new DefaultHttpClient();
 
         Assert.assertTrue(mWebserver.startServer());
@@ -73,68 +79,68 @@ public class SimpleWebServerTest extends WebSMSToolActivityTestcase {
         assertTrue(mWebserver.isRunning());
     }
 
-    private void stopServer() {
+
+    private void stopServer()
+    {
         logDebug("stop server");
-        if ( mWebserver.isRunning() ) {
-	        mWebserver.stopServer();
-	        waitForServiceBeingStopped(50, 200);
+        if (mWebserver.isRunning())
+        {
+            mWebserver.stopServer();
+            waitForServiceBeingStopped(50, 200);
         }
     }
-    
+
+
     @Override
-    protected void setUp() throws Exception {
-    	super.setUp();
-    	PreferencesProvider serverConfig = new PreferencesProvider(mContext);
-    	serverConfig.setProtocol("http");
-    	serverConfig.setPort("8888");
+    protected void setUp() throws Exception
+    {
+        super.setUp();
+        PreferencesProvider serverConfig = new PreferencesProvider(mContext);
+        serverConfig.setProtocol("http");
+        serverConfig.setPort("8888");
     }
-    
-    public void testStartStopServer() {
-    	
-    	try {
-	    	mWebserver = new SimpleWebServer(mContext, "0.0.0.0");
-	    	mWebserver.startServer();
-	    	
-	    	waitForServiceBeingStarted(20, 200);
-	        assertTrue(mWebserver.isRunning());
-    	}
-    	catch (Exception ex ) {
-    		ex.printStackTrace();
-    		Assert.fail("failed to stat server");
-    	}
-    	
-    	try {
-	    	mWebserver.stopServer();
-	    	waitForServiceBeingStopped(20, 200);
-	    	assertFalse(mWebserver.isRunning());
-    	}
-    	catch (Exception ex ) {
-    		ex.printStackTrace();
-    		Assert.fail("failed to stop server");
-    	}
+
+
+    public void testStartStopServer()
+    {
+
+        try
+        {
+            mWebserver = new SimpleWebServer(mContext, "0.0.0.0");
+            mWebserver.startServer();
+
+            waitForServiceBeingStarted(20, 200);
+            assertTrue(mWebserver.isRunning());
+        } catch (Exception ex)
+        {
+            ex.printStackTrace();
+            Assert.fail("failed to stat server");
+        }
+
+        try
+        {
+            mWebserver.stopServer();
+            waitForServiceBeingStopped(20, 200);
+            assertFalse(mWebserver.isRunning());
+        } catch (Exception ex)
+        {
+            ex.printStackTrace();
+            Assert.fail("failed to stop server");
+        }
     }
-    
+
+
     private void waitForServiceBeingStarted(int maxAttempts, int delayMs)
     {
-        while ( (!mWebserver.isRunning()) && (maxAttempts > 0) ) {
-            synchronized (this) {
-                try {
+        while ((!mWebserver.isRunning()) && (maxAttempts > 0))
+        {
+            synchronized (this)
+            {
+                try
+                {
                     SimpleWebServerTest.class.wait(delayMs);
-                } catch (InterruptedException interruptedException) {
-                    interruptedException.printStackTrace();
-                }
-            }
-            --maxAttempts;
-        }
-    }
-    
-    private void waitForServiceBeingStopped(int maxAttempts, int delayMs)
-    {
-        while ( (mWebserver.isRunning()) && (maxAttempts > 0) ) {
-            synchronized (this) {
-                try {
-                    SimpleWebServerTest.class.wait(delayMs);
-                } catch (InterruptedException interruptedException) {
+                } catch (InterruptedException interruptedException)
+                {
                     interruptedException.printStackTrace();
                 }
             }
@@ -142,12 +148,34 @@ public class SimpleWebServerTest extends WebSMSToolActivityTestcase {
         }
     }
 
-    public void testSimpleJsonRequest() {
-        try {
-        	startServer(true);
+
+    private void waitForServiceBeingStopped(int maxAttempts, int delayMs)
+    {
+        while ((mWebserver.isRunning()) && (maxAttempts > 0))
+        {
+            synchronized (this)
+            {
+                try
+                {
+                    SimpleWebServerTest.class.wait(delayMs);
+                } catch (InterruptedException interruptedException)
+                {
+                    interruptedException.printStackTrace();
+                }
+            }
+            --maxAttempts;
+        }
+    }
+
+
+    public void testSimpleJsonRequest()
+    {
+        try
+        {
+            startServer(true);
             logDebug("testSimpleJsonRequest");
             HttpPost httppost = new HttpPost("http://localhost:8888/api.html");
-            
+
             JSONObject request = new JSONObject();
             request.put("method", "info");
             httppost.setEntity(new StringEntity(request.toString()));
@@ -157,61 +185,65 @@ public class SimpleWebServerTest extends WebSMSToolActivityTestcase {
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             httpresponse.getEntity().writeTo(baos);
 
-            JSONObject response = new JSONObject(baos.toString(DEFAULT_ENCODING));
+            JSONObject response = new JSONObject(
+                    baos.toString(DEFAULT_ENCODING));
             JSONObject batteryStatus = response.getJSONObject("battery");
             String batteryIsCharging = batteryStatus.getString("is_charging");
             String batteryLevel = batteryStatus.getString("battery_level");
-            String batteryLevelIcon = batteryStatus.getString("battery_level_icon");
+            String batteryLevelIcon = batteryStatus
+                    .getString("battery_level_icon");
             String isAcCharge = batteryStatus.getString("is_ac_charge");
             String isFull = batteryStatus.getString("is_full");
             String isUsbCharge = batteryStatus.getString("is_usb_charge");
-            
-            String hasContactChanged = response.getString("contact_changed"); 
-            
+
+            String hasContactChanged = response.getString("contact_changed");
+
             /*
-            // wel'll get no signal strength changed intent in the very first
-            // seconds the app is running on device.
-            // if app is running on emulator we won't get the intent at all.
-            JSONObject signalStatus = response.getJSONObject("signal");
-            String cdmaLevel = batteryStatus.getString("cdma_level");
-            String evdoLevel = batteryStatus.getString("evdo_level");
-            String gsmLevel = batteryStatus.getString("gsm_level");
-            String signalIcon = batteryStatus.getString("signal_icon");
-            String signalStrength = batteryStatus.getString("signal_strength");
-            */
+             * // wel'll get no signal strength changed intent in the very first
+             * // seconds the app is running on device. // if app is running on
+             * emulator we won't get the intent at all. JSONObject signalStatus
+             * = response.getJSONObject("signal"); String cdmaLevel =
+             * batteryStatus.getString("cdma_level"); String evdoLevel =
+             * batteryStatus.getString("evdo_level"); String gsmLevel =
+             * batteryStatus.getString("gsm_level"); String signalIcon =
+             * batteryStatus.getString("signal_icon"); String signalStrength =
+             * batteryStatus.getString("signal_strength");
+             */
             String smsReceived = response.getString("sms_received");
             String smsSentError = response.getString("sms_sent_error");
             String smsSentSuccess = response.getString("sms_sent_success");
-            
+
             String requestStatus = response.getString("state");
 
-            assertFalse( null == batteryIsCharging);
-            assertFalse( null == batteryLevel);
-            assertFalse( null == batteryLevelIcon);
-            assertFalse( null == isAcCharge);
-            assertFalse( null == isFull);
-            assertFalse( null == isUsbCharge);
-            assertFalse( null == hasContactChanged);
+            assertFalse(null == batteryIsCharging);
+            assertFalse(null == batteryLevel);
+            assertFalse(null == batteryLevelIcon);
+            assertFalse(null == isAcCharge);
+            assertFalse(null == isFull);
+            assertFalse(null == isUsbCharge);
+            assertFalse(null == hasContactChanged);
             /*
-            assertFalse( null == signalStatus);
-            assertFalse( null == cdmaLevel);
-            assertFalse( null == evdoLevel);
-            assertFalse( null == gsmLevel);
-            assertFalse( null == signalIcon);
-            assertFalse( null == signalStrength);
-            */
-            assertFalse( null == smsReceived);
-            assertFalse( null == smsSentError);
-            assertFalse( null == smsSentSuccess);
-            assertFalse( null == requestStatus);
-        } catch (Exception ex) {
-        	ex.printStackTrace();
+             * assertFalse( null == signalStatus); assertFalse( null ==
+             * cdmaLevel); assertFalse( null == evdoLevel); assertFalse( null ==
+             * gsmLevel); assertFalse( null == signalIcon); assertFalse( null ==
+             * signalStrength);
+             */
+            assertFalse(null == smsReceived);
+            assertFalse(null == smsSentError);
+            assertFalse(null == smsSentSuccess);
+            assertFalse(null == requestStatus);
+        } catch (Exception ex)
+        {
+            ex.printStackTrace();
             Assert.fail(ex.getMessage());
         }
     }
 
-    public void testSimpleFileRequest() {
-        try {
+
+    public void testSimpleFileRequest()
+    {
+        try
+        {
             startServer(true);
             logDebug("testSimpleFileRequest");
             HttpPost httppost = new HttpPost("http://localhost:8888/");
@@ -227,53 +259,75 @@ public class SimpleWebServerTest extends WebSMSToolActivityTestcase {
                     new FileReader(mContext, "web/index.html").read(),
                     new String(baos.toByteArray(), DEFAULT_ENCODING));
 
-        } catch (Exception ex) {
+        } catch (Exception ex)
+        {
             Assert.fail(ex.getMessage());
         }
     }
 
-    public void testStartSecureServer() {
-        logDebug("testStartSecureServer");
-        
-    	PreferencesProvider serverConfig = new PreferencesProvider(mContext);
-    	serverConfig.setProtocol("https");
-    	serverConfig.setPort("8888");
-    	serverConfig.setKeyStorePassword("foobar64");
-    	
-    	try {
-	        startServer(true);
-	        Assert.assertTrue(mWebserver.isRunning());
-    	} catch (Exception ex)
-    	{
-    		Assert.assertTrue(false);
-    	}
 
-    	stopServer();
+    public void testStartSecureServer()
+    {
+        logDebug("testStartSecureServer");
+
+        PreferencesProvider serverConfig = new PreferencesProvider(mContext);
+        serverConfig.setProtocol("https");
+        serverConfig.setPort("8888");
+        String keystorePassword = "foobar64";
+        serverConfig.setKeyStorePassword(keystorePassword);
+        String keystoreFilePath = new String (mContext.getFilesDir().getPath().toString()
+                + "/"
+                + mContext.getResources().getString(
+                        R.string.preferences_keystore_store_filename));
+
+        ApplicationKeyStore appKeystore = new ApplicationKeyStore();
+        appKeystore.loadKeystore(keystorePassword, keystoreFilePath);
+
+        try
+        {
+            startServer(true);
+            Assert.assertTrue(mWebserver.isRunning());
+        } catch (Exception ex)
+        {
+            Assert.assertTrue(false);
+        }
+
+        stopServer();
         Assert.assertFalse(mWebserver.isRunning());
     }
 
-    public void testKeyStore() {
-        try {
+
+    public void testKeyStore()
+    {
+        try
+        {
             KeyStore keystore = KeyStore.getInstance("BKS");
 
-            InputStream is = mContext.getResources().openRawResource(R.raw.websms);
+            InputStream is = mContext.getResources().openRawResource(
+                    R.raw.websms);
 
             keystore.load(is, "foobar64".toCharArray());
             String alias = "at.tugraz.ist.akm.websms";
 
             Key key = keystore.getKey(alias, "foobar64".toCharArray());
-            if (!(key instanceof PrivateKey)) {
+            if (!(key instanceof PrivateKey))
+            {
                 Assert.fail("Private key not found!");
             }
-        } catch (KeyStoreException keyException) {
+        } catch (KeyStoreException keyException)
+        {
             Assert.fail(keyException.getMessage());
-        } catch (NoSuchAlgorithmException algoException) {
+        } catch (NoSuchAlgorithmException algoException)
+        {
             Assert.fail(algoException.getMessage());
-        } catch (CertificateException certificateException) {
+        } catch (CertificateException certificateException)
+        {
             Assert.fail(certificateException.getMessage());
-        } catch (IOException ioException) {
+        } catch (IOException ioException)
+        {
             Assert.fail(ioException.getMessage());
-        } catch (UnrecoverableKeyException keyException) {
+        } catch (UnrecoverableKeyException keyException)
+        {
             Assert.fail(keyException.getMessage());
         }
     }

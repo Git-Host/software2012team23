@@ -39,4 +39,6 @@
   <string name="preferences_password_key">preferences_password_key</string>
   <string name="preferences_server_protocol_key">preference_server_protocol_key</string>
   <string name="preferences_server_port_key">preferences_server_port_key</string>
+  <string name="preferences_keystore_store_filename">keystore.bks</string>
+  
 </resources>

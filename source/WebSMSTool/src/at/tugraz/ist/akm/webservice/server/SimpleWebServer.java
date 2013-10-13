@@ -17,22 +17,15 @@
 package at.tugraz.ist.akm.webservice.server;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.lang.reflect.Constructor;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.security.KeyManagementException;
-import java.security.KeyStore;
-import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
-import java.security.UnrecoverableKeyException;
-import java.security.cert.CertificateException;
 import java.util.List;
 import java.util.Vector;
 
-import javax.net.ssl.KeyManager;
-import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLServerSocketFactory;
 
@@ -56,6 +49,7 @@ import android.content.Context;
 import at.tugraz.ist.akm.R;
 import at.tugraz.ist.akm.io.xml.XmlNode;
 import at.tugraz.ist.akm.io.xml.XmlReader;
+import at.tugraz.ist.akm.keystore.ApplicationKeyStore;
 import at.tugraz.ist.akm.preferences.PreferencesProvider;
 import at.tugraz.ist.akm.statusbar.FireNotification;
 import at.tugraz.ist.akm.trace.LogClient;
@@ -79,11 +73,7 @@ public class SimpleWebServer {
     private int mServerPort;
 	private String mKeyStorePass;
 	
-    // ssl and keystore
     private SSLContext mSSLContext;
-    private KeyManagerFactory mKeyFactory;
-    private KeyManager[] mKeyManager;
-    private KeyStore mKeyStore;
 
     private boolean mIsServerRunning = false;
 
@@ -270,26 +260,15 @@ public class SimpleWebServer {
     private void initSSLContext() {
         try {
             mSSLContext = SSLContext.getInstance("TLS");
-            mKeyFactory = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
-            mKeyStore = KeyStore.getInstance(KeyStore.getDefaultType());
-
-            InputStream is = mContext.getResources().openRawResource(R.raw.websms);
-
-            mKeyStore.load(is, mKeyStorePass.toCharArray());
-
-            mKeyFactory.init(mKeyStore, mKeyStorePass.toCharArray());
-            mKeyManager = mKeyFactory.getKeyManagers();
-            mSSLContext.init(mKeyManager, null, new SecureRandom());
-        } catch (IOException ioException) {
-            mLog.error("Cannot read keystore!", ioException);
-        } catch (KeyStoreException keyStoreException) {
-            mLog.error("Error while loading keystore!", keyStoreException);
+            
+            ApplicationKeyStore appKeystore = new ApplicationKeyStore();
+            String keystoreFilePath = mContext.getFilesDir().getPath().toString() + "/" + mContext.getResources().getString(
+                    R.string.preferences_keystore_store_filename);
+            appKeystore.loadKeystore(mKeyStorePass, keystoreFilePath);
+            
+            mSSLContext.init(appKeystore.getKeystoreManagers(), null, new SecureRandom());
         } catch (NoSuchAlgorithmException algoException) {
             mLog.error("Wrong keystore algorithm!", algoException);
-        } catch (CertificateException certificateException) {
-            mLog.error("Error while loading certificate!", certificateException);
-        } catch (UnrecoverableKeyException keyException) {
-            mLog.error("Error while loading keystore", keyException);
         } catch (KeyManagementException keyException) {
             mLog.error("Error while getting keymanagers!", keyException);
         }
