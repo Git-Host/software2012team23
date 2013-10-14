@@ -30,7 +30,8 @@ public class PreferencesActivity extends PreferenceActivity implements
         addPreferencesFromResource(R.xml.preferences_list);
         SharedPreferences preferences = sharedPreferences();
 
-        mPreferenceListener = new OnSharedPreferenceChangeListenerValidator(getApplicationContext());
+        mPreferenceListener = new OnSharedPreferenceChangeListenerValidator(
+                getApplicationContext());
 
         setPreferenceSummary(preferences,
                 resourceString(R.string.preferences_username_key));
@@ -97,13 +98,13 @@ public class PreferencesActivity extends PreferenceActivity implements
                 resourceString(R.string.preferences_password_key), "");
         String username = sharedPrefs.getString(
                 resourceString(R.string.preferences_username_key), "");
-        CheckBoxPreference checkBox = (CheckBoxPreference) findPreference(resourceString(R.string.prefrences_access_restriction_key));
+        CheckBoxPreference checkBox = (CheckBoxPreference) findPreference(resourceString(R.string.preferences_access_restriction_key));
 
         if (username.length() <= 0 || password.length() <= 0)
         {
             Editor spEdit = sharedPrefs.edit();
             spEdit.putBoolean(
-                    resourceString(R.string.prefrences_access_restriction_key),
+                    resourceString(R.string.preferences_access_restriction_key),
                     true);
             spEdit.apply();
             checkBox.setChecked(false);

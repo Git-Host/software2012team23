@@ -17,7 +17,7 @@
 <resources>
   <string name="preferences_user">Access</string>
   <string name="preferences_checkbox">Access Protection</string>
-  <string name="prefrences_access_restriction_key">prefrences_access_restriction_key</string>
+  <string name="preferences_access_restriction_key">prefrences_access_restriction_key</string>
   <string name="preferences_checkbox_summary_off">password protection disabled</string>
   <string name="preferences_checkbox_summary_on">password protection enabled</string>
             
@@ -37,7 +37,5 @@
    
   <string name="preferences_protocol_renew_certificate_ckeckbox">New Certificate</string>
   <string name="preferences_protocol_renew_certificate_checkbox_key">preferences_protocol_renew_keystore_checkbox_key</string>
-  <string name="preferences_protocol_renew_certificate_checkbox_off"></string>
-  <string name="preferences_protocol_renew_certificate_checkbox_on">renewing ....</string>            
   
 </resources>

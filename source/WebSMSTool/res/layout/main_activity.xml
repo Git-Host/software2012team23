@@ -27,7 +27,9 @@
         android:id="@+id/start_stop_server"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="@drawable/start_stop_selector" />
+        android:background="@drawable/start_stop_selector"
+        android:textOff=""
+        android:textOn="" />
 
     <TextView
         android:id="@+id/adress_data_field"
