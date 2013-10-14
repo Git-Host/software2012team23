@@ -67,14 +67,11 @@ public class MainActivityTest extends
     {
         PreferencesProvider prefs = new PreferencesProvider(getActivity()
                 .getApplicationContext());
-        String keyStorePassword = "foobar64";
-        prefs.setKeyStorePassword(keyStorePassword);
         ApplicationKeyStore appKeystore = new ApplicationKeyStore();
-        mLog.info("keystorefilepath kfp:" + mContext.getFilesDir().getPath().toString());
-        String keystoreFilePath = mContext.getFilesDir().getPath().toString()
-                + "/keystore.bks";
-        ;
-        appKeystore.loadKeystore(keyStorePassword, keystoreFilePath);
+
+        appKeystore.deleteKeystore(prefs.getKeyStoreFilePath());
+        appKeystore.loadKeystore(prefs.getKeyStorePassword(), prefs.getKeyStoreFilePath());
+        appKeystore.close();
 
         Solo solo = new Solo(getInstrumentation(), getActivity());
         solo.assertCurrentActivity("Actual activty is MainActivity",
