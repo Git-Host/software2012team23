@@ -1,77 +1,99 @@
 package at.tugraz.ist.akm.test.keystore;
 
-import java.io.File;
-
-import javax.net.ssl.KeyManager;
-
 import android.test.AndroidTestCase;
 import at.tugraz.ist.akm.R;
 import at.tugraz.ist.akm.keystore.ApplicationKeyStore;
 import at.tugraz.ist.akm.test.trace.ThrowingLogSink;
+import at.tugraz.ist.akm.trace.LogClient;
 import at.tugraz.ist.akm.trace.TraceService;
 
 public class ApplicationKeyStoreTest extends AndroidTestCase
 {
 
-    private String mKeystoreFilePath = null;
-
-
+    private LogClient mLog = new LogClient(this);
+    
     @Override
     protected void setUp() throws Exception
     {
         TraceService.setSink(new ThrowingLogSink());
-        mKeystoreFilePath = getKeystoreFileDir();
     }
 
 
-    public void test_createAndLoadKeystore()
+    public void test_loadMissingKeystore()
     {
+        mLog.debug("remove keystore");        
         ApplicationKeyStore appKeystore = new ApplicationKeyStore();
-        String password = appKeystore.newRandomPassword();
-        assertTrue(appKeystore.loadKeystore(password, mKeystoreFilePath));
-        KeyManager[] ksm = appKeystore.getKeystoreManagers();
-        assertTrue(ksm.length > 0);
+        appKeystore.deleteKeystore(getKeystoreFilePath());
+        
+        mLog.debug("load missing keystore");
+        assertTrue(appKeystore.loadKeystore(getDefaultKeystorePassword(),
+                getKeystoreFilePath()));
+        assertTrue(appKeystore.getKeystoreManagers().length > 0);
+        appKeystore.close();
     }
 
 
-    public void test_wipeCreateAndLoadKeystore()
+    public void test_loadExistingKeystore()
     {
+        mLog.debug("remove keystore");
         ApplicationKeyStore appKeystore = new ApplicationKeyStore();
-        String password = appKeystore.newRandomPassword();
-        assertTrue(appKeystore.loadKeystore(password, mKeystoreFilePath));
-        assertTrue(appKeystore.loadKeystore(password, mKeystoreFilePath));
-        assertTrue(appKeystore.loadKeystore(password, mKeystoreFilePath));
-        KeyManager[] ksm = appKeystore.getKeystoreManagers();
-        assertTrue(ksm.length > 0);
+        appKeystore.deleteKeystore(getKeystoreFilePath());
+        
+        mLog.debug("load missing keystore");
+        assertTrue(appKeystore.loadKeystore(getDefaultKeystorePassword(),
+                getKeystoreFilePath()));
+        assertTrue(appKeystore.getKeystoreManagers().length == 1);
+        appKeystore.close();
+
+        mLog.debug("load available keystore");
+        appKeystore = new ApplicationKeyStore();
+        assertTrue(appKeystore.loadKeystore(getDefaultKeystorePassword(),
+                getKeystoreFilePath()));
+        assertTrue(appKeystore.getKeystoreManagers().length == 1);
     }
 
 
-    public void test_loadMissingKeyStore()
+    public void test_loadKeystore_wrongPassword()
     {
-        File file = new File(mKeystoreFilePath);
-        if (file.exists())
-        {
-            file.delete();
-        }
-
-        ApplicationKeyStore appKeyStore = new ApplicationKeyStore();
-        String password = appKeyStore.newRandomPassword();
-        appKeyStore.loadKeystore(password, mKeystoreFilePath);
-
-        assertTrue(file.exists());
-
+        mLog.debug("remove keystore");
+        ApplicationKeyStore appKeystore = new ApplicationKeyStore();
+        appKeystore.deleteKeystore(getKeystoreFilePath());
+        
+        mLog.debug("crate new keystore");
+        assertTrue(appKeystore.loadKeystore(getDefaultKeystorePassword(),
+                getKeystoreFilePath()));
+        assertTrue(appKeystore.getKeystoreManagers().length > 0);
+        appKeystore.close();
+        
+        mLog.debug("load available keystore using wrong password");
+        appKeystore = new ApplicationKeyStore();
+        assertTrue(appKeystore.loadKeystore(getNewRandomKeystorePassword(),
+                getKeystoreFilePath()));
+        assertTrue(appKeystore.getKeystoreManagers().length > 0);
+        appKeystore.close();
     }
 
 
-    public void test_closeAndCleanupKeystore()
+    private String getKeystoreFilePath()
     {
-        assertTrue(false);
+        
+        String filePath = getContext().getFilesDir().getPath().toString()
+                + "/"
+                + mContext.getResources().getString(
+                        R.string.preferences_keystore_store_filename);
+        mLog.debug("keystore filepath: " + filePath);
+        return filePath;
     }
 
 
-    private String getKeystoreFileDir()
+    private String getDefaultKeystorePassword()
     {
-        return getContext().getFilesDir().getPath().toString() + "/" + mContext.getResources().getString(
-                R.string.preferences_keystore_store_filename);
+        return "foobar64";
+    }
+
+
+    private String getNewRandomKeystorePassword()
+    {
+        return new ApplicationKeyStore().newRandomPassword();
     }
 }
