@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE values>
 <!--
   Copyright 2012 software2012team23
@@ -14,15 +14,8 @@
   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
   See the License for the specific language governing permissions and
   limitations under the License.
- 
-  Based on a file from the The Android Open Source Project
-  http://developer.android.com/resources/samples/ActionBarCompat/index.html
   -->
-
 <resources>
-    <item type="id" name="actionbar_compat" />
-    <item type="id" name="actionbar_compat_title" />
-    <item type="id" name="actionbar_compat_item_info" />
-    <item type="id" name="actionbar_compat_item_settings" />
-    <item type="id" name="actionbar_compat_item_home" />
+    <string name="actionbar_about">About SMSTool</string>
+    <string name="actionbar_settings">Settings</string>
 </resources>

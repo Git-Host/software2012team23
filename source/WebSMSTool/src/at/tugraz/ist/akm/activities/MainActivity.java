@@ -113,7 +113,7 @@ public class MainActivity extends DefaultActionBar implements
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.main);
+        setContentView(R.layout.main_activity);
         mSmsServiceIntent = new Intent(this.getApplicationContext(),
                 WebSMSToolService.class);
         mButton = (ToggleButton) findViewById(R.id.start_stop_server);

@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE activity>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
     <PreferenceCategory
         android:title="@string/preferences_user">
@@ -33,12 +32,19 @@
             android:defaultValue="8888"
             android:inputType="number"
         />
-        <ListPreference 
-            android:title="@string/preferences_server_protocol"
-            android:key="@string/preferences_server_protocol_key"
-            android:entries="@array/preference_server_protocol_entries"
-            android:entryValues="@array/preference_server_prococol_values"
-            android:defaultValue="@string/preference_server_protocol_default_value"
+  
+        <CheckBoxPreference 
+            android:title="@string/preferences_protocol_ckeckbox"
+            android:key="@string/preferences_protocol_checkbox_key"
+            android:summaryOff="@string/preferences_protocol_checkbox_off"
+            android:summaryOn="@string/preferences_protocol_checkbox_on"
+            android:defaultValue="false"
+        />
+        <CheckBoxPreference 
+            android:title="@string/preferences_protocol_renew_certificate_ckeckbox"
+            android:key="@string/preferences_protocol_renew_certificate_checkbox_key"
+            android:defaultValue="false"
+            android:dependency="@string/preferences_protocol_checkbox_key"
         />
     </PreferenceCategory>
 </PreferenceScreen>

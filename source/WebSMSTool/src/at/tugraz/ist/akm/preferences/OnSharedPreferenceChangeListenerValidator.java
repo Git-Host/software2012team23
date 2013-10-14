@@ -1,10 +1,11 @@
 package at.tugraz.ist.akm.preferences;
 
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
-import android.content.res.Resources;
 import at.tugraz.ist.akm.R;
+import at.tugraz.ist.akm.keystore.ApplicationKeyStore;
 import at.tugraz.ist.akm.trace.LogClient;
 
 public class OnSharedPreferenceChangeListenerValidator implements
@@ -12,15 +13,12 @@ public class OnSharedPreferenceChangeListenerValidator implements
 {
     private int mMinPortNumber = 1024, mMaxPortNumber = 65535;
     private LogClient mLog = new LogClient(this);
-    private String mDefaultServerProtocol = null;
-    private Resources mResource = null;
+    private Context mContext = null;
 
 
-    public OnSharedPreferenceChangeListenerValidator(Resources resources)
+    public OnSharedPreferenceChangeListenerValidator(Context context)
     {
-        mResource = resources;
-        mDefaultServerProtocol = resourceString(R.string.preference_server_protocol_default_value);
-
+        mContext = context;
     }
 
 
@@ -36,7 +34,8 @@ public class OnSharedPreferenceChangeListenerValidator implements
             {
                 changedPortNumber = Integer.parseInt(sharedPreferences
                         .getString(key, "8888"));
-            } catch (NumberFormatException e)
+            }
+            catch (NumberFormatException e)
             {
                 changedPortNumber = 8888;
                 mLog.warning("ignoring invalid user input");
@@ -47,36 +46,30 @@ public class OnSharedPreferenceChangeListenerValidator implements
             ed.putString(key, Integer.toString(changedPortNumber));
             ed.apply();
         } else if (key
-                .equals(resourceString(R.string.preferences_server_protocol_key)))
+                .equals(resourceString(R.string.preferences_protocol_renew_certificate_checkbox_key)))
         {
-            String serverProtocol = sharedPreferences.getString(key,
-                    mDefaultServerProtocol);
-
-            serverProtocol = getProtocolFallback(serverProtocol);
-            Editor ed = sharedPreferences.edit();
-            ed.putString(key, serverProtocol);
-            ed.apply();
+            if (sharedPreferences.getBoolean(key, false) == true)
+            {
+                renewCertificate();
+                Editor ed = sharedPreferences.edit();
+                ed.putBoolean(key, false);
+                ed.apply();
+            }
         }
     }
 
 
-    private String getProtocolFallback(String doubtfulProtocol)
+    private void renewCertificate()
     {
-        String fallback = mDefaultServerProtocol;
-
-        String[] protocols = mResource
-                .getStringArray(R.array.preference_server_prococol_values);
-        for (String p : protocols)
-        {
-            if (p.equals(doubtfulProtocol))
-            {
-                fallback = doubtfulProtocol;
-                break;
-            }
-        }
-        mLog.debug("protocol fallback from [" + doubtfulProtocol + "] to ["
-                + fallback + "]");
-        return fallback;
+        PreferencesProvider preferencesProvider = new PreferencesProvider(
+                mContext);
+        ApplicationKeyStore appKeyStore = new ApplicationKeyStore();
+        appKeyStore.deleteKeystore(preferencesProvider.getKeyStoreFilePath());
+        String newPassword = appKeyStore.newRandomPassword();
+        appKeyStore.loadKeystore(newPassword,
+                preferencesProvider.getKeyStoreFilePath());
+        appKeyStore.close();
+        preferencesProvider.setKeyStorePassword(newPassword);
     }
 
 
@@ -99,6 +92,6 @@ public class OnSharedPreferenceChangeListenerValidator implements
 
     private String resourceString(int resourceStringId)
     {
-        return mResource.getString(resourceStringId);
+        return mContext.getResources().getString(resourceStringId);
     }
 }

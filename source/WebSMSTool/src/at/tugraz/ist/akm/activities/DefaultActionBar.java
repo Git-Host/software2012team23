@@ -37,7 +37,7 @@ public class DefaultActionBar extends Activity
     public boolean onCreateOptionsMenu(Menu menu)
     {
         MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.default_action_bar, menu);
+        inflater.inflate(R.menu.default_actionbar, menu);
         return super.onCreateOptionsMenu(menu);
     }
 

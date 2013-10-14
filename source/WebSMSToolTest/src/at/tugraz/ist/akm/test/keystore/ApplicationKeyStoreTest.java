@@ -73,6 +73,16 @@ public class ApplicationKeyStoreTest extends AndroidTestCase
         appKeystore.close();
     }
 
+    public void test_getCertificateSerial()
+    {
+        ApplicationKeyStore appKeystore = new ApplicationKeyStore();
+        
+        assertTrue(appKeystore.loadKeystore(getDefaultKeystorePassword(),
+                getKeystoreFilePath()));
+        assertTrue(appKeystore.getKeystoreManagers().length > 0);
+        assertTrue(appKeystore.getX509Certficate() != null);
+        appKeystore.close();
+    }
 
     private String getKeystoreFilePath()
     {

@@ -17,15 +17,6 @@
 package at.tugraz.ist.akm.test.webservice.server;
 
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.security.Key;
-import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.PrivateKey;
-import java.security.UnrecoverableKeyException;
-import java.security.cert.CertificateException;
 
 import junit.framework.Assert;
 import my.org.apache.http.HttpResponse;
@@ -294,41 +285,5 @@ public class SimpleWebServerTest extends WebSMSToolActivityTestcase
 
         stopServer();
         Assert.assertFalse(mWebserver.isRunning());
-    }
-
-
-    public void testKeyStore()
-    {
-        try
-        {
-            KeyStore keystore = KeyStore.getInstance("BKS");
-
-            InputStream is = mContext.getResources().openRawResource(
-                    R.raw.websms);
-
-            keystore.load(is, "foobar64".toCharArray());
-            String alias = "at.tugraz.ist.akm.websms";
-
-            Key key = keystore.getKey(alias, "foobar64".toCharArray());
-            if (!(key instanceof PrivateKey))
-            {
-                Assert.fail("Private key not found!");
-            }
-        } catch (KeyStoreException keyException)
-        {
-            Assert.fail(keyException.getMessage());
-        } catch (NoSuchAlgorithmException algoException)
-        {
-            Assert.fail(algoException.getMessage());
-        } catch (CertificateException certificateException)
-        {
-            Assert.fail(certificateException.getMessage());
-        } catch (IOException ioException)
-        {
-            Assert.fail(ioException.getMessage());
-        } catch (UnrecoverableKeyException keyException)
-        {
-            Assert.fail(keyException.getMessage());
-        }
     }
 }

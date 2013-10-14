@@ -29,7 +29,7 @@ public class AboutActivity extends Activity {
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.about);
+        setContentView(R.layout.about_activity);
         
         TextView link = (TextView) findViewById(R.id.aboutInfoLink);
         Linkify.addLinks(link, Linkify.ALL);

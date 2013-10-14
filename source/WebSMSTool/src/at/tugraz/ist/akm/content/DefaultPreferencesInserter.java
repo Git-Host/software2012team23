@@ -24,18 +24,18 @@ import at.tugraz.ist.akm.providers.ApplicationContentProvider;
 public class DefaultPreferencesInserter {
 	private static SQLiteDatabase mDb;
 	
-	public static final String USERNAME = "username";
-	public static final String PASSWORD = "password";
-	public static final String PORT = "port";
-	public static final String PROTOCOL = "protocol";
+//	public static final String USERNAME = "username";
+//	public static final String PASSWORD = "password";
+//	public static final String PORT = "port";
+//	public static final String PROTOCOL = "protocol";
 	public static final String KEYSTOREPASSWORD = "keystorepassword";
 	
 	public static void storeDefaultPreferences(SQLiteDatabase db) {
 		mDb = db;
-		insertKeyValuePair(USERNAME, "");
-		insertKeyValuePair(PASSWORD, "");
-		insertKeyValuePair(PORT, "8887");
-		insertKeyValuePair(PROTOCOL, "http");
+//		insertKeyValuePair(USERNAME, "");
+//		insertKeyValuePair(PASSWORD, "");
+//		insertKeyValuePair(PORT, "8887");
+//		insertKeyValuePair(PROTOCOL, "http");
 		insertKeyValuePair(KEYSTOREPASSWORD, "foobar64");
 	}
 	

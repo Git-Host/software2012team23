@@ -63,7 +63,7 @@ public class ConfigContentProviderTest extends WebSMSToolInstrumentationTestcase
 	
 	public void testQuery() {
 		try {
-			String[] names = {DefaultPreferencesInserter.PORT};
+			String[] names = {DefaultPreferencesInserter.KEYSTOREPASSWORD};
 			Cursor cursor = mContentResolver.query(uri, new String[] {PreferencesProvider.Content.VALUE}, PreferencesProvider.Content.NAME, names, null);
 			if (cursor != null) {
 				while (cursor.moveToNext()) {
@@ -83,7 +83,7 @@ public class ConfigContentProviderTest extends WebSMSToolInstrumentationTestcase
 		ContentValues values = new ContentValues();
 		values.put(PreferencesProvider.Content.VALUE, "admin");
 		
-		String[] names = {DefaultPreferencesInserter.USERNAME};
+		String[] names = {DefaultPreferencesInserter.KEYSTOREPASSWORD};
 		
 		assertTrue("no values updated at first update", mContentResolver.update(uri, values, PreferencesProvider.Content.NAME, names) != 0);
 		values.clear();

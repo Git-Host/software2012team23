@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE values>
 <!--
   Copyright 2012 software2012team23
  
@@ -21,24 +20,24 @@
   <string name="prefrences_access_restriction_key">prefrences_access_restriction_key</string>
   <string name="preferences_checkbox_summary_off">password protection disabled</string>
   <string name="preferences_checkbox_summary_on">password protection enabled</string>
+            
+  <string name="preferences_keystore_store_filename">keystore.bks</string>
 	<string name="preferences_username">User</string>
+  <string name="preferences_username_key">preferences_username_key</string>
   <string name="preferences_password">Password</string>
+  <string name="preferences_password_key">preferences_password_key</string>
   <string name="preferences_server">Server Settings</string>
   <string name="preferences_server_port">Port</string>
-  <string name="preferences_server_protocol">Protocol</string>
-  <string-array name="preference_server_protocol_entries">
-    <item>https (more secure)</item>
-    <item>http (less secure)</item>
-  </string-array>
-	<string-array name="preference_server_prococol_values">
-    <item>https</item>
-    <item>http</item>
-	</string-array>
-  <string name="preference_server_protocol_default_value">https</string>
-  <string name="preferences_username_key">preferences_username_key</string>
-  <string name="preferences_password_key">preferences_password_key</string>
-  <string name="preferences_server_protocol_key">preference_server_protocol_key</string>
   <string name="preferences_server_port_key">preferences_server_port_key</string>
-  <string name="preferences_keystore_store_filename">keystore.bks</string>
+  
+  <string name="preferences_protocol_ckeckbox">Protocol</string>
+  <string name="preferences_protocol_checkbox_key">preferences_protocol_checkbox_key</string>
+  <string name="preferences_protocol_checkbox_off">http - no encryption</string>
+  <string name="preferences_protocol_checkbox_on">https - more secure</string>  
+   
+  <string name="preferences_protocol_renew_certificate_ckeckbox">New Certificate</string>
+  <string name="preferences_protocol_renew_certificate_checkbox_key">preferences_protocol_renew_keystore_checkbox_key</string>
+  <string name="preferences_protocol_renew_certificate_checkbox_off"></string>
+  <string name="preferences_protocol_renew_certificate_checkbox_on">renewing ....</string>            
   
 </resources>

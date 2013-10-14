@@ -26,6 +26,4 @@
     <string name="aboutInfoGoogleCodeLinks">Project-Page:\nhttp://code.google.com/p/software2012team23\n\nE-Mail:\nsoftware2012team23@googlecode.com</string>
     <string name="aboutSupervisorTitle">\nSupervisor</string>
     <string name="aboutSupervisor">Wolfgang Slany</string>
-    <string name="actionbar_about">About SMSTool</string>
-    <string name="actionbar_settings">Settings</string>
 </resources>

@@ -1,5 +1,6 @@
 package at.tugraz.ist.akm.keystore;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -19,6 +20,7 @@ import java.security.UnrecoverableKeyException;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
+import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.util.Date;
 
@@ -31,6 +33,7 @@ import org.bouncycastle.x509.X509V3CertificateGenerator;
 
 import at.tugraz.ist.akm.trace.LogClient;
 
+@SuppressWarnings("deprecation")
 public class ApplicationKeyStore
 {
     private LogClient mLog = new LogClient(this);
@@ -40,6 +43,7 @@ public class ApplicationKeyStore
     private KeyPair mKeyPair = null;
     private KeyManagerFactory mKeyFactory = null;
     private KeyStore mInKeyStore = null;
+    private boolean mIsLoaded = false;
 
     private InputStream mInKeyStoreStream = null;
 
@@ -82,6 +86,9 @@ public class ApplicationKeyStore
             mLog.error(message, e);
             throw new Exception(e);
         }
+
+        mKeyPair = null;
+        mCertificate = null;
     }
 
 
@@ -103,11 +110,10 @@ public class ApplicationKeyStore
 
     public boolean loadKeystore(String password, String filePath)
     {
-        boolean isKeystoreLoaded = false;
         try
         {
             tryLoadKeystore(password, filePath);
-            isKeystoreLoaded = true;
+            mIsLoaded = true;
         }
         catch (CertificateException e)
         {
@@ -117,7 +123,7 @@ public class ApplicationKeyStore
             try
             {
                 wipeAndLoadNewKeystore(password, filePath);
-                isKeystoreLoaded = true;
+                mIsLoaded = true;
             }
             catch (Exception f)
             {
@@ -127,12 +133,12 @@ public class ApplicationKeyStore
         catch (IOException g)
         {
             mLog.debug(
-                    "failed to load keystore (missing or wrong password) -> create new store",
+                    "failed to load keystore (file missing or wrong password) -> create new store",
                     g);
             try
             {
                 wipeAndLoadNewKeystore(password, filePath);
-                isKeystoreLoaded = true;
+                mIsLoaded = true;
             }
             catch (Exception h)
             {
@@ -144,7 +150,28 @@ public class ApplicationKeyStore
             mLog.error("unrecoverale keystore error", i);
         }
 
-        return isKeystoreLoaded;
+        return mIsLoaded;
+    }
+
+
+    public X509Certificate getX509Certficate()
+    {
+        if (mCertificate != null)
+        {
+            try
+            {
+                CertificateFactory certFactory = CertificateFactory
+                        .getInstance("X.509");
+                InputStream in = new ByteArrayInputStream(
+                        mCertificate.getEncoded());
+                return (X509Certificate) certFactory.generateCertificate(in);
+            }
+            catch (Exception e)
+            {
+                return null;
+            }
+        }
+        return null;
     }
 
 
@@ -159,6 +186,9 @@ public class ApplicationKeyStore
         mKeyFactory.init(mInKeyStore, password.toCharArray());
         mLog.debug("keystore loaded with password [*****] and filepath ["
                 + filePath + "]");
+
+        mCertificate = mInKeyStore
+                .getCertificate(CertificateDefaultAttributes.ALIAS_NAME);
     }
 
 
@@ -191,7 +221,6 @@ public class ApplicationKeyStore
     {
         try
         {
-            // mKeyFactory.init(mInKeyStore, mKeystorePassword.toCharArray());
             return mKeyFactory.getKeyManagers();
         }
         catch (Throwable t)
@@ -219,13 +248,6 @@ public class ApplicationKeyStore
             mLog.debug("nothing to delete: " + filePath);
         }
         return false;
-    }
-
-
-    private boolean keystoreExists(String filePath)
-    {
-        File file = new File(filePath);
-        return file.exists();
     }
 
 

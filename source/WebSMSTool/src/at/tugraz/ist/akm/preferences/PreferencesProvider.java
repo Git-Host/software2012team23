@@ -34,6 +34,9 @@ public class PreferencesProvider
     private ContentResolver mContentResolver;
     private SharedPreferences mSharedPreferences = null;
     private Context mApplicationContext = null;
+    private final static String KEYSTORE_FILE_NAME = "websms-keystore.bks";
+    private final static String HTTPS_PROTOCOL_NAME = "https";
+    private final static String HTTP_PROTOCOL_NAME = "http";
 
 
     public PreferencesProvider(Context context)
@@ -101,17 +104,27 @@ public class PreferencesProvider
 
     public String getProtocol()
     {
-        return mSharedPreferences.getString(
-                resourceIdString(R.string.preferences_server_protocol_key), "-1");
+        if (mSharedPreferences.getBoolean(
+                resourceIdString(R.string.preferences_protocol_checkbox_key),
+                true))
+        {
+            return HTTPS_PROTOCOL_NAME;
+        }
+        return HTTP_PROTOCOL_NAME;
     }
 
 
     public void setProtocol(String protocol)
     {
+        Boolean isHttps = true;
+        if (protocol.equals(HTTP_PROTOCOL_NAME))
+        {
+            isHttps = false;
+        }
         Editor editor = mSharedPreferences.edit();
-        editor.putString(
-                resourceIdString(R.string.preferences_server_protocol_key),
-                protocol);
+        editor.putBoolean(
+                resourceIdString(R.string.preferences_protocol_checkbox_key),
+                isHttps);
         editor.apply();
     }
 
@@ -125,8 +138,15 @@ public class PreferencesProvider
 
     public void setKeyStorePassword(String keyStorePassword)
     {
-        putSettingToContentProvider(DefaultPreferencesInserter.KEYSTOREPASSWORD,
-                keyStorePassword);
+        putSettingToContentProvider(
+                DefaultPreferencesInserter.KEYSTOREPASSWORD, keyStorePassword);
+    }
+
+
+    public String getKeyStoreFilePath()
+    {
+        return mApplicationContext.getFilesDir().getPath().toString() + "/"
+                + KEYSTORE_FILE_NAME;
     }
 
 
@@ -142,7 +162,8 @@ public class PreferencesProvider
     {
         String[] names = { name };
         String queriedValue = "";
-        Cursor cursor = mContentResolver.query(ApplicationContentProvider.PREFERENCES_URI,
+        Cursor cursor = mContentResolver.query(
+                ApplicationContentProvider.PREFERENCES_URI,
                 new String[] { Content.VALUE }, Content.NAME, names, null);
         if (cursor != null)
         {
@@ -159,8 +180,9 @@ public class PreferencesProvider
 
     private int updateSettings(ContentValues values, String where)
     {
-        return mContentResolver.update(ApplicationContentProvider.PREFERENCES_URI, values, Content.NAME,
-                new String[] { where });
+        return mContentResolver.update(
+                ApplicationContentProvider.PREFERENCES_URI, values,
+                Content.NAME, new String[] { where });
     }
 
     public static final class Content implements BaseColumns

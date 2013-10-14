@@ -1,5 +1,7 @@
 package at.tugraz.ist.akm.activities;
 
+import java.security.cert.X509Certificate;
+
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
@@ -9,7 +11,9 @@ import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
 import at.tugraz.ist.akm.R;
+import at.tugraz.ist.akm.keystore.ApplicationKeyStore;
 import at.tugraz.ist.akm.preferences.OnSharedPreferenceChangeListenerValidator;
+import at.tugraz.ist.akm.preferences.PreferencesProvider;
 import at.tugraz.ist.akm.trace.LogClient;
 
 public class PreferencesActivity extends PreferenceActivity implements
@@ -26,8 +30,7 @@ public class PreferencesActivity extends PreferenceActivity implements
         addPreferencesFromResource(R.xml.preferences_list);
         SharedPreferences preferences = sharedPreferences();
 
-        mPreferenceListener = new OnSharedPreferenceChangeListenerValidator(
-                getResources());
+        mPreferenceListener = new OnSharedPreferenceChangeListenerValidator(getApplicationContext());
 
         setPreferenceSummary(preferences,
                 resourceString(R.string.preferences_username_key));
@@ -36,8 +39,9 @@ public class PreferencesActivity extends PreferenceActivity implements
         updateCheckboxDependingOnCredentials();
         setPreferenceSummary(preferences,
                 resourceString(R.string.preferences_server_port_key));
-        setPreferenceSummary(preferences,
-                resourceString(R.string.preferences_server_protocol_key));
+        setPreferenceSummary(
+                preferences,
+                resourceString(R.string.preferences_protocol_renew_certificate_checkbox_key));
 
     }
 
@@ -117,17 +121,70 @@ public class PreferencesActivity extends PreferenceActivity implements
             Preference preferenceItem = findPreference(key);
             if (null != preferenceItem)
             {
-                String summary = sharedPref.getString(key, "");
+                String summary = "";
+                try
+                {
+                    summary = sharedPref.getString(key, "");
+                }
+                catch (Exception e)
+                {
+                    // i don't care
+                }
+
                 if (key.equals(resourceString(R.string.preferences_password_key)))
                 {
                     summary = getCoveredPassword(summary);
+                } else if (key
+                        .equals(resourceString(R.string.preferences_protocol_renew_certificate_checkbox_key)))
+                {
+                    summary = createRenewCertificateCheckboxSummary();
+                    Editor spEdit = sharedPref.edit();
+                    spEdit.putBoolean(
+                            resourceString(R.string.preferences_protocol_renew_certificate_checkbox_key),
+                            false);
+                    spEdit.apply();
+
                 }
-                preferenceItem.setSummary(summary);
+                try
+                {
+                    preferenceItem.setSummary(summary);
+                }
+                catch (Exception e)
+                {
+                    // i don't care
+                }
             }
-        } catch (ClassCastException c)
+        }
+        catch (ClassCastException c)
         {
             mLog.debug("ignored preference summary: " + c.getMessage());
         }
+    }
+
+
+    private String createRenewCertificateCheckboxSummary()
+    {
+        String summary = null;
+        PreferencesProvider preferencesProvider = new PreferencesProvider(
+                getApplicationContext());
+        ApplicationKeyStore appKeyStore = new ApplicationKeyStore();
+
+        appKeyStore.loadKeystore(preferencesProvider.getKeyStorePassword(),
+                preferencesProvider.getKeyStoreFilePath());
+        X509Certificate cert = appKeyStore.getX509Certficate();
+        appKeyStore.close();
+
+        if (cert != null)
+        {
+            summary = "SN " + cert.getSerialNumber().toString() + " Expires "
+                    + cert.getNotAfter();
+            appKeyStore.close();
+        } else
+        {
+            summary = "no certificate available";
+        }
+        return summary;
+
     }
 
 
