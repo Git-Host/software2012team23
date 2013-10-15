@@ -47,8 +47,9 @@ public class SmsSender extends LogClient {
 		    info("sending part [" + partNum++ + "] to [" + message.getAddress()
 					+ "] size in chars [" + part.length() + "] (" + part + ")");
 			PendingIntent sentPIntent = getSentPendingIntent(message, part);
-			PendingIntent deliveredPIntent = getDeliveredPendingIntent(message,
-					part);
+			PendingIntent deliveredPIntent = null; 
+//			getDeliveredPendingIntent(message,
+//					part);
 			mSmsManager.sendTextMessage(message.getAddress(), null, part,
 					sentPIntent, deliveredPIntent);
 		}
@@ -59,9 +60,9 @@ public class SmsSender extends LogClient {
 		return getSmsPendingIntent(message, part, SmsSentBroadcastReceiver.ACTION_SMS_SENT);
 	}
 	
-	private PendingIntent getDeliveredPendingIntent(TextMessage message, String part) {
-		return getSmsPendingIntent(message, part, SmsSentBroadcastReceiver.ACTION_SMS_DELIVERED);
-	}
+//	private PendingIntent getDeliveredPendingIntent(TextMessage message, String part) {
+//		return getSmsPendingIntent(message, part, SmsSentBroadcastReceiver.ACTION_SMS_DELIVERED);
+//	}
 	
 	private PendingIntent getSmsPendingIntent(TextMessage message, String part, String action) {
 		Intent textMessageIntent = new Intent(action);
