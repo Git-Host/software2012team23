@@ -80,4 +80,15 @@ public class LogClient
     {
         TraceService.log(TraceService.LogLevel.DEBUG, mTag, message, t);
     }
+    
+    public void verbose(String message)
+    {
+        verbose(message, null);
+    }
+
+
+    public void verbose(String message, Throwable t)
+    {
+        TraceService.log(TraceService.LogLevel.VERBOSE, mTag, message, t);
+    }
 }

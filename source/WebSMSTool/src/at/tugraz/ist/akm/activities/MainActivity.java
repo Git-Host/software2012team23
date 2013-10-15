@@ -24,6 +24,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.drm.DrmStore.Action;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Build;
@@ -33,8 +34,12 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 import at.tugraz.ist.akm.R;
+import at.tugraz.ist.akm.activities.trace.AndroidUILogSink;
+import at.tugraz.ist.akm.preferences.OnSharedPreferenceChangeListenerValidator;
 import at.tugraz.ist.akm.preferences.PreferencesProvider;
 import at.tugraz.ist.akm.trace.LogClient;
+import at.tugraz.ist.akm.trace.TraceService;
+import at.tugraz.ist.akm.trace.TraceService.LogLevel;
 import at.tugraz.ist.akm.webservice.WebSMSToolService;
 
 public class MainActivity extends DefaultActionBar implements
@@ -95,6 +100,12 @@ public class MainActivity extends DefaultActionBar implements
                     .compareTo(WebSMSToolService.SERVICE_STOPPING))
             {
             }
+
+            if (0 == action
+                    .compareTo(OnSharedPreferenceChangeListenerValidator.CERTIFICATE_RENEWED))
+            {
+                mCallback.onCertificateRenewed(intent);
+            }
         }
     }
 
@@ -114,6 +125,7 @@ public class MainActivity extends DefaultActionBar implements
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_activity);
+        TraceService.setSink(new AndroidUILogSink(this));
         mSmsServiceIntent = new Intent(this.getApplicationContext(),
                 WebSMSToolService.class);
         mButton = (ToggleButton) findViewById(R.id.start_stop_server);
@@ -185,6 +197,14 @@ public class MainActivity extends DefaultActionBar implements
     {
         mLog.debug("activity goes to Hades");
         unregisterServiceStateChangeReceiver();
+        mSmsServiceIntent = null;
+        mLog = null;
+        mButton = null;
+        mInfoFieldView = null;
+        mApplicationConfig = null;
+        mServiceListener = null;
+        mWifiManager = null;
+        mLocalIp = null;
         super.onDestroy();
     }
 
@@ -249,12 +269,14 @@ public class MainActivity extends DefaultActionBar implements
             if (updateLocalIp() || isRunningOnEmulator())
             {
                 mLog.info("Going to start web service");
-                displayStartigService();
+                displayStartingService();
                 view.getContext().startService(mSmsServiceIntent);
             } else
             {
                 displayNoWifiConnected();
-                mLog.debug("will not start service without wifi connection");
+                String message = "will not start service without wifi connection";
+                mLog.warning(message);
+                mLog.verbose(message);
                 mButton.setChecked(false);
             }
         } else
@@ -280,7 +302,7 @@ public class MainActivity extends DefaultActionBar implements
     }
 
 
-    private void displayStartigService()
+    private void displayStartingService()
     {
         mInfoFieldView.setText("starting service...");
     }
@@ -306,6 +328,8 @@ public class MainActivity extends DefaultActionBar implements
                 WebSMSToolService.SERVICE_STOPPED));
         registerReceiver(mServiceListener, new IntentFilter(
                 WebSMSToolService.SERVICE_STOPPED_BOGUS));
+        registerReceiver(mServiceListener, new IntentFilter(
+                OnSharedPreferenceChangeListenerValidator.CERTIFICATE_RENEWED));
     }
 
 
@@ -317,7 +341,7 @@ public class MainActivity extends DefaultActionBar implements
 
     public void webServiceStarting()
     {
-        displayStartigService();
+        displayStartingService();
     }
 
 
@@ -325,19 +349,20 @@ public class MainActivity extends DefaultActionBar implements
     {
         displayConnectionUrl();
         mButton.setChecked(true);
+        mLog.verbose("service started");
     }
 
 
     public void webServiceStartFailed()
     {
-        mInfoFieldView
-                .setText("service started erroneous - please stop it manually before starting again");
+        mLog.verbose("service started erroneous - please stop it manually before starting again");
     }
 
 
     public void webServiceStopping()
     {
         displayStoppingService();
+        mLog.verbose("shut down service");
     }
 
 
@@ -345,12 +370,20 @@ public class MainActivity extends DefaultActionBar implements
     {
         mInfoFieldView.setText("");
         mButton.setChecked(false);
+        mLog.verbose("service stopped");
     }
 
 
     public void webServiceStopFailed()
     {
-        mInfoFieldView
-                .setText("service stopped erroneous - please stop it manually");
+        mLog.verbose("service stopped erroneous - please stop it manually");
+    }
+
+
+    public void onCertificateRenewed(Intent i)
+    {
+        String extra = i.getExtras().getString(
+                OnSharedPreferenceChangeListenerValidator.CERTIFICATE_RENEWED);
+        mLog.verbose("certificate renewed: " + extra);
     }
 }

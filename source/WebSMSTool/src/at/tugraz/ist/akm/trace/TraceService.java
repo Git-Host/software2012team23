@@ -24,7 +24,7 @@ public class TraceService {
 	private ILogSink mSink = new AndroidLogSink();
 
 	public enum LogLevel {
-		ERROR, WARNING, INFO, DEBUG
+		ERROR, WARNING, INFO, DEBUG, VERBOSE
 	}
 	
 	public static void log(final LogLevel level, final String tag, final String message, final Throwable t) {
@@ -66,10 +66,15 @@ public class TraceService {
     				mSink.info(tag, formatMessage(message, t));
     			break;
     	
-    		case DEBUG:
-    			if (TraceSettings.ENABLE_TRACE_DEBUG)
-    				mSink.debug(tag, formatMessage(message, t));
-    			break;
+            case DEBUG:
+                if (TraceSettings.ENABLE_TRACE_DEBUG)
+                    mSink.debug(tag, formatMessage(message, t));
+                break;
+                
+            case VERBOSE:
+                if (TraceSettings.ENABLE_TRACE_VERBOSE)
+                    mSink.verbose(tag, formatMessage(message, t));
+                break;
     		}
 		}
 	}

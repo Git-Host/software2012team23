@@ -10,4 +10,5 @@ public class TraceSettings {
 	static final boolean ENABLE_TRACE_WARNING = true;
 	static final boolean ENABLE_TRACE_INFO = true;
 	static final boolean ENABLE_TRACE_DEBUG = true;
+	static final boolean ENABLE_TRACE_VERBOSE = true;
 }

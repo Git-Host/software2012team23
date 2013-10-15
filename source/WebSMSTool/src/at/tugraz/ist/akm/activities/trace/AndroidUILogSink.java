@@ -14,11 +14,25 @@
  * limitations under the License.
  */
 
-package at.tugraz.ist.akm.trace;
+package at.tugraz.ist.akm.activities.trace;
 
-public class AndroidLogSink implements ILogSink
+import android.app.Activity;
+import android.widget.TextView;
+import at.tugraz.ist.akm.R;
+import at.tugraz.ist.akm.trace.ILogSink;
+
+public class AndroidUILogSink implements ILogSink
 {
 
+    private Activity mActivity = null;
+    private TextView mLogView = null;
+    
+    public AndroidUILogSink(Activity mainActivity)
+    {
+        mActivity = mainActivity;
+        mLogView = (TextView) mActivity.findViewById(R.id.info_log_field);
+    }
+    
     @Override
     public void error(final String tag, final String message)
     {
@@ -45,11 +59,15 @@ public class AndroidLogSink implements ILogSink
     {
         android.util.Log.d(tag, message);
     }
-
-
+    
     @Override
     public void verbose(final String tag, final String message)
     {
+        if ( mLogView != null ) {
+            if ( message != null) {
+                mLogView.append("\n" + message);
+            }
+        }
         android.util.Log.v(tag, message);
     }
 }

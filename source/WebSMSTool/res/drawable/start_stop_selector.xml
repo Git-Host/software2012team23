@@ -15,8 +15,22 @@
   See the License for the specific language governing permissions and
   limitations under the License.
   -->
-<selector xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:state_pressed="true"  android:drawable="@drawable/ic_refresh" />
-    <item android:state_checked="false" android:drawable="@drawable/ic_start" />
-    <item android:state_checked="true" android:drawable="@drawable/ic_stop" />
+<selector xmlns:android="http://schemas.android.com/apk/res/android" 
+    android:enterFadeDuration="250" 
+    android:exitFadeDuration="250" 
+    android:dither="true" >
+    
+    <item android:state_pressed="true"   >
+        <bitmap android:src="@drawable/ic_refresh" android:gravity="center"/>
+     </item>
+     
+    
+    <item android:state_checked="false"   >
+        <bitmap android:src="@drawable/ic_start" android:gravity="center"/>
+     </item>
+     
+    
+    <item android:state_checked="true"   >
+        <bitmap android:src="@drawable/ic_stop" android:gravity="center"/>
+     </item>
 </selector> 

@@ -1,6 +1,9 @@
 package at.tugraz.ist.akm.preferences;
 
+import java.security.cert.X509Certificate;
+
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
@@ -11,6 +14,8 @@ import at.tugraz.ist.akm.trace.LogClient;
 public class OnSharedPreferenceChangeListenerValidator implements
         OnSharedPreferenceChangeListener
 {
+    public static final String CERTIFICATE_RENEWED = "at.tugraz.ist.akm.sms.CERTIFICATE_RENEWED";
+
     private int mMinPortNumber = 1024, mMaxPortNumber = 65535;
     private LogClient mLog = new LogClient(this);
     private Context mContext = null;
@@ -68,8 +73,27 @@ public class OnSharedPreferenceChangeListenerValidator implements
         String newPassword = appKeyStore.newRandomPassword();
         appKeyStore.loadKeystore(newPassword,
                 preferencesProvider.getKeyStoreFilePath());
+        sendNotificationIntent(appKeyStore.getX509Certficate());
         appKeyStore.close();
         preferencesProvider.setKeyStorePassword(newPassword);
+
+    }
+
+
+    private void sendNotificationIntent(X509Certificate cert)
+    {
+        String summary = "error";
+
+        if (cert != null)
+        {
+            summary = "SN " + cert.getSerialNumber().toString() + " Expires "
+                    + cert.getNotAfter();
+        }
+
+        Intent i = new Intent(CERTIFICATE_RENEWED);
+        i.putExtra(CERTIFICATE_RENEWED, summary);
+        i.addFlags(Intent.FLAG_RECEIVER_REPLACE_PENDING);
+        mContext.sendBroadcast(i);
     }
 
 
