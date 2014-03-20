@@ -16,6 +16,10 @@
 
 package at.tugraz.ist.akm.activities;
 
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.net.SocketException;
+import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
 
@@ -24,7 +28,8 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.drm.DrmStore.Action;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Build;
@@ -39,7 +44,6 @@ import at.tugraz.ist.akm.preferences.OnSharedPreferenceChangeListenerValidator;
 import at.tugraz.ist.akm.preferences.PreferencesProvider;
 import at.tugraz.ist.akm.trace.LogClient;
 import at.tugraz.ist.akm.trace.TraceService;
-import at.tugraz.ist.akm.trace.TraceService.LogLevel;
 import at.tugraz.ist.akm.webservice.WebSMSToolService;
 
 public class MainActivity extends DefaultActionBar implements
@@ -56,6 +60,8 @@ public class MainActivity extends DefaultActionBar implements
     private ServiceStateListener mServiceListener = null;
 
     private WifiManager mWifiManager = null;
+    private ConnectivityManager mConnectivityManager = null;
+
     private String mLocalIp = null;
 
     private static class ServiceStateListener extends BroadcastReceiver
@@ -132,7 +138,8 @@ public class MainActivity extends DefaultActionBar implements
         mInfoFieldView = (TextView) findViewById(R.id.adress_data_field);
         mApplicationConfig = new PreferencesProvider(getApplicationContext());
 
-        mWifiManager = (WifiManager) getSystemService(WIFI_SERVICE);
+        mWifiManager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
+        mConnectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
 
         mButton.setChecked(false);
         if (isServiceRunning(mServiceName))
@@ -204,6 +211,7 @@ public class MainActivity extends DefaultActionBar implements
         mApplicationConfig = null;
         mServiceListener = null;
         mWifiManager = null;
+        mConnectivityManager = null;
         mLocalIp = null;
         super.onDestroy();
     }
@@ -211,21 +219,62 @@ public class MainActivity extends DefaultActionBar implements
 
     private boolean updateLocalIp()
     {
-        mLocalIp = getLocalIpAddress();
+        mLocalIp = readLocalIpAddress();
         mSmsServiceIntent.putExtra(SERVER_IP_ADDRESS_INTENT_KEY, mLocalIp);
         return mWifiManager.isWifiEnabled();
     }
 
 
-    private String getLocalIpAddress()
+    private String readLocalIpAddress()
     {
-        WifiInfo connectionInfo = mWifiManager.getConnectionInfo();
+        String ip4Address = "0.0.0.0";
 
-        if (!mWifiManager.isWifiEnabled())
-            return "0.0.0.0";
+        NetworkInfo mobileNetInfo = mConnectivityManager
+                .getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
 
-        int ipAddress = connectionInfo.getIpAddress();
-        return Formatter.formatIpAddress(ipAddress);
+        if (mWifiManager.isWifiEnabled())
+        {
+            mLog.info("wtf -> wifi enabled");
+            ip4Address = readWifiAddress();
+        } else if (isRunningOnEmulator() && mobileNetInfo != null
+                && mobileNetInfo.isConnected())
+        {
+            try
+            {
+                ip4Address = readIPAddressOfEmulator();
+            }
+            catch (SocketException e)
+            {
+            } // don't care
+        }
+        return ip4Address;
+    }
+
+
+    private String readWifiAddress()
+    {
+        return Formatter.formatIpAddress(mWifiManager.getConnectionInfo()
+                .getIpAddress());
+    }
+
+
+    private String readIPAddressOfEmulator() throws SocketException
+    {
+        for (Enumeration<NetworkInterface> iter = NetworkInterface
+                .getNetworkInterfaces(); iter.hasMoreElements();)
+        {
+            NetworkInterface nic = iter.nextElement();
+
+            if (nic.getName().startsWith("eth"))
+            {
+                Enumeration<InetAddress> iaddr = nic.getInetAddresses();
+                iaddr.nextElement();
+                if (iaddr.hasMoreElements()) {
+                    return iaddr.nextElement().getHostAddress();
+                }
+            }
+        }
+        return "0.0.0.0";
     }
 
 
@@ -256,8 +305,8 @@ public class MainActivity extends DefaultActionBar implements
 
     private boolean isRunningOnEmulator()
     {
-        return "google_sdk".equals(Build.PRODUCT);
-
+        return ("google_sdk".equals(Build.PRODUCT) || "sdk_x86"
+                .equals(Build.PRODUCT));
     }
 
 

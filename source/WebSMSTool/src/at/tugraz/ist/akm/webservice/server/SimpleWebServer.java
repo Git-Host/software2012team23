@@ -57,8 +57,10 @@ import at.tugraz.ist.akm.webservice.WebServerConfig;
 import at.tugraz.ist.akm.webservice.handler.AbstractHttpRequestHandler;
 import at.tugraz.ist.akm.webservice.handler.interceptor.IRequestInterceptor;
 
-public class SimpleWebServer {
-    private final static LogClient mLog = new LogClient(SimpleWebServer.class.getName());
+public class SimpleWebServer
+{
+    private final static LogClient mLog = new LogClient(
+            SimpleWebServer.class.getName());
 
     HttpRequestHandlerRegistry mRegistry = new HttpRequestHandlerRegistry();
     private BasicHttpContext mHttpContext = new BasicHttpContext();
@@ -67,66 +69,87 @@ public class SimpleWebServer {
     private ServerThread mServerThread = null;
     private Vector<AbstractHttpRequestHandler> mHandlerReferenceListing = new Vector<AbstractHttpRequestHandler>();
 
+    private PreferencesProvider mConfig = null;
     private InetAddress mSocketAddress = null;
     private ServerSocket mServerSocket = null;
     private boolean mHttps;
     private int mServerPort;
-	private String mKeyStorePass;
-	
+    private String mKeyStorePass;
+
     private SSLContext mSSLContext;
 
     private boolean mIsServerRunning = false;
 
 
-    public SimpleWebServer(Context context, String socketAddress) throws Exception {
+    public SimpleWebServer(Context context, String socketAddress)
+            throws Exception
+    {
         this.mContext = context;
+        mConfig = new PreferencesProvider(mContext);
         this.mSocketAddress = InetAddress.getByName(socketAddress);
         readRequestHandlers();
         readRequestInterceptors();
     }
 
-    protected synchronized HttpService initializeHTTPService() {
-        HttpProcessor httpProcessor = new ImmutableHttpProcessor(new HttpResponseInterceptor[] {
-                new ResponseDate(), new ResponseServer(), new ResponseContent(),
-                new ResponseConnControl() });
+
+    protected synchronized HttpService initializeHTTPService()
+    {
+        HttpProcessor httpProcessor = new ImmutableHttpProcessor(
+                new HttpResponseInterceptor[] { new ResponseDate(),
+                        new ResponseServer(), new ResponseContent(),
+                        new ResponseConnControl() });
 
         HttpParams params = new SyncBasicHttpParams()
                 .setIntParameter(CoreConnectionPNames.SO_TIMEOUT, 0)
-                .setIntParameter(CoreConnectionPNames.SOCKET_BUFFER_SIZE, 8 * 1024)
-                .setBooleanParameter(CoreConnectionPNames.STALE_CONNECTION_CHECK, false)
+                .setIntParameter(CoreConnectionPNames.SOCKET_BUFFER_SIZE,
+                        8 * 1024)
+                .setBooleanParameter(
+                        CoreConnectionPNames.STALE_CONNECTION_CHECK, false)
                 .setBooleanParameter(CoreConnectionPNames.TCP_NODELAY, true)
-                .setParameter(CoreProtocolPNames.ORIGIN_SERVER, "HttpComponents/1.1");
+                .setParameter(CoreProtocolPNames.ORIGIN_SERVER,
+                        "HttpComponents/1.1");
 
         HttpService httpService = new HttpService(httpProcessor,
-                new DefaultConnectionReuseStrategy(), new DefaultHttpResponseFactory(), mRegistry,
-                params);
+                new DefaultConnectionReuseStrategy(),
+                new DefaultHttpResponseFactory(), mRegistry, params);
 
         return httpService;
     }
 
-    protected BasicHttpContext getHttpContext() {
+
+    protected BasicHttpContext getHttpContext()
+    {
         return mHttpContext;
     }
 
-    private void readRequestHandlers() {
-        XmlReader reader = new XmlReader(mContext, WebServerConfig.RES.WEB_XML);
-        List<XmlNode> nodes = reader.getNodes(WebServerConfig.XML.TAG_REQUEST_HANDLER);
-        for (XmlNode node : nodes) {
-            String className = node.getAttributeValue(WebServerConfig.XML.ATTRIBUTE_CLASS);
 
-            if (className == null) {
+    private void readRequestHandlers()
+    {
+        XmlReader reader = new XmlReader(mContext, WebServerConfig.RES.WEB_XML);
+        List<XmlNode> nodes = reader
+                .getNodes(WebServerConfig.XML.TAG_REQUEST_HANDLER);
+        for (XmlNode node : nodes)
+        {
+            String className = node
+                    .getAttributeValue(WebServerConfig.XML.ATTRIBUTE_CLASS);
+
+            if (className == null)
+            {
                 mLog.error("request handler <" + node.getName()
                         + ">: no corresponding class to load found");
                 continue;
             }
-            try {
+            try
+            {
                 Class<?> clazz = Class.forName(className);
-                Constructor<?> constr = clazz.getConstructor(Context.class, XmlNode.class,
-                        HttpRequestHandlerRegistry.class);
+                Constructor<?> constr = clazz.getConstructor(Context.class,
+                        XmlNode.class, HttpRequestHandlerRegistry.class);
                 AbstractHttpRequestHandler newHandler = (AbstractHttpRequestHandler) constr
                         .newInstance(mContext, node, mRegistry);
                 mHandlerReferenceListing.add(newHandler);
-            } catch (Exception ex) {
+            }
+            catch (Exception ex)
+            {
                 mLog.error("Loading of class <" + className + "> failed", ex);
                 stopServer();
             }
@@ -134,31 +157,40 @@ public class SimpleWebServer {
         mLog.info("request handlers read from configuration");
     }
 
-    private void readRequestInterceptors() {
+
+    private void readRequestInterceptors()
+    {
         XmlReader reader = new XmlReader(mContext, WebServerConfig.RES.WEB_XML);
         List<XmlNode> interceptorNodes = reader
                 .getNodes(WebServerConfig.XML.TAG_REQUEST_INTERCEPTORS);
-        if (interceptorNodes.size() == 0) {
+        if (interceptorNodes.size() == 0)
+        {
             mLog.warning("no request interceptors configured");
             return;
         }
         List<XmlNode> nodes = interceptorNodes.get(0).getChildNodes(
                 WebServerConfig.XML.TAG_INTERCEPTOR);
-        for (XmlNode node : nodes) {
-            String className = node.getAttributeValue(WebServerConfig.XML.ATTRIBUTE_CLASS);
+        for (XmlNode node : nodes)
+        {
+            String className = node
+                    .getAttributeValue(WebServerConfig.XML.ATTRIBUTE_CLASS);
 
-            if (className == null) {
+            if (className == null)
+            {
                 mLog.error("request interceptor <" + node.getName()
                         + ">: no corresponding class to load found");
                 continue;
             }
-            try {
+            try
+            {
                 Class<?> clazz = Class.forName(className);
                 Constructor<?> constr = clazz.getConstructor(Context.class);
                 IRequestInterceptor interceptor = (IRequestInterceptor) constr
                         .newInstance(mContext);
                 setInterceptor(interceptor);
-            } catch (Exception ex) {
+            }
+            catch (Exception ex)
+            {
                 mLog.error("Loading of class <" + className + "> failed", ex);
                 stopServer();
             }
@@ -166,83 +198,111 @@ public class SimpleWebServer {
         mLog.info("request interceptors read from configuration");
     }
 
-    protected void setInterceptor(IRequestInterceptor reqInterceptor) {
-        for (AbstractHttpRequestHandler reqHandler : mHandlerReferenceListing) {
+
+    protected void setInterceptor(IRequestInterceptor reqInterceptor)
+    {
+        for (AbstractHttpRequestHandler reqHandler : mHandlerReferenceListing)
+        {
             reqHandler.addRequestInterceptor(reqInterceptor);
         }
     }
 
-    public boolean isRunning() {
-    	return mIsServerRunning;
-        //return mServerThread != null;
+
+    public boolean isRunning()
+    {
+        return mIsServerRunning;
+        // return mServerThread != null;
     }
 
-    public synchronized boolean startServer() {
-        if (this.isRunning()) {
-            mLog.info("Web service is already running at port <" + mServerThread.getPort() + ">");
+
+    public synchronized boolean startServer()
+    {
+        if (this.isRunning())
+        {
+            mLog.info("Web service is already running at port <"
+                    + mServerThread.getPort() + ">");
             return true;
         }
-        
-        updateWebServerConfiguration();
-        
-        try {
-            if (mHttps) {
-				initSSLContext();
+
+        readWebServerConfiguration();
+
+        try
+        {
+            if (mHttps)
+            {
+                initSSLContext();
                 final SSLServerSocketFactory sslServerSocketFactory = mSSLContext
                         .getServerSocketFactory();
-                mServerSocket = sslServerSocketFactory.createServerSocket(mServerPort, 0, mSocketAddress);
-            } else {
+                mServerSocket = sslServerSocketFactory.createServerSocket(
+                        mServerPort, 0, mSocketAddress);
+            } else
+            {
                 mServerSocket = new ServerSocket(mServerPort, 0, mSocketAddress);
             }
 
             statusbarPrintConnectionUrl();
             mServerSocket.setReuseAddress(true);
             mServerSocket.setSoTimeout(2000);
-            
+
             mIsServerRunning = true;
             mServerThread = new ServerThread(this, mServerSocket);
             mServerThread.setDaemon(true);
             mServerThread.start();
             mLog.info("WebServer started on port: " + mServerPort);
-            
+
             return true;
-        } catch (IOException ioException) {
-            mLog.error("Cannot create server socket on port <" + mServerPort + ">", ioException);
+        }
+        catch (IOException ioException)
+        {
+            mLog.error("Cannot create server socket on port <" + mServerPort
+                    + ">", ioException);
             return false;
         }
-        
-        
+
     }
 
-    private void updateWebServerConfiguration() {
-        PreferencesProvider config = new PreferencesProvider(mContext);
-        
-        if(config.getProtocol().compareTo("https") == 0){
-        	mHttps = true;
-        } else {
-        	mHttps = false;
-        }
-        
-        mServerPort = Integer.parseInt(config.getPort());
-        mKeyStorePass = config.getKeyStorePassword();
-	}
 
-	public synchronized void stopServer() {
+    private void readWebServerConfiguration()
+    {
+
+        if (mConfig.getProtocol().compareTo("https") == 0)
+        {
+            mHttps = true;
+        } else
+        {
+            mHttps = false;
+        }
+
+        mServerPort = Integer.parseInt(mConfig.getPort());
+        mKeyStorePass = mConfig.getKeyStorePassword();
+    }
+
+
+    public synchronized void stopServer()
+    {
         mLog.info("stop web server");
-        if (mServerThread != null) {
+        if (mServerThread != null)
+        {
             mServerThread.stopThread();
-            while (mServerThread.isRunning()) {
-                try {
+            while (mServerThread.isRunning())
+            {
+                try
+                {
                     this.wait(200);
-                } catch (InterruptedException interruptedException) {
+                }
+                catch (InterruptedException interruptedException)
+                {
                     ;
                 }
             }
-            try {
-				mServerSocket.close();
-			} catch (IOException e) {
-				// i ton't care
-			}
+            try
+            {
+                mServerSocket.close();
+            }
+            catch (IOException e)
+            {
+                // i ton't care
+            }
             mIsServerRunning = false;
             statusbarClearConnectionUrl();
         }
@@ -251,60 +311,75 @@ public class SimpleWebServer {
         mServerThread = null;
     }
 
-    private void closeRegistry() {
-        for (AbstractHttpRequestHandler toBeCleanedUp : mHandlerReferenceListing) {
+
+    private void closeRegistry()
+    {
+        for (AbstractHttpRequestHandler toBeCleanedUp : mHandlerReferenceListing)
+        {
             toBeCleanedUp.onClose();
         }
     }
 
-    private void initSSLContext() {
-        try {
+
+    private void initSSLContext()
+    {
+        try
+        {
             mSSLContext = SSLContext.getInstance("TLS");
-            
+
             ApplicationKeyStore appKeystore = new ApplicationKeyStore();
-            String keystoreFilePath = mContext.getFilesDir().getPath().toString() + "/" + mContext.getResources().getString(
-                    R.string.preferences_keystore_store_filename);
+            String keystoreFilePath = mContext.getFilesDir().getPath()
+                    .toString()
+                    + "/"
+                    + mContext.getResources().getString(
+                            R.string.preferences_keystore_store_filename);
             appKeystore.loadKeystore(mKeyStorePass, keystoreFilePath);
-            
-            mSSLContext.init(appKeystore.getKeystoreManagers(), null, new SecureRandom());
-        } catch (NoSuchAlgorithmException algoException) {
+
+            mSSLContext.init(appKeystore.getKeystoreManagers(), null,
+                    new SecureRandom());
+        }
+        catch (NoSuchAlgorithmException algoException)
+        {
             mLog.error("Wrong keystore algorithm!", algoException);
-        } catch (KeyManagementException keyException) {
+        }
+        catch (KeyManagementException keyException)
+        {
             mLog.error("Error while getting keymanagers!", keyException);
         }
     }
-    
-    
-    
-    public synchronized int getServerPort(){
-    	if(mServerThread != null && mServerThread.isRunning()){
-    		return mServerPort;
-    	} else {
-    		return -1;
-    	}
+
+
+    public synchronized int getServerPort()
+    {
+        if (mServerThread != null && mServerThread.isRunning())
+        {
+            return mServerPort;
+        } else
+        {
+            return -1;
+        }
     }
-    
+
+
     private void statusbarPrintConnectionUrl()
     {
-    	FireNotification notificator = new FireNotification(mContext);
-    	FireNotification.NotificationInfo info = new FireNotification.NotificationInfo();
-    	
-    	StringBuffer connectionUrl = new StringBuffer();
-    	if (  mHttps ) {
-    		connectionUrl.append("https://");
-    	} else {
-    		connectionUrl.append("http://");
-    	}
-    	
-    	info.text = connectionUrl.append("/"+ mSocketAddress.getHostAddress() + "/" + mServerPort).toString();
-    	info.title="WebSMSTool";
-    	info.tickerText="service running";
-		notificator.fireStickyInfos(info);
+        FireNotification notificator = new FireNotification(mContext);
+        FireNotification.NotificationInfo info = new FireNotification.NotificationInfo();
+        StringBuffer connectionUrl = new StringBuffer();
+        
+        connectionUrl.append(mConfig.getProtocol() + "://");
+
+        info.text = connectionUrl.append(
+                mSocketAddress.getHostAddress() + ":" + mConfig.getPort()).toString();
+        info.title = "WebSMSTool";
+        info.tickerText = "service running";
+        notificator.fireStickyInfos(info);
     }
-    
+
+
     private void statusbarClearConnectionUrl()
     {
-    	new FireNotification(mContext).cancelAll();
+        new FireNotification(mContext).cancelAll();
     }
-    
+
 }
