@@ -32,6 +32,7 @@ public class FaviconLoader extends AbstractHttpRequestHandler {
 			Bitmap bmp = BitmapFactory.decodeResource(mContext.getResources(), R.raw.favicon);
 			ByteArrayOutputStream os=new ByteArrayOutputStream();
 			bmp.compress(Bitmap.CompressFormat.PNG, 100, os); 
+			bmp = null;
 			byte[] imageBytes = os.toByteArray();
 			
 			mResponseDataAppender.appendHttpResponseMediaType(httpResponse,

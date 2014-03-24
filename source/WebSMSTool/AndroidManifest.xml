@@ -21,7 +21,7 @@
     android:versionName="1.0" >
 
     <uses-sdk
-        android:minSdkVersion="13"
+        android:minSdkVersion="14"
         android:targetSdkVersion="18" />
 
     <uses-permission android:name="android.permission.INTERNET" />
@@ -36,13 +36,15 @@
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.BROADCAST_STICKY" />
+    <uses-permission android:name="android.permission.WAKE_LOCK"  />
 
     <supports-screens android:anyDensity="true" />
 
     <application
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
-        android:label="@string/app_name" >
+        android:label="@string/app_name" 
+        android:largeHeap="true">
         <activity
             android:name="at.tugraz.ist.akm.activities.MainActivity"
             android:label="@string/app_name"
@@ -63,16 +65,20 @@
         </provider>
 
         <activity
-            android:name="at.tugraz.ist.akm.activities.PreferencesActivity">
+            android:name="at.tugraz.ist.akm.activities.PreferencesActivity"
+            android:parentActivityName="at.tugraz.ist.akm.activities.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.PREFERENCE" />
             </intent-filter>
         </activity>
+        
         <activity
-            android:name="at.tugraz.ist.akm.activities.AboutActivity">
+            android:name="at.tugraz.ist.akm.activities.AboutActivity"
+            android:parentActivityName="at.tugraz.ist.akm.activities.MainActivity">
         </activity>
+        
         <activity android:name="at.tugraz.ist.akm.activities.DefaultActionBar">
         </activity>
     </application>

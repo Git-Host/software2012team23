@@ -21,7 +21,7 @@ import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.preference.PreferenceManager;
 import android.test.AndroidTestCase;
 import at.tugraz.ist.akm.preferences.OnSharedPreferenceChangeListenerValidator;
-import at.tugraz.ist.akm.preferences.PreferencesProvider;
+import at.tugraz.ist.akm.preferences.SharedPreferencesProvider;
 import at.tugraz.ist.akm.test.trace.ThrowingLogSink;
 import at.tugraz.ist.akm.trace.LogClient;
 import at.tugraz.ist.akm.trace.TraceService;
@@ -30,7 +30,7 @@ public class PreferencesProviderTest extends AndroidTestCase implements
         OnSharedPreferenceChangeListener
 {
     private SharedPreferences mSharedPreferences = null;
-    private PreferencesProvider mConfig = null;
+    private SharedPreferencesProvider mConfig = null;
     private LogClient mLog = new LogClient(this);
     private int mExpectedOnValueChangedCallbacks = 0;
     private OnSharedPreferenceChangeListenerValidator mPreferenceValidator = null;
@@ -49,7 +49,7 @@ public class PreferencesProviderTest extends AndroidTestCase implements
     {
         super.setUp();
 
-        mConfig = new PreferencesProvider(getContext());
+        mConfig = new SharedPreferencesProvider(getContext());
         mPreferenceValidator = new OnSharedPreferenceChangeListenerValidator(
                 getContext());
         mSharedPreferences = PreferenceManager

@@ -47,11 +47,8 @@ public class SmsSender extends LogClient {
 		    info("sending part [" + partNum++ + "] to [" + message.getAddress()
 					+ "] size in chars [" + part.length() + "] (" + part + ")");
 			PendingIntent sentPIntent = getSentPendingIntent(message, part);
-			PendingIntent deliveredPIntent = null; 
-//			getDeliveredPendingIntent(message,
-//					part);
 			mSmsManager.sendTextMessage(message.getAddress(), null, part,
-					sentPIntent, deliveredPIntent);
+					sentPIntent, null);
 		}
 		return parts.size();
 	}

@@ -18,7 +18,7 @@ package at.tugraz.ist.akm.content;
 
 import android.content.ContentValues;
 import android.database.sqlite.SQLiteDatabase;
-import at.tugraz.ist.akm.preferences.PreferencesProvider;
+import at.tugraz.ist.akm.preferences.SharedPreferencesProvider;
 import at.tugraz.ist.akm.providers.ApplicationContentProvider;
 
 public class DefaultPreferencesInserter {
@@ -28,7 +28,7 @@ public class DefaultPreferencesInserter {
 //	public static final String PASSWORD = "password";
 //	public static final String PORT = "port";
 //	public static final String PROTOCOL = "protocol";
-	public static final String KEYSTOREPASSWORD = "keystorepassword";
+	public static final String KEYSTOREPASSWORD = "password";
 	
 	public static void storeDefaultPreferences(SQLiteDatabase db) {
 		mDb = db;
@@ -41,8 +41,8 @@ public class DefaultPreferencesInserter {
 	
 	private static void insertKeyValuePair(String name, String value) {
 		ContentValues values = new ContentValues();
-		values.put(PreferencesProvider.Content.NAME, name);
-		values.put(PreferencesProvider.Content.VALUE, value);
+		values.put(SharedPreferencesProvider.Content.NAME, name);
+		values.put(SharedPreferencesProvider.Content.VALUE, value);
 		mDb.insert(ApplicationContentProvider.CONFIGURATION_TABLE_NAME, null, values);
 	}
 }

@@ -16,12 +16,17 @@
 
 package at.tugraz.ist.akm.activities;
 
+import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
+import java.net.UnknownHostException;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
+
+import org.apache.http.conn.util.InetAddressUtils;
 
 import android.app.ActivityManager;
 import android.content.BroadcastReceiver;
@@ -30,18 +35,18 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.format.Formatter;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 import at.tugraz.ist.akm.R;
 import at.tugraz.ist.akm.activities.trace.AndroidUILogSink;
 import at.tugraz.ist.akm.preferences.OnSharedPreferenceChangeListenerValidator;
-import at.tugraz.ist.akm.preferences.PreferencesProvider;
+import at.tugraz.ist.akm.preferences.SharedPreferencesProvider;
 import at.tugraz.ist.akm.trace.LogClient;
 import at.tugraz.ist.akm.trace.TraceService;
 import at.tugraz.ist.akm.webservice.WebSMSToolService;
@@ -56,7 +61,7 @@ public class MainActivity extends DefaultActionBar implements
     final String mServiceName = WebSMSToolService.class.getName();
     private ToggleButton mButton = null;
     private TextView mInfoFieldView = null;
-    private PreferencesProvider mApplicationConfig = null;
+    private SharedPreferencesProvider mApplicationConfig = null;
     private ServiceStateListener mServiceListener = null;
 
     private WifiManager mWifiManager = null;
@@ -136,7 +141,8 @@ public class MainActivity extends DefaultActionBar implements
                 WebSMSToolService.class);
         mButton = (ToggleButton) findViewById(R.id.start_stop_server);
         mInfoFieldView = (TextView) findViewById(R.id.adress_data_field);
-        mApplicationConfig = new PreferencesProvider(getApplicationContext());
+        mApplicationConfig = new SharedPreferencesProvider(
+                getApplicationContext());
 
         mWifiManager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
         mConnectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -234,14 +240,13 @@ public class MainActivity extends DefaultActionBar implements
 
         if (mWifiManager.isWifiEnabled())
         {
-            mLog.info("wtf -> wifi enabled");
-            ip4Address = readWifiAddress();
+            ip4Address = readWifiIP4Address();
         } else if (isRunningOnEmulator() && mobileNetInfo != null
                 && mobileNetInfo.isConnected())
         {
             try
             {
-                ip4Address = readIPAddressOfEmulator();
+                ip4Address = readIP4AddressOfEmulator();
             }
             catch (SocketException e)
             {
@@ -251,15 +256,34 @@ public class MainActivity extends DefaultActionBar implements
     }
 
 
-    private String readWifiAddress()
+    @SuppressWarnings("deprecation")
+    private String readWifiIP4Address()
     {
-        return Formatter.formatIpAddress(mWifiManager.getConnectionInfo()
-                .getIpAddress());
+        String ip4Address = "0.0.0.0";
+        byte[] ipAddress = BigInteger.valueOf(
+                mWifiManager.getConnectionInfo().getIpAddress()).toByteArray();
+        try
+        {
+            InetAddress address = InetAddress.getByAddress(ipAddress);
+            String concreteAddressString = address.getHostAddress().toUpperCase(Locale.getDefault());
+            if ( InetAddressUtils.isIPv4Address(concreteAddressString) ) 
+            {
+                // do not replace formatter by InetAddress here since this returns "1.0.0.127" instead of "127.0.0.1"
+                ip4Address = Formatter.formatIpAddress(mWifiManager.getConnectionInfo().getIpAddress());
+            }
+        }
+        catch (UnknownHostException e)
+        {
+            return ip4Address;
+        }
+        return ip4Address;
     }
 
 
-    private String readIPAddressOfEmulator() throws SocketException
+    private String readIP4AddressOfEmulator() throws SocketException
     {
+        String inet4Address = "0.0.0.0";
+
         for (Enumeration<NetworkInterface> iter = NetworkInterface
                 .getNetworkInterfaces(); iter.hasMoreElements();)
         {
@@ -267,14 +291,21 @@ public class MainActivity extends DefaultActionBar implements
 
             if (nic.getName().startsWith("eth"))
             {
-                Enumeration<InetAddress> iaddr = nic.getInetAddresses();
-                iaddr.nextElement();
-                if (iaddr.hasMoreElements()) {
-                    return iaddr.nextElement().getHostAddress();
+                Enumeration<InetAddress> addresses = nic.getInetAddresses();
+                addresses.nextElement(); // skip first
+                if (addresses.hasMoreElements())
+                {
+                    InetAddress address = addresses.nextElement();
+
+                    String concreteAddressString = address.getHostName().toUpperCase(Locale.getDefault());
+                    if (InetAddressUtils.isIPv4Address(concreteAddressString))
+                    {
+                        inet4Address = concreteAddressString;
+                    }
                 }
             }
         }
-        return "0.0.0.0";
+        return inet4Address;
     }
 
 
@@ -303,7 +334,7 @@ public class MainActivity extends DefaultActionBar implements
     }
 
 
-    private boolean isRunningOnEmulator()
+    public final boolean isRunningOnEmulator()
     {
         return ("google_sdk".equals(Build.PRODUCT) || "sdk_x86"
                 .equals(Build.PRODUCT));
@@ -317,7 +348,7 @@ public class MainActivity extends DefaultActionBar implements
         {
             if (updateLocalIp() || isRunningOnEmulator())
             {
-                mLog.info("Going to start web service");
+                mLog.info("starting web service with address " + mLocalIp);
                 displayStartingService();
                 view.getContext().startService(mSmsServiceIntent);
             } else
@@ -434,5 +465,14 @@ public class MainActivity extends DefaultActionBar implements
         String extra = i.getExtras().getString(
                 OnSharedPreferenceChangeListenerValidator.CERTIFICATE_RENEWED);
         mLog.verbose("certificate renewed: " + extra);
+    }
+
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item)
+    {
+        if (item.getItemId() == R.id.home)
+            return true;
+        return super.onOptionsItemSelected(item);
     }
 }

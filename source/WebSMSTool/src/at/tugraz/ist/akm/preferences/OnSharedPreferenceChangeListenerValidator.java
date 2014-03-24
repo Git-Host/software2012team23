@@ -16,7 +16,8 @@ public class OnSharedPreferenceChangeListenerValidator implements
 {
     public static final String CERTIFICATE_RENEWED = "at.tugraz.ist.akm.sms.CERTIFICATE_RENEWED";
 
-    private int mMinPortNumber = 1024, mMaxPortNumber = 65535;
+    private int mMinPortNumber = 1024;
+    private int mMaxPortNumber = 65535;
     private LogClient mLog = new LogClient(this);
     private Context mContext = null;
 
@@ -55,32 +56,37 @@ public class OnSharedPreferenceChangeListenerValidator implements
         {
             if (sharedPreferences.getBoolean(key, false) == true)
             {
-                renewCertificate();
                 Editor ed = sharedPreferences.edit();
+                renewCertificate();
                 ed.putBoolean(key, false);
                 ed.apply();
             }
+        }
+        else
+        {
+            mLog.warning("missed preference on state changed event");
         }
     }
 
 
     private void renewCertificate()
     {
-        PreferencesProvider preferencesProvider = new PreferencesProvider(
+        SharedPreferencesProvider preferencesProvider = new SharedPreferencesProvider(
                 mContext);
         ApplicationKeyStore appKeyStore = new ApplicationKeyStore();
         appKeyStore.deleteKeystore(preferencesProvider.getKeyStoreFilePath());
         String newPassword = appKeyStore.newRandomPassword();
         appKeyStore.loadKeystore(newPassword,
                 preferencesProvider.getKeyStoreFilePath());
-        sendNotificationIntent(appKeyStore.getX509Certficate());
+        X509Certificate newCertificate = appKeyStore.getX509Certficate();
         appKeyStore.close();
+        sendKeystoreRenewedNotificationIntent(newCertificate);
         preferencesProvider.setKeyStorePassword(newPassword);
 
     }
 
 
-    private void sendNotificationIntent(X509Certificate cert)
+    private void sendKeystoreRenewedNotificationIntent(X509Certificate cert)
     {
         String summary = "error";
 

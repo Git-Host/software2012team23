@@ -13,7 +13,7 @@ import android.preference.PreferenceManager;
 import at.tugraz.ist.akm.R;
 import at.tugraz.ist.akm.keystore.ApplicationKeyStore;
 import at.tugraz.ist.akm.preferences.OnSharedPreferenceChangeListenerValidator;
-import at.tugraz.ist.akm.preferences.PreferencesProvider;
+import at.tugraz.ist.akm.preferences.SharedPreferencesProvider;
 import at.tugraz.ist.akm.trace.LogClient;
 
 public class PreferencesActivity extends PreferenceActivity implements
@@ -27,6 +27,8 @@ public class PreferencesActivity extends PreferenceActivity implements
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
+        getActionBar().setIcon(
+                getResources().getDrawable(R.drawable.ic_notification));
         addPreferencesFromResource(R.xml.preferences_list);
         SharedPreferences preferences = sharedPreferences();
 
@@ -63,14 +65,14 @@ public class PreferencesActivity extends PreferenceActivity implements
         sp.registerOnSharedPreferenceChangeListener(this);
     }
 
-
+    
     @Override
     protected void onPause()
     {
         super.onPause();
         SharedPreferences sp = getPreferenceScreen().getSharedPreferences();
-        sp.registerOnSharedPreferenceChangeListener(this);
-        sp.registerOnSharedPreferenceChangeListener(mPreferenceListener);
+        sp.unregisterOnSharedPreferenceChangeListener(this);
+        sp.unregisterOnSharedPreferenceChangeListener(mPreferenceListener);
     }
 
 
@@ -139,12 +141,6 @@ public class PreferencesActivity extends PreferenceActivity implements
                         .equals(resourceString(R.string.preferences_protocol_renew_certificate_checkbox_key)))
                 {
                     summary = createRenewCertificateCheckboxSummary();
-                    Editor spEdit = sharedPref.edit();
-                    spEdit.putBoolean(
-                            resourceString(R.string.preferences_protocol_renew_certificate_checkbox_key),
-                            false);
-                    spEdit.apply();
-
                 }
                 try
                 {
@@ -166,7 +162,7 @@ public class PreferencesActivity extends PreferenceActivity implements
     private String createRenewCertificateCheckboxSummary()
     {
         String summary = null;
-        PreferencesProvider preferencesProvider = new PreferencesProvider(
+        SharedPreferencesProvider preferencesProvider = new SharedPreferencesProvider(
                 getApplicationContext());
         ApplicationKeyStore appKeyStore = new ApplicationKeyStore();
 

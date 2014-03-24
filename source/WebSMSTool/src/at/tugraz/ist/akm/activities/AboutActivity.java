@@ -22,17 +22,18 @@ import android.text.util.Linkify;
 import android.widget.TextView;
 import at.tugraz.ist.akm.R;
 
-
-public class AboutActivity extends Activity {
+public class AboutActivity extends Activity
+{
 
     @Override
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.about_activity);
-        
+        getActionBar().setIcon(
+                getResources().getDrawable(R.drawable.ic_notification));
         TextView link = (TextView) findViewById(R.id.aboutInfoLink);
         Linkify.addLinks(link, Linkify.ALL);
     }
-    
+
 }

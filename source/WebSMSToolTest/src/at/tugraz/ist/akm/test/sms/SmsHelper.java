@@ -18,6 +18,7 @@ package at.tugraz.ist.akm.test.sms;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 
 import android.database.Cursor;
 import at.tugraz.ist.akm.sms.TextMessage;
@@ -33,7 +34,8 @@ public class SmsHelper {
 	
 	public static String getDateNowString() {
 		Date dateNow = new Date();
-		SimpleDateFormat dateformat = new SimpleDateFormat("hh:mm:ss dd.MM.yyyy");
+		
+		SimpleDateFormat dateformat = new SimpleDateFormat("hh:mm:ss dd.MM.yyyy", Locale.getDefault());
 		StringBuilder now = new StringBuilder(dateformat.format(dateNow));
 		return now.toString();
 

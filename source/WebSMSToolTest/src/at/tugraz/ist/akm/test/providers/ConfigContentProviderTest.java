@@ -20,8 +20,8 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
 import at.tugraz.ist.akm.content.DefaultPreferencesInserter;
-import at.tugraz.ist.akm.preferences.PreferencesProvider;
-import at.tugraz.ist.akm.preferences.PreferencesProvider.Content;
+import at.tugraz.ist.akm.preferences.SharedPreferencesProvider;
+import at.tugraz.ist.akm.preferences.SharedPreferencesProvider.Content;
 import at.tugraz.ist.akm.providers.ApplicationContentProvider;
 import at.tugraz.ist.akm.test.base.WebSMSToolInstrumentationTestcase;
 
@@ -44,27 +44,27 @@ public class ConfigContentProviderTest extends WebSMSToolInstrumentationTestcase
 	
 	public void testInsert() {
 		ContentValues values = new ContentValues();
-		values.put(PreferencesProvider.Content.NAME, "bla");
-		values.put(PreferencesProvider.Content.VALUE, "bla");
+		values.put(SharedPreferencesProvider.Content.NAME, "bla");
+		values.put(SharedPreferencesProvider.Content.VALUE, "bla");
 		assertTrue("values not inserted", !(mContentResolver.insert(uri, values) == null));
 		
-		mContentResolver.delete(uri, PreferencesProvider.Content.NAME, new String[] {"bla"});
+		mContentResolver.delete(uri, SharedPreferencesProvider.Content.NAME, new String[] {"bla"});
 	}
 	
 	public void testDelete() {
 		ContentValues values = new ContentValues();
-		values.put(PreferencesProvider.Content.NAME, "bla");
-		values.put(PreferencesProvider.Content.VALUE, "bla");
+		values.put(SharedPreferencesProvider.Content.NAME, "bla");
+		values.put(SharedPreferencesProvider.Content.VALUE, "bla");
 		mContentResolver.insert(uri, values);
 		
 		String[] names = {"bla"};
-		assertTrue("no users deleted", mContentResolver.delete(uri, PreferencesProvider.Content.NAME, names) != 0);
+		assertTrue("no users deleted", mContentResolver.delete(uri, SharedPreferencesProvider.Content.NAME, names) != 0);
 	}
 	
 	public void testQuery() {
 		try {
 			String[] names = {DefaultPreferencesInserter.KEYSTOREPASSWORD};
-			Cursor cursor = mContentResolver.query(uri, new String[] {PreferencesProvider.Content.VALUE}, PreferencesProvider.Content.NAME, names, null);
+			Cursor cursor = mContentResolver.query(uri, new String[] {SharedPreferencesProvider.Content.VALUE}, SharedPreferencesProvider.Content.NAME, names, null);
 			if (cursor != null) {
 				while (cursor.moveToNext()) {
 					logDebug(cursor.getString(0));
@@ -81,14 +81,14 @@ public class ConfigContentProviderTest extends WebSMSToolInstrumentationTestcase
 
 	public void testUpdate() {
 		ContentValues values = new ContentValues();
-		values.put(PreferencesProvider.Content.VALUE, "admin");
+		values.put(SharedPreferencesProvider.Content.VALUE, "admin");
 		
 		String[] names = {DefaultPreferencesInserter.KEYSTOREPASSWORD};
 		
-		assertTrue("no values updated at first update", mContentResolver.update(uri, values, PreferencesProvider.Content.NAME, names) != 0);
+		assertTrue("no values updated at first update", mContentResolver.update(uri, values, SharedPreferencesProvider.Content.NAME, names) != 0);
 		values.clear();
-		values.put(PreferencesProvider.Content.VALUE, "");
-		assertTrue("no values updated at second update", mContentResolver.update(uri, values, PreferencesProvider.Content.NAME, names) != 0);
+		values.put(SharedPreferencesProvider.Content.VALUE, "");
+		assertTrue("no values updated at second update", mContentResolver.update(uri, values, SharedPreferencesProvider.Content.NAME, names) != 0);
 	}
 	
 	public void testGetType() {

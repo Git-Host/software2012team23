@@ -17,6 +17,7 @@
 package at.tugraz.ist.akm.webservice.handler;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -24,6 +25,7 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 
 import my.org.apache.http.HttpException;
 import my.org.apache.http.HttpResponse;
@@ -203,14 +205,14 @@ public class JsonAPIRequestHandler extends AbstractHttpRequestHandler implements
 	}
 
     private JSONObject processMethod(String method, JSONArray jsonParams) {
-        mLog.info("Handle api request with given method: " + method);
+        mLog.info("handle api request <" + method + ">");
 
         JSONObject resultObject = new JSONObject();
 
         if (jsonParams == null) {
-            mLog.info("No parameter for request " + method);
+            mLog.info("0 parameter found for request <" + method + ">");
         } else {
-            mLog.info("Given parameters: " + jsonParams.toString());
+            mLog.info("parameters " + jsonParams.toString());
         }
 
         try {
@@ -399,13 +401,14 @@ public class JsonAPIRequestHandler extends AbstractHttpRequestHandler implements
 
         String address = "";
         String message = "";
+        String exceptionalMessage = "Parameters for sending sms could not be fetched from the given api request.";
         
         int paramsLength = params.length();
         try {
             if (paramsLength == 1) {
                 JSONObject jsonParams = params.getJSONObject(0);
                 address = jsonParams.getString("address");
-                message = URLDecoder.decode(jsonParams.getString("message"));
+                message = URLDecoder.decode(jsonParams.getString("message"), "UTF-8");
                 mLog.info("Fetch parameter adress: " + address
                         + " and message: " + message
                         + " from send sms request.");
@@ -414,10 +417,11 @@ public class JsonAPIRequestHandler extends AbstractHttpRequestHandler implements
                         "Corrupt amount of parameters given to send sms.");
                 return resultObject;
             }
-        } catch (JSONException jsonException) {
-            mLog.error(
-                    "Parameters for sending sms could not be fetched from the given api request.",
-                    jsonException);
+        } catch (JSONException e) {            
+            mLog.error(exceptionalMessage, e);
+        }
+        catch ( UnsupportedEncodingException e) {
+            mLog.error(exceptionalMessage, e);
         }
 
         if (address.length() > 0 && message.length() > 0) {

@@ -46,11 +46,13 @@ import my.org.apache.http.protocol.ResponseContent;
 import my.org.apache.http.protocol.ResponseDate;
 import my.org.apache.http.protocol.ResponseServer;
 import android.content.Context;
+import android.os.PowerManager;
+import android.os.PowerManager.WakeLock;
 import at.tugraz.ist.akm.R;
 import at.tugraz.ist.akm.io.xml.XmlNode;
 import at.tugraz.ist.akm.io.xml.XmlReader;
 import at.tugraz.ist.akm.keystore.ApplicationKeyStore;
-import at.tugraz.ist.akm.preferences.PreferencesProvider;
+import at.tugraz.ist.akm.preferences.SharedPreferencesProvider;
 import at.tugraz.ist.akm.statusbar.FireNotification;
 import at.tugraz.ist.akm.trace.LogClient;
 import at.tugraz.ist.akm.webservice.WebServerConfig;
@@ -69,7 +71,7 @@ public class SimpleWebServer
     private ServerThread mServerThread = null;
     private Vector<AbstractHttpRequestHandler> mHandlerReferenceListing = new Vector<AbstractHttpRequestHandler>();
 
-    private PreferencesProvider mConfig = null;
+    private SharedPreferencesProvider mConfig = null;
     private InetAddress mSocketAddress = null;
     private ServerSocket mServerSocket = null;
     private boolean mHttps;
@@ -80,15 +82,19 @@ public class SimpleWebServer
 
     private boolean mIsServerRunning = false;
 
+    private WakeLock mWakeLock = null;
 
     public SimpleWebServer(Context context, String socketAddress)
             throws Exception
     {
         this.mContext = context;
-        mConfig = new PreferencesProvider(mContext);
+        PowerManager pm = (PowerManager) mContext.getSystemService(Context.POWER_SERVICE);
+        mWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, this.getClass().getName());
+        mConfig = new SharedPreferencesProvider(mContext);
         this.mSocketAddress = InetAddress.getByName(socketAddress);
         readRequestHandlers();
         readRequestInterceptors();
+        
     }
 
 
@@ -217,6 +223,11 @@ public class SimpleWebServer
 
     public synchronized boolean startServer()
     {
+        if ( false == mWakeLock.isHeld() ) 
+        {
+            mWakeLock.acquire();
+        }
+        
         if (this.isRunning())
         {
             mLog.info("Web service is already running at port <"
@@ -225,6 +236,7 @@ public class SimpleWebServer
         }
 
         readWebServerConfiguration();
+        String socketType ="https";
 
         try
         {
@@ -238,12 +250,11 @@ public class SimpleWebServer
             } else
             {
                 mServerSocket = new ServerSocket(mServerPort, 0, mSocketAddress);
+                socketType = "http";
             }
-
-            statusbarPrintConnectionUrl();
+            statusbarIndicateConnectionUrl();
             mServerSocket.setReuseAddress(true);
             mServerSocket.setSoTimeout(2000);
-
             mIsServerRunning = true;
             mServerThread = new ServerThread(this, mServerSocket);
             mServerThread.setDaemon(true);
@@ -254,7 +265,7 @@ public class SimpleWebServer
         }
         catch (IOException ioException)
         {
-            mLog.error("Cannot create server socket on port <" + mServerPort
+            mLog.error("cannot bind <" + socketType + "> socket to <" + mSocketAddress + ":" + mServerPort
                     + ">", ioException);
             return false;
         }
@@ -303,8 +314,11 @@ public class SimpleWebServer
             {
                 // i ton't care
             }
-            mIsServerRunning = false;
-            statusbarClearConnectionUrl();
+            finally {
+                mIsServerRunning = false;
+                statusbarClearConnectionUrl();
+                mWakeLock.release();
+            }
         }
 
         closeRegistry();
@@ -323,11 +337,11 @@ public class SimpleWebServer
 
     private void initSSLContext()
     {
+        ApplicationKeyStore appKeystore = new ApplicationKeyStore();
         try
         {
             mSSLContext = SSLContext.getInstance("TLS");
 
-            ApplicationKeyStore appKeystore = new ApplicationKeyStore();
             String keystoreFilePath = mContext.getFilesDir().getPath()
                     .toString()
                     + "/"
@@ -346,6 +360,9 @@ public class SimpleWebServer
         {
             mLog.error("Error while getting keymanagers!", keyException);
         }
+        finally {
+            appKeystore.close();
+        }
     }
 
 
@@ -361,7 +378,7 @@ public class SimpleWebServer
     }
 
 
-    private void statusbarPrintConnectionUrl()
+    private void statusbarIndicateConnectionUrl()
     {
         FireNotification notificator = new FireNotification(mContext);
         FireNotification.NotificationInfo info = new FireNotification.NotificationInfo();

@@ -18,6 +18,7 @@ package at.tugraz.ist.akm.webservice.protocol.json;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -40,7 +41,7 @@ public class JsonTextMessageBuilder implements IJsonBuilder {
         	json.put("address", Contact.Number.cleanNumber(message.getAddress()));
 			json.put("body", message.getBody());
 			
-			SimpleDateFormat df = new SimpleDateFormat("d.M.y HH:mm:ss");
+			SimpleDateFormat df = new SimpleDateFormat("d.M.y HH:mm:ss", Locale.getDefault());
 			json.put("date", df.format(new Date(Long.parseLong(message.getDate()))));
 			
 			json.put("person", message.getPerson());

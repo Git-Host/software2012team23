@@ -22,6 +22,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.database.Cursor;
+import android.graphics.AvoidXfermode.Mode;
 import android.net.Uri;
 import android.preference.PreferenceManager;
 import android.provider.BaseColumns;
@@ -29,7 +30,7 @@ import at.tugraz.ist.akm.R;
 import at.tugraz.ist.akm.content.DefaultPreferencesInserter;
 import at.tugraz.ist.akm.providers.ApplicationContentProvider;
 
-public class PreferencesProvider
+public class SharedPreferencesProvider
 {
     private ContentResolver mContentResolver;
     private SharedPreferences mSharedPreferences = null;
@@ -39,7 +40,7 @@ public class PreferencesProvider
     private final static String HTTP_PROTOCOL_NAME = "http";
 
 
-    public PreferencesProvider(Context context)
+    public SharedPreferencesProvider(Context context)
     {
         mApplicationContext = context;
         mContentResolver = context.getContentResolver();
@@ -131,14 +132,13 @@ public class PreferencesProvider
 
     public String getKeyStorePassword()
     {
-        return this
-                .getSettingFromContentProvider(DefaultPreferencesInserter.KEYSTOREPASSWORD);
+        return getSettingFromApplicationContentProvider(DefaultPreferencesInserter.KEYSTOREPASSWORD);
     }
 
 
     public void setKeyStorePassword(String keyStorePassword)
     {
-        putSettingToContentProvider(
+        storeSettingToApplicationContentProvider(
                 DefaultPreferencesInserter.KEYSTOREPASSWORD, keyStorePassword);
     }
 
@@ -150,15 +150,15 @@ public class PreferencesProvider
     }
 
 
-    private void putSettingToContentProvider(String name, String value)
+    private void storeSettingToApplicationContentProvider(String name, String value)
     {
         ContentValues values = new ContentValues();
         values.put(Content.VALUE, value);
-        this.updateSettings(values, name);
+        updateSettings(values, name);
     }
 
 
-    private String getSettingFromContentProvider(String name)
+    private String getSettingFromApplicationContentProvider(String name)
     {
         String[] names = { name };
         String queriedValue = "";

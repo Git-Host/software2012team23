@@ -28,7 +28,7 @@ import android.widget.ToggleButton;
 import at.tugraz.ist.akm.R;
 import at.tugraz.ist.akm.activities.MainActivity;
 import at.tugraz.ist.akm.keystore.ApplicationKeyStore;
-import at.tugraz.ist.akm.preferences.PreferencesProvider;
+import at.tugraz.ist.akm.preferences.SharedPreferencesProvider;
 import at.tugraz.ist.akm.test.trace.ThrowingLogSink;
 import at.tugraz.ist.akm.trace.LogClient;
 import at.tugraz.ist.akm.trace.TraceService;
@@ -65,7 +65,7 @@ public class MainActivityTest extends
 
     public void testStartStopButton() throws InterruptedException
     {
-        PreferencesProvider prefs = new PreferencesProvider(getActivity()
+        SharedPreferencesProvider prefs = new SharedPreferencesProvider(getActivity()
                 .getApplicationContext());
         ApplicationKeyStore appKeystore = new ApplicationKeyStore();
 
@@ -74,20 +74,21 @@ public class MainActivityTest extends
         appKeystore.close();
 
         Solo solo = new Solo(getInstrumentation(), getActivity());
-        solo.assertCurrentActivity("Actual activty is MainActivity",
+        solo.assertCurrentActivity("Current activty is not MainActivity",
                 MainActivity.class);
         WifiManager wm = (WifiManager) mContext
                 .getSystemService(Context.WIFI_SERVICE);
 
         ToggleButton startStop = (ToggleButton) getActivity().findViewById(
                 R.id.start_stop_server);
-        assertFalse(startStop.isChecked());
+        startStop.setActivated(false);
         stopWebService();
+        assertFalse(startStop.isChecked());
 
         solo.clickOnView(startStop);
         waitForServiceBeingStarted();
 
-        if (wm.isWifiEnabled())
+        if (wm.isWifiEnabled() || getActivity().isRunningOnEmulator())
         {
             assertTrue(startStop.isChecked());
 

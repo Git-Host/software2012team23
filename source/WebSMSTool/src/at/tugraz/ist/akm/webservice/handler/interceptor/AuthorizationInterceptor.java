@@ -24,21 +24,21 @@ import my.org.apache.http.HttpResponse;
 import android.content.Context;
 import android.util.Base64;
 import at.tugraz.ist.akm.io.FileReader;
-import at.tugraz.ist.akm.preferences.PreferencesProvider;
+import at.tugraz.ist.akm.preferences.SharedPreferencesProvider;
 import at.tugraz.ist.akm.trace.LogClient;
 import at.tugraz.ist.akm.webservice.WebServerConfig;
 
 public class AuthorizationInterceptor extends AbstractRequestInterceptor
 {
     protected final LogClient mLog = new LogClient(this);
-    private PreferencesProvider mConfig;
+    private SharedPreferencesProvider mConfig;
     private final static String mDefaultEncoding = "UTF8";
 
 
     public AuthorizationInterceptor(Context context)
     {
         super(context);
-        mConfig = new PreferencesProvider(context);
+        mConfig = new SharedPreferencesProvider(context);
     }
 
 

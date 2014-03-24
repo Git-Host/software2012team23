@@ -63,6 +63,7 @@ public class TelephonySignalStrength {
 		Bitmap bmp = BitmapFactory.decodeResource(mContext.getResources(), mSignalIconId);
 		ByteArrayOutputStream os=new ByteArrayOutputStream();
 		bmp.compress(android.graphics.Bitmap.CompressFormat.PNG, 100,(OutputStream) os);
+		bmp = null;
 		byte[] byteArray = os.toByteArray();
 		
 		return Base64.encode(byteArray, Base64.DEFAULT);

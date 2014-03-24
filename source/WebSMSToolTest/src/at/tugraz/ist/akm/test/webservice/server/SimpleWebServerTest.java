@@ -30,7 +30,7 @@ import org.json.JSONObject;
 import at.tugraz.ist.akm.R;
 import at.tugraz.ist.akm.io.FileReader;
 import at.tugraz.ist.akm.keystore.ApplicationKeyStore;
-import at.tugraz.ist.akm.preferences.PreferencesProvider;
+import at.tugraz.ist.akm.preferences.SharedPreferencesProvider;
 import at.tugraz.ist.akm.test.base.WebSMSToolActivityTestcase;
 import at.tugraz.ist.akm.webservice.server.SimpleWebServer;
 
@@ -86,7 +86,7 @@ public class SimpleWebServerTest extends WebSMSToolActivityTestcase
     protected void setUp() throws Exception
     {
         super.setUp();
-        PreferencesProvider serverConfig = new PreferencesProvider(mContext);
+        SharedPreferencesProvider serverConfig = new SharedPreferencesProvider(mContext);
         serverConfig.setProtocol("http");
         serverConfig.setPort("8888");
     }
@@ -261,7 +261,7 @@ public class SimpleWebServerTest extends WebSMSToolActivityTestcase
     {
         logDebug("testStartSecureServer");
 
-        PreferencesProvider serverConfig = new PreferencesProvider(mContext);
+        SharedPreferencesProvider serverConfig = new SharedPreferencesProvider(mContext);
         serverConfig.setProtocol("https");
         serverConfig.setPort("8888");
         String keystorePassword = "foobar64";

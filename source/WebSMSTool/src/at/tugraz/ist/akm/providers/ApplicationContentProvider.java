@@ -30,7 +30,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 import at.tugraz.ist.akm.content.DefaultPreferencesInserter;
-import at.tugraz.ist.akm.preferences.PreferencesProvider;
+import at.tugraz.ist.akm.preferences.SharedPreferencesProvider;
 import at.tugraz.ist.akm.trace.LogClient;
 
 public class ApplicationContentProvider extends ContentProvider {
@@ -93,7 +93,7 @@ public class ApplicationContentProvider extends ContentProvider {
         rowId = db.insert(CONFIGURATION_TABLE_NAME, null, values);
         db.close();
         if (rowId > 0) {
-            Uri noteUri = ContentUris.withAppendedId(PreferencesProvider.Content.CONTENT_URI, rowId);
+            Uri noteUri = ContentUris.withAppendedId(SharedPreferencesProvider.Content.CONTENT_URI, rowId);
             getContext().getContentResolver().notifyChange(noteUri, null);
             return noteUri;
         }
@@ -160,7 +160,7 @@ public class ApplicationContentProvider extends ContentProvider {
     public String getType(Uri uri) {
         switch (URI_MATCHER.match(uri)) {
         case 1:
-            return PreferencesProvider.Content.CONTENT_TYPE;
+            return SharedPreferencesProvider.Content.CONTENT_TYPE;
 
         default:
             throw new IllegalArgumentException("unknown URI" + uri);
@@ -181,9 +181,9 @@ public class ApplicationContentProvider extends ContentProvider {
         URI_MATCHER.addURI(AUTHORITY, CONFIGURATION_TABLE_NAME, 1);
 
         mContentMap = new HashMap<String, String>();
-        mContentMap.put(PreferencesProvider.Content._ID, PreferencesProvider.Content._ID);
-        mContentMap.put(PreferencesProvider.Content.NAME, PreferencesProvider.Content.NAME);
-        mContentMap.put(PreferencesProvider.Content.VALUE, PreferencesProvider.Content.VALUE);
+        mContentMap.put(SharedPreferencesProvider.Content._ID, SharedPreferencesProvider.Content._ID);
+        mContentMap.put(SharedPreferencesProvider.Content.NAME, SharedPreferencesProvider.Content.NAME);
+        mContentMap.put(SharedPreferencesProvider.Content.VALUE, SharedPreferencesProvider.Content.VALUE);
     }
 
     private static class DataBaseHelper extends SQLiteOpenHelper {
@@ -196,9 +196,9 @@ public class ApplicationContentProvider extends ContentProvider {
         @Override
         public void onCreate(SQLiteDatabase db) {
             mLog.info("onCreate sqlitedatabase invoked");
-            db.execSQL("CREATE TABLE " + CONFIGURATION_TABLE_NAME + " (" + PreferencesProvider.Content._ID
-                    + " INTEGER PRIMARY KEY AUTOINCREMENT," + PreferencesProvider.Content.NAME
-                    + " VARCHAR(255)," + PreferencesProvider.Content.VALUE + " VARCHAR(255)" + ");");
+            db.execSQL("CREATE TABLE " + CONFIGURATION_TABLE_NAME + " (" + SharedPreferencesProvider.Content._ID
+                    + " INTEGER PRIMARY KEY AUTOINCREMENT," + SharedPreferencesProvider.Content.NAME
+                    + " VARCHAR(255)," + SharedPreferencesProvider.Content.VALUE + " VARCHAR(255)" + ");");
             DefaultPreferencesInserter.storeDefaultPreferences(db);
         }
 
