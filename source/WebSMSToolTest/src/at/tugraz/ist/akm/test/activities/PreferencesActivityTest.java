@@ -16,8 +16,6 @@
 
 package at.tugraz.ist.akm.test.activities;
 
-import com.jayway.android.robotium.solo.Solo;
-
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
@@ -29,6 +27,8 @@ import at.tugraz.ist.akm.test.trace.ThrowingLogSink;
 import at.tugraz.ist.akm.trace.LogClient;
 import at.tugraz.ist.akm.trace.TraceService;
 
+import com.jayway.android.robotium.solo.Solo;
+
 public class PreferencesActivityTest extends
         ActivityInstrumentationTestCase2<PreferencesActivity> implements OnSharedPreferenceChangeListener
 {
@@ -39,7 +39,7 @@ public class PreferencesActivityTest extends
 
     public PreferencesActivityTest()
     {
-        super("at.tugraz.ist.akm", PreferencesActivity.class);
+        super(PreferencesActivity.class);
         TraceService.setSink(new ThrowingLogSink());
         mLog = new LogClient(PreferencesActivityTest.class.getName());
     }

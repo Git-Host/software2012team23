@@ -16,7 +16,7 @@
 
 package at.tugraz.ist.akm.test.trace;
 
-import android.test.AssertionFailedError;
+import junit.framework.AssertionFailedError;
 import at.tugraz.ist.akm.trace.AndroidLogSink;
 
 public class ThrowingLogSink extends AndroidLogSink {

@@ -47,7 +47,7 @@ public class MainActivityTest extends
 
     public MainActivityTest()
     {
-        super("at.tugraz.ist.akm", MainActivity.class);
+        super(MainActivity.class);
         TraceService.setSink(new ThrowingLogSink());
         mLog = new LogClient(MainActivityTest.class.getName());
     }

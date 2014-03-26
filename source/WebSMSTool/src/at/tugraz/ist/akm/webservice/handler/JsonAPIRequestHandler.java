@@ -25,7 +25,6 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 
 import my.org.apache.http.HttpException;
 import my.org.apache.http.HttpResponse;

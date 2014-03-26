@@ -3,12 +3,10 @@ package at.tugraz.ist.akm.test.phonebook;
 import java.util.List;
 import java.util.Vector;
 
-import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import at.tugraz.ist.akm.phonebook.Contact;
 import at.tugraz.ist.akm.phonebook.PhonebookCache;
 import at.tugraz.ist.akm.test.base.WebSMSToolActivityTestcase;
-import at.tugraz.ist.akm.trace.LogClient;
 
 public class PhoneBookCacheTest extends WebSMSToolActivityTestcase 
 {
