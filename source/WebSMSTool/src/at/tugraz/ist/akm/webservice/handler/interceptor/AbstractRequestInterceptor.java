@@ -31,4 +31,5 @@ public abstract class AbstractRequestInterceptor implements IRequestInterceptor 
 
     @Override
     public abstract boolean process(HttpRequest httpRequest, String requestData, HttpResponse httpResponse);
+    public abstract void onClose();
 }

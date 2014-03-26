@@ -44,25 +44,32 @@ public class ManipulateSmsTest extends WebSMSToolActivityTestcase implements
 	 */
 	public void testGetSmsContentProviderTables() {
 		try {
-			SmsHelper.logCursor(mContentResolver.query(
+		    Cursor c = null;
+			SmsHelper.logCursor(c = mContentResolver.query(
 					SmsContentConstants.Uri.INBOX_URI, null, null, null, null));
-			SmsHelper.logCursor(mContentResolver.query(
+		    c.close();
+			SmsHelper.logCursor(c = mContentResolver.query(
 					SmsContentConstants.Uri.QUEUED_URI, null, null, null, null));
-			SmsHelper.logCursor(mContentResolver.query(
+			c.close();
+			SmsHelper.logCursor(c = mContentResolver.query(
 					SmsContentConstants.Uri.BASE_URI, null, null, null, null));
-			SmsHelper.logCursor(mContentResolver.query(
+			c.close();
+			SmsHelper.logCursor(c = mContentResolver.query(
 					SmsContentConstants.Uri.DRAFT_URI, null, null, null, null));
-
-			SmsHelper.logCursor(mContentResolver.query(
+			c.close();
+			SmsHelper.logCursor(c = mContentResolver.query(
 					SmsContentConstants.Uri.FAILED_URI, null, null, null, null));
-			SmsHelper.logCursor(mContentResolver.query(
+			c.close();
+			SmsHelper.logCursor(c = mContentResolver.query(
 					SmsContentConstants.Uri.OUTBOX_URI, null, null, null, null));
-			SmsHelper.logCursor(mContentResolver.query(
+			c.close();
+			SmsHelper.logCursor(c = mContentResolver.query(
 					SmsContentConstants.Uri.UNDELIVERED_URI, null, null, null,
 					null));
-			SmsHelper.logCursor(mContentResolver.query(
+			c.close();
+			SmsHelper.logCursor(c = mContentResolver.query(
 					SmsContentConstants.Uri.SENT_URI, null, null, null, null));
-
+			c.close();
 		} catch (Exception ex) {
 			ex.printStackTrace();
 			assertTrue(false);
@@ -142,6 +149,7 @@ public class ManipulateSmsTest extends WebSMSToolActivityTestcase implements
 					.getColumnIndex(SmsContentConstants.Column.ID)));
 			message.setThreadId(messageCursor.getString(messageCursor
 					.getColumnIndex(SmsContentConstants.Column.THREAD_ID)));
+			messageCursor.close();
 
 			// 4.
 			message.setBody(message.getBody()
@@ -157,6 +165,7 @@ public class ManipulateSmsTest extends WebSMSToolActivityTestcase implements
 							.getColumnIndex(SmsContentConstants.Column.BODY));
 			assertTrue(0 == messageBodyFromContentprovider.compareTo(message
 					.getBody()));
+			messageCursor.close();
 		} catch (Exception ex) {
 			ex.printStackTrace();
 			assertTrue(false);

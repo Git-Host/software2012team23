@@ -52,7 +52,7 @@ public class ThrowingLogableTest extends TestCase
     {
         try
         {
-            mLog.debug("testLogDebug_nullExceptoion", null);
+            mLog.debug("testLogDebug_nullException", null);
         } catch (Exception ex)
         {
             assertTrue(false);
@@ -178,7 +178,7 @@ public class ThrowingLogableTest extends TestCase
     {
         try
         {
-            mLog.warning("testLogWarn_nullExceptoin", null);
+            mLog.warning("testLogWarn_nullException", null);
         } catch (Exception ex)
         {
             assertTrue(false);
@@ -189,7 +189,7 @@ public class ThrowingLogableTest extends TestCase
     {
         try
         {
-            mLog.warning("testLogWarn_exceptoin", new Throwable("test exception"));
+            mLog.warning("testLogWarn_exception", new Throwable("test exception"));
         } catch (Exception ex)
         {
             assertTrue(false);

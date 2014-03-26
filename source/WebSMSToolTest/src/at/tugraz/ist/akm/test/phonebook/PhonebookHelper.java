@@ -105,8 +105,10 @@ public class PhonebookHelper {
 								ContactsContract.Contacts.CONTENT_LOOKUP_URI,
 								lookupKey);
 				contentResolver.delete(uri, null, null);
+				contact.close();
 				return;
 			}
+			contact.close();
 		}
 		assert (false);
 	}

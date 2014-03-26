@@ -43,6 +43,13 @@ public class AuthorizationInterceptor extends AbstractRequestInterceptor
 
 
     @Override
+    public void onClose()
+    {
+        mConfig.close();
+    }
+
+
+    @Override
     public boolean process(HttpRequest httpRequest, String requestData,
             HttpResponse httpResponse)
     {
@@ -136,7 +143,8 @@ public class AuthorizationInterceptor extends AbstractRequestInterceptor
                         headerValue.substring(idx + 1), 0), mDefaultEncoding);
                 requestUserName.append(getUsernameSubstring(userCredentials));
                 requestPassword.append(getPasswordSubstring(userCredentials));
-            } catch (UnsupportedEncodingException e)
+            }
+            catch (UnsupportedEncodingException e)
             {
                 mLog.error("failed to extract string from header: "
                         + e.getMessage());

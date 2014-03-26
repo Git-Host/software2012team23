@@ -17,6 +17,7 @@
 package at.tugraz.ist.akm.test.base;
 
 import android.content.ContentResolver;
+import android.content.Context;
 import android.test.InstrumentationTestCase;
 import at.tugraz.ist.akm.test.trace.ThrowingLogSink;
 import at.tugraz.ist.akm.trace.LogClient;
@@ -24,7 +25,8 @@ import at.tugraz.ist.akm.trace.TraceService;
 
 public class WebSMSToolInstrumentationTestcase extends InstrumentationTestCase {
 
-	protected ContentResolver mContentResolver = null;
+    protected Context mContext = null;
+    protected ContentResolver mContentResolver = null;
 	private LogClient mLog = null;
 
 	public WebSMSToolInstrumentationTestcase(String logTag) {
@@ -37,8 +39,8 @@ public class WebSMSToolInstrumentationTestcase extends InstrumentationTestCase {
 		super.setUp();
 		logVerbose(getName() + ".setUp()");
 
-		mContentResolver = getInstrumentation().getContext()
-				.getContentResolver();
+		mContext = getInstrumentation().getTargetContext();
+		mContentResolver = mContext.getContentResolver();
 		assertTrue(mContentResolver != null);
 	}
 

@@ -3,6 +3,7 @@ package at.tugraz.ist.akm.test.phonebook;
 import java.util.List;
 import java.util.Vector;
 
+import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import at.tugraz.ist.akm.phonebook.Contact;
 import at.tugraz.ist.akm.phonebook.PhonebookCache;
@@ -13,7 +14,7 @@ public class PhoneBookCacheTest extends WebSMSToolActivityTestcase
 {
     private PhonebookCache mCache = null;
     static private long ContactCounter = 0;
-
+    
     public PhoneBookCacheTest()
     {
         super(PhoneBookCacheTest .class.getName());
@@ -30,7 +31,7 @@ public class PhoneBookCacheTest extends WebSMSToolActivityTestcase
     @Override
     protected void tearDown() throws Exception
     {
-        mCache.onClose();
+        mCache.close();
         mCache = null;
         super.tearDown();
     }
@@ -82,6 +83,7 @@ public class PhoneBookCacheTest extends WebSMSToolActivityTestcase
     
         mCache.clear();
         assert(mCache.numEntries() == 0);
+        mCache.close();
     }
     
     

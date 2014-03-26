@@ -90,8 +90,8 @@ public class SimpleWebServer
         this.mContext = context;
         PowerManager pm = (PowerManager) mContext.getSystemService(Context.POWER_SERVICE);
         mWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, this.getClass().getName());
-        mConfig = new SharedPreferencesProvider(mContext);
         this.mSocketAddress = InetAddress.getByName(socketAddress);
+        openSettings();
         readRequestHandlers();
         readRequestInterceptors();
         
@@ -223,6 +223,7 @@ public class SimpleWebServer
 
     public synchronized boolean startServer()
     {
+        openSettings();
         if ( false == mWakeLock.isHeld() ) 
         {
             mWakeLock.acquire();
@@ -312,7 +313,7 @@ public class SimpleWebServer
             }
             catch (IOException e)
             {
-                // i ton't care
+                // don't care
             }
             finally {
                 mIsServerRunning = false;
@@ -322,9 +323,23 @@ public class SimpleWebServer
         }
 
         closeRegistry();
+        closeSettings();
         mServerThread = null;
+        
     }
 
+    private void closeSettings()
+    {
+        if ( mConfig != null);
+            mConfig.close();
+        mConfig = null;
+    }
+    
+    private void openSettings()
+    {
+        if ( mConfig == null);
+            mConfig = new SharedPreferencesProvider(mContext);
+    }
 
     private void closeRegistry()
     {

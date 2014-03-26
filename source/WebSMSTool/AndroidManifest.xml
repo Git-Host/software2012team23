@@ -59,12 +59,6 @@
         <service android:name=".webservice.WebSMSToolService" >
         </service>
 
-        <provider
-            android:name="at.tugraz.ist.akm.providers.ApplicationContentProvider"
-            android:authorities="at.tugraz.ist.akm.providers.ApplicationContentProvider"
-            android:exported="false" >
-        </provider>
-
         <activity
             android:name="at.tugraz.ist.akm.activities.PreferencesActivity"
             android:parentActivityName="at.tugraz.ist.akm.activities.MainActivity">

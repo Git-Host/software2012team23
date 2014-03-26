@@ -7,13 +7,11 @@ import java.util.Vector;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
-import android.database.DatabaseErrorHandler;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import at.tugraz.ist.akm.content.query.ContactFilter;
 
-public class PhonebookCache extends SQLiteOpenHelper implements
-        DatabaseErrorHandler
+public class PhonebookCache extends SQLiteOpenHelper
 {
 
     private static class Database
@@ -41,6 +39,7 @@ public class PhonebookCache extends SQLiteOpenHelper implements
                     + Domain.DISPLAY_NAME + " TEXT, " + Domain.NAME + " TEXT, "
                     + Domain.LAST_NAME + " TEXT, " + Domain.PHONENUMBERS
                     + " TEXT, " + Domain.IMAGE + " BLOB);";
+            static String DROP = "DROP TABLE IF EXISTS " + NAME;
         }
 
         public static class InfoTable
@@ -56,8 +55,12 @@ public class PhonebookCache extends SQLiteOpenHelper implements
             // key, value
             static String CREATE = "CREATE TABLE IF NOT EXISTS " + NAME + " ("
                     + Domain.KEY + " TEXT, " + Domain.VALUE + " TEXT);";
+            static String DROP = "DROP TABLE IF EXISTS " + NAME;
         }
     }
+
+    private SQLiteDatabase mReadableDatabaseConnection = null;
+    private SQLiteDatabase mWriteablaDatabaseConnection = null;
 
 
     public PhonebookCache(Context context)
@@ -76,9 +79,9 @@ public class PhonebookCache extends SQLiteOpenHelper implements
     public long numEntries()
     {
         long rowsAffected = 0;
-        Cursor rows = getReadableDatabase().rawQuery(
-                "select " + Database.CacheTable.Domain.ID + " from "
-                        + Database.CacheTable.NAME + " where 1=1 ", null);
+        Cursor rows = getReadableDatabaseConnection().rawQuery("select "
+                + Database.CacheTable.Domain.ID + " from "
+                + Database.CacheTable.NAME + " where 1=1 ", null);
 
         if (rows != null)
         {
@@ -94,7 +97,7 @@ public class PhonebookCache extends SQLiteOpenHelper implements
     public void clear()
     {
         dropTables();
-        onCreate(getReadableDatabase());
+        onCreate(getWriteableDatabaseConnection());
     }
 
 
@@ -116,17 +119,16 @@ public class PhonebookCache extends SQLiteOpenHelper implements
         ContentValues values = contactContentValues(contact);
         String where = Database.CacheTable.Domain.ID + " = ?";
         String whereArgs[] = { "" + contact.getId() };
-        return getWritableDatabase().update(Database.CacheTable.NAME, values,
+        return getWriteableDatabaseConnection().update(Database.CacheTable.NAME, values,
                 where, whereArgs);
-
     }
 
 
     private long insertContactToDatabase(Contact contact)
     {
         ContentValues values = contactContentValues(contact);
-        return getWritableDatabase().insert(Database.CacheTable.NAME, null,
-                values);
+        return getWriteableDatabaseConnection()
+                .insert(Database.CacheTable.NAME, null, values);
     }
 
 
@@ -180,26 +182,27 @@ public class PhonebookCache extends SQLiteOpenHelper implements
     }
 
 
-    public void onClose()
-    {
-        getWritableDatabase().close();
-    }
-
-
     @Override
-    public void onCorruption(SQLiteDatabase db)
+    public void close()
     {
-        dropTables();
-        onCreate(db);
+        if (mWriteablaDatabaseConnection != null)
+        {
+            mWriteablaDatabaseConnection.close();
+            mWriteablaDatabaseConnection = null;
+        }
+        if (mReadableDatabaseConnection != null)
+        {
+            mReadableDatabaseConnection.close();
+            mReadableDatabaseConnection = null;
+        }
+        super.close();
     }
 
 
     private void dropTables()
     {
-        getWritableDatabase().execSQL(
-                "DROP TABLE IF EXISTS " + Database.CacheTable.NAME);
-        getWritableDatabase().execSQL(
-                "DROP TABLE IF EXISTS " + Database.CacheTable.NAME);
+        getWriteableDatabaseConnection().execSQL(Database.CacheTable.DROP);
+        getWriteableDatabaseConnection().execSQL(Database.InfoTable.DROP);
     }
 
 
@@ -208,7 +211,6 @@ public class PhonebookCache extends SQLiteOpenHelper implements
     {
         db.execSQL(Database.CacheTable.CREATE);
         db.execSQL(Database.InfoTable.CREATE);
-
     }
 
 
@@ -230,8 +232,9 @@ public class PhonebookCache extends SQLiteOpenHelper implements
                 Database.CacheTable.Domain.PHONENUMBERS,
                 Database.CacheTable.Domain.IMAGE };
         String where = "1=1";
-        Cursor rows = getReadableDatabase().query(Database.CacheTable.NAME,
-                columns, where, null, null, null, null);
+        Cursor rows = getReadableDatabaseConnection().query(
+                Database.CacheTable.NAME, columns, where, null, null, null,
+                null);
 
         List<Contact> contacts = new Vector<Contact>();
         if (rows != null)
@@ -257,5 +260,21 @@ public class PhonebookCache extends SQLiteOpenHelper implements
         c.setId(cursor.getLong(cursor
                 .getColumnIndex((Database.CacheTable.Domain.ID))));
         return c;
+    }
+
+
+    private SQLiteDatabase getReadableDatabaseConnection()
+    {
+        if (mReadableDatabaseConnection == null)
+            mReadableDatabaseConnection = getReadableDatabase();
+        return mReadableDatabaseConnection;
+    }
+
+
+    private SQLiteDatabase getWriteableDatabaseConnection()
+    {
+        if (mWriteablaDatabaseConnection == null)
+            mWriteablaDatabaseConnection = getWritableDatabase();
+        return mWriteablaDatabaseConnection;
     }
 }

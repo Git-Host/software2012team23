@@ -16,24 +16,17 @@
 
 package at.tugraz.ist.akm.preferences;
 
-import android.content.ContentResolver;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
-import android.database.Cursor;
-import android.graphics.AvoidXfermode.Mode;
-import android.net.Uri;
 import android.preference.PreferenceManager;
-import android.provider.BaseColumns;
 import at.tugraz.ist.akm.R;
-import at.tugraz.ist.akm.content.DefaultPreferencesInserter;
-import at.tugraz.ist.akm.providers.ApplicationContentProvider;
+import at.tugraz.ist.akm.providers.PrivateApplicationContentProvider;
 
 public class SharedPreferencesProvider
 {
-    private ContentResolver mContentResolver;
     private SharedPreferences mSharedPreferences = null;
+    private PrivateApplicationContentProvider mSettings = null;
     private Context mApplicationContext = null;
     private final static String KEYSTORE_FILE_NAME = "websms-keystore.bks";
     private final static String HTTPS_PROTOCOL_NAME = "https";
@@ -43,9 +36,19 @@ public class SharedPreferencesProvider
     public SharedPreferencesProvider(Context context)
     {
         mApplicationContext = context;
-        mContentResolver = context.getContentResolver();
+        PrivateApplicationContentProvider.construct(mApplicationContext);
+        mSettings = PrivateApplicationContentProvider.instance();
+        mSettings.openDatabase();
         mSharedPreferences = PreferenceManager
                 .getDefaultSharedPreferences(context);
+    }
+
+
+    public void close()
+    {
+        if (mSettings != null)
+            mSettings.closeDatabase();
+        mSettings = null;
     }
 
 
@@ -132,14 +135,13 @@ public class SharedPreferencesProvider
 
     public String getKeyStorePassword()
     {
-        return getSettingFromApplicationContentProvider(DefaultPreferencesInserter.KEYSTOREPASSWORD);
+        return mSettings.restoreKeystorePassword();
     }
 
 
     public void setKeyStorePassword(String keyStorePassword)
     {
-        storeSettingToApplicationContentProvider(
-                DefaultPreferencesInserter.KEYSTOREPASSWORD, keyStorePassword);
+        mSettings.storeKeystorePassword(keyStorePassword);
     }
 
 
@@ -147,50 +149,5 @@ public class SharedPreferencesProvider
     {
         return mApplicationContext.getFilesDir().getPath().toString() + "/"
                 + KEYSTORE_FILE_NAME;
-    }
-
-
-    private void storeSettingToApplicationContentProvider(String name, String value)
-    {
-        ContentValues values = new ContentValues();
-        values.put(Content.VALUE, value);
-        updateSettings(values, name);
-    }
-
-
-    private String getSettingFromApplicationContentProvider(String name)
-    {
-        String[] names = { name };
-        String queriedValue = "";
-        Cursor cursor = mContentResolver.query(
-                ApplicationContentProvider.PREFERENCES_URI,
-                new String[] { Content.VALUE }, Content.NAME, names, null);
-        if (cursor != null)
-        {
-            while (cursor.moveToNext())
-            {
-                queriedValue = cursor.getString(0);
-            }
-            cursor.close();
-        }
-
-        return queriedValue;
-    }
-
-
-    private int updateSettings(ContentValues values, String where)
-    {
-        return mContentResolver.update(
-                ApplicationContentProvider.PREFERENCES_URI, values,
-                Content.NAME, new String[] { where });
-    }
-
-    public static final class Content implements BaseColumns
-    {
-        public static final Uri CONTENT_URI = ApplicationContentProvider.CONTENT_URI;
-        public static final String CONTENT_TYPE = "at.tugraz.ist.akm.content.Config";
-        public static final String _ID = "_id";
-        public static final String NAME = "name";
-        public static final String VALUE = "value";
     }
 }

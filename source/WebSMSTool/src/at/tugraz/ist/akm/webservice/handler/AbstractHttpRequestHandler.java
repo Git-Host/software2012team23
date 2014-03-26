@@ -151,6 +151,9 @@ public abstract class AbstractHttpRequestHandler implements HttpRequestHandler {
             mLog.info("close request handler for URI [" + mUriPattern + "]");
             mRegistry.unregister(mUriPattern);
         }
+        for ( IRequestInterceptor interceptor : mRequestInterceptorList ) {
+            interceptor.onClose();
+        }
         mRequestInterceptorList.clear();
     }
 }
