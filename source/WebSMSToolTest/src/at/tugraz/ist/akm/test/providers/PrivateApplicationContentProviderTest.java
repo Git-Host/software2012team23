@@ -26,7 +26,6 @@ WebSMSToolInstrumentationTestcase
     @Override
     protected void tearDown() throws Exception
     {
-        mProvider.onCorruption(null);
         mProvider.closeDatabase();
         super.tearDown();
     }

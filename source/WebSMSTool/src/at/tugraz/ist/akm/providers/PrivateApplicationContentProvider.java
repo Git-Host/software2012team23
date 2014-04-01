@@ -3,20 +3,18 @@ package at.tugraz.ist.akm.providers;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
-import android.database.DatabaseErrorHandler;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
 public class PrivateApplicationContentProvider extends SQLiteOpenHelper
-        implements DatabaseErrorHandler
 {
 
     private static PrivateApplicationContentProvider mInstance = null;
     private static long mOpenCounter = 0;
-    
+
     private SQLiteDatabase mReadableDatabaseConnection = null;
     private SQLiteDatabase mWriteablaDatabaseConnection = null;
-    
+
     private static class Database
     {
         static String NAME = "private-settings.sqlite";
@@ -50,27 +48,22 @@ public class PrivateApplicationContentProvider extends SQLiteOpenHelper
         super(context, Database.NAME, null, 1);
     }
 
+
     public static synchronized void construct(Context context)
     {
-        if ( mInstance == null)
+        if (mInstance == null)
             mInstance = new PrivateApplicationContentProvider(context);
     }
-    public static synchronized PrivateApplicationContentProvider instance() {
-        
-        if (mInstance == null )
-            throw new IllegalStateException(PrivateApplicationContentProvider.class.getSimpleName() +
-                " not initialized, call construct(...) first");
-        return mInstance;
-    }
 
-    @Override
-    public void onCorruption(SQLiteDatabase db)
+
+    public static synchronized PrivateApplicationContentProvider instance()
     {
-        if (db == null)
-            db = getWriteableDatabaseConnection();
-        dropTables(db);
-        createTables(db);
-        insertDefaultPairs(db);
+
+        if (mInstance == null)
+            throw new IllegalStateException(
+                    PrivateApplicationContentProvider.class.getSimpleName()
+                            + " not initialized, call construct(...) first");
+        return mInstance;
     }
 
 
@@ -109,8 +102,9 @@ public class PrivateApplicationContentProvider extends SQLiteOpenHelper
         String where = Database.ValuesTable.Domain.KEY + " = ?";
         String[] whereArgs = { keyName };
 
-        Cursor rows = getReadableDatabaseConnection().query(Database.ValuesTable.NAME,
-                columns, where, whereArgs, null, null, null);
+        Cursor rows = getReadableDatabaseConnection().query(
+                Database.ValuesTable.NAME, columns, where, whereArgs, null,
+                null, null);
 
         if (rows != null)
         {
@@ -134,8 +128,8 @@ public class PrivateApplicationContentProvider extends SQLiteOpenHelper
                 + Database.ValuesTable.Domain.VALUE + " != ?";
         String[] whereArgs = { keyName, value };
 
-        return getWriteableDatabaseConnection().update(Database.ValuesTable.NAME, values,
-                where, whereArgs);
+        return getWriteableDatabaseConnection().update(
+                Database.ValuesTable.NAME, values, where, whereArgs);
     }
 
 
@@ -169,6 +163,7 @@ public class PrivateApplicationContentProvider extends SQLiteOpenHelper
         db.execSQL(Database.ValuesTable.CREATE);
     }
 
+
     @Override
     public void close()
     {
@@ -184,7 +179,8 @@ public class PrivateApplicationContentProvider extends SQLiteOpenHelper
         }
         super.close();
     }
-    
+
+
     private SQLiteDatabase getReadableDatabaseConnection()
     {
         if (mReadableDatabaseConnection == null)
@@ -199,18 +195,20 @@ public class PrivateApplicationContentProvider extends SQLiteOpenHelper
             mWriteablaDatabaseConnection = getWritableDatabase();
         return mWriteablaDatabaseConnection;
     }
-    
+
+
     public synchronized void openDatabase()
     {
         mOpenCounter++;
     }
-    
+
+
     public synchronized void closeDatabase()
     {
         if (mOpenCounter > 0)
             mOpenCounter--;
-        
-        if ( mOpenCounter <= 0 ) 
+
+        if (mOpenCounter <= 0)
             close();
     }
 }

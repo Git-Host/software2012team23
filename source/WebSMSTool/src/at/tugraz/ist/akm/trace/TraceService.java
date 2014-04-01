@@ -16,6 +16,9 @@
 
 package at.tugraz.ist.akm.trace;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
+
 
 public class TraceService {
 
@@ -83,9 +86,12 @@ public class TraceService {
 		StringBuilder sb = new StringBuilder(message);
 		if (t != null) 
 		{
+		    StringWriter stringWriter = new StringWriter();
+		    t.printStackTrace(new PrintWriter(stringWriter));
+		    
 			sb.append(" => " + 
 			        "type: <" + t.getClass().getSimpleName() + "> " + 
-			        "message: <" + t.getMessage() + ">");
+			        "message: <" + t.getMessage() + "> " + stringWriter.toString());
 		}
 		return sb.toString();
 	}

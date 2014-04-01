@@ -40,7 +40,7 @@ public class ContactQueryBuilder {
 
 		queryParameters.as = new String[] { ContactsContract.Contacts._ID,
 				ContactsContract.Contacts.DISPLAY_NAME,
-				ContactsContract.Contacts.STARRED };
+				ContactsContract.Contacts.STARRED};
 
 		if (mFilter == null)
 			return queryParameters;

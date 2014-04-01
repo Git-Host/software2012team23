@@ -387,11 +387,10 @@ public class JsonAPIRequestHandler extends AbstractHttpRequestHandler implements
         
         JSONArray contactList = new JSONArray();
         while ( contacts.size() > 0 ) {
-        	mLog.info("fetched contact from provider [" + contacts.get(0).getDisplayName() + "] id [" + contacts.get(0).getId() + "]"); 
             contactList.put(mJsonFactory.createJsonObject(contacts.get(0)));
             contacts.remove(0);
         }
-        mLog.info("fetch contacts from provider [done]");
+        mLog.info("fetched " + contacts.size() +" contacts from provider [done]");
         return contactList;
     }
 

@@ -33,176 +33,216 @@ import at.tugraz.ist.akm.content.query.ContactQueryBuilder;
 import at.tugraz.ist.akm.content.query.ContentProviderQueryParameters;
 import at.tugraz.ist.akm.trace.LogClient;
 
-public class ContactReader {
+public class ContactReader
+{
 
-	private ContentResolver mContentResolver = null;
-	private LogClient mLog = new LogClient(this);
+    private ContentResolver mContentResolver = null;
+    private LogClient mLog = new LogClient(this);
 
-	public ContactReader(ContentResolver contentResolver) {
-		mContentResolver = contentResolver;
-	}
 
-	public List<Contact> fetchContacts(ContactFilter filter) {
+    public ContactReader(ContentResolver contentResolver)
+    {
+        mContentResolver = contentResolver;
+    }
 
-		Cursor people = queryContacts(filter);
-		List<Contact> contacts = null;
 
-		try {
-			if (people != null) {
-				contacts = new Vector<Contact>(people.getCount());
-				while (people.moveToNext()) {
-					contacts.add(parseToContact(people));
-				}
-				people.close();
-			}
-		} catch (Exception ex) {
-			mLog.error("can not get cursor to contacts", ex);
-		}
-		
-		return contacts;
-	}
+    public List<Contact> fetchContacts(ContactFilter filter)
+    {
 
-	private Cursor queryContacts(ContactFilter filter) {
-		ContactQueryBuilder qBuild = new ContactQueryBuilder(filter);
-		ContentProviderQueryParameters queryParameters = qBuild.getQueryArgs();
-		return mContentResolver.query(queryParameters.uri, queryParameters.as, queryParameters.where, queryParameters.like, queryParameters.sortBy);
-	}
+        long startTimestamp = System.currentTimeMillis();
 
-	private Contact parseToContact(Cursor person) {
-		Contact contact = new Contact();
+        Cursor people = queryContacts(filter);
+        List<Contact> contacts = null;
+        long fetchTimestamp = System.currentTimeMillis();
 
-		String contactId = person.getString(person
-				.getColumnIndex(ContactsContract.Contacts._ID));
-		String displayName = person.getString(person
-				.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
-		boolean starred = (1 == Integer.parseInt(person.getString(person
-				.getColumnIndex(ContactsContract.Contacts.STARRED))));
+        try
+        {
+            if (people != null)
+            {
+                contacts = new Vector<Contact>(people.getCount());
+                while (people.moveToNext())
+                {
+                    contacts.add(parseToContact(people));
+                }
+                people.close();
+            }
+        }
+        catch (Exception ex)
+        {
+            mLog.error("can not get cursor to contacts", ex);
+        }
+        long parseTimestamp = System.currentTimeMillis();
 
-		contact.setDisplayName(displayName);
-		contact.setId(Integer.parseInt(contactId));
-		contact.setStarred(starred);
-		collectPhotoData(contact, contactId);
-		collectPhoneNumberDetails(contact, contactId);
-		collectStructuredNameDetails(contact, contactId);
+        mLog.debug("fetching took " + (fetchTimestamp - startTimestamp) + " ms");
+        mLog.debug("parsing " + contacts.size() + " contacts took "
+                + (parseTimestamp - startTimestamp) + " ms");
 
-		mLog.debug("parsed contact [" + contact.getDisplayName() + "] with id [" + contact.getId() + "]");
-		return contact;
-	}
+        return contacts;
+    }
 
-	private void collectPhoneNumberDetails(Contact contact, String contactId) {
-		String where = ContactsContract.CommonDataKinds.Phone.CONTACT_ID
-				+ " = ?";
-		String[] as = { ContactsContract.CommonDataKinds.Phone.NUMBER,
-				ContactsContract.CommonDataKinds.Phone.TYPE };
-		String[] like = { contactId };
-		Cursor phoneNumbers = mContentResolver.query(
-				ContactsContract.CommonDataKinds.Phone.CONTENT_URI, as, where,
-				like, null);
 
-		if (phoneNumbers != null) {
-			List<Contact.Number> phoneNumberList = new ArrayList<Contact.Number>(phoneNumbers.getCount());
-			while (phoneNumbers.moveToNext()) {
+    private Cursor queryContacts(ContactFilter filter)
+    {
+        ContactQueryBuilder qBuild = new ContactQueryBuilder(filter);
+        ContentProviderQueryParameters queryParameters = qBuild.getQueryArgs();
+        return mContentResolver.query(queryParameters.uri, queryParameters.as,
+                queryParameters.where, queryParameters.like,
+                queryParameters.sortBy);
+    }
 
-				String phone = phoneNumbers
-						.getString(phoneNumbers
-								.getColumnIndex(ContactsContract.CommonDataKinds.Phone.TYPE));
-				if (phone == null) {
-					phone = "0";
-				}
+    private Contact parseToContact(Cursor person)
+    {
 
-				phoneNumberList
-						.add(new Contact.Number(
-								phoneNumbers
-										.getString(phoneNumbers
-												.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER)),
-								Integer.parseInt(phone)));
-			}
-			contact.setPhoneNumbers(phoneNumberList);
-			phoneNumbers.close();
-		}
-	}
+        Contact contact = new Contact();
 
-	private void collectStructuredNameDetails(Contact contact, String contactId) {
+        String contactId = person.getString(person
+                .getColumnIndex(ContactsContract.Contacts._ID));
+        String displayName = person.getString(person
+                .getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
+        boolean starred = (1 == Integer.parseInt(person.getString(person
+                .getColumnIndex(ContactsContract.Contacts.STARRED))));
 
-		Uri selectFrom = ContactsContract.Data.CONTENT_URI;
-		String[] as = {
-				ContactsContract.CommonDataKinds.StructuredName.GIVEN_NAME,
-				ContactsContract.CommonDataKinds.StructuredName.FAMILY_NAME };
-		String where = ContactsContract.Data.CONTACT_ID + " = ? AND "
-				+ ContactsContract.Data.MIMETYPE + " = ? ";
-		String[] like = new String[] {
-				contactId,
-				ContactsContract.CommonDataKinds.StructuredName.CONTENT_ITEM_TYPE };
+        contact.setDisplayName(displayName);
+        contact.setId(Integer.parseInt(contactId));
+        contact.setStarred(starred);
+        // all durations @ ~160 contacts
+        // { total duration 6.3sec
 
-		Cursor structuredName = mContentResolver.query(selectFrom, as, where,
-				like, null);
+        collectPhotoData(contact, Long.parseLong(contactId));
 
-		if (structuredName != null) {
-			if (structuredName.moveToNext()) {
-				String givenName = structuredName
-						.getString(structuredName
-								.getColumnIndex(ContactsContract.CommonDataKinds.StructuredName.GIVEN_NAME));
-				String familyName = structuredName
-						.getString(structuredName
-								.getColumnIndex(ContactsContract.CommonDataKinds.StructuredName.FAMILY_NAME));
-				contact.setName(givenName);
-				contact.setFamilyName(familyName);
-			}
-			structuredName.close();
-		}
+        // }
+        // { total duration 3.4sec
+        collectPhoneNumberDetails(contact, contactId);
+        // }
+        // { total duration 3.1s3c
+        collectStructuredNameDetails(contact, contactId);
+        // }
 
-	}
+        mLog.debug("parsed contact [" + contact.getDisplayName()
+                + "] with id [" + contact.getId() + "]");
+        return contact;
+    }
 
-	private void collectPhotoData(Contact contact, String contactId) {
-		Uri select = ContactsContract.Data.CONTENT_URI;
-		String[] as = { ContactsContract.Data.CONTACT_ID };
-		String where = ContactsContract.Data.CONTACT_ID + "= ? " + " AND "
-				+ ContactsContract.Data.MIMETYPE + " = ?";
-		String[] like = { contactId,
-				ContactsContract.CommonDataKinds.Photo.CONTENT_ITEM_TYPE };
-		Cursor cur = mContentResolver.query(select, as, where, like, null);
 
-		Uri person = ContentUris.withAppendedId(
-				ContactsContract.Contacts.CONTENT_URI,
-				Long.parseLong(contactId));
+    private void collectPhoneNumberDetails(Contact contact, String contactId)
+    {
+        String where = ContactsContract.CommonDataKinds.Phone.CONTACT_ID
+                + " = ?";
+        String[] as = { ContactsContract.CommonDataKinds.Phone.NUMBER,
+                ContactsContract.CommonDataKinds.Phone.TYPE };
+        String[] like = { contactId };
+        Cursor phoneNumbers = mContentResolver.query(
+                ContactsContract.CommonDataKinds.Phone.CONTENT_URI, as, where,
+                like, null);
 
-		// get photo Uri
-		Uri photoUri = null;
-		if (cur != null) {
-			if (cur.moveToFirst()) {
+        if (phoneNumbers != null)
+        {
+            List<Contact.Number> phoneNumberList = new ArrayList<Contact.Number>(
+                    phoneNumbers.getCount());
+            while (phoneNumbers.moveToNext())
+            {
 
-				photoUri = Uri.withAppendedPath(person,
-						ContactsContract.Contacts.Photo.CONTENT_DIRECTORY);
-			}
-			cur.close();
-		}
-		contact.setPhotoUri(photoUri);
-		contact.setPhotoBytes(getPhotoBytes(person));
-	}
+                String phone = phoneNumbers
+                        .getString(phoneNumbers
+                                .getColumnIndex(ContactsContract.CommonDataKinds.Phone.TYPE));
+                if (phone == null)
+                {
+                    phone = "0";
+                }
 
-	/**
-	 * @param person
-	 *            the contact uri
-	 * @return byte array of contacts picture
-	 */
-	private byte[] getPhotoBytes(Uri person) {
-		byte[] bytes = null;
+                phoneNumberList
+                        .add(new Contact.Number(
+                                phoneNumbers
+                                        .getString(phoneNumbers
+                                                .getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER)),
+                                Integer.parseInt(phone)));
+            }
+            contact.setPhoneNumbers(phoneNumberList);
+            phoneNumbers.close();
+        }
+    }
 
-		InputStream iStream = ContactsContract.Contacts
-				.openContactPhotoInputStream(mContentResolver, person);
-		if (iStream != null) {
-			try {
-				ByteArrayOutputStream oStream = new ByteArrayOutputStream();
-				int character = 0;
-				while ((character = iStream.read()) != -1) {
-					oStream.write(character);
-				}
-				bytes = oStream.toByteArray();
-			} catch (IOException ioException) {
-				// If there is no picture I really don't care!
-			}
-		}
 
-		return bytes;
-	}
+    private void collectStructuredNameDetails(Contact contact, String contactId)
+    {
+
+        Uri selectFrom = ContactsContract.Data.CONTENT_URI;
+        String[] as = {
+                ContactsContract.CommonDataKinds.StructuredName.GIVEN_NAME,
+                ContactsContract.CommonDataKinds.StructuredName.FAMILY_NAME };
+        String where = ContactsContract.Data.CONTACT_ID + " = ? AND "
+                + ContactsContract.Data.MIMETYPE + " = ? ";
+        String[] like = new String[] {
+                contactId,
+                ContactsContract.CommonDataKinds.StructuredName.CONTENT_ITEM_TYPE };
+
+        Cursor structuredName = mContentResolver.query(selectFrom, as, where,
+                like, null);
+
+        if (structuredName != null)
+        {
+            if (structuredName.moveToNext())
+            {
+                String givenName = structuredName
+                        .getString(structuredName
+                                .getColumnIndex(ContactsContract.CommonDataKinds.StructuredName.GIVEN_NAME));
+                String familyName = structuredName
+                        .getString(structuredName
+                                .getColumnIndex(ContactsContract.CommonDataKinds.StructuredName.FAMILY_NAME));
+                contact.setName(givenName);
+                contact.setFamilyName(familyName);
+            }
+            structuredName.close();
+        }
+
+    }
+    
+
+    private void collectPhotoData(Contact contact, long contactId)
+    {
+        Uri contactUri = ContentUris.withAppendedId(
+                ContactsContract.Contacts.CONTENT_URI, contactId);
+        contact.setPhotoBytes(getPhotoBytes(contactUri));
+    }
+
+
+    private byte[] getPhotoBytes(Uri person)
+    {
+        byte[] bytes = null;
+
+        InputStream iStream = ContactsContract.Contacts
+                .openContactPhotoInputStream(mContentResolver, person);
+        ByteArrayOutputStream oStream = new ByteArrayOutputStream();
+        if (iStream != null)
+        {
+            try
+            {
+                byte[] buffer = new byte[1024];
+                int count = 0;
+
+                while ((count = iStream.read(buffer)) > 0)
+                {
+                    oStream.write(buffer, 0, count);
+                }
+                bytes = oStream.toByteArray();
+            }
+            catch (IOException ioException)
+            {
+                // there is no picture, don't care
+            }
+            finally
+            {
+                try
+                {
+                    oStream.close();
+                    iStream.close();
+                }
+                catch (Exception e)
+                {
+                }
+            }
+        }
+
+        return bytes;
+    }
 }
