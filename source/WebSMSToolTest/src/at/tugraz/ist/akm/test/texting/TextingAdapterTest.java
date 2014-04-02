@@ -188,5 +188,4 @@ public class TextingAdapterTest extends WebSMSToolActivityTestcase implements
     {
         logVerbose("sms delivered (messages size: " + messages.size() + " )");
     }
-
 }

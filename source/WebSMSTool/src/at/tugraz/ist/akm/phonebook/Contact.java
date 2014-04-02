@@ -56,8 +56,11 @@ public class Contact
 
         public static String cleanNumber(String messyNumber)
         {
-            return messyNumber.replaceAll("^[+]", "00").replaceAll("/", "")
+            return messyNumber.replaceAll("/", "")
                     .replaceAll(" ", "").replaceAll("-", "");
+            
+            //return messyNumber.replaceAll("^[+]", "00").replaceAll("/", "")
+            //        .replaceAll(" ", "").replaceAll("-", "");
         }
     };
 

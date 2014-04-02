@@ -18,6 +18,7 @@ package at.tugraz.ist.akm.statusbar;
 
 import android.app.Notification;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import at.tugraz.ist.akm.R;
@@ -49,14 +50,18 @@ public class FireNotification
     public void fireStickyInfos(NotificationInfo wInfos)
     {
         int icon = R.drawable.ic_notification;
+        
+        Intent activityToRelaunch = new Intent(mContext, MainActivity.class);
+        activityToRelaunch.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+        PendingIntent pi = PendingIntent.getActivity(mContext, 0, activityToRelaunch, 0);
+
         Notification notification = new Notification.Builder(mContext)
                 .setContentText(wInfos.text).setSmallIcon(icon)
                 .setTicker(wInfos.tickerText)
-                .setContentTitle(wInfos.title).getNotification();
+                .setContentTitle(wInfos.title)
+                .setContentIntent(pi).getNotification();
         notification.flags = Notification.FLAG_NO_CLEAR;
-
-        Intent notificationIntent = new Intent(mContext, MainActivity.class);
-        notificationIntent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+        
         mNotificationManager.notify(NOTIFICATION_ID, notification);
     }
 

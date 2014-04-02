@@ -40,8 +40,8 @@ public class JsonContactBuilder implements IJsonBuilder {
         try {
             JSONObject json = new JSONObject();
             json.put("display_name", contact.getDisplayName());
-            json.put("last_name", contact.getFamilyName());
-            json.put("name", contact.getName());
+            //json.put("last_name", contact.getFamilyName());
+            //json.put("name", contact.getName());
             json.put("id", contact.getId());
             
             byte[] imageBytes = contact.getPhotoBytes();

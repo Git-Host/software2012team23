@@ -162,12 +162,12 @@ public class TextingAdapter extends LogClient implements TextingInterface,
 	/**
 	 * return all tread IDs for the specified address
 	 * 
-	 * @param address
+	 * @param phoneNumber
 	 *            the phone number
 	 */
 	@Override
-	public List<Integer> fetchThreadIds(final String address) {
-		return mSmsBridge.fetchThreadIds(address);
+	public List<Integer> fetchThreadIds(final String phoneNumber) {
+		return mSmsBridge.fetchThreadIds(phoneNumber);
 	}
 
 	/**

@@ -115,7 +115,7 @@ public class ContactReader
         collectPhoneNumberDetails(contact, contactId);
         // }
         // { total duration 3.1s3c
-        collectStructuredNameDetails(contact, contactId);
+        //collectStructuredNameDetails(contact, contactId);
         // }
 
         mLog.debug("parsed contact [" + contact.getDisplayName()
@@ -211,7 +211,7 @@ public class ContactReader
         byte[] bytes = null;
 
         InputStream iStream = ContactsContract.Contacts
-                .openContactPhotoInputStream(mContentResolver, person);
+                .openContactPhotoInputStream(mContentResolver, person, false);
         ByteArrayOutputStream oStream = new ByteArrayOutputStream();
         if (iStream != null)
         {

@@ -65,8 +65,8 @@ public class SmsBridge extends LogClient implements SmsIOCallback {
 		return mSmsBoxWriter.updateTextMessage(message);
 	}
 
-	public List<Integer> fetchThreadIds(final String address) {
-		return mSmsBoxReader.getThreadIds(address);
+	public List<Integer> fetchThreadIds(final String phoneNumber) {
+		return mSmsBoxReader.getThreadIds(phoneNumber);
 	}
 
 	synchronized public void setSmsSentCallback(SmsIOCallback callback) {
