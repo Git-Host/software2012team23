@@ -40,7 +40,7 @@ public class SystemMonitor extends PhoneStateListener {
 
 	public void start() {
 		mLog.info("start: registering phone state listener");
-		mTel.listen(this, PhoneStateListener.LISTEN_SIGNAL_STRENGTHS | PhoneStateListener.LISTEN_SIGNAL_STRENGTHS);
+		mTel.listen(this, PhoneStateListener.LISTEN_SIGNAL_STRENGTHS);
 	}
 
 	public void stop() {

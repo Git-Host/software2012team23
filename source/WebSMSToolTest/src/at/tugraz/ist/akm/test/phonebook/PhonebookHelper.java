@@ -130,8 +130,9 @@ public class PhonebookHelper {
 							+ " ");
 				}
 			}
-			details.append("DName: " + contact.getDisplayName() + " FName: "
-					+ contact.getFamilyName() + " GName: " + contact.getName()
+			details.append("DName: " + contact.getDisplayName()
+//			        + " FName: "
+//					+ contact.getFamilyName() + " GName: " + contact.getName()
 					+ " PhotoUri: " + contact.getPhotoUri() + " IsStarred: "
 					+ contact.isStarred() + " Numbers: " + numbers.toString());
 			mLog.info(details.toString());

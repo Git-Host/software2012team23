@@ -24,24 +24,44 @@ import org.json.JSONObject;
 import at.tugraz.ist.akm.monitoring.TelephonySignalStrength;
 import at.tugraz.ist.akm.trace.LogClient;
 
-public class JsonTelephonySignalStrengthBuilder implements IJsonBuilder {
+public class JsonTelephonySignalStrengthBuilder implements IJsonBuilder
+{
 
     private final static String DEFAULT_ENCODING = "UTF8";
-    
+
+    public class TelephonySignalValueNames
+    {
+        public static final String SIGNAL_STRENGTH = "signal_strength";
+        public static final String SIGNAL_ICON = "signal_icon";
+    }
+
+
     @Override
-    public JSONObject build(Object data) {
-    	LogClient log = new LogClient(this);
-    	
+    public JSONObject build(Object data)
+    {
+        LogClient log = new LogClient(this);
+
         TelephonySignalStrength signal = (TelephonySignalStrength) data;
-        try {
+        try
+        {
             JSONObject json = new JSONObject();
-            json.put("signal_strength", signal.getSignalStrength());
-            json.put("signal_icon", new String(signal.getSignalStrengthIconBytes(), DEFAULT_ENCODING));
+            json.put(TelephonySignalValueNames.SIGNAL_STRENGTH,
+                    signal.getSignalStrength());
+            json.put(TelephonySignalValueNames.SIGNAL_ICON,
+                    new String(signal.getSignalStrengthIconBytes(),
+                            DEFAULT_ENCODING));
             return json;
-        } catch (JSONException jsonException) {
-			log.error("failed to create jsonTelephonySignalStrength Object",jsonException);
-        } catch(UnsupportedEncodingException encEx) {
-            log.error("failed to create jsonTelephonySignalStrength Object due to encoding error", encEx);
+        }
+        catch (JSONException jsonException)
+        {
+            log.error("failed to create jsonTelephonySignalStrength Object",
+                    jsonException);
+        }
+        catch (UnsupportedEncodingException encEx)
+        {
+            log.error(
+                    "failed to create jsonTelephonySignalStrength Object due to encoding error",
+                    encEx);
         }
         return null;
     }

@@ -1,6 +1,5 @@
 package at.tugraz.ist.akm.phonebook;
 
-import java.security.MessageDigest;
 import java.util.List;
 import java.util.Vector;
 
@@ -25,8 +24,6 @@ public class PhonebookCache extends SQLiteOpenHelper
             public static class Domain
             {
                 static String HASH = "md5";
-                static String NAME = "Name";
-                static String LAST_NAME = "LastName";
                 static String DISPLAY_NAME = "DisplayName";
                 static String ID = "ID";
                 static String PHONENUMBERS = "PhoneNumbers";
@@ -36,8 +33,7 @@ public class PhonebookCache extends SQLiteOpenHelper
             // id, hash, display_name, name, last_name, phone_numbers, image
             static String CREATE = "CREATE TABLE IF NOT EXISTS " + NAME + " ("
                     + Domain.ID + " TEXT, " + Domain.HASH + " TEXT, "
-                    + Domain.DISPLAY_NAME + " TEXT, " + Domain.NAME + " TEXT, "
-                    + Domain.LAST_NAME + " TEXT, " + Domain.PHONENUMBERS
+                    + Domain.DISPLAY_NAME + " TEXT, " + Domain.PHONENUMBERS
                     + " TEXT, " + Domain.IMAGE + " BLOB);";
             static String DROP = "DROP TABLE IF EXISTS " + NAME;
         }
@@ -79,9 +75,9 @@ public class PhonebookCache extends SQLiteOpenHelper
     public long numEntries()
     {
         long rowsAffected = 0;
-        Cursor rows = getReadableDatabaseConnection().rawQuery("select "
-                + Database.CacheTable.Domain.ID + " from "
-                + Database.CacheTable.NAME + " where 1=1 ", null);
+        Cursor rows = getReadableDatabaseConnection().rawQuery(
+                "select " + Database.CacheTable.Domain.ID + " from "
+                        + Database.CacheTable.NAME + " where 1=1 ", null);
 
         if (rows != null)
         {
@@ -119,66 +115,31 @@ public class PhonebookCache extends SQLiteOpenHelper
         ContentValues values = contactContentValues(contact);
         String where = Database.CacheTable.Domain.ID + " = ?";
         String whereArgs[] = { "" + contact.getId() };
-        return getWriteableDatabaseConnection().update(Database.CacheTable.NAME, values,
-                where, whereArgs);
+        return getWriteableDatabaseConnection().update(
+                Database.CacheTable.NAME, values, where, whereArgs);
     }
 
 
     private long insertContactToDatabase(Contact contact)
     {
         ContentValues values = contactContentValues(contact);
-        return getWriteableDatabaseConnection()
-                .insert(Database.CacheTable.NAME, null, values);
+        return getWriteableDatabaseConnection().insert(
+                Database.CacheTable.NAME, null, values);
     }
 
 
     private ContentValues contactContentValues(Contact contact)
     {
-        String hash = md5sum(stringifyContact(contact));
+        String hash = Integer.toString(contact.hashCode());
         ContentValues values = new ContentValues();
         values.put(Database.CacheTable.Domain.ID, contact.getId());
         values.put(Database.CacheTable.Domain.HASH, hash);
         values.put(Database.CacheTable.Domain.DISPLAY_NAME,
                 contact.getDisplayName());
-        values.put(Database.CacheTable.Domain.NAME, contact.getName());
-        values.put(Database.CacheTable.Domain.LAST_NAME,
-                contact.getFamilyName());
         values.put(Database.CacheTable.Domain.PHONENUMBERS, contact
                 .getPhoneNumbers().toString());
         values.put(Database.CacheTable.Domain.IMAGE, contact.getPhotoBytes());
         return values;
-    }
-
-
-    private String stringifyContact(Contact contact)
-    {
-        StringBuffer stringified = new StringBuffer();
-        stringified.append(contact.getDisplayName()).append(contact.getName())
-                .append(contact.getFamilyName())
-                .append(contact.getPhoneNumbers().toString())
-                .append(contact.getPhotoBytes());
-        return stringified.toString();
-    }
-
-
-    private String md5sum(String message)
-    {
-        StringBuffer digest = new StringBuffer();
-        try
-        {
-            byte[] bytesOfMessage = message.getBytes("UTF-8");
-            MessageDigest md = MessageDigest.getInstance("MD5");
-            byte[] messageDigest = md.digest(bytesOfMessage);
-            for (byte b : messageDigest)
-            {
-                digest.append(Integer.toHexString(b));
-            }
-        }
-        catch (Exception e)
-        {
-            // don't care
-        }
-        return digest.toString();
     }
 
 
@@ -225,9 +186,7 @@ public class PhonebookCache extends SQLiteOpenHelper
 
     public List<Contact> getCached(ContactFilter filter)
     {
-        String columns[] = { Database.CacheTable.Domain.NAME,
-                Database.CacheTable.Domain.LAST_NAME,
-                Database.CacheTable.Domain.DISPLAY_NAME,
+        String columns[] = { Database.CacheTable.Domain.DISPLAY_NAME,
                 Database.CacheTable.Domain.ID,
                 Database.CacheTable.Domain.PHONENUMBERS,
                 Database.CacheTable.Domain.IMAGE };
@@ -253,10 +212,6 @@ public class PhonebookCache extends SQLiteOpenHelper
         Contact c = new Contact();
         c.setDisplayName(cursor.getString(cursor
                 .getColumnIndex((Database.CacheTable.Domain.DISPLAY_NAME))));
-        c.setName(cursor.getString(cursor
-                .getColumnIndex((Database.CacheTable.Domain.NAME))));
-        c.setFamilyName(cursor.getString(cursor
-                .getColumnIndex((Database.CacheTable.Domain.LAST_NAME))));
         c.setId(cursor.getLong(cursor
                 .getColumnIndex((Database.CacheTable.Domain.ID))));
         return c;

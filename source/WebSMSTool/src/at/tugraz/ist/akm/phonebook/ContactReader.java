@@ -114,9 +114,6 @@ public class ContactReader
         // { total duration 3.4sec
         collectPhoneNumberDetails(contact, contactId);
         // }
-        // { total duration 3.1s3c
-        //collectStructuredNameDetails(contact, contactId);
-        // }
 
         mLog.debug("parsed contact [" + contact.getDisplayName()
                 + "] with id [" + contact.getId() + "]");
@@ -161,42 +158,6 @@ public class ContactReader
             phoneNumbers.close();
         }
     }
-
-
-    private void collectStructuredNameDetails(Contact contact, String contactId)
-    {
-
-        Uri selectFrom = ContactsContract.Data.CONTENT_URI;
-        String[] as = {
-                ContactsContract.CommonDataKinds.StructuredName.GIVEN_NAME,
-                ContactsContract.CommonDataKinds.StructuredName.FAMILY_NAME };
-        String where = ContactsContract.Data.CONTACT_ID + " = ? AND "
-                + ContactsContract.Data.MIMETYPE + " = ? ";
-        String[] like = new String[] {
-                contactId,
-                ContactsContract.CommonDataKinds.StructuredName.CONTENT_ITEM_TYPE };
-
-        Cursor structuredName = mContentResolver.query(selectFrom, as, where,
-                like, null);
-
-        if (structuredName != null)
-        {
-            if (structuredName.moveToNext())
-            {
-                String givenName = structuredName
-                        .getString(structuredName
-                                .getColumnIndex(ContactsContract.CommonDataKinds.StructuredName.GIVEN_NAME));
-                String familyName = structuredName
-                        .getString(structuredName
-                                .getColumnIndex(ContactsContract.CommonDataKinds.StructuredName.FAMILY_NAME));
-                contact.setName(givenName);
-                contact.setFamilyName(familyName);
-            }
-            structuredName.close();
-        }
-
-    }
-    
 
     private void collectPhotoData(Contact contact, long contactId)
     {

@@ -18,6 +18,7 @@ package at.tugraz.ist.akm.phonebook;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 
 import android.net.Uri;
@@ -56,17 +57,42 @@ public class Contact
 
         public static String cleanNumber(String messyNumber)
         {
-            return messyNumber.replaceAll("/", "")
-                    .replaceAll(" ", "").replaceAll("-", "");
-            
-            //return messyNumber.replaceAll("^[+]", "00").replaceAll("/", "")
-            //        .replaceAll(" ", "").replaceAll("-", "");
+            return messyNumber.replaceAll("/", "").replaceAll(" ", "")
+                    .replaceAll("-", "");
+
+            // return messyNumber.replaceAll("^[+]", "00").replaceAll("/", "")
+            // .replaceAll(" ", "").replaceAll("-", "");
+        }
+
+
+        @Override
+        public boolean equals(Object that)
+        {
+            if (that == null)
+            {
+                return false;
+            }
+            if (that instanceof Number)
+            {
+                Number otherNumber = (Number) that;
+                if (this.mNumber.equals(otherNumber.mNumber)
+                        && this.mType == otherNumber.mType)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+
+        @Override
+        public int hashCode()
+        {
+            return new StringBuilder().append(mNumber).append(mType).hashCode();
         }
     };
 
     private long mId = 0;
-    private String mName = null;
-    private String mFamilyName = null;
     private String mDisplayName = null;
     private Uri mPhotoUri = null;
     private byte[] mPhotoBytes = null;
@@ -103,30 +129,6 @@ public class Contact
     }
 
 
-    public String getName()
-    {
-        return mName;
-    }
-
-
-    public void setName(String name)
-    {
-        this.mName = name;
-    }
-
-
-    public String getFamilyName()
-    {
-        return mFamilyName;
-    }
-
-
-    public void setFamilyName(String familyName)
-    {
-        this.mFamilyName = familyName;
-    }
-
-
     public String getDisplayName()
     {
         return mDisplayName;
@@ -153,7 +155,8 @@ public class Contact
 
     public byte[] getPhotoBytes()
     {
-        if ( null == mPhotoBytes ) {
+        if (null == mPhotoBytes)
+        {
             return null;
         }
         return mPhotoBytes.clone();
@@ -171,7 +174,8 @@ public class Contact
             {
                 bOut.write(photo);
                 mPhotoBytes = bOut.toByteArray();
-            } catch (IOException e)
+            }
+            catch (IOException e)
             {
                 e.printStackTrace();
             }
@@ -188,6 +192,70 @@ public class Contact
     public void setPhoneNumbers(List<Number> phoneNumbers)
     {
         this.mPhoneNumbers = phoneNumbers;
+    }
+
+
+    @Override
+    public boolean equals(Object that)
+    {
+        if (that == null)
+        {
+            return false;
+        }
+
+        if (this == that)
+        {
+            return true;
+        }
+
+        if (false == (that instanceof Contact))
+        {
+            return false;
+        }
+
+        return areSignificantFieldsEqual(this, (Contact) that);
+
+    }
+
+
+    private final boolean areSignificantFieldsEqual(Contact a, Contact b)
+    {
+        boolean isEqual = false;
+
+        if (a.mDisplayName.equals(b.mDisplayName)
+                && a.mStarred == b.mStarred
+                // && a.mFamilyName.equals(b.mFamilyName) && a.mId == b.mId
+                && a.mPhotoUri.equals(b.mPhotoUri)
+                && Arrays.equals(a.mPhotoBytes, b.mPhotoBytes)
+                && a.mPhoneNumbers.equals(b.mPhoneNumbers))
+        {
+            isEqual = true;
+        }
+
+        return isEqual;
+    }
+
+
+    @Override
+    public int hashCode()
+    {
+        StringBuilder hashCodeBuilder = new StringBuilder().append(17)
+                .append(mDisplayName).append(mStarred).append(mId)
+                .append(mPhotoUri);
+
+        if (null != mPhotoBytes)
+        {
+            hashCodeBuilder.append(mPhotoBytes.hashCode());
+        }
+
+        if (null != mPhoneNumbers)
+        {
+            for (Number number : mPhoneNumbers)
+            {
+                hashCodeBuilder.append(number.getNumber().hashCode());
+            }
+        }
+        return hashCodeBuilder.toString().hashCode();
     }
 
 }

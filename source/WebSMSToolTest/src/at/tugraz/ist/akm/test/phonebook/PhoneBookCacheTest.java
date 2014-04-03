@@ -90,9 +90,7 @@ public class PhoneBookCacheTest extends WebSMSToolActivityTestcase
         String mutable = Long.toString(ContactCounter);
         Contact contact = new Contact();
         contact.setDisplayName("displayName-" + mutable);
-        contact.setFamilyName("familyName-" + mutable);
         contact.setId(ContactCounter);
-        contact.setName("name-" + mutable);
         List<Contact.Number> numbers = new Vector<Contact.Number>();
         contact.setPhoneNumbers(numbers);
         contact.setPhotoBytes(("photo-" + mutable).getBytes());
