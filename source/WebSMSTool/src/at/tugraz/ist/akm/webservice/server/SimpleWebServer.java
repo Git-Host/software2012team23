@@ -84,17 +84,20 @@ public class SimpleWebServer
 
     private WakeLock mWakeLock = null;
 
+
     public SimpleWebServer(Context context, String socketAddress)
             throws Exception
     {
         this.mContext = context;
-        PowerManager pm = (PowerManager) mContext.getSystemService(Context.POWER_SERVICE);
-        mWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, this.getClass().getName());
+        PowerManager pm = (PowerManager) mContext
+                .getSystemService(Context.POWER_SERVICE);
+
+        mWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, this
+                .getClass().getName());
         this.mSocketAddress = InetAddress.getByName(socketAddress);
         openSettings();
         readRequestHandlers();
         readRequestInterceptors();
-        
     }
 
 
@@ -224,11 +227,11 @@ public class SimpleWebServer
     public synchronized boolean startServer()
     {
         openSettings();
-        if ( false == mWakeLock.isHeld() ) 
+        if (false == mWakeLock.isHeld())
         {
             mWakeLock.acquire();
         }
-        
+
         if (this.isRunning())
         {
             mLog.info("Web service is already running at port <"
@@ -237,7 +240,7 @@ public class SimpleWebServer
         }
 
         readWebServerConfiguration();
-        String socketType ="https";
+        String socketType = "https";
 
         try
         {
@@ -266,8 +269,8 @@ public class SimpleWebServer
         }
         catch (IOException ioException)
         {
-            mLog.error("cannot bind <" + socketType + "> socket to <" + mSocketAddress + ":" + mServerPort
-                    + ">", ioException);
+            mLog.error("cannot bind <" + socketType + "> socket to <"
+                    + mSocketAddress + ":" + mServerPort + ">", ioException);
             return false;
         }
 
@@ -315,7 +318,8 @@ public class SimpleWebServer
             {
                 // don't care
             }
-            finally {
+            finally
+            {
                 mIsServerRunning = false;
                 statusbarClearConnectionUrl();
                 mWakeLock.release();
@@ -325,21 +329,26 @@ public class SimpleWebServer
         closeRegistry();
         closeSettings();
         mServerThread = null;
-        
+
     }
+
 
     private void closeSettings()
     {
-        if ( mConfig != null);
-            mConfig.close();
+        if (mConfig != null)
+            ;
+        mConfig.close();
         mConfig = null;
     }
-    
+
+
     private void openSettings()
     {
-        if ( mConfig == null);
-            mConfig = new SharedPreferencesProvider(mContext);
+        if (mConfig == null)
+            ;
+        mConfig = new SharedPreferencesProvider(mContext);
     }
+
 
     private void closeRegistry()
     {
@@ -375,7 +384,8 @@ public class SimpleWebServer
         {
             mLog.error("Error while getting keymanagers!", keyException);
         }
-        finally {
+        finally
+        {
             appKeystore.close();
         }
     }
@@ -398,11 +408,12 @@ public class SimpleWebServer
         FireNotification notificator = new FireNotification(mContext);
         FireNotification.NotificationInfo info = new FireNotification.NotificationInfo();
         StringBuffer connectionUrl = new StringBuffer();
-        
+
         connectionUrl.append(mConfig.getProtocol() + "://");
 
         info.text = connectionUrl.append(
-                mSocketAddress.getHostAddress() + ":" + mConfig.getPort()).toString();
+                mSocketAddress.getHostAddress() + ":" + mConfig.getPort())
+                .toString();
         info.title = "WebSMSTool";
         info.tickerText = "service running";
         notificator.fireStickyInfos(info);
