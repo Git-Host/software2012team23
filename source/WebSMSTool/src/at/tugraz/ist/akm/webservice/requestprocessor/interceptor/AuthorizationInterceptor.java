@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package at.tugraz.ist.akm.webservice.handler.interceptor;
+package at.tugraz.ist.akm.webservice.requestprocessor.interceptor;
 
 import java.io.UnsupportedEncodingException;
 

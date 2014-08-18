@@ -19,76 +19,134 @@ package at.tugraz.ist.akm.webservice.server;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.concurrent.RejectedExecutionException;
 
 import javax.net.ssl.SSLException;
 
 import my.org.apache.http.ConnectionClosedException;
+import my.org.apache.http.HttpResponseInterceptor;
 import my.org.apache.http.HttpVersion;
+import my.org.apache.http.impl.DefaultConnectionReuseStrategy;
+import my.org.apache.http.impl.DefaultHttpResponseFactory;
 import my.org.apache.http.impl.DefaultHttpServerConnection;
 import my.org.apache.http.params.BasicHttpParams;
+import my.org.apache.http.params.CoreConnectionPNames;
+import my.org.apache.http.params.CoreProtocolPNames;
 import my.org.apache.http.params.HttpParams;
 import my.org.apache.http.params.HttpProtocolParams;
+import my.org.apache.http.params.SyncBasicHttpParams;
+import my.org.apache.http.protocol.BasicHttpContext;
 import my.org.apache.http.protocol.HTTP;
+import my.org.apache.http.protocol.HttpProcessor;
+import my.org.apache.http.protocol.HttpRequestHandlerRegistry;
 import my.org.apache.http.protocol.HttpService;
+import my.org.apache.http.protocol.ImmutableHttpProcessor;
+import my.org.apache.http.protocol.ResponseConnControl;
+import my.org.apache.http.protocol.ResponseContent;
+import my.org.apache.http.protocol.ResponseDate;
+import my.org.apache.http.protocol.ResponseServer;
 import at.tugraz.ist.akm.trace.LogClient;
-import at.tugraz.ist.akm.webservice.RequestThreadPool;
 
-public class ServerThread extends Thread {
-    private final static LogClient mLog = new LogClient(ServerThread.class.getName());	
-    private final SimpleWebServer mWebServer;
+public class ServerThread extends Thread
+{
+    private final static LogClient mLog = new LogClient(
+            ServerThread.class.getName());
+    // private final SimpleWebServer mWebServer;
     private final ServerSocket mServerSocket;
+    private final BasicHttpContext mHttpContext;
+    private final HttpRequestHandlerRegistry mRequestHandlerRegistry;
+
     private boolean mRunning = false;
     private boolean mStopServerThread = false;
 
     private final RequestThreadPool mThreadPool;
-    
-    public ServerThread(final SimpleWebServer webServer, final ServerSocket serverSocket) {
-        this.mWebServer = webServer;
+
+
+    public ServerThread(final ServerSocket serverSocket,
+            final BasicHttpContext httpContext,
+            final HttpRequestHandlerRegistry requestHandlerRegistry)
+    {
         this.mServerSocket = serverSocket;
+        mHttpContext = httpContext;
+        mRequestHandlerRegistry = requestHandlerRegistry;
+
         this.mThreadPool = new RequestThreadPool();
     }
 
+
     @Override
-    public void run() {
+    public void run()
+    {
         mRunning = true;
-        while (mRunning) {
+        while (mRunning)
+        {
             Socket socket = null;
-            try {
+            try
+            {
                 socket = mServerSocket != null ? mServerSocket.accept() : null;
-            } catch (IOException ioException) {
+            }
+            catch (IOException ioException)
+            {
                 // OK: no need to write trace
             }
 
-            if (mStopServerThread) {
+            if (mStopServerThread)
+            {
                 break;
             }
-            if (socket != null) {
-                mLog.debug("connection request from ip <" + socket.getInetAddress()
-                        + "> on port <" + socket.getPort() + ">");
-            
-                final Socket tmpSocket = socket;
-                mThreadPool.executeTask(new Runnable() {
-                    @Override
-                    public void run() {
-                        DefaultHttpServerConnection serverConn = new DefaultHttpServerConnection();
-                        try {
-                            HttpParams params = new BasicHttpParams();
-                            HttpProtocolParams.setVersion(params, HttpVersion.HTTP_1_1);
-                            HttpProtocolParams.setContentCharset(params, HTTP.UTF_8);
+            if (socket != null)
+            {
+                mLog.debug("connection request from ip <"
+                        + socket.getInetAddress() + "> on port <"
+                        + socket.getPort() + ">");
 
-                            serverConn.bind(tmpSocket, params);
-                            HttpService httpService = mWebServer.initializeHTTPService();
-                            httpService.handleRequest(serverConn, mWebServer.getHttpContext());
-                        } catch (SSLException iDon_tCare) {
-                        	; // some browser send connection closed, some not ...
-                        	mLog.info("ignore SSL-connection closed by peer");
-                        } catch (ConnectionClosedException iDon_tCare) {
-                        	mLog.info("ignore connection closed by peer");
-                        } catch (Exception ex) {
-                            mLog.error("Exception caught while processing HTTP client connection", ex);
+                final Socket tmpSocket = socket;
+                try
+                {
+                    mThreadPool.executeTask(new Runnable() {
+                        @Override
+                        public void run()
+                        {
+                            DefaultHttpServerConnection serverConn = new DefaultHttpServerConnection();
+                            try
+                            {
+                                HttpParams params = new BasicHttpParams();
+                                HttpProtocolParams.setVersion(params,
+                                        HttpVersion.HTTP_1_1);
+                                HttpProtocolParams.setContentCharset(params,
+                                        HTTP.UTF_8);
+
+                                serverConn.bind(tmpSocket, params);
+                                HttpService httpService = initializeHTTPService();
+                                httpService.handleRequest(serverConn,
+                                        mHttpContext);
+                            }
+                            catch (SSLException iDon_tCare)
+                            {
+                                ; // some browser send connection closed, some
+                                  // not
+                                  // ...
+                                mLog.info("ignore SSL-connection closed by peer");
+                            }
+                            catch (ConnectionClosedException iDon_tCare)
+                            {
+                                mLog.info("ignore connection closed by peer");
+                            }
+                            catch (Exception ex)
+                            {
+                                mLog.error(
+                                        "Exception caught while processing HTTP client connection",
+                                        ex);
+                            }
                         }
-                    }
-                });
+                    });
+                }
+                catch (RejectedExecutionException reason)
+                {
+                    mLog.error(
+                            "request execution rejected because pool works at its limit",
+                            reason);
+                }
             }
         }
 
@@ -96,21 +154,58 @@ public class ServerThread extends Thread {
         mLog.info("Webserver stopped");
     }
 
-    public void stopThread() {
+
+    public void stopThread()
+    {
         mThreadPool.shutdown();
         mStopServerThread = true;
-        try {
-			mServerSocket.close();
-		} catch (IOException exp) {
-			mLog.warning("Could not close server socket on stopping server thread", exp);
-		}
+        try
+        {
+            mServerSocket.close();
+        }
+        catch (IOException exp)
+        {
+            mLog.warning(
+                    "Could not close server socket on stopping server thread",
+                    exp);
+        }
     }
 
-    public boolean isRunning() {
+
+    public boolean isRunning()
+    {
         return mRunning;
     }
 
-    public int getPort() {
+
+    public int getPort()
+    {
         return mServerSocket.getLocalPort();
+    }
+
+
+    protected synchronized HttpService initializeHTTPService()
+    {
+        HttpProcessor httpProcessor = new ImmutableHttpProcessor(
+                new HttpResponseInterceptor[] { new ResponseDate(),
+                        new ResponseServer(), new ResponseContent(),
+                        new ResponseConnControl() });
+
+        HttpParams params = new SyncBasicHttpParams()
+                .setIntParameter(CoreConnectionPNames.SO_TIMEOUT, 0)
+                .setIntParameter(CoreConnectionPNames.SOCKET_BUFFER_SIZE,
+                        8 * 1024)
+                .setBooleanParameter(
+                        CoreConnectionPNames.STALE_CONNECTION_CHECK, false)
+                .setBooleanParameter(CoreConnectionPNames.TCP_NODELAY, true)
+                .setParameter(CoreProtocolPNames.ORIGIN_SERVER,
+                        "HttpComponents/1.1");
+
+        HttpService httpService = new HttpService(httpProcessor,
+                new DefaultConnectionReuseStrategy(),
+                new DefaultHttpResponseFactory(), mRequestHandlerRegistry,
+                params);
+
+        return httpService;
     }
 }

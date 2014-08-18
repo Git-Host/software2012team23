@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package at.tugraz.ist.akm.test.phonebook;
+package at.tugraz.ist.akm.test.phonebook.contact;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,7 +22,7 @@ import java.util.List;
 import junit.framework.Assert;
 import junit.framework.TestCase;
 import android.net.Uri;
-import at.tugraz.ist.akm.phonebook.Contact;
+import at.tugraz.ist.akm.phonebook.contact.Contact;
 
 public class ContactTest extends TestCase
 {

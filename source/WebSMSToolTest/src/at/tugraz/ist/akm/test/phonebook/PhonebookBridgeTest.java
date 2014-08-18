@@ -31,9 +31,9 @@ public class PhonebookBridgeTest extends WebSMSToolActivityTestcase {
 			phonebook.start();
 			String[] mrFoo = { "Foo", "Bar", "01906666" };
 			Thread.sleep(1000);
-			PhonebookHelper.storeContact(mrFoo, mContentResolver);
+			PhonebookTestsHelper.storeContact(mrFoo, mContentResolver);
 			Thread.sleep(1000);
-			PhonebookHelper.deleteContact(mrFoo[2], mrFoo[0] + " " + mrFoo[1], mContentResolver);
+			PhonebookTestsHelper.deleteContact(mrFoo[2], mrFoo[0] + " " + mrFoo[1], mContentResolver);
 			Thread.sleep(1000);
 			phonebook.stop();
 		} catch (Exception ex) {

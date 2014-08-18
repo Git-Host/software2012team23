@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package at.tugraz.ist.akm.phonebook;
+package at.tugraz.ist.akm.phonebook.contact;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -33,7 +33,7 @@ import at.tugraz.ist.akm.content.query.ContactQueryBuilder;
 import at.tugraz.ist.akm.content.query.ContentProviderQueryParameters;
 import at.tugraz.ist.akm.trace.LogClient;
 
-public class ContactReader
+public class ContactReader implements IContactReader
 {
 
     private ContentResolver mContentResolver = null;

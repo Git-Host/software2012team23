@@ -20,7 +20,7 @@ import java.util.List;
 
 import at.tugraz.ist.akm.content.query.ContactFilter;
 import at.tugraz.ist.akm.content.query.TextMessageFilter;
-import at.tugraz.ist.akm.phonebook.Contact;
+import at.tugraz.ist.akm.phonebook.contact.Contact;
 import at.tugraz.ist.akm.sms.TextMessage;
 import at.tugraz.ist.akm.texting.reports.VolatileIncomingReport;
 import at.tugraz.ist.akm.texting.reports.VolatileOutgoingReport;

@@ -14,22 +14,21 @@
  * limitations under the License.
  */
 
-package at.tugraz.ist.akm.webservice.handler.interceptor;
+package at.tugraz.ist.akm.webservice.requestprocessor.interceptor;
 
 import my.org.apache.http.HttpRequest;
 import my.org.apache.http.HttpResponse;
-import android.content.Context;
-import at.tugraz.ist.akm.webservice.HttpResponseDataAppender;
 
-public abstract class AbstractRequestInterceptor implements IRequestInterceptor {
-    protected final Context mContext;
-    protected final HttpResponseDataAppender responseDataAppender = new HttpResponseDataAppender();
-
-    public AbstractRequestInterceptor(final Context context) {
-        mContext = context;
-    }
-
-    @Override
-    public abstract boolean process(HttpRequest httpRequest, String requestData, HttpResponse httpResponse);
-    public abstract void onClose();
+public interface IRequestInterceptor {
+    /**
+     * !!!DO NOT retrieve the entity from the given httpRequest. <br/>
+     * The desired data is provided by the parameter <code>requestData</code>
+     * 
+     * @param httpRequest
+     * @param requestData
+     * @param httpResponse
+     * @return
+     */
+    public boolean process(HttpRequest httpRequest, String requestData, HttpResponse httpResponse);
+    public void onClose();
 }

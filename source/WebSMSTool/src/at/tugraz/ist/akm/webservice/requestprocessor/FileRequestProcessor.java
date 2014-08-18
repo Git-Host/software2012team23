@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package at.tugraz.ist.akm.webservice.handler;
+package at.tugraz.ist.akm.webservice.requestprocessor;
 
 import java.io.IOException;
 
@@ -27,11 +27,11 @@ import at.tugraz.ist.akm.io.FileReader;
 import at.tugraz.ist.akm.io.xml.XmlNode;
 import at.tugraz.ist.akm.trace.LogClient;
 
-public class FileRequestHandler extends AbstractHttpRequestHandler {
+public class FileRequestProcessor extends AbstractHttpRequestProcessor {
 
 	private final LogClient mLog = new LogClient(this);
 	
-    public FileRequestHandler(final Context context, final XmlNode config,
+    public FileRequestProcessor(final Context context, final XmlNode config,
             final HttpRequestHandlerRegistry registry) {
         super(context, config, registry);
 

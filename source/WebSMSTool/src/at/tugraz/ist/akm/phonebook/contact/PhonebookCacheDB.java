@@ -1,4 +1,4 @@
-package at.tugraz.ist.akm.phonebook;
+package at.tugraz.ist.akm.phonebook.contact;
 
 import java.util.List;
 import java.util.Vector;
@@ -10,7 +10,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import at.tugraz.ist.akm.content.query.ContactFilter;
 
-public class PhonebookCache extends SQLiteOpenHelper
+public class PhonebookCacheDB extends SQLiteOpenHelper
 {
 
     private static class Database
@@ -59,7 +59,7 @@ public class PhonebookCache extends SQLiteOpenHelper
     private SQLiteDatabase mWriteablaDatabaseConnection = null;
 
 
-    public PhonebookCache(Context context)
+    public PhonebookCacheDB(Context context)
     {
         super(context, Database.NAME, null, 1);
     }

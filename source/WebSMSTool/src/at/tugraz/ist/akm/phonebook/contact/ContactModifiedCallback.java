@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package at.tugraz.ist.akm.phonebook;
+package at.tugraz.ist.akm.phonebook.contact;
 
 public interface ContactModifiedCallback {
 

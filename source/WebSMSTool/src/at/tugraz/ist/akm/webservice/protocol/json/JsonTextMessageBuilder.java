@@ -23,7 +23,7 @@ import java.util.Locale;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import at.tugraz.ist.akm.phonebook.Contact;
+import at.tugraz.ist.akm.phonebook.contact.Contact;
 import at.tugraz.ist.akm.sms.TextMessage;
 import at.tugraz.ist.akm.trace.LogClient;
 

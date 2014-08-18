@@ -24,8 +24,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.util.Base64;
-import at.tugraz.ist.akm.phonebook.Contact;
-import at.tugraz.ist.akm.phonebook.Contact.Number;
+import at.tugraz.ist.akm.phonebook.contact.Contact;
+import at.tugraz.ist.akm.phonebook.contact.Contact.Number;
 import at.tugraz.ist.akm.trace.LogClient;
 
 public class JsonContactBuilder implements IJsonBuilder

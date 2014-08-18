@@ -27,12 +27,12 @@ import android.net.Uri;
 import android.provider.ContactsContract;
 import android.provider.ContactsContract.PhoneLookup;
 import android.provider.ContactsContract.RawContacts;
-import at.tugraz.ist.akm.phonebook.Contact;
+import at.tugraz.ist.akm.phonebook.contact.Contact;
 import at.tugraz.ist.akm.trace.LogClient;
 
-public class PhonebookHelper {
+public class PhonebookTestsHelper {
 
-    private static LogClient mLog = new LogClient(PhonebookHelper.class.getName());
+    private static LogClient mLog = new LogClient(PhonebookTestsHelper.class.getName());
     
 	public static void storeContact(String[] record,
 			ContentResolver contentResolver) throws Throwable {
@@ -82,7 +82,7 @@ public class PhonebookHelper {
 
 	public static void storeContacts(String [][] contacts, ContentResolver contentResolver) throws Throwable {
 		for (String[] c : contacts) {
-			PhonebookHelper.storeContact(c, contentResolver);
+			PhonebookTestsHelper.storeContact(c, contentResolver);
 		}
 	}
 	

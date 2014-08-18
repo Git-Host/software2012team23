@@ -30,9 +30,9 @@ import org.json.JSONObject;
 import android.content.Context;
 import at.tugraz.ist.akm.io.xml.XmlNode;
 import at.tugraz.ist.akm.webservice.WebServerConfig;
-import at.tugraz.ist.akm.webservice.handler.JsonAPIRequestHandler;
+import at.tugraz.ist.akm.webservice.requestprocessor.JsonAPIRequestProcessor;
 
-public class EchoJsonRequestHandler extends JsonAPIRequestHandler {
+public class EchoJsonRequestHandler extends JsonAPIRequestProcessor {
 
     public EchoJsonRequestHandler(final Context context, final XmlNode config,
             final HttpRequestHandlerRegistry registry) throws Throwable {

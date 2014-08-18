@@ -16,9 +16,9 @@
   -->
 <webServerConfig>
     <requestInterceptors>
-        <interceptor class="at.tugraz.ist.akm.webservice.handler.interceptor.AuthorizationInterceptor"/>
+        <interceptor class="at.tugraz.ist.akm.webservice.requestprocessor.interceptor.AuthorizationInterceptor"/>
     </requestInterceptors>
-	<requestHandler class="at.tugraz.ist.akm.webservice.handler.FileRequestHandler">
+	<requestHandler class="at.tugraz.ist.akm.webservice.requestprocessor.FileRequestProcessor">
     <request uriPattern="/" dataFile="web/index.html" contentType="text/html"/>
 		<request uriPattern="/index.html" dataFile="web/index.html" contentType="text/html"/>
 		<request uriPattern="/clientTest.html" dataFile="web/clientTest.html" contentType="text/html"/>
@@ -42,13 +42,13 @@
 		<request uriPattern="/js/wst/templates/sms_thread_entry.html" dataFile="web/js/wst/templates/sms_thread_entry.html" contentType="text/html"/>
     <request uriPattern="/js/wst/templates/contact_tab.html" dataFile="web/js/wst/templates/contact_tab.html" contentType="text/html"/>		
 	</requestHandler>
-  <requestHandler class="at.tugraz.ist.akm.webservice.handler.JsonAPIRequestHandler">
+  <requestHandler class="at.tugraz.ist.akm.webservice.requestprocessor.JsonAPIRequestProcessor">
     <request uriPattern="/api.html" dataFile="web/api.html" contentType="text/html"/>
     </requestHandler>
-  <requestHandler class="at.tugraz.ist.akm.webservice.handler.EchoJsonRequestHandler">  	
+  <requestHandler class="at.tugraz.ist.akm.webservice.requestprocessor.EchoJsonRequestProcessor">  	
     <request uriPattern="/echo.html" dataFile="web/echo.html" contentType="text/html"/>
   </requestHandler>
-    <requestHandler class="at.tugraz.ist.akm.webservice.handler.FaviconLoader">  	
+    <requestHandler class="at.tugraz.ist.akm.webservice.requestprocessor.FaviconLoadRequestProcessor">  	
     <request uriPattern="/favicon.png" dataFile="web/favicon.png" contentType="text/html"/>
   </requestHandler>
 </webServerConfig>

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package at.tugraz.ist.akm.webservice.handler;
+package at.tugraz.ist.akm.webservice.requestprocessor;
 
 import java.io.IOException;
 
@@ -32,11 +32,11 @@ import at.tugraz.ist.akm.io.xml.XmlNode;
 import at.tugraz.ist.akm.trace.LogClient;
 import at.tugraz.ist.akm.webservice.WebServerConfig;
 
-public class EchoJsonRequestHandler extends AbstractHttpRequestHandler
+public class EchoJsonRequestProcessor extends AbstractHttpRequestProcessor
 {
     private final LogClient mLog = new LogClient(this);
     
-    public EchoJsonRequestHandler(final Context context, final XmlNode config,
+    public EchoJsonRequestProcessor(final Context context, final XmlNode config,
             final HttpRequestHandlerRegistry registry)
     {
         super(context, config, registry);

@@ -26,7 +26,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import android.util.Base64;
-import at.tugraz.ist.akm.phonebook.Contact;
+import at.tugraz.ist.akm.phonebook.contact.Contact;
 import at.tugraz.ist.akm.sms.TextMessage;
 import at.tugraz.ist.akm.webservice.protocol.json.JsonContactBuilder;
 import at.tugraz.ist.akm.webservice.protocol.json.JsonFactory;

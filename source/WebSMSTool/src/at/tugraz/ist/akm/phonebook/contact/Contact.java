@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package at.tugraz.ist.akm.phonebook;
+package at.tugraz.ist.akm.phonebook.contact;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

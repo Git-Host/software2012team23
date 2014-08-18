@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package at.tugraz.ist.akm.webservice;
+package at.tugraz.ist.akm.webservice.requestprocessor;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -25,6 +25,9 @@ import my.org.apache.http.entity.ContentProducer;
 import my.org.apache.http.entity.EntityTemplate;
 
 import org.json.JSONObject;
+
+import at.tugraz.ist.akm.webservice.WebServerConfig;
+import at.tugraz.ist.akm.webservice.WebServerConfig.HTTP;
 
 public class HttpResponseDataAppender {
 

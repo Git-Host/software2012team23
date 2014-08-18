@@ -25,9 +25,13 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.provider.ContactsContract;
 import at.tugraz.ist.akm.content.query.ContactFilter;
+import at.tugraz.ist.akm.phonebook.contact.Contact;
+import at.tugraz.ist.akm.phonebook.contact.ContactModifiedCallback;
+import at.tugraz.ist.akm.phonebook.contact.ContactReader;
+import at.tugraz.ist.akm.phonebook.contact.IContactReader;
 import at.tugraz.ist.akm.trace.LogClient;
 
-public class PhonebookBridge implements ContactModifiedCallback {
+public class PhonebookBridge implements ContactModifiedCallback, IContactReader {
 
 	private Context mContext = null;
 	private ContentResolver mContentResolver = null;

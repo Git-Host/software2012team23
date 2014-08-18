@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package at.tugraz.ist.akm.webservice.handler;
+package at.tugraz.ist.akm.webservice.requestprocessor;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -44,8 +44,8 @@ import at.tugraz.ist.akm.io.xml.XmlNode;
 import at.tugraz.ist.akm.monitoring.BatteryStatus;
 import at.tugraz.ist.akm.monitoring.SystemMonitor;
 import at.tugraz.ist.akm.monitoring.TelephonySignalStrength;
-import at.tugraz.ist.akm.phonebook.Contact;
-import at.tugraz.ist.akm.phonebook.ContactModifiedCallback;
+import at.tugraz.ist.akm.phonebook.contact.Contact;
+import at.tugraz.ist.akm.phonebook.contact.ContactModifiedCallback;
 import at.tugraz.ist.akm.sms.SmsIOCallback;
 import at.tugraz.ist.akm.sms.TextMessage;
 import at.tugraz.ist.akm.texting.TextingAdapter;
@@ -54,7 +54,7 @@ import at.tugraz.ist.akm.trace.LogClient;
 import at.tugraz.ist.akm.webservice.WebServerConfig;
 import at.tugraz.ist.akm.webservice.protocol.json.JsonFactory;
 
-public class JsonAPIRequestHandler extends AbstractHttpRequestHandler implements
+public class JsonAPIRequestProcessor extends AbstractHttpRequestProcessor implements
         SmsIOCallback, ContactModifiedCallback
 {
     private final static String JSON_STATE_SUCCESS = "success";
@@ -81,7 +81,7 @@ public class JsonAPIRequestHandler extends AbstractHttpRequestHandler implements
     private Object mJsonContactListLock = new Object();
 
 
-    public JsonAPIRequestHandler(final Context context, final XmlNode config,
+    public JsonAPIRequestProcessor(final Context context, final XmlNode config,
             final HttpRequestHandlerRegistry registry) throws Throwable
     {
         super(context, config, registry);
