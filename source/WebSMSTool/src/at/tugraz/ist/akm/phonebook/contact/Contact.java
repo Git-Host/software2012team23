@@ -34,7 +34,7 @@ public class Contact
 
         public Number(String number, int type)
         {
-            this.mNumber = Number.cleanNumber(number);
+            this.mNumber = cleanNumber(number);
             /**
              * phone types are defined in
              * ContactsContract.CommonDataKinds.Phone.TYPE_***
@@ -89,6 +89,15 @@ public class Contact
         public int hashCode()
         {
             return new StringBuilder().append(mNumber).append(mType).hashCode();
+        }
+
+
+        @Override
+        public String toString()
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.append("Nr: " + mNumber + " Type: " + mType);
+            return sb.toString();
         }
     };
 
@@ -222,16 +231,68 @@ public class Contact
     {
         boolean isEqual = false;
 
-        if (a.mDisplayName.equals(b.mDisplayName)
-                && a.mStarred == b.mStarred
+        if (a.mDisplayName.equals(b.mDisplayName) && a.mStarred == b.mStarred
                 // && a.mFamilyName.equals(b.mFamilyName) && a.mId == b.mId
-                && a.mPhotoUri.equals(b.mPhotoUri)
-                && Arrays.equals(a.mPhotoBytes, b.mPhotoBytes)
-                && a.mPhoneNumbers.equals(b.mPhoneNumbers))
+                && photoUriEquals(a, b) && photoBytesEquals(a, b)
+                && phoneNumbersEquals(a, b))
         {
             isEqual = true;
         }
 
+        return isEqual;
+    }
+
+
+    private boolean phoneNumbersEquals(Contact a, Contact b)
+    {
+        boolean isEqual = false;
+        if (a.mPhoneNumbers == b.mPhoneNumbers)
+        {
+            isEqual = true;
+        } else if (a.mPhoneNumbers != null && b.mPhoneNumbers != null)
+        {
+            boolean isAinBContained = true;
+            for (Number aNumber : a.mPhoneNumbers)
+            {
+                if (!b.mPhoneNumbers.contains(aNumber))
+                {
+                    isAinBContained = false;
+                    break;
+                }
+            }
+            isEqual = isAinBContained;
+        }
+        return isEqual;
+
+    }
+
+
+    private boolean photoUriEquals(Contact a, Contact b)
+    {
+        boolean isEqual = false;
+        if (a.mPhotoUri == b.mPhotoUri)
+        {
+            isEqual = true;
+        } else if (a.mPhotoUri != null && b.mPhotoUri != null
+                && a.mPhotoUri.equals(b.mPhotoUri))
+        {
+            isEqual = true;
+        }
+        return isEqual;
+    }
+
+
+    private boolean photoBytesEquals(Contact a, Contact b)
+    {
+        boolean isEqual = false;
+        if (a.mPhotoBytes == b.mPhotoBytes)
+        {
+            isEqual = true;
+        } else if (a.mPhotoBytes != null && b.mPhotoBytes != null
+                && Arrays.equals(a.mPhotoBytes, b.mPhotoBytes))
+        {
+            isEqual = true;
+        }
         return isEqual;
     }
 
@@ -258,4 +319,21 @@ public class Contact
         return hashCodeBuilder.toString().hashCode();
     }
 
+
+    @Override
+    public String toString()
+    {
+        StringBuilder sb = new StringBuilder();
+
+        sb.append("DisplayName: " + mDisplayName + " IsStarred: " + mStarred
+                + " PhoneNumbers:");
+
+        if (mPhoneNumbers != null)
+            for (Number number : mPhoneNumbers)
+            {
+                sb.append(" " + number.toString());
+            }
+
+        return sb.toString();
+    }
 }

@@ -18,6 +18,7 @@ package at.tugraz.ist.akm.test.phonebook;
 
 import at.tugraz.ist.akm.phonebook.PhonebookBridge;
 import at.tugraz.ist.akm.test.base.WebSMSToolActivityTestcase;
+import at.tugraz.ist.akm.test.testdata.PhonebookTestsHelper;
 
 public class PhonebookBridgeTest extends WebSMSToolActivityTestcase {
 

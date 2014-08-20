@@ -22,7 +22,7 @@ import at.tugraz.ist.akm.content.query.ContactFilter;
 import at.tugraz.ist.akm.phonebook.contact.Contact;
 import at.tugraz.ist.akm.phonebook.contact.ContactReader;
 import at.tugraz.ist.akm.test.base.WebSMSToolActivityTestcase;
-import at.tugraz.ist.akm.test.phonebook.PhonebookTestsHelper;
+import at.tugraz.ist.akm.test.testdata.PhonebookTestsHelper;
 
 public class ContactReaderTest extends WebSMSToolActivityTestcase {
 

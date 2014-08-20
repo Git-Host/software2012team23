@@ -115,8 +115,8 @@ public class ContactReader implements IContactReader
         collectPhoneNumberDetails(contact, contactId);
         // }
 
-        mLog.debug("parsed contact [" + contact.getDisplayName()
-                + "] with id [" + contact.getId() + "]");
+//        mLog.debug("parsed contact [" + contact.getDisplayName()
+//                + "] with id [" + contact.getId() + "]");
         return contact;
     }
 

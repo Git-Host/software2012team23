@@ -1,5 +1,6 @@
 package at.tugraz.ist.akm.phonebook.contact;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Vector;
 
@@ -19,9 +20,15 @@ public class CachedAsyncPhonebookReader extends Thread implements
 
     private class ContactSources
     {
-        public List<Contact> mNoContacts = new Vector<Contact>(0);
-        public List<Contact> mCached = mNoContacts;
-        public List<Contact> mContentProvider = mNoContacts;
+        public List<Contact> noContacts = new Vector<Contact>(0);
+        public List<Contact> cached = noContacts;
+        public List<Contact> contentProvider = noContacts;
+    }
+
+    private class TimingInfo
+    {
+        public long readDBDurationMs = 0;
+        public long readContentProvicerDurationMs = 0;
     }
 
     public enum StateMachine {
@@ -145,6 +152,7 @@ public class CachedAsyncPhonebookReader extends Thread implements
     private PhonebookCacheDB mPhonebookCacheDB = null;
     private IContactReader mContentproviderContactReader = null;
     private ThreadInfo mThreadInfo = new ThreadInfo();
+    private TimingInfo mTimingInfo = new TimingInfo();
 
 
     public CachedAsyncPhonebookReader(ContactFilter filter,
@@ -154,7 +162,7 @@ public class CachedAsyncPhonebookReader extends Thread implements
         mPhonebookCacheDB = new PhonebookCacheDB(mApplicationContext);
         mContactFilter = filter;
         mContentproviderContactReader = contactReader;
-
+        StateMachine.state(StateMachine.ALIVE);
     }
 
 
@@ -168,23 +176,23 @@ public class CachedAsyncPhonebookReader extends Thread implements
             case STARTED:
             case READ_DB:
                 mLog.debug("requested contacts from uncomplete cache: 0 entries");
-                return mContactSources.mNoContacts;
+                return mContactSources.noContacts;
 
             case READ_DB_DONE:
             case READ_CONTENTPROVIDER:
                 mLog.debug("requested contacts from cache: "
-                        + mContactSources.mCached.size() + " entries");
-                return mContactSources.mCached;
+                        + mContactSources.cached.size() + " entries");
+                return mContactSources.cached;
 
             case READ_CONTENTPROVIDER_DONE:
             case READY_FOR_CHANGES:
             case STOPPED:
                 mLog.debug("requested contacts from content provider: "
-                        + mContactSources.mContentProvider.size() + " entries");
-                return mContactSources.mContentProvider;
+                        + mContactSources.contentProvider.size() + " entries");
+                return mContactSources.contentProvider;
 
             default:
-                return mContactSources.mNoContacts;
+                return mContactSources.noContacts;
             }
         }
     }
@@ -200,16 +208,22 @@ public class CachedAsyncPhonebookReader extends Thread implements
                 readContactsFromCacheAndProvider();
             }
 
-            try
-            {
-                Thread.sleep(mThreadInfo.sleepMs);
-            }
-            catch (InterruptedException ie) // don't care
-            {
-            }
+            sleepSilent(100);
 
         }
     };
+
+
+    private void sleepSilent(long sleepMs)
+    {
+        try
+        {
+            Thread.sleep(mThreadInfo.sleepMs);
+        }
+        catch (InterruptedException ie) // don't care
+        {
+        }
+    }
 
 
     public void finish()
@@ -218,9 +232,18 @@ public class CachedAsyncPhonebookReader extends Thread implements
         StateMachine.state(StateMachine.STOPPED);
     }
 
-    public void onClose() {
+
+    public void onClose()
+    {
+
+        mPhonebookCacheDB.clear();
+        for (Contact c : mContactSources.contentProvider)
+        {
+            mPhonebookCacheDB.cache(c);
+        }
         mPhonebookCacheDB.close();
     }
+
 
     private void readContactsFromCacheAndProvider()
     {
@@ -229,10 +252,25 @@ public class CachedAsyncPhonebookReader extends Thread implements
         switch (StateMachine.state())
         {
         case READ_DB:
-            mContactSources.mCached = tryReadFromDatabase();
+            synchronized (mContactSources)
+            {
+                mContactSources.cached = tryReadFromDatabase();
+            }
+            break;
 
         case READ_CONTENTPROVIDER:
-            mContactSources.mContentProvider = fetchFromContentProvider();
+            synchronized (mContactSources)
+            {
+                mContactSources.contentProvider = fetchFromContentProvider();
+            }
+            break;
+
+        case READY_FOR_CHANGES:
+            mLog.debug("read cached database in" + mTimingInfo.readDBDurationMs
+                    + "[ms]");
+            mLog.debug("read ContentProvider in"
+                    + mTimingInfo.readContentProvicerDurationMs + "[ms]");
+            break;
 
         default:
         }
@@ -241,14 +279,25 @@ public class CachedAsyncPhonebookReader extends Thread implements
 
     private List<Contact> fetchFromContentProvider()
     {
-            List<Contact> c = mContentproviderContactReader.fetchContacts(mContactFilter);
-            return c;
+        Date start = new Date();
+        List<Contact> watchlist = mContentproviderContactReader
+                .fetchContacts(mContactFilter);
+        mTimingInfo.readContentProvicerDurationMs = new Date().getTime()
+                - start.getTime();
+        mLog.debug("found contacts " + watchlist.size()
+                + " in content provider");
+        return watchlist;
     }
 
 
     private List<Contact> tryReadFromDatabase()
     {
-        return mPhonebookCacheDB.getCached(mContactFilter);
+        Date start = new Date();
+        List<Contact> watchlist = mPhonebookCacheDB.getCached(mContactFilter);
+        mTimingInfo.readDBDurationMs = new Date().getTime() - start.getTime();
+
+        mLog.debug("found contacts " + watchlist.size() + " in cache DB");
+        return watchlist;
     }
 
 
