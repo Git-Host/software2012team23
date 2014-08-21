@@ -3,6 +3,7 @@ package at.tugraz.ist.akm.test.phonebook.contact;
 import java.util.List;
 import java.util.Vector;
 
+import android.net.NetworkInfo.State;
 import android.provider.ContactsContract;
 import at.tugraz.ist.akm.content.query.ContactFilter;
 import at.tugraz.ist.akm.phonebook.contact.CachedAsyncPhonebookReader;
@@ -10,6 +11,7 @@ import at.tugraz.ist.akm.phonebook.contact.CachedAsyncPhonebookReader.StateMachi
 import at.tugraz.ist.akm.phonebook.contact.Contact;
 import at.tugraz.ist.akm.phonebook.contact.Contact.Number;
 import at.tugraz.ist.akm.phonebook.contact.ContactReader;
+import at.tugraz.ist.akm.phonebook.contact.IContactModifiedCallback;
 import at.tugraz.ist.akm.test.base.WebSMSToolActivityTestcase;
 import at.tugraz.ist.akm.test.testdata.DefaultContactSetInserter;
 import at.tugraz.ist.akm.test.testdata.DefaultContacts;
@@ -75,6 +77,17 @@ public class CachedAsyncPhonebookReaderTest extends WebSMSToolActivityTestcase
     }
 
 
+    public void test_state_transitions_from_STOP()
+    {
+        StateMachine.state(StateMachine.STOP);
+        assertEquals(StateMachine.state(), StateMachine.STOP);
+        StateMachine.transit();
+        assertEquals(StateMachine.state(), StateMachine.STOPPED);
+        StateMachine.transit();
+        assertEquals(StateMachine.state(), StateMachine.STOPPED);
+    }
+
+
     public void test_dead_end_transision()
     {
         ContactFilter filter = new ContactFilter();
@@ -108,10 +121,13 @@ public class CachedAsyncPhonebookReaderTest extends WebSMSToolActivityTestcase
             {
                 sleepSilent(100);
             }
+
             reader.finish();
-            sleepSilent(100);
-            reader.onClose();
-            sleepSilent(100);
+
+            while (StateMachine.state() != StateMachine.STOPPED)
+            {
+                sleepSilent(100);
+            }
         }
         catch (Throwable e)
         {
@@ -144,7 +160,6 @@ public class CachedAsyncPhonebookReaderTest extends WebSMSToolActivityTestcase
         }
 
         reader.finish();
-        reader.onClose();
     }
 
 
@@ -184,20 +199,43 @@ public class CachedAsyncPhonebookReaderTest extends WebSMSToolActivityTestcase
 
         for (String[] record : defaultContacts)
         {
-            Contact c = new Contact();
-
-            c.setDisplayName(record[0] + " " + record[1]);
-            Vector<Number> numbers = new Vector<Number>();
-            numbers.add(new Number(record[2],
-                    ContactsContract.CommonDataKinds.Phone.TYPE_MOBILE));
-            c.setPhoneNumbers(numbers);
-            c.setDisplayName(record[0] + " " + record[1]);
+            Contact c = contactFromRecord(record);
 
             assertTrue(dbContacts.contains(c));
         }
 
+        synchronized (reader)
+        {
+            reader.notify();
+        }
+        reader.finish();
+        waitForReaderToBeFinished();
     }
-    
+
+
+    private void waitForReaderToBeFinished()
+    {
+        while (StateMachine.state() != StateMachine.STOPPED)
+        {
+            sleepSilent(100);
+        }
+    }
+
+
+    private Contact contactFromRecord(String[] record)
+    {
+        Contact c = new Contact();
+
+        c.setDisplayName(record[0] + " " + record[1]);
+        Vector<Contact.Number> numbers = new Vector<Number>();
+        numbers.add(new Contact.Number(record[2],
+                ContactsContract.CommonDataKinds.Phone.TYPE_MOBILE));
+        c.setPhoneNumbers(numbers);
+        c.setDisplayName(record[0] + " " + record[1]);
+        return c;
+    }
+
+
     public void test_verify_contacts_from_ContentProvider()
     {
         TestableCachedAsyncPhonebookReader reader = getHaltedReader(StateMachine.READ_CONTENTPROVIDER_DONE);
@@ -209,24 +247,24 @@ public class CachedAsyncPhonebookReaderTest extends WebSMSToolActivityTestcase
 
         for (String[] record : defaultContacts)
         {
-            Contact c = new Contact();
-
-            c.setDisplayName(record[0] + " " + record[1]);
-            Vector<Number> numbers = new Vector<Number>();
-            numbers.add(new Number(record[2],
-                    ContactsContract.CommonDataKinds.Phone.TYPE_MOBILE));
-            c.setPhoneNumbers(numbers);
-            c.setDisplayName(record[0] + " " + record[1]);
-
+            Contact c = contactFromRecord(record);
             assertTrue(providerContacts.contains(c));
         }
+
+        synchronized (reader)
+        {
+            reader.notify();
+        }
+        reader.finish();
+        waitForReaderToBeFinished();
 
     }
 
 
-    private TestableCachedAsyncPhonebookReader getHaltedReader(StateMachine breakPoint)
+    private TestableCachedAsyncPhonebookReader getHaltedReader(
+            StateMachine breakPoint)
     {
-        test_construct_async_reader_noException_noErrorlog();
+        // test_construct_async_reader_noException_noErrorlog();
 
         ContactFilter filter = new ContactFilter();
         ContactReader contactReader = new ContactReader(mContentResolver);
@@ -236,10 +274,82 @@ public class CachedAsyncPhonebookReaderTest extends WebSMSToolActivityTestcase
         reader.setNextBreakpoint(breakPoint);
         reader.start();
 
-        while (StateMachine.state() != breakPoint)
+        while (!reader.isThreadWaiting())
         {
             sleepSilent(100);
         }
+
         return reader;
+    }
+
+
+    public void test_post_contactModified_state_ALIVE()
+    {
+        assert_paused_reader_recieving_contactModified_having_states(
+                StateMachine.ALIVE, StateMachine.ALIVE);
+    }
+
+
+    public void test_post_contactModified_state_STARTED()
+    {
+        assert_paused_reader_recieving_contactModified_having_states(
+                StateMachine.STARTED, StateMachine.STARTED);
+    }
+
+
+    public void test_post_contactModified_state_READ_DB()
+    {
+        assert_paused_reader_recieving_contactModified_having_states(
+                StateMachine.READ_DB, StateMachine.READ_DB);
+    }
+
+
+    public void test_post_contactModified_state_READ_DB_DONE()
+    {
+        assert_paused_reader_recieving_contactModified_having_states(
+                StateMachine.READ_DB_DONE, StateMachine.READ_DB_DONE);
+    }
+
+
+    public void test_post_contactModified_state_READ_CONTENTPROVIDER()
+    {
+        assert_paused_reader_recieving_contactModified_having_states(
+                StateMachine.READ_CONTENTPROVIDER,
+                StateMachine.READ_CONTENTPROVIDER);
+    }
+
+
+    public void test_post_contactModified_state_READ_CONTENTPROVIDER_DONE()
+    {
+        assert_paused_reader_recieving_contactModified_having_states(
+                StateMachine.READ_CONTENTPROVIDER_DONE,
+                StateMachine.READ_CONTENTPROVIDER_DONE);
+    }
+
+
+    private void assert_paused_reader_recieving_contactModified_having_states(
+            StateMachine haltedState, StateMachine stateAfterCallback)
+    {
+        TestableCachedAsyncPhonebookReader reader = getHaltedReader(haltedState);
+        reader.contactModifiedCallback();
+        assertEquals(stateAfterCallback, StateMachine.state());
+        wakeupReader(reader);
+        reader.finish();
+    }
+
+
+    private void wakeupReader(TestableCachedAsyncPhonebookReader reader)
+    {
+        synchronized (reader)
+        {
+            reader.notify();
+        }
+
+        while (reader.isThreadWaiting())
+        {
+            sleepSilent(100);
+        }
+        waitForReaderToBeFinished();
+
     }
 }

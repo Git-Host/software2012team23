@@ -26,12 +26,12 @@ import android.net.Uri;
 import android.provider.ContactsContract;
 import at.tugraz.ist.akm.content.query.ContactFilter;
 import at.tugraz.ist.akm.phonebook.contact.Contact;
-import at.tugraz.ist.akm.phonebook.contact.ContactModifiedCallback;
+import at.tugraz.ist.akm.phonebook.contact.IContactModifiedCallback;
 import at.tugraz.ist.akm.phonebook.contact.ContactReader;
 import at.tugraz.ist.akm.phonebook.contact.IContactReader;
 import at.tugraz.ist.akm.trace.LogClient;
 
-public class PhonebookBridge implements ContactModifiedCallback, IContactReader {
+public class PhonebookBridge implements IContactModifiedCallback, IContactReader {
 
 	private Context mContext = null;
 	private ContentResolver mContentResolver = null;
@@ -41,13 +41,13 @@ public class PhonebookBridge implements ContactModifiedCallback, IContactReader 
 
 	private Cursor mContactContentCursor = null;
 	private ContactContentObserver mContactContentObserver = null;
-	private ContactModifiedCallback mExternalContactModifiedCallback = null;
+	private IContactModifiedCallback mExternalContactModifiedCallback = null;
 
 	static private class ContactContentObserver extends ContentObserver {
 
-		private ContactModifiedCallback mCallback = null;
+		private IContactModifiedCallback mCallback = null;
 
-		public ContactContentObserver(ContactModifiedCallback callback) {
+		public ContactContentObserver(IContactModifiedCallback callback) {
 			super(null);
 			mCallback = callback;
 		}
@@ -85,7 +85,7 @@ public class PhonebookBridge implements ContactModifiedCallback, IContactReader 
 		return mContactReader.fetchContacts(filter);
 	}
 
-	synchronized public void setContactModifiedCallback(ContactModifiedCallback callback) {
+	synchronized public void setContactModifiedCallback(IContactModifiedCallback callback) {
 		log("registered new [ContactModifiedCallback] callback");
 		mExternalContactModifiedCallback = callback;
 	}

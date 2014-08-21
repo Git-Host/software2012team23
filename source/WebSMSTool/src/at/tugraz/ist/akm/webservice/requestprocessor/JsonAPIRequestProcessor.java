@@ -45,7 +45,7 @@ import at.tugraz.ist.akm.monitoring.BatteryStatus;
 import at.tugraz.ist.akm.monitoring.SystemMonitor;
 import at.tugraz.ist.akm.monitoring.TelephonySignalStrength;
 import at.tugraz.ist.akm.phonebook.contact.Contact;
-import at.tugraz.ist.akm.phonebook.contact.ContactModifiedCallback;
+import at.tugraz.ist.akm.phonebook.contact.IContactModifiedCallback;
 import at.tugraz.ist.akm.sms.SmsIOCallback;
 import at.tugraz.ist.akm.sms.TextMessage;
 import at.tugraz.ist.akm.texting.TextingAdapter;
@@ -55,7 +55,7 @@ import at.tugraz.ist.akm.webservice.WebServerConfig;
 import at.tugraz.ist.akm.webservice.protocol.json.JsonFactory;
 
 public class JsonAPIRequestProcessor extends AbstractHttpRequestProcessor implements
-        SmsIOCallback, ContactModifiedCallback
+        SmsIOCallback, IContactModifiedCallback
 {
     private final static String JSON_STATE_SUCCESS = "success";
     private final static String JSON_STATE_ERROR = "error";
