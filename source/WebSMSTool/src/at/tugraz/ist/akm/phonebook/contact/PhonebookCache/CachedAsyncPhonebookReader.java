@@ -1,4 +1,4 @@
-package at.tugraz.ist.akm.phonebook.contact;
+package at.tugraz.ist.akm.phonebook.contact.PhonebookCache;
 
 import java.util.Date;
 import java.util.List;
@@ -6,6 +6,10 @@ import java.util.Vector;
 
 import android.content.Context;
 import at.tugraz.ist.akm.content.query.ContactFilter;
+import at.tugraz.ist.akm.phonebook.contact.Contact;
+import at.tugraz.ist.akm.phonebook.contact.IContactModifiedCallback;
+import at.tugraz.ist.akm.phonebook.contact.IContactReader;
+import at.tugraz.ist.akm.phonebook.contact.PhonebookCacheDB;
 import at.tugraz.ist.akm.trace.LogClient;
 
 public class CachedAsyncPhonebookReader extends Thread implements
@@ -31,130 +35,9 @@ public class CachedAsyncPhonebookReader extends Thread implements
         public long readContentProvicerDurationMs = 0;
     }
 
-    public enum StateMachine {
-        ALIVE {
-            @Override
-            StateMachine nextState()
-            {
-                ALIVE.logNodeTransition(this, STARTED);
-                return STARTED;
-            }
-        },
-        STARTED {
-            @Override
-            StateMachine nextState()
-            {
-                STARTED.logNodeTransition(this, READ_DB);
-                return READ_DB;
-            }
-        },
-        READ_DB {
-            @Override
-            StateMachine nextState()
-            {
-                READ_DB.logNodeTransition(this, READ_DB_DONE);
-                return READ_DB_DONE;
-            }
-        },
-        READ_DB_DONE {
-            @Override
-            StateMachine nextState()
-            {
-                READ_DB_DONE.logNodeTransition(this, READ_CONTENTPROVIDER);
-                return READ_CONTENTPROVIDER;
-            }
-        },
-        READ_CONTENTPROVIDER {
-            @Override
-            StateMachine nextState()
-            {
-                READ_CONTENTPROVIDER.logNodeTransition(this,
-                        READ_CONTENTPROVIDER_DONE);
-                return READ_CONTENTPROVIDER_DONE;
-            }
-        },
-        READ_CONTENTPROVIDER_DONE {
-            @Override
-            StateMachine nextState()
-            {
-                READ_CONTENTPROVIDER_DONE.logNodeTransition(this,
-                        READY_FOR_CHANGES);
-                return READY_FOR_CHANGES;
-            }
-        },
-        READY_FOR_CHANGES {
-            @Override
-            StateMachine nextState()
-            {
-                READY_FOR_CHANGES.logLeafTransition(this);
-                return READY_FOR_CHANGES;
-            }
-        },
-        STOP {
-            @Override
-            StateMachine nextState()
-            {
-                STOP.logNodeTransition(this, STOPPED);
-                return STOPPED;
-            }
-        },
-        STOPPED {
-            @Override
-            StateMachine nextState()
-            {
-                STOPPED.logLeafTransition(this);
-                return STOPPED;
-            }
-        };
+   
 
-        private static LogClient mLog = new LogClient(
-                StateMachine.class.getName());
-
-        private static StateMachine mState = StateMachine.ALIVE;
-
-
-        abstract StateMachine nextState();
-
-
-        public static StateMachine transit()
-        {
-            return state(mState.nextState());
-        }
-
-
-        public static StateMachine reset()
-        {
-            return state(StateMachine.ALIVE);
-        }
-
-
-        public static StateMachine state()
-        {
-            return mState;
-        }
-
-
-        public static synchronized StateMachine state(StateMachine alternativeState)
-        {
-            return mState = alternativeState;
-            
-        }
-
-
-        private void logNodeTransition(StateMachine oldState,
-                StateMachine newState)
-        {
-            mLog.debug("transition: " + oldState.toString() + " -> "
-                    + newState.toString());
-        }
-
-
-        private void logLeafTransition(StateMachine statusQuo)
-        {
-            mLog.debug("dead end reached: " + statusQuo.toString());
-        }
-
-    }
+       
 
     private LogClient mLog = new LogClient(
             CachedAsyncPhonebookReader.class.getName());
@@ -165,6 +48,7 @@ public class CachedAsyncPhonebookReader extends Thread implements
     private IContactReader mContentproviderContactReader = null;
     private ThreadInfo mThreadInfo = new ThreadInfo();
     private TimingInfo mTimingInfo = new TimingInfo();
+    protected CacheStateMachine mStateMachine = new CacheStateMachine();
 
 
     public CachedAsyncPhonebookReader(ContactFilter filter,
@@ -174,7 +58,7 @@ public class CachedAsyncPhonebookReader extends Thread implements
         mPhonebookCacheDB = new PhonebookCacheDB(mApplicationContext);
         mContactFilter = filter;
         mContentproviderContactReader = contactReader;
-        StateMachine.state(StateMachine.ALIVE);
+        mStateMachine.state(CacheStates.ALIVE);
     }
 
 
@@ -182,7 +66,7 @@ public class CachedAsyncPhonebookReader extends Thread implements
     {
         synchronized (mContactSources)
         {
-            switch (StateMachine.state())
+            switch (mStateMachine.state())
             {
             case ALIVE:
             case STARTED:
@@ -214,7 +98,7 @@ public class CachedAsyncPhonebookReader extends Thread implements
     @Override
     public void run()
     {
-        while (StateMachine.state() != StateMachine.STOPPED)
+        while (mStateMachine.state() != CacheStates.STOPPED)
         {
            tick();
         }
@@ -222,7 +106,7 @@ public class CachedAsyncPhonebookReader extends Thread implements
 
 
     protected void tick() {
-        switch (StateMachine.state())
+        switch (mStateMachine.state())
         {
         case ALIVE:
         case STARTED:
@@ -253,7 +137,7 @@ public class CachedAsyncPhonebookReader extends Thread implements
             sleepSilent(mThreadInfo.workingPauseMs);
             break;
         }
-        StateMachine.transit();
+        mStateMachine.transit();
     }
     
     
@@ -271,7 +155,7 @@ public class CachedAsyncPhonebookReader extends Thread implements
 
     public void finish()
     {
-        StateMachine.state(StateMachine.STOP);
+        mStateMachine.state(CacheStates.STOP);
     }
 
 
@@ -288,7 +172,7 @@ public class CachedAsyncPhonebookReader extends Thread implements
 
     private void readContactsFromCacheAndProvider()
     {
-        switch (StateMachine.state())
+        switch (mStateMachine.state())
         {
         case READ_DB:
             synchronized (mContactSources)
@@ -335,12 +219,12 @@ public class CachedAsyncPhonebookReader extends Thread implements
     @Override
     public void contactModifiedCallback()
     {
-        StateMachine currentState = StateMachine.state();
-        if (currentState == StateMachine.READ_CONTENTPROVIDER
-                || currentState == StateMachine.READ_CONTENTPROVIDER_DONE
-                || currentState == StateMachine.READY_FOR_CHANGES)
+        CacheStates currentState = mStateMachine.state();
+        if (currentState == CacheStates.READ_CONTENTPROVIDER
+                || currentState == CacheStates.READ_CONTENTPROVIDER_DONE
+                || currentState == CacheStates.READY_FOR_CHANGES)
         {
-            StateMachine.state(StateMachine.READ_CONTENTPROVIDER);
+            mStateMachine.state(CacheStates.READ_CONTENTPROVIDER);
         }
     }
     

@@ -3,15 +3,14 @@ package at.tugraz.ist.akm.test.phonebook.contact;
 import java.util.List;
 import java.util.Vector;
 
-import android.net.NetworkInfo.State;
 import android.provider.ContactsContract;
 import at.tugraz.ist.akm.content.query.ContactFilter;
-import at.tugraz.ist.akm.phonebook.contact.CachedAsyncPhonebookReader;
-import at.tugraz.ist.akm.phonebook.contact.CachedAsyncPhonebookReader.StateMachine;
 import at.tugraz.ist.akm.phonebook.contact.Contact;
 import at.tugraz.ist.akm.phonebook.contact.Contact.Number;
 import at.tugraz.ist.akm.phonebook.contact.ContactReader;
-import at.tugraz.ist.akm.phonebook.contact.IContactModifiedCallback;
+import at.tugraz.ist.akm.phonebook.contact.PhonebookCache.CacheStateMachine;
+import at.tugraz.ist.akm.phonebook.contact.PhonebookCache.CacheStates;
+import at.tugraz.ist.akm.phonebook.contact.PhonebookCache.CachedAsyncPhonebookReader;
 import at.tugraz.ist.akm.test.base.WebSMSToolActivityTestcase;
 import at.tugraz.ist.akm.test.testdata.DefaultContactSetInserter;
 import at.tugraz.ist.akm.test.testdata.DefaultContacts;
@@ -33,8 +32,6 @@ public class CachedAsyncPhonebookReaderTest extends WebSMSToolActivityTestcase
         super.setUp();
         mDefaultInserter = new DefaultContactSetInserter(mContentResolver);
         mDefaultInserter.insertDefaultContacts();
-        StateMachine.reset();
-
     }
 
 
@@ -50,58 +47,59 @@ public class CachedAsyncPhonebookReaderTest extends WebSMSToolActivityTestcase
     public void test_default_state_transitions()
     {
         ContactFilter filter = new ContactFilter();
-        CachedAsyncPhonebookReader reader = new CachedAsyncPhonebookReader(
+        TestableCachedAsyncPhonebookReader reader = new TestableCachedAsyncPhonebookReader(
                 filter, null, null);
 
-        assertEquals(StateMachine.state(), StateMachine.ALIVE);
+        assertEquals(reader.state(), CacheStates.ALIVE);
         reader.fetchContacts();
-        assertEquals(StateMachine.state(), StateMachine.ALIVE);
+        assertEquals(reader.state(), CacheStates.ALIVE);
 
-        StateMachine.transit();
-        assertEquals(StateMachine.state(), StateMachine.STARTED);
-        StateMachine.transit();
-        assertEquals(StateMachine.state(), StateMachine.READ_DB);
-        StateMachine.transit();
-        assertEquals(StateMachine.state(), StateMachine.READ_DB_DONE);
-        StateMachine.transit();
-        assertEquals(StateMachine.state(), StateMachine.READ_CONTENTPROVIDER);
-        StateMachine.transit();
-        assertEquals(StateMachine.state(),
-                StateMachine.READ_CONTENTPROVIDER_DONE);
-        StateMachine.transit();
-        assertEquals(StateMachine.state(), StateMachine.READY_FOR_CHANGES);
-        StateMachine.transit();
-        assertEquals(StateMachine.state(), StateMachine.READY_FOR_CHANGES);
-        StateMachine.transit();
-        assertEquals(StateMachine.state(), StateMachine.READY_FOR_CHANGES);
+        reader.transit();
+        assertEquals(reader.state(), CacheStates.STARTED);
+        reader.transit();
+        assertEquals(reader.state(), CacheStates.READ_DB);
+        reader.transit();
+        assertEquals(reader.state(), CacheStates.READ_DB_DONE);
+        reader.transit();
+        assertEquals(reader.state(), CacheStates.READ_CONTENTPROVIDER);
+        reader.transit();
+        assertEquals(reader.state(), CacheStates.READ_CONTENTPROVIDER_DONE);
+        reader.transit();
+        assertEquals(reader.state(), CacheStates.READY_FOR_CHANGES);
+        reader.transit();
+        assertEquals(reader.state(), CacheStates.READY_FOR_CHANGES);
+        reader.transit();
+        assertEquals(reader.state(), CacheStates.READY_FOR_CHANGES);
     }
 
 
     public void test_state_transitions_from_STOP()
     {
-        StateMachine.state(StateMachine.STOP);
-        assertEquals(StateMachine.state(), StateMachine.STOP);
-        StateMachine.transit();
-        assertEquals(StateMachine.state(), StateMachine.STOPPED);
-        StateMachine.transit();
-        assertEquals(StateMachine.state(), StateMachine.STOPPED);
+        CacheStateMachine stateMachine = new CacheStateMachine();
+
+        stateMachine.state(CacheStates.STOP);
+        assertEquals(stateMachine.state(), CacheStates.STOP);
+        stateMachine.transit();
+        assertEquals(stateMachine.state(), CacheStates.STOPPED);
+        stateMachine.transit();
+        assertEquals(stateMachine.state(), CacheStates.STOPPED);
     }
 
 
     public void test_dead_end_transision()
     {
         ContactFilter filter = new ContactFilter();
-        CachedAsyncPhonebookReader reader = new CachedAsyncPhonebookReader(
+        TestableCachedAsyncPhonebookReader reader = new TestableCachedAsyncPhonebookReader(
                 filter, null, null);
 
-        StateMachine.state(StateMachine.STOPPED);
-        assertTrue(StateMachine.state() == StateMachine.STOPPED);
+        reader.state(CacheStates.STOPPED);
+        assertTrue(reader.state() == CacheStates.STOPPED);
         reader.fetchContacts();
-        assertTrue(StateMachine.state() == StateMachine.STOPPED);
+        assertTrue(reader.state() == CacheStates.STOPPED);
         reader.fetchContacts();
-        assertTrue(StateMachine.state() == StateMachine.STOPPED);
+        assertTrue(reader.state() == CacheStates.STOPPED);
         reader.fetchContacts();
-        assertTrue(StateMachine.state() == StateMachine.STOPPED);
+        assertTrue(reader.state() == CacheStates.STOPPED);
 
     }
 
@@ -113,18 +111,18 @@ public class CachedAsyncPhonebookReaderTest extends WebSMSToolActivityTestcase
             ContactFilter filter = new ContactFilter();
             filter.getWithPhone();
             ContactReader contactReader = new ContactReader(mContentResolver);
-            CachedAsyncPhonebookReader reader = new CachedAsyncPhonebookReader(
+            TestableCachedAsyncPhonebookReader reader = new TestableCachedAsyncPhonebookReader(
                     filter, mContext, contactReader);
             reader.start();
 
-            while (StateMachine.state() != StateMachine.READY_FOR_CHANGES)
+            while (reader.state() != CacheStates.READY_FOR_CHANGES)
             {
                 sleepSilent(100);
             }
 
             reader.finish();
 
-            while (StateMachine.state() != StateMachine.STOPPED)
+            while (reader.state() != CacheStates.STOPPED)
             {
                 sleepSilent(100);
             }
@@ -140,12 +138,12 @@ public class CachedAsyncPhonebookReaderTest extends WebSMSToolActivityTestcase
     {
         ContactFilter filter = new ContactFilter();
         ContactReader contactReader = new ContactReader(mContentResolver);
-        CachedAsyncPhonebookReader reader = new CachedAsyncPhonebookReader(
+        TestableCachedAsyncPhonebookReader reader = new TestableCachedAsyncPhonebookReader(
                 filter, mContext, contactReader);
 
-        assertEquals(StateMachine.ALIVE, StateMachine.state());
+        assertEquals(CacheStates.ALIVE, reader.state());
         List<Contact> nsaWatchlist = reader.fetchContacts();
-        assertEquals(StateMachine.ALIVE, StateMachine.state());
+        assertEquals(CacheStates.ALIVE, reader.state());
 
         assertEquals(0, nsaWatchlist.size());
 
@@ -155,7 +153,7 @@ public class CachedAsyncPhonebookReaderTest extends WebSMSToolActivityTestcase
         for (int i = 0; i < 20; i++)
         {
             nsaWatchlist = reader.fetchContacts();
-            printContactsAndState(i, StateMachine.state(), nsaWatchlist);
+            printContactsAndState(i, reader.state(), nsaWatchlist);
             sleepSilent(20);
         }
 
@@ -163,7 +161,7 @@ public class CachedAsyncPhonebookReaderTest extends WebSMSToolActivityTestcase
     }
 
 
-    private void printContactsAndState(int readCount, StateMachine state,
+    private void printContactsAndState(int readCount, CacheStates state,
             List<Contact> watchlist)
     {
         logDebug("found " + watchlist.size()
@@ -190,7 +188,7 @@ public class CachedAsyncPhonebookReaderTest extends WebSMSToolActivityTestcase
 
     public void test_verify_contacts_from_cache()
     {
-        TestableCachedAsyncPhonebookReader reader = getHaltedReader(StateMachine.READ_DB_DONE);
+        TestableCachedAsyncPhonebookReader reader = getHaltedReader(CacheStates.READ_DB_DONE);
 
         List<Contact> dbContacts = reader.fetchContacts();
         String[][] defaultContacts = new DefaultContacts().getDefaultRecords();
@@ -208,14 +206,15 @@ public class CachedAsyncPhonebookReaderTest extends WebSMSToolActivityTestcase
         {
             reader.notify();
         }
+        waitForReaderToBeReady(reader);
         reader.finish();
-        waitForReaderToBeFinished();
     }
 
 
-    private void waitForReaderToBeFinished()
+    private void waitForReaderToBeReady(
+            TestableCachedAsyncPhonebookReader reader)
     {
-        while (StateMachine.state() != StateMachine.STOPPED)
+        while (reader.state() != CacheStates.READY_FOR_CHANGES)
         {
             sleepSilent(100);
         }
@@ -238,7 +237,7 @@ public class CachedAsyncPhonebookReaderTest extends WebSMSToolActivityTestcase
 
     public void test_verify_contacts_from_ContentProvider()
     {
-        TestableCachedAsyncPhonebookReader reader = getHaltedReader(StateMachine.READ_CONTENTPROVIDER_DONE);
+        TestableCachedAsyncPhonebookReader reader = getHaltedReader(CacheStates.READ_CONTENTPROVIDER_DONE);
 
         List<Contact> providerContacts = reader.fetchContacts();
         String[][] defaultContacts = new DefaultContacts().getDefaultRecords();
@@ -255,17 +254,14 @@ public class CachedAsyncPhonebookReaderTest extends WebSMSToolActivityTestcase
         {
             reader.notify();
         }
+        waitForReaderToBeReady(reader);
         reader.finish();
-        waitForReaderToBeFinished();
-
     }
 
 
     private TestableCachedAsyncPhonebookReader getHaltedReader(
-            StateMachine breakPoint)
+            CacheStates breakPoint)
     {
-        // test_construct_async_reader_noException_noErrorlog();
-
         ContactFilter filter = new ContactFilter();
         ContactReader contactReader = new ContactReader(mContentResolver);
         TestableCachedAsyncPhonebookReader reader = new TestableCachedAsyncPhonebookReader(
@@ -286,55 +282,62 @@ public class CachedAsyncPhonebookReaderTest extends WebSMSToolActivityTestcase
     public void test_post_contactModified_state_ALIVE()
     {
         assert_paused_reader_recieving_contactModified_having_states(
-                StateMachine.ALIVE, StateMachine.ALIVE);
+                CacheStates.ALIVE, CacheStates.ALIVE);
     }
 
 
     public void test_post_contactModified_state_STARTED()
     {
         assert_paused_reader_recieving_contactModified_having_states(
-                StateMachine.STARTED, StateMachine.STARTED);
+                CacheStates.STARTED, CacheStates.STARTED);
     }
 
 
     public void test_post_contactModified_state_READ_DB()
     {
         assert_paused_reader_recieving_contactModified_having_states(
-                StateMachine.READ_DB, StateMachine.READ_DB);
+                CacheStates.READ_DB, CacheStates.READ_DB);
     }
 
 
     public void test_post_contactModified_state_READ_DB_DONE()
     {
         assert_paused_reader_recieving_contactModified_having_states(
-                StateMachine.READ_DB_DONE, StateMachine.READ_DB_DONE);
+                CacheStates.READ_DB_DONE, CacheStates.READ_DB_DONE);
     }
 
 
     public void test_post_contactModified_state_READ_CONTENTPROVIDER()
     {
         assert_paused_reader_recieving_contactModified_having_states(
-                StateMachine.READ_CONTENTPROVIDER,
-                StateMachine.READ_CONTENTPROVIDER);
+                CacheStates.READ_CONTENTPROVIDER,
+                CacheStates.READ_CONTENTPROVIDER);
     }
 
 
     public void test_post_contactModified_state_READ_CONTENTPROVIDER_DONE()
     {
         assert_paused_reader_recieving_contactModified_having_states(
-                StateMachine.READ_CONTENTPROVIDER_DONE,
-                StateMachine.READ_CONTENTPROVIDER_DONE);
+                CacheStates.READ_CONTENTPROVIDER_DONE,
+                CacheStates.READ_CONTENTPROVIDER);
     }
 
 
     private void assert_paused_reader_recieving_contactModified_having_states(
-            StateMachine haltedState, StateMachine stateAfterCallback)
+            CacheStates haltedState, CacheStates stateAfterCallback)
     {
         TestableCachedAsyncPhonebookReader reader = getHaltedReader(haltedState);
+        mLog.debug("halted reader ...............");
+        assertEquals(haltedState, reader.state());
         reader.contactModifiedCallback();
-        assertEquals(stateAfterCallback, StateMachine.state());
+        mLog.debug("callback ...............");
+        assertEquals(stateAfterCallback, reader.state());
+        mLog.debug("asserted -> wakeup ...............");
+        reader.disableBreakpoint();
         wakeupReader(reader);
+        mLog.debug("woken up -> finish...............");
         reader.finish();
+        mLog.debug("finished ...............");
     }
 
 
@@ -349,7 +352,7 @@ public class CachedAsyncPhonebookReaderTest extends WebSMSToolActivityTestcase
         {
             sleepSilent(100);
         }
-        waitForReaderToBeFinished();
+        waitForReaderToBeReady(reader);
 
     }
 }

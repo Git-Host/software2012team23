@@ -2,8 +2,9 @@ package at.tugraz.ist.akm.test.phonebook.contact;
 
 import android.content.Context;
 import at.tugraz.ist.akm.content.query.ContactFilter;
-import at.tugraz.ist.akm.phonebook.contact.CachedAsyncPhonebookReader;
 import at.tugraz.ist.akm.phonebook.contact.IContactReader;
+import at.tugraz.ist.akm.phonebook.contact.PhonebookCache.CacheStates;
+import at.tugraz.ist.akm.phonebook.contact.PhonebookCache.CachedAsyncPhonebookReader;
 import at.tugraz.ist.akm.trace.LogClient;
 
 public class TestableCachedAsyncPhonebookReader extends
@@ -12,7 +13,8 @@ public class TestableCachedAsyncPhonebookReader extends
     private int mIsTrheadWaiting = -1;
     private LogClient mLog = new LogClient(this);
 
-    private StateMachine mBreakPoint = StateMachine.READY_FOR_CHANGES;
+    private CacheStates mBreakPoint = CacheStates.READY_FOR_CHANGES;
+    private boolean mIsBreakpointEnabled = false;
 
 
     TestableCachedAsyncPhonebookReader(ContactFilter filter, Context context,
@@ -28,19 +30,26 @@ public class TestableCachedAsyncPhonebookReader extends
     }
 
 
-    public void setNextBreakpoint(StateMachine breakPoint)
+    public void setNextBreakpoint(CacheStates breakPoint)
     {
         mBreakPoint = breakPoint;
+        mIsBreakpointEnabled = true;
+    }
+
+
+    public void disableBreakpoint()
+    {
+        mIsBreakpointEnabled = false;
     }
 
 
     @Override
     public void run()
     {
-        while (StateMachine.state() != StateMachine.STOPPED)
+        while (mStateMachine.state() != CacheStates.STOPPED)
         {
 
-            if (StateMachine.state() == mBreakPoint)
+            if (mIsBreakpointEnabled && (mStateMachine.state() == mBreakPoint))
             {
                 try
                 {
@@ -55,11 +64,28 @@ public class TestableCachedAsyncPhonebookReader extends
                 }
                 catch (InterruptedException e)
                 {
-                    mLog.error("unexpected exception during wait", e);
+                    mLog.error("ignoring unexpected exception during wait", e);
                 }
             }
             super.tick();
         }
     }
 
+
+    public CacheStates state()
+    {
+        return mStateMachine.state();
+    }
+
+
+    public CacheStates state(CacheStates newState)
+    {
+        return mStateMachine.state(newState);
+    }
+
+
+    public CacheStates transit()
+    {
+        return mStateMachine.transit();
+    }
 }
