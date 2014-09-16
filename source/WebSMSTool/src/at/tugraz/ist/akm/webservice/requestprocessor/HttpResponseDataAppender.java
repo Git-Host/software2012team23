@@ -27,7 +27,6 @@ import my.org.apache.http.entity.EntityTemplate;
 import org.json.JSONObject;
 
 import at.tugraz.ist.akm.webservice.WebServerConfig;
-import at.tugraz.ist.akm.webservice.WebServerConfig.HTTP;
 
 public class HttpResponseDataAppender {
 

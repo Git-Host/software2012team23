@@ -6,6 +6,7 @@ import java.util.Vector;
 
 import android.content.Context;
 import at.tugraz.ist.akm.content.query.ContactFilter;
+import at.tugraz.ist.akm.phonebook.CacheModifiedHandler;
 import at.tugraz.ist.akm.phonebook.contact.Contact;
 import at.tugraz.ist.akm.phonebook.contact.IContactModifiedCallback;
 import at.tugraz.ist.akm.phonebook.contact.IContactReader;
@@ -18,8 +19,7 @@ public class CachedAsyncPhonebookReader extends Thread implements
 
     private class ThreadInfo
     {
-        public int workingPauseMs = 100;
-        public int additionalIdlePauseMs = 750;
+        public int breathingPauseMs = 750;
     }
 
     private class ContactSources
@@ -35,9 +35,7 @@ public class CachedAsyncPhonebookReader extends Thread implements
         public long readContentProvicerDurationMs = 0;
     }
 
-   
-
-       
+    private static final long CACHE_READY_MESSAGE_DELAY_MS = 5 * 1000;
 
     private LogClient mLog = new LogClient(
             CachedAsyncPhonebookReader.class.getName());
@@ -48,6 +46,8 @@ public class CachedAsyncPhonebookReader extends Thread implements
     private IContactReader mContentproviderContactReader = null;
     private ThreadInfo mThreadInfo = new ThreadInfo();
     private TimingInfo mTimingInfo = new TimingInfo();
+    private Object mWaitMonitor = new Object();
+    private CacheModifiedHandler mCacheModifiedHandler = null;
     protected CacheStateMachine mStateMachine = new CacheStateMachine();
 
 
@@ -59,6 +59,18 @@ public class CachedAsyncPhonebookReader extends Thread implements
         mContactFilter = filter;
         mContentproviderContactReader = contactReader;
         mStateMachine.state(CacheStates.ALIVE);
+    }
+
+
+    public void registerCacheModifiedHandler(CacheModifiedHandler handler)
+    {
+        mCacheModifiedHandler = handler;
+    }
+
+
+    public void unregisterCacheModifiedHandler()
+    {
+        mCacheModifiedHandler = null;
     }
 
 
@@ -100,12 +112,28 @@ public class CachedAsyncPhonebookReader extends Thread implements
     {
         while (mStateMachine.state() != CacheStates.STOPPED)
         {
-           tick();
+            tick();
+            if (mStateMachine.state() == CacheStates.READY_FOR_CHANGES)
+            {
+                synchronized (mWaitMonitor)
+                {
+                    try
+                    {
+                        mWaitMonitor.wait();
+                    }
+                    catch (InterruptedException e)
+                    {
+                        // don't care
+                        mLog.debug("ignoring interrupted exception");
+                    }
+                }
+            }
         }
     }
 
 
-    protected void tick() {
+    protected synchronized void tick()
+    {
         switch (mStateMachine.state())
         {
         case ALIVE:
@@ -127,35 +155,43 @@ public class CachedAsyncPhonebookReader extends Thread implements
             break;
 
         case READY_FOR_CHANGES:
-            sleepSilent(mThreadInfo.additionalIdlePauseMs);
-            mLog.debug("ready for changes...");
+            break;
+
         case STOP:
             onClose();
             break;
 
         default:
-            sleepSilent(mThreadInfo.workingPauseMs);
+            mLog.warning("ignoring unacceptable state");
+            sleepSilent(mThreadInfo.breathingPauseMs);
             break;
         }
         mStateMachine.transit();
     }
-    
-    
+
+
     private void sleepSilent(long sleepMs)
     {
         try
         {
             Thread.sleep(sleepMs);
         }
-        catch (InterruptedException ie) // don't care
+        catch (InterruptedException ie)
         {
+            // don't care
+            mLog.debug("ignored interrupted exception");
         }
     }
 
 
-    public void finish()
+    public synchronized void finish()
     {
-        mStateMachine.state(CacheStates.STOP);
+        synchronized (mWaitMonitor)
+        {
+            mStateMachine.state(CacheStates.STOP);
+            mWaitMonitor.notify();
+            mLog.debug("cache stopped");
+        }
     }
 
 
@@ -167,6 +203,31 @@ public class CachedAsyncPhonebookReader extends Thread implements
             mPhonebookCacheDB.cache(c);
         }
         mPhonebookCacheDB.close();
+        mLog.debug("cache closed");
+    }
+
+
+    private void sendcacheModified()
+    {
+        sendMessage(0);
+    }
+
+
+    private void sendDelayedCacheModified()
+    {
+        sendMessage(CACHE_READY_MESSAGE_DELAY_MS);
+    }
+
+
+    private void sendMessage(long msDelay)
+    {
+        if (mCacheModifiedHandler != null)
+        {
+            mLog.debug("sending cache modified in threadID ["
+                    + Thread.currentThread().getId() + "] ...");
+            mCacheModifiedHandler.sendMessageDelayed(
+                    mCacheModifiedHandler.newCacheModifiedMessage(), msDelay);
+        }
     }
 
 
@@ -178,6 +239,7 @@ public class CachedAsyncPhonebookReader extends Thread implements
             synchronized (mContactSources)
             {
                 mContactSources.cached = tryReadFromDatabase();
+                sendcacheModified();
             }
             break;
 
@@ -185,6 +247,7 @@ public class CachedAsyncPhonebookReader extends Thread implements
             synchronized (mContactSources)
             {
                 mContactSources.contentProvider = fetchFromContentProvider();
+                sendDelayedCacheModified();
             }
             break;
         default:
@@ -219,13 +282,20 @@ public class CachedAsyncPhonebookReader extends Thread implements
     @Override
     public void contactModifiedCallback()
     {
-        CacheStates currentState = mStateMachine.state();
-        if (currentState == CacheStates.READ_CONTENTPROVIDER
-                || currentState == CacheStates.READ_CONTENTPROVIDER_DONE
-                || currentState == CacheStates.READY_FOR_CHANGES)
+        synchronized (this)
         {
-            mStateMachine.state(CacheStates.READ_CONTENTPROVIDER);
+            CacheStates currentState = mStateMachine.state();
+            if (currentState == CacheStates.READ_CONTENTPROVIDER
+                    || currentState == CacheStates.READ_CONTENTPROVIDER_DONE
+                    || currentState == CacheStates.READY_FOR_CHANGES)
+            {
+                mStateMachine.state(CacheStates.READ_CONTENTPROVIDER);
+                synchronized (mWaitMonitor)
+                {
+                    mWaitMonitor.notifyAll();
+                }
+            }
         }
     }
-    
+
 }
