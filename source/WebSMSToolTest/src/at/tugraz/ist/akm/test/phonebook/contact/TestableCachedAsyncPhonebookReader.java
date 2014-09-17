@@ -11,7 +11,7 @@ public class TestableCachedAsyncPhonebookReader extends
         CachedAsyncPhonebookReader
 {
     private int mIsTrheadWaiting = -1;
-    private LogClient mLog = new LogClient(this);
+    private LogClient mLog = new LogClient(TestableCachedAsyncPhonebookReader.class.getCanonicalName());
 
     private CacheStates mBreakPoint = CacheStates.READY_FOR_CHANGES;
     private boolean mIsBreakpointEnabled = false;
@@ -68,6 +68,7 @@ public class TestableCachedAsyncPhonebookReader extends
                 }
             }
             super.tick();
+            super.breatingPause();
         }
     }
 

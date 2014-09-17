@@ -113,21 +113,7 @@ public class CachedAsyncPhonebookReader extends Thread implements
         while (mStateMachine.state() != CacheStates.STOPPED)
         {
             tick();
-            if (mStateMachine.state() == CacheStates.READY_FOR_CHANGES)
-            {
-                synchronized (mWaitMonitor)
-                {
-                    try
-                    {
-                        mWaitMonitor.wait();
-                    }
-                    catch (InterruptedException e)
-                    {
-                        // don't care
-                        mLog.debug("ignoring interrupted exception");
-                    }
-                }
-            }
+            breatingPause();
         }
     }
 
@@ -167,6 +153,26 @@ public class CachedAsyncPhonebookReader extends Thread implements
             break;
         }
         mStateMachine.transit();
+    }
+
+
+    protected void breatingPause()
+    {
+        if (mStateMachine.state() == CacheStates.READY_FOR_CHANGES)
+        {
+            synchronized (mWaitMonitor)
+            {
+                try
+                {
+                    mWaitMonitor.wait();
+                }
+                catch (InterruptedException e)
+                {
+                    // don't care
+                    mLog.debug("ignoring interrupted exception");
+                }
+            }
+        }
     }
 
 

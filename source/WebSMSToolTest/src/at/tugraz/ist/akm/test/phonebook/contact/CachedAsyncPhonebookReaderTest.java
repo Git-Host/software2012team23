@@ -22,7 +22,7 @@ public class CachedAsyncPhonebookReaderTest extends WebSMSToolActivityTestcase
 
     public CachedAsyncPhonebookReaderTest()
     {
-        super(CachedAsyncPhonebookReader.class.getName());
+        super(CachedAsyncPhonebookReaderTest.class.getName());
     }
 
 
@@ -193,7 +193,7 @@ public class CachedAsyncPhonebookReaderTest extends WebSMSToolActivityTestcase
         List<Contact> dbContacts = reader.fetchContacts();
         String[][] defaultContacts = new DefaultContacts().getDefaultRecords();
 
-        assertEquals(defaultContacts.length, dbContacts.size());
+        assertTrue(defaultContacts.length <= dbContacts.size());
 
         for (String[] record : defaultContacts)
         {
@@ -242,7 +242,7 @@ public class CachedAsyncPhonebookReaderTest extends WebSMSToolActivityTestcase
         List<Contact> providerContacts = reader.fetchContacts();
         String[][] defaultContacts = new DefaultContacts().getDefaultRecords();
 
-        assertEquals(defaultContacts.length, providerContacts.size());
+        assertTrue(defaultContacts.length <= providerContacts.size());
 
         for (String[] record : defaultContacts)
         {
@@ -327,17 +327,12 @@ public class CachedAsyncPhonebookReaderTest extends WebSMSToolActivityTestcase
             CacheStates haltedState, CacheStates stateAfterCallback)
     {
         TestableCachedAsyncPhonebookReader reader = getHaltedReader(haltedState);
-        mLog.debug("halted reader ...............");
         assertEquals(haltedState, reader.state());
         reader.contactModifiedCallback();
-        mLog.debug("callback ...............");
         assertEquals(stateAfterCallback, reader.state());
-        mLog.debug("asserted -> wakeup ...............");
         reader.disableBreakpoint();
         wakeupReader(reader);
-        mLog.debug("woken up -> finish...............");
         reader.finish();
-        mLog.debug("finished ...............");
     }
 
 
