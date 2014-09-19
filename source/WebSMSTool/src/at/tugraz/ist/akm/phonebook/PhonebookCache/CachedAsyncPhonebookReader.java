@@ -1,4 +1,4 @@
-package at.tugraz.ist.akm.phonebook.contact.PhonebookCache;
+package at.tugraz.ist.akm.phonebook.PhonebookCache;
 
 import java.util.Date;
 import java.util.List;
@@ -10,7 +10,6 @@ import at.tugraz.ist.akm.phonebook.CacheModifiedHandler;
 import at.tugraz.ist.akm.phonebook.contact.Contact;
 import at.tugraz.ist.akm.phonebook.contact.IContactModifiedCallback;
 import at.tugraz.ist.akm.phonebook.contact.IContactReader;
-import at.tugraz.ist.akm.phonebook.contact.PhonebookCacheDB;
 import at.tugraz.ist.akm.trace.LogClient;
 
 public class CachedAsyncPhonebookReader extends Thread implements

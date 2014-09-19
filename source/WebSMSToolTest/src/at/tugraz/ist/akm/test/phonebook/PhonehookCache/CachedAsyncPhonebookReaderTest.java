@@ -1,16 +1,16 @@
-package at.tugraz.ist.akm.test.phonebook.contact;
+package at.tugraz.ist.akm.test.phonebook.PhonehookCache;
 
 import java.util.List;
 import java.util.Vector;
 
 import android.provider.ContactsContract;
 import at.tugraz.ist.akm.content.query.ContactFilter;
+import at.tugraz.ist.akm.phonebook.PhonebookCache.CacheStateMachine;
+import at.tugraz.ist.akm.phonebook.PhonebookCache.CacheStates;
+import at.tugraz.ist.akm.phonebook.PhonebookCache.CachedAsyncPhonebookReader;
 import at.tugraz.ist.akm.phonebook.contact.Contact;
 import at.tugraz.ist.akm.phonebook.contact.Contact.Number;
 import at.tugraz.ist.akm.phonebook.contact.ContactReader;
-import at.tugraz.ist.akm.phonebook.contact.PhonebookCache.CacheStateMachine;
-import at.tugraz.ist.akm.phonebook.contact.PhonebookCache.CacheStates;
-import at.tugraz.ist.akm.phonebook.contact.PhonebookCache.CachedAsyncPhonebookReader;
 import at.tugraz.ist.akm.test.base.WebSMSToolActivityTestcase;
 import at.tugraz.ist.akm.test.testdata.DefaultContactSetInserter;
 import at.tugraz.ist.akm.test.testdata.DefaultContacts;

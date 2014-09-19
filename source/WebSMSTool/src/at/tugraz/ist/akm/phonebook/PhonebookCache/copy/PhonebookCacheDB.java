@@ -1,4 +1,4 @@
-package at.tugraz.ist.akm.phonebook.contact;
+package at.tugraz.ist.akm.phonebook.PhonebookCache.copy;
 
 import java.util.List;
 import java.util.Vector;
@@ -14,6 +14,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import at.tugraz.ist.akm.content.query.ContactFilter;
 import at.tugraz.ist.akm.trace.LogClient;
+import at.tugraz.ist.akm.phonebook.contact.Contact;
 import at.tugraz.ist.akm.phonebook.contact.Contact.Number;
 
 public class PhonebookCacheDB extends SQLiteOpenHelper

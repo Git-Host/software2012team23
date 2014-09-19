@@ -1,11 +1,11 @@
-package at.tugraz.ist.akm.test.phonebook.contact;
+package at.tugraz.ist.akm.test.phonebook.PhonehookCache;
 
 import java.util.List;
 import java.util.Vector;
 
 import android.net.Uri;
+import at.tugraz.ist.akm.phonebook.PhonebookCache.PhonebookCacheDB;
 import at.tugraz.ist.akm.phonebook.contact.Contact;
-import at.tugraz.ist.akm.phonebook.contact.PhonebookCacheDB;
 import at.tugraz.ist.akm.test.base.WebSMSToolActivityTestcase;
 
 public class PhoneBookCacheDBTest extends WebSMSToolActivityTestcase

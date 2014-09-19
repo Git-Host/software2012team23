@@ -1,4 +1,4 @@
-package at.tugraz.ist.akm.phonebook.contact.PhonebookCache;
+package at.tugraz.ist.akm.phonebook.PhonebookCache.copy;
 
 public class CacheStateMachine
 {

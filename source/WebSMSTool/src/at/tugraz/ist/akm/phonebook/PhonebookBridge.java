@@ -25,11 +25,11 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.provider.ContactsContract;
 import at.tugraz.ist.akm.content.query.ContactFilter;
+import at.tugraz.ist.akm.phonebook.PhonebookCache.CachedAsyncPhonebookReader;
 import at.tugraz.ist.akm.phonebook.contact.Contact;
 import at.tugraz.ist.akm.phonebook.contact.ContactReader;
 import at.tugraz.ist.akm.phonebook.contact.IContactModifiedCallback;
 import at.tugraz.ist.akm.phonebook.contact.IContactReader;
-import at.tugraz.ist.akm.phonebook.contact.PhonebookCache.CachedAsyncPhonebookReader;
 import at.tugraz.ist.akm.trace.LogClient;
 
 public class PhonebookBridge implements IContactModifiedCallback,

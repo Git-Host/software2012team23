@@ -1,4 +1,4 @@
-package at.tugraz.ist.akm.phonebook.contact.PhonebookCache;
+package at.tugraz.ist.akm.phonebook.PhonebookCache.copy;
 
 import at.tugraz.ist.akm.trace.LogClient;
 

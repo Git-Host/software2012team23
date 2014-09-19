@@ -1,10 +1,10 @@
-package at.tugraz.ist.akm.test.phonebook.contact;
+package at.tugraz.ist.akm.test.phonebook.PhonehookCache;
 
 import android.content.Context;
 import at.tugraz.ist.akm.content.query.ContactFilter;
+import at.tugraz.ist.akm.phonebook.PhonebookCache.CacheStates;
+import at.tugraz.ist.akm.phonebook.PhonebookCache.CachedAsyncPhonebookReader;
 import at.tugraz.ist.akm.phonebook.contact.IContactReader;
-import at.tugraz.ist.akm.phonebook.contact.PhonebookCache.CacheStates;
-import at.tugraz.ist.akm.phonebook.contact.PhonebookCache.CachedAsyncPhonebookReader;
 import at.tugraz.ist.akm.trace.LogClient;
 
 public class TestableCachedAsyncPhonebookReader extends
