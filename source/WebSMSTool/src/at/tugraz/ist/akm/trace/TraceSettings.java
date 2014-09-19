@@ -1,7 +1,5 @@
 package at.tugraz.ist.akm.trace;
 
-
-
 public class TraceSettings {
 	static final boolean ENABLE_TRACE = true;
 	

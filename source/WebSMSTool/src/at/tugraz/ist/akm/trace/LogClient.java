@@ -23,14 +23,27 @@ public class LogClient
 
     public LogClient(String tag)
     {
-        mTag = tag;
-        debug("log client constructed");
+        mTag = extractClassName(tag);
     }
 
 
     public LogClient(Object o)
     {
-        mTag = o.getClass().getName();
+        mTag = extractClassName(o.getClass().getName());
+    }
+
+
+    private String extractClassName(String classWithPackagePrefix)
+    {
+        int lastDotIndex = classWithPackagePrefix.lastIndexOf(".");
+        if (lastDotIndex <= 0)
+        {
+            lastDotIndex = 0;
+        } else {
+            lastDotIndex++;
+        }
+        return classWithPackagePrefix.substring(lastDotIndex,
+                classWithPackagePrefix.length());
     }
 
 
@@ -80,7 +93,8 @@ public class LogClient
     {
         TraceService.log(TraceService.LogLevel.DEBUG, mTag, message, t);
     }
-    
+
+
     public void verbose(String message)
     {
         verbose(message, null);

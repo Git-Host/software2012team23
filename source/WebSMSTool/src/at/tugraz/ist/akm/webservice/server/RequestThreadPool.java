@@ -18,6 +18,7 @@ package at.tugraz.ist.akm.webservice.server;
 
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.RejectedExecutionException;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
@@ -31,11 +32,25 @@ public class RequestThreadPool
             mTaskQueueSize);
     private ThreadPoolExecutor mThreadPool = null;
 
+    private int ThreadIdx = 0;
+
 
     public RequestThreadPool()
     {
         mThreadPool = new ThreadPoolExecutor(mCorePoolSize, mMaxPoolSize,
-                mThreadIdleKeepAliveSeconds, TimeUnit.SECONDS, mTaskQueue);
+                mThreadIdleKeepAliveSeconds, TimeUnit.SECONDS, mTaskQueue,
+                newNamedThreadFactory());
+    }
+
+
+    private ThreadFactory newNamedThreadFactory() {
+        return new ThreadFactory(){
+            @Override
+            public Thread newThread(Runnable r)
+            {
+                return new Thread(r, "HTTPRequestWorkerThread[" + ThreadIdx++ + "]");
+            }
+        };
     }
 
 

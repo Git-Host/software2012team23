@@ -62,10 +62,6 @@ public class OnSharedPreferenceChangeListenerValidator implements
                 ed.apply();
             }
         }
-        else
-        {
-            mLog.warning("missed preference on state changed event");
-        }
     }
 
 
@@ -124,5 +120,5 @@ public class OnSharedPreferenceChangeListenerValidator implements
     {
         return mContext.getResources().getString(resourceStringId);
     }
-    
+
 }

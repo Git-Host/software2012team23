@@ -40,7 +40,7 @@ public class FileRequestProcessor extends AbstractHttpRequestProcessor {
     @Override
     public void handleRequest(RequestLine requestLine, String requestData, HttpResponse httpResponse)
             throws HttpException, IOException {
-        mLog.info("handle request <" + requestLine.getUri() + ">");
+        mLog.debug("handle request <" + requestLine.getUri() + ">");
 
         String uri = requestLine.getUri();
         final FileInfo fileInfo = mUri2FileInfo.get(uri);

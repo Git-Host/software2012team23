@@ -38,7 +38,7 @@ import at.tugraz.ist.akm.webservice.WebServerConfig;
 import at.tugraz.ist.akm.webservice.requestprocessor.interceptor.IRequestInterceptor;
 
 public abstract class AbstractHttpRequestProcessor implements HttpRequestHandler {
-    private final LogClient mLog = new LogClient(this);
+    private final LogClient mLog = new LogClient(AbstractHttpRequestProcessor.class.getCanonicalName());
     protected final Context mContext;
     protected final XmlNode mConfig;
     protected final HttpRequestHandlerRegistry mRegistry;
@@ -103,7 +103,7 @@ public abstract class AbstractHttpRequestProcessor implements HttpRequestHandler
 
             FileInfo fileInfo = new FileInfo(file.trim(), contentType.trim());
             mUri2FileInfo.put(uri, fileInfo);
-            mLog.info("read mapping uri <" + uri + "> ==> <" + fileInfo + ">");
+            mLog.debug("read mapping uri <" + uri + "> ==> <" + fileInfo + ">");
 
             register(uri);
         }
@@ -147,7 +147,7 @@ public abstract class AbstractHttpRequestProcessor implements HttpRequestHandler
      */
     public void onClose() {
         if (mRegistry != null) {
-            mLog.info("close request handler for URI [" + mUriPattern + "]");
+            mLog.debug("close request handler for URI [" + mUriPattern + "]");
             mRegistry.unregister(mUriPattern);
         }
         for ( IRequestInterceptor interceptor : mRequestInterceptorList ) {

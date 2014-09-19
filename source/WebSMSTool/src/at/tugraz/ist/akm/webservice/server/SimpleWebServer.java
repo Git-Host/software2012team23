@@ -257,7 +257,6 @@ public class SimpleWebServer
 
     public synchronized void stopServer()
     {
-        mLog.info("stop web server");
         if (mServerThread != null)
         {
             mServerThread.stopThread();

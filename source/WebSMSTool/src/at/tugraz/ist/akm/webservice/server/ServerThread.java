@@ -51,7 +51,7 @@ public class ServerThread extends Thread
 {
     private final static LogClient mLog = new LogClient(
             ServerThread.class.getName());
-    // private final SimpleWebServer mWebServer;
+
     private final ServerSocket mServerSocket;
     private final BasicHttpContext mHttpContext;
     private final HttpRequestHandlerRegistry mRequestHandlerRegistry;
@@ -66,6 +66,7 @@ public class ServerThread extends Thread
             final BasicHttpContext httpContext,
             final HttpRequestHandlerRegistry requestHandlerRegistry)
     {
+        this.setName(ServerThread.class.getCanonicalName());
         this.mServerSocket = serverSocket;
         mHttpContext = httpContext;
         mRequestHandlerRegistry = requestHandlerRegistry;

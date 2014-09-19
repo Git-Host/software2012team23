@@ -65,12 +65,14 @@ public class MainActivityTest extends
 
     public void testStartStopButton() throws InterruptedException
     {
-        SharedPreferencesProvider prefs = new SharedPreferencesProvider(getActivity()
-                .getApplicationContext());
+
+        SharedPreferencesProvider prefs = new SharedPreferencesProvider(
+                getActivity().getApplicationContext());
         ApplicationKeyStore appKeystore = new ApplicationKeyStore();
 
         appKeystore.deleteKeystore(prefs.getKeyStoreFilePath());
-        appKeystore.loadKeystore(prefs.getKeyStorePassword(), prefs.getKeyStoreFilePath());
+        appKeystore.loadKeystore(prefs.getKeyStorePassword(),
+                prefs.getKeyStoreFilePath());
         appKeystore.close();
 
         Solo solo = new Solo(getInstrumentation(), getActivity());
@@ -185,7 +187,8 @@ public class MainActivityTest extends
                 this.wait(delay);
                 mLog.debug("waiting ...");
             }
-        } catch (Exception ex)
+        }
+        catch (Exception ex)
         {
             // i don't care
         }
@@ -205,7 +208,8 @@ public class MainActivityTest extends
                 this.wait(delay);
                 mLog.debug("waiting ...");
             }
-        } catch (Exception ex)
+        }
+        catch (Exception ex)
         {
             // i don't care
         }

@@ -87,9 +87,9 @@ public class JsonAPIRequestProcessor extends AbstractHttpRequestProcessor implem
         super(context, config, registry);
         mTextingAdapter = new TextingAdapter(context, this, this);
 
-        mLog.info("precaching contacts [start]");
+        mLog.debug("preloading contacts [start]");
         mJsonContactList = fetchContactsJsonArray();
-        mLog.info("precaching contacts [done]");
+        mLog.debug("preloading contacts [done]");
 
         mSystemMonitor = new SystemMonitor(context);
         mSMSThreadMessageCount = 20;
@@ -164,7 +164,7 @@ public class JsonAPIRequestProcessor extends AbstractHttpRequestProcessor implem
     @Override
     public void contactModifiedCallback()
     {
-        mLog.info("reloading all contacts from provider");
+        mLog.debug("reloading all contacts from provider");
         synchronized (mJsonContactListLock)
         {
             mJsonContactList = fetchContactsJsonArray();
@@ -182,7 +182,7 @@ public class JsonAPIRequestProcessor extends AbstractHttpRequestProcessor implem
             for (TextMessage message : messages)
             {
                 String address = message.getAddress();
-                mLog.info("Looking for address in waiting queue with :"
+                mLog.debug("looking for address in waiting queue with :"
                         + address);
                 if (mSMSWaitingForSentCallback.containsKey(address))
                 {
@@ -198,12 +198,12 @@ public class JsonAPIRequestProcessor extends AbstractHttpRequestProcessor implem
                         mSMSSentSuccess = true;
                         mSMSSentList.add(message);
                         mSMSWaitingForSentCallback.remove(address);
-                        mLog.info("Received all sms callbacks for address "
-                                + address + " going to notify webapp.");
+                        mLog.debug("received all sms callbacks for address "
+                                + address + " going to notify webapp");
                     } else
                     {
                         mSMSWaitingForSentCallback.put(address, tmpCount);
-                        mLog.info("Received sms callback for address "
+                        mLog.debug("received sms callback for address "
                                 + address + " - count is: " + tmpCount);
                     }
                 } else
@@ -246,7 +246,7 @@ public class JsonAPIRequestProcessor extends AbstractHttpRequestProcessor implem
         this.mSMSReceived = true;
         for (TextMessage message : messages)
         {
-            mLog.info("Textmessage from " + message.getAddress()
+            mLog.debug("textmessage from " + message.getAddress()
                     + " received in api request handler.");
             this.mSMSReceivedList.add(message);
         }
@@ -255,16 +255,16 @@ public class JsonAPIRequestProcessor extends AbstractHttpRequestProcessor implem
 
     private JSONObject processMethod(String method, JSONArray jsonParams)
     {
-        mLog.info("handle api request <" + method + ">");
+        mLog.debug("handle api request <" + method + ">");
 
         JSONObject resultObject = new JSONObject();
 
         if (jsonParams == null)
         {
-            mLog.info("0 parameter found for request <" + method + ">");
+            mLog.debug("0 parameter found for request <" + method + ">");
         } else
         {
-            mLog.info("parameters " + jsonParams.toString());
+            mLog.debug("parameters " + jsonParams.toString());
         }
 
         try
@@ -326,14 +326,14 @@ public class JsonAPIRequestProcessor extends AbstractHttpRequestProcessor implem
 
                 JSONObject jsonParams = params.getJSONObject(0);
                 contact_id = jsonParams.getString("contact_id");
-                mLog.info("Fetch SMS Thread with given contact_id: "
-                        + contact_id);
+                mLog.debug("fetch SMS thread with given contact_id ["
+                        + contact_id + "]");
 
                 ContactFilter conFilter = new ContactFilter();
                 conFilter.setId(Integer.parseInt(contact_id));
                 List<Contact> contacts = mTextingAdapter
                         .fetchContacts(conFilter);
-                mLog.info("Found contact - list size: " + contacts.size());
+                mLog.debug("found contacts - list size [" + contacts.size() +"]");
                 if (contacts.size() == 1)
                 {
                     Contact contact = contacts.get(0);
@@ -345,8 +345,8 @@ public class JsonAPIRequestProcessor extends AbstractHttpRequestProcessor implem
                         {
                             break;
                         }
-                        mLog.info("Fetch SMS Thread of "
-                                + contact.getDisplayName() + " with number ["
+                        mLog.debug("fetch SMS thread of ["
+                                + contact.getDisplayName() + "] with number ["
                                 + entry.getNumber() + "]");
                         List<Integer> threadIds = mTextingAdapter
                                 .fetchThreadIds(entry.getNumber());
@@ -359,8 +359,8 @@ public class JsonAPIRequestProcessor extends AbstractHttpRequestProcessor implem
                             TextMessageFilter msgFilter = new TextMessageFilter();
                             msgFilter.setThreadId(threadId.longValue());
                             msgFilter.setBox(SmsContentConstants.Uri.BASE_URI);
-                            mLog.info("Fetch SMS Thread with threadID: "
-                                    + threadId);
+                            mLog.debug("fetch SMS thread with ID ["
+                                    + threadId + "]");
                             List<TextMessage> threadMessages = mTextingAdapter
                                     .fetchTextMessages(msgFilter);
 
@@ -456,7 +456,7 @@ public class JsonAPIRequestProcessor extends AbstractHttpRequestProcessor implem
 
         synchronized (mJsonContactListLock)
         {
-            mLog.info("Handle get_contacts request.");
+            mLog.debug("handle get_contacts request");
             JSONObject resultObject = new JSONObject();
             try
             {
@@ -486,7 +486,7 @@ public class JsonAPIRequestProcessor extends AbstractHttpRequestProcessor implem
     private synchronized JSONArray fetchContactsJsonArray()
     {
 
-        mLog.info("fetch contacts from provider [start]");
+        mLog.debug("fetch contacts from provider [start]");
         ContactFilter allFilter = new ContactFilter();
         allFilter.setWithPhone(true);
         allFilter.setOrderByDisplayName(true,
@@ -499,7 +499,7 @@ public class JsonAPIRequestProcessor extends AbstractHttpRequestProcessor implem
             contactList.put(mJsonFactory.createJsonObject(contacts.get(0)));
             contacts.remove(0);
         }
-        mLog.info("fetched " + contacts.size()
+        mLog.debug("fetch " + contacts.size()
                 + " contacts from provider [done]");
         return contactList;
     }
@@ -522,9 +522,9 @@ public class JsonAPIRequestProcessor extends AbstractHttpRequestProcessor implem
                 address = jsonParams.getString("address");
                 message = URLDecoder.decode(jsonParams.getString("message"),
                         "UTF-8");
-                mLog.info("Fetch parameter adress: " + address
-                        + " and message: " + message
-                        + " from send sms request.");
+                mLog.debug("fetch parameter adress [" + address
+                        + "] and message [" + message
+                        + "] from send sms request");
             } else
             {
                 this.setErrorState(resultObject,
@@ -559,8 +559,8 @@ public class JsonAPIRequestProcessor extends AbstractHttpRequestProcessor implem
             {
                 this.mSMSWaitingForSentCallback.put(address, parts);
             }
-            mLog.info("Message queued to waiting for sent list with address "
-                    + address + " and parts " + parts);
+            mLog.debug("message queued for sending to address "
+                    + address + "] and parts [" + parts +"]");
 
             this.setSuccessState(resultObject);
         } else
@@ -584,11 +584,10 @@ public class JsonAPIRequestProcessor extends AbstractHttpRequestProcessor implem
     private synchronized JSONObject createPollingInfo()
     {
         JSONObject result = new JSONObject();
-        mLog.info("Create polling json object");
         try
         {
 
-            mLog.info("Evaluate contact changed state.");
+            mLog.debug("evaluate contact changed state");
             result.put("contact_changed", this.mContactsChanged);
             if (this.mContactsChanged)
             {
@@ -596,7 +595,7 @@ public class JsonAPIRequestProcessor extends AbstractHttpRequestProcessor implem
                 this.mContactsChanged = false;
             }
 
-            mLog.info("Evaluate sms sent error.");
+            mLog.debug("evaluate sms sent error");
             result.put("sms_sent_error", this.mSMSSentError);
             if (this.mSMSSentError)
             {
@@ -610,7 +609,7 @@ public class JsonAPIRequestProcessor extends AbstractHttpRequestProcessor implem
                 this.mSMSSentError = false;
             }
 
-            mLog.info("Evaluate sms sent success.");
+            mLog.debug("evaluate sms sent success");
             result.put("sms_sent_success", this.mSMSSentSuccess);
             if (this.mSMSSentSuccess)
             {
@@ -624,7 +623,7 @@ public class JsonAPIRequestProcessor extends AbstractHttpRequestProcessor implem
                 this.mSMSSentSuccess = false;
             }
 
-            mLog.info("Evaluate sms received.");
+            mLog.debug("evaluate sms received");
             result.put("sms_received", this.mSMSReceived);
             if (this.mSMSReceived)
             {
@@ -638,12 +637,12 @@ public class JsonAPIRequestProcessor extends AbstractHttpRequestProcessor implem
                 this.mSMSReceived = false;
             }
 
-            mLog.info("Clear temporary member lists.");
+            mLog.debug("clear temporary member lists");
             this.mSMSSentErrorList.clear();
             this.mSMSSentList.clear();
             this.mSMSReceivedList.clear();
 
-            mLog.info("Evaluate actual telephone state.");
+            mLog.debug("evaluate current telephone state");
             BatteryStatus status = this.mSystemMonitor.getBatteryStatus();
             TelephonySignalStrength signal = this.mSystemMonitor
                     .getSignalStrength();

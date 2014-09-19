@@ -38,7 +38,7 @@ public class CachedAsyncPhonebookReader extends Thread implements
     private static final long CACHE_READY_MESSAGE_DELAY_MS = 5 * 1000;
 
     private LogClient mLog = new LogClient(
-            CachedAsyncPhonebookReader.class.getName());
+            CachedAsyncPhonebookReader.class.getCanonicalName());
     private ContactSources mContactSources = new ContactSources();
     private ContactFilter mContactFilter = null;
     private Context mApplicationContext = null;
@@ -54,6 +54,7 @@ public class CachedAsyncPhonebookReader extends Thread implements
     public CachedAsyncPhonebookReader(ContactFilter filter,
             Context applicationContext, IContactReader contactReader)
     {
+        this.setName(CachedAsyncPhonebookReader.class.getSimpleName());
         mApplicationContext = applicationContext;
         mPhonebookCacheDB = new PhonebookCacheDB(mApplicationContext);
         mContactFilter = filter;
@@ -230,7 +231,7 @@ public class CachedAsyncPhonebookReader extends Thread implements
         if (mCacheModifiedHandler != null)
         {
             mLog.debug("sending cache modified in threadID ["
-                    + Thread.currentThread().getId() + "] ...");
+                    + Thread.currentThread().getId() + "]");
             mCacheModifiedHandler.sendMessageDelayed(
                     mCacheModifiedHandler.newCacheModifiedMessage(), msDelay);
         }

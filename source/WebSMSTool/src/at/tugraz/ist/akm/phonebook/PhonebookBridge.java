@@ -129,7 +129,7 @@ public class PhonebookBridge implements IContactModifiedCallback,
     synchronized public void setContactModifiedCallback(
             IContactModifiedCallback callback)
     {
-        log("registered new [ContactModifiedCallback] callback");
+        mLog.debug("registered new [ContactModifiedCallback] callback");
         mExternalContactModifiedCallback = callback;
     }
 
@@ -176,11 +176,5 @@ public class PhonebookBridge implements IContactModifiedCallback,
                 .unregisterContentObserver(mContactContentObserver);
         mContactContentObserver = null;
         mContactContentCursor.close();
-    }
-
-
-    private void log(final String message)
-    {
-        mLog.info(message);
     }
 }

@@ -67,13 +67,9 @@ public class CacheModifiedHandler extends Handler
         {
             if (mPhonebook != null && isCacheModifiedMessage(msg))
             {
-                mLog.debug("stub: processing cache modified in threadID ["
-                        + Thread.currentThread().getId() + "]...");
+                mLog.debug("processing cache modified in threadID ["
+                        + Thread.currentThread().getId() + "]");
                 mPhonebook.cacheModifiedCallback();
-            } else
-            {
-                mLog.warning("ignoring message: [" + msg.getData()
-                        + "]");
             }
         }
     }
