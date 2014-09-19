@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package at.tugraz.ist.akm.webservice.handler;
+package at.tugraz.ist.akm.webservice.requestprocessor;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -34,12 +34,11 @@ import my.org.apache.http.util.EntityUtils;
 import android.content.Context;
 import at.tugraz.ist.akm.io.xml.XmlNode;
 import at.tugraz.ist.akm.trace.LogClient;
-import at.tugraz.ist.akm.webservice.HttpResponseDataAppender;
 import at.tugraz.ist.akm.webservice.WebServerConfig;
-import at.tugraz.ist.akm.webservice.handler.interceptor.IRequestInterceptor;
+import at.tugraz.ist.akm.webservice.requestprocessor.interceptor.IRequestInterceptor;
 
-public abstract class AbstractHttpRequestHandler implements HttpRequestHandler {
-    private final LogClient mLog = new LogClient(this);
+public abstract class AbstractHttpRequestProcessor implements HttpRequestHandler {
+    private final LogClient mLog = new LogClient(AbstractHttpRequestProcessor.class.getCanonicalName());
     protected final Context mContext;
     protected final XmlNode mConfig;
     protected final HttpRequestHandlerRegistry mRegistry;
@@ -47,7 +46,7 @@ public abstract class AbstractHttpRequestHandler implements HttpRequestHandler {
 
     protected HttpResponseDataAppender mResponseDataAppender = new HttpResponseDataAppender();
 
-    protected HashMap<String, FileInfo> mUri2FileInfo = new HashMap<String, AbstractHttpRequestHandler.FileInfo>();
+    protected HashMap<String, FileInfo> mUri2FileInfo = new HashMap<String, AbstractHttpRequestProcessor.FileInfo>();
 
     private String mUriPattern = null;
 
@@ -67,7 +66,7 @@ public abstract class AbstractHttpRequestHandler implements HttpRequestHandler {
         }
     }
 
-    public AbstractHttpRequestHandler(final Context context, final XmlNode config,
+    public AbstractHttpRequestProcessor(final Context context, final XmlNode config,
             final HttpRequestHandlerRegistry registry) {
         this.mContext = context;
         this.mConfig = config;
@@ -104,7 +103,7 @@ public abstract class AbstractHttpRequestHandler implements HttpRequestHandler {
 
             FileInfo fileInfo = new FileInfo(file.trim(), contentType.trim());
             mUri2FileInfo.put(uri, fileInfo);
-            mLog.info("read mapping uri <" + uri + "> ==> <" + fileInfo + ">");
+            mLog.debug("read mapping uri <" + uri + "> ==> <" + fileInfo + ">");
 
             register(uri);
         }
@@ -148,8 +147,11 @@ public abstract class AbstractHttpRequestHandler implements HttpRequestHandler {
      */
     public void onClose() {
         if (mRegistry != null) {
-            mLog.info("close request handler for URI [" + mUriPattern + "]");
+            mLog.debug("close request handler for URI [" + mUriPattern + "]");
             mRegistry.unregister(mUriPattern);
+        }
+        for ( IRequestInterceptor interceptor : mRequestInterceptorList ) {
+            interceptor.onClose();
         }
         mRequestInterceptorList.clear();
     }

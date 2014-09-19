@@ -24,41 +24,50 @@ import android.content.Intent;
 import at.tugraz.ist.akm.R;
 import at.tugraz.ist.akm.activities.MainActivity;
 
-public class FireNotification {
+public class FireNotification
+{
 
-	public static class NotificationInfo {
-		public String title = null;
-		public String text = null;
-		public String tickerText = null;
-	}
+    public static class NotificationInfo
+    {
+        public String title = null;
+        public String text = null;
+        public String tickerText = null;
+    }
 
-	private static int NOTIFICATION_ID = 8151;
-	private Context mContext = null;
-	private NotificationManager mNotificationManager = null;
+    private static int NOTIFICATION_ID = 8151;
+    private Context mContext = null;
+    private NotificationManager mNotificationManager = null;
 
-	public FireNotification(Context context) {
-		mContext = context;
-		mNotificationManager = (NotificationManager) mContext
-				.getSystemService(Context.NOTIFICATION_SERVICE);
-	}
 
-	public void fireStickyInfos(NotificationInfo wInfos) {
-		int icon = R.drawable.ic_notification;
-		CharSequence tickerText = wInfos.tickerText;
-		long when = System.currentTimeMillis();
-		Notification notification = new Notification(icon, tickerText, when);
+    public FireNotification(Context context)
+    {
+        mContext = context;
+        mNotificationManager = (NotificationManager) mContext
+                .getSystemService(Context.NOTIFICATION_SERVICE);
+    }
 
-		Intent notificationIntent = new Intent(mContext, MainActivity.class);
-		notificationIntent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-		PendingIntent contentIntent = PendingIntent.getActivity(mContext, 0,
-				notificationIntent, PendingIntent.FLAG_CANCEL_CURRENT);
-		notification.setLatestEventInfo(mContext, wInfos.title, wInfos.text,
-				contentIntent);
-		notification.flags = Notification.FLAG_NO_CLEAR;
-		mNotificationManager.notify(NOTIFICATION_ID, notification);
-	}
 
-	public void cancelAll() {
-		mNotificationManager.cancelAll();
-	}
+    public void fireStickyInfos(NotificationInfo wInfos)
+    {
+        int icon = R.drawable.ic_notification;
+        
+        Intent activityToRelaunch = new Intent(mContext, MainActivity.class);
+        activityToRelaunch.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+        PendingIntent pi = PendingIntent.getActivity(mContext, 0, activityToRelaunch, 0);
+
+        Notification notification = new Notification.Builder(mContext)
+                .setContentText(wInfos.text).setSmallIcon(icon)
+                .setTicker(wInfos.tickerText)
+                .setContentTitle(wInfos.title)
+                .setContentIntent(pi).getNotification();
+        notification.flags = Notification.FLAG_NO_CLEAR;
+        
+        mNotificationManager.notify(NOTIFICATION_ID, notification);
+    }
+
+
+    public void cancelAll()
+    {
+        mNotificationManager.cancelAll();
+    }
 }

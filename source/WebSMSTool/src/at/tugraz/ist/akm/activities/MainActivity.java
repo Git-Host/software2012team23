@@ -214,6 +214,7 @@ public class MainActivity extends DefaultActionBar implements
         mLog = null;
         mButton = null;
         mInfoFieldView = null;
+        mApplicationConfig.close();
         mApplicationConfig = null;
         mServiceListener = null;
         mWifiManager = null;
@@ -265,11 +266,14 @@ public class MainActivity extends DefaultActionBar implements
         try
         {
             InetAddress address = InetAddress.getByAddress(ipAddress);
-            String concreteAddressString = address.getHostAddress().toUpperCase(Locale.getDefault());
-            if ( InetAddressUtils.isIPv4Address(concreteAddressString) ) 
+            String concreteAddressString = address.getHostAddress()
+                    .toUpperCase(Locale.getDefault());
+            if (InetAddressUtils.isIPv4Address(concreteAddressString))
             {
-                // do not replace formatter by InetAddress here since this returns "1.0.0.127" instead of "127.0.0.1"
-                ip4Address = Formatter.formatIpAddress(mWifiManager.getConnectionInfo().getIpAddress());
+                // do not replace formatter by InetAddress here since this
+                // returns "1.0.0.127" instead of "127.0.0.1"
+                ip4Address = Formatter.formatIpAddress(mWifiManager
+                        .getConnectionInfo().getIpAddress());
             }
         }
         catch (UnknownHostException e)
@@ -297,7 +301,8 @@ public class MainActivity extends DefaultActionBar implements
                 {
                     InetAddress address = addresses.nextElement();
 
-                    String concreteAddressString = address.getHostName().toUpperCase(Locale.getDefault());
+                    String concreteAddressString = address.getHostAddress()
+                            .toUpperCase(Locale.getDefault());
                     if (InetAddressUtils.isIPv4Address(concreteAddressString))
                     {
                         inet4Address = concreteAddressString;

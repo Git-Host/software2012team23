@@ -41,7 +41,7 @@
             api_url : 'api.html'
         },
 
-        sendRequest : function(method,parameters,callback){
+        sendRequest : function(method, parameters, callback) {
         	var methodData = "";
         	if(parameters.length == 0){
         		methodData = '{"method":"' + method + '"}';
@@ -78,7 +78,7 @@
         },
         
         
-        fetchSMSThread: function(contact_id,callback){
+        fetchSMSThread: function(contact_id, callback){
         	wstLog.log('fetchSMSThread called.');
         	var params = '[{"contact_id":"'+contact_id+'"}]';
         	this.sendRequest("fetch_sms_thread",params,callback);        	

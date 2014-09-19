@@ -34,7 +34,7 @@ import at.tugraz.ist.akm.io.FileReader;
 import at.tugraz.ist.akm.io.xml.XmlNode;
 import at.tugraz.ist.akm.io.xml.XmlReader;
 import at.tugraz.ist.akm.webservice.WebServerConfig;
-import at.tugraz.ist.akm.webservice.handler.FileRequestHandler;
+import at.tugraz.ist.akm.webservice.requestprocessor.FileRequestProcessor;
 
 public class FileRequestHandlerTest extends InstrumentationTestCase {
     private final static String URI = "/xyz";
@@ -43,7 +43,7 @@ public class FileRequestHandlerTest extends InstrumentationTestCase {
     private final static String DEFAULT_ENCODING="UTF8";
 
     private HttpRequestHandlerRegistry registry = null;
-    private FileRequestHandler testInstance = null;
+    private FileRequestProcessor testInstance = null;
 
     private String buildConfig() {
         StringBuffer sb = new StringBuffer();
@@ -66,7 +66,7 @@ public class FileRequestHandlerTest extends InstrumentationTestCase {
         Assert.assertNotNull(nodesList);
         Assert.assertEquals(1, nodesList.size());
 
-        testInstance = new FileRequestHandler(getInstrumentation().getContext(), nodesList.get(0),
+        testInstance = new FileRequestProcessor(getInstrumentation().getContext(), nodesList.get(0),
                 registry);
     }
 

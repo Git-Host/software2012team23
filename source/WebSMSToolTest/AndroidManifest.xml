@@ -22,12 +22,13 @@
 
     <uses-sdk
         android:minSdkVersion="14"
-        android:targetSdkVersion="18" />
+        android:targetSdkVersion="19" />
 
     <!--android:name="android.test.InstrumentationTestRunner"-->
     <instrumentation
         android:name="com.zutubi.android.junitreport.JUnitReportTestRunner"
-        android:targetPackage="at.tugraz.ist.akm" />
+        android:targetPackage="at.tugraz.ist.akm" 
+        android:label="Tests for at.tugraz.ist.akm"/>
 
     <application
         android:allowBackup="true"

@@ -29,22 +29,8 @@ import java.util.Vector;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLServerSocketFactory;
 
-import my.org.apache.http.HttpResponseInterceptor;
-import my.org.apache.http.impl.DefaultConnectionReuseStrategy;
-import my.org.apache.http.impl.DefaultHttpResponseFactory;
-import my.org.apache.http.params.CoreConnectionPNames;
-import my.org.apache.http.params.CoreProtocolPNames;
-import my.org.apache.http.params.HttpParams;
-import my.org.apache.http.params.SyncBasicHttpParams;
 import my.org.apache.http.protocol.BasicHttpContext;
-import my.org.apache.http.protocol.HttpProcessor;
 import my.org.apache.http.protocol.HttpRequestHandlerRegistry;
-import my.org.apache.http.protocol.HttpService;
-import my.org.apache.http.protocol.ImmutableHttpProcessor;
-import my.org.apache.http.protocol.ResponseConnControl;
-import my.org.apache.http.protocol.ResponseContent;
-import my.org.apache.http.protocol.ResponseDate;
-import my.org.apache.http.protocol.ResponseServer;
 import android.content.Context;
 import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
@@ -56,8 +42,8 @@ import at.tugraz.ist.akm.preferences.SharedPreferencesProvider;
 import at.tugraz.ist.akm.statusbar.FireNotification;
 import at.tugraz.ist.akm.trace.LogClient;
 import at.tugraz.ist.akm.webservice.WebServerConfig;
-import at.tugraz.ist.akm.webservice.handler.AbstractHttpRequestHandler;
-import at.tugraz.ist.akm.webservice.handler.interceptor.IRequestInterceptor;
+import at.tugraz.ist.akm.webservice.requestprocessor.AbstractHttpRequestProcessor;
+import at.tugraz.ist.akm.webservice.requestprocessor.interceptor.IRequestInterceptor;
 
 public class SimpleWebServer
 {
@@ -69,7 +55,7 @@ public class SimpleWebServer
 
     private final Context mContext;
     private ServerThread mServerThread = null;
-    private Vector<AbstractHttpRequestHandler> mHandlerReferenceListing = new Vector<AbstractHttpRequestHandler>();
+    private Vector<AbstractHttpRequestProcessor> mHandlerReferenceListing = new Vector<AbstractHttpRequestProcessor>();
 
     private SharedPreferencesProvider mConfig = null;
     private InetAddress mSocketAddress = null;
@@ -84,42 +70,20 @@ public class SimpleWebServer
 
     private WakeLock mWakeLock = null;
 
+
     public SimpleWebServer(Context context, String socketAddress)
             throws Exception
     {
         this.mContext = context;
-        PowerManager pm = (PowerManager) mContext.getSystemService(Context.POWER_SERVICE);
-        mWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, this.getClass().getName());
-        mConfig = new SharedPreferencesProvider(mContext);
+        PowerManager pm = (PowerManager) mContext
+                .getSystemService(Context.POWER_SERVICE);
+
+        mWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, this
+                .getClass().getName());
         this.mSocketAddress = InetAddress.getByName(socketAddress);
+        openSettings();
         readRequestHandlers();
         readRequestInterceptors();
-        
-    }
-
-
-    protected synchronized HttpService initializeHTTPService()
-    {
-        HttpProcessor httpProcessor = new ImmutableHttpProcessor(
-                new HttpResponseInterceptor[] { new ResponseDate(),
-                        new ResponseServer(), new ResponseContent(),
-                        new ResponseConnControl() });
-
-        HttpParams params = new SyncBasicHttpParams()
-                .setIntParameter(CoreConnectionPNames.SO_TIMEOUT, 0)
-                .setIntParameter(CoreConnectionPNames.SOCKET_BUFFER_SIZE,
-                        8 * 1024)
-                .setBooleanParameter(
-                        CoreConnectionPNames.STALE_CONNECTION_CHECK, false)
-                .setBooleanParameter(CoreConnectionPNames.TCP_NODELAY, true)
-                .setParameter(CoreProtocolPNames.ORIGIN_SERVER,
-                        "HttpComponents/1.1");
-
-        HttpService httpService = new HttpService(httpProcessor,
-                new DefaultConnectionReuseStrategy(),
-                new DefaultHttpResponseFactory(), mRegistry, params);
-
-        return httpService;
     }
 
 
@@ -150,7 +114,7 @@ public class SimpleWebServer
                 Class<?> clazz = Class.forName(className);
                 Constructor<?> constr = clazz.getConstructor(Context.class,
                         XmlNode.class, HttpRequestHandlerRegistry.class);
-                AbstractHttpRequestHandler newHandler = (AbstractHttpRequestHandler) constr
+                AbstractHttpRequestProcessor newHandler = (AbstractHttpRequestProcessor) constr
                         .newInstance(mContext, node, mRegistry);
                 mHandlerReferenceListing.add(newHandler);
             }
@@ -207,7 +171,7 @@ public class SimpleWebServer
 
     protected void setInterceptor(IRequestInterceptor reqInterceptor)
     {
-        for (AbstractHttpRequestHandler reqHandler : mHandlerReferenceListing)
+        for (AbstractHttpRequestProcessor reqHandler : mHandlerReferenceListing)
         {
             reqHandler.addRequestInterceptor(reqInterceptor);
         }
@@ -223,11 +187,12 @@ public class SimpleWebServer
 
     public synchronized boolean startServer()
     {
-        if ( false == mWakeLock.isHeld() ) 
+        openSettings();
+        if (false == mWakeLock.isHeld())
         {
             mWakeLock.acquire();
         }
-        
+
         if (this.isRunning())
         {
             mLog.info("Web service is already running at port <"
@@ -236,7 +201,7 @@ public class SimpleWebServer
         }
 
         readWebServerConfiguration();
-        String socketType ="https";
+        String socketType = "https";
 
         try
         {
@@ -256,7 +221,8 @@ public class SimpleWebServer
             mServerSocket.setReuseAddress(true);
             mServerSocket.setSoTimeout(2000);
             mIsServerRunning = true;
-            mServerThread = new ServerThread(this, mServerSocket);
+            mServerThread = new ServerThread(mServerSocket, mHttpContext,
+                    mRegistry);
             mServerThread.setDaemon(true);
             mServerThread.start();
             mLog.info("WebServer started on port: " + mServerPort);
@@ -265,8 +231,8 @@ public class SimpleWebServer
         }
         catch (IOException ioException)
         {
-            mLog.error("cannot bind <" + socketType + "> socket to <" + mSocketAddress + ":" + mServerPort
-                    + ">", ioException);
+            mLog.error("cannot bind <" + socketType + "> socket to <"
+                    + mSocketAddress + ":" + mServerPort + ">", ioException);
             return false;
         }
 
@@ -291,7 +257,6 @@ public class SimpleWebServer
 
     public synchronized void stopServer()
     {
-        mLog.info("stop web server");
         if (mServerThread != null)
         {
             mServerThread.stopThread();
@@ -312,9 +277,10 @@ public class SimpleWebServer
             }
             catch (IOException e)
             {
-                // i ton't care
+                // don't care
             }
-            finally {
+            finally
+            {
                 mIsServerRunning = false;
                 statusbarClearConnectionUrl();
                 mWakeLock.release();
@@ -322,13 +288,32 @@ public class SimpleWebServer
         }
 
         closeRegistry();
+        closeSettings();
         mServerThread = null;
+
+    }
+
+
+    private void closeSettings()
+    {
+        if (mConfig != null)
+            ;
+        mConfig.close();
+        mConfig = null;
+    }
+
+
+    private void openSettings()
+    {
+        if (mConfig == null)
+            ;
+        mConfig = new SharedPreferencesProvider(mContext);
     }
 
 
     private void closeRegistry()
     {
-        for (AbstractHttpRequestHandler toBeCleanedUp : mHandlerReferenceListing)
+        for (AbstractHttpRequestProcessor toBeCleanedUp : mHandlerReferenceListing)
         {
             toBeCleanedUp.onClose();
         }
@@ -360,7 +345,8 @@ public class SimpleWebServer
         {
             mLog.error("Error while getting keymanagers!", keyException);
         }
-        finally {
+        finally
+        {
             appKeystore.close();
         }
     }
@@ -383,11 +369,12 @@ public class SimpleWebServer
         FireNotification notificator = new FireNotification(mContext);
         FireNotification.NotificationInfo info = new FireNotification.NotificationInfo();
         StringBuffer connectionUrl = new StringBuffer();
-        
+
         connectionUrl.append(mConfig.getProtocol() + "://");
 
         info.text = connectionUrl.append(
-                mSocketAddress.getHostAddress() + ":" + mConfig.getPort()).toString();
+                mSocketAddress.getHostAddress() + ":" + mConfig.getPort())
+                .toString();
         info.title = "WebSMSTool";
         info.tickerText = "service running";
         notificator.fireStickyInfos(info);

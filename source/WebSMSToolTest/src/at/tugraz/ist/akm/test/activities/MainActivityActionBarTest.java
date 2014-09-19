@@ -40,7 +40,7 @@ public class MainActivityActionBarTest extends
 
     public MainActivityActionBarTest()
     {
-        super("at.tugraz.ist.akm", MainActivity.class);
+        super(MainActivity.class);
         TraceService.setSink(new ThrowingLogSink());
         mLog = new LogClient(MainActivityActionBarTest.class.getName());
     }

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package at.tugraz.ist.akm.webservice.handler.interceptor;
+package at.tugraz.ist.akm.webservice.requestprocessor.interceptor;
 
 import java.io.UnsupportedEncodingException;
 
@@ -39,6 +39,13 @@ public class AuthorizationInterceptor extends AbstractRequestInterceptor
     {
         super(context);
         mConfig = new SharedPreferencesProvider(context);
+    }
+
+
+    @Override
+    public void onClose()
+    {
+        mConfig.close();
     }
 
 
@@ -136,7 +143,8 @@ public class AuthorizationInterceptor extends AbstractRequestInterceptor
                         headerValue.substring(idx + 1), 0), mDefaultEncoding);
                 requestUserName.append(getUsernameSubstring(userCredentials));
                 requestPassword.append(getPasswordSubstring(userCredentials));
-            } catch (UnsupportedEncodingException e)
+            }
+            catch (UnsupportedEncodingException e)
             {
                 mLog.error("failed to extract string from header: "
                         + e.getMessage());

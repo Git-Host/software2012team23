@@ -41,12 +41,12 @@ public class SmsBoxReader {
 		return getSms(filter);
 	}
 
-	public List<Integer> getThreadIds(final String address) {
+	public List<Integer> getThreadIds(final String phoneNumber) {
 	    android.net.Uri select = SmsContentConstants.Uri.BASE_URI;
 		String[] as = { SmsContentConstants.Column.THREAD_ID };
 		String where = SmsContentConstants.Column.ADDRESS
 				+ " = ? ) GROUP BY ( thread_id ";
-		String[] like = { address };
+		String[] like = { phoneNumber };
 		String sortBy = SmsContentConstants.Column.DATE + " ASC";
 		Cursor threadIDs = mContentResolver.query(select, as, where, like,
 				sortBy);

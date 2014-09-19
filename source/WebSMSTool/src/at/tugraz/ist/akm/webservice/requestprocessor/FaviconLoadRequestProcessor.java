@@ -1,4 +1,4 @@
-package at.tugraz.ist.akm.webservice.handler;
+package at.tugraz.ist.akm.webservice.requestprocessor;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -15,11 +15,11 @@ import at.tugraz.ist.akm.io.xml.XmlNode;
 import at.tugraz.ist.akm.trace.LogClient;
 import at.tugraz.ist.akm.webservice.WebServerConfig;
 
-public class FaviconLoader extends AbstractHttpRequestHandler {
+public class FaviconLoadRequestProcessor extends AbstractHttpRequestProcessor {
 
 	private final LogClient mLog = new LogClient(this);
 
-	public FaviconLoader(Context context, XmlNode config,
+	public FaviconLoadRequestProcessor(Context context, XmlNode config,
 			HttpRequestHandlerRegistry registry) {
 		super(context, config, registry);
 	}

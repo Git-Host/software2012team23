@@ -23,23 +23,23 @@ import org.json.JSONObject;
 
 import at.tugraz.ist.akm.monitoring.BatteryStatus;
 import at.tugraz.ist.akm.monitoring.TelephonySignalStrength;
-import at.tugraz.ist.akm.phonebook.Contact;
+import at.tugraz.ist.akm.phonebook.contact.Contact;
 import at.tugraz.ist.akm.sms.TextMessage;
 import at.tugraz.ist.akm.trace.LogClient;
 
 public class JsonFactory {
     private LogClient log = new LogClient(JsonFactory.class.getName());
-    private HashMap<Class<?>, IJsonBuilder> jsonObjectBuilders = new HashMap<Class<?>, IJsonBuilder>();
+    private HashMap<Class<?>, IJsonBuilder> mJsonObjectBuilders = new HashMap<Class<?>, IJsonBuilder>();
 
     public JsonFactory() {
-        jsonObjectBuilders.put(Contact.class, new JsonContactBuilder());
-        jsonObjectBuilders.put(TextMessage.class, new JsonTextMessageBuilder());
-        jsonObjectBuilders.put(TelephonySignalStrength.class, new JsonTelephonySignalStrengthBuilder());
-        jsonObjectBuilders.put(BatteryStatus.class, new JsonBatteryStatusBuilder());
+        mJsonObjectBuilders.put(Contact.class, new JsonContactBuilder());
+        mJsonObjectBuilders.put(TextMessage.class, new JsonTextMessageBuilder());
+        mJsonObjectBuilders.put(TelephonySignalStrength.class, new JsonTelephonySignalStrengthBuilder());
+        mJsonObjectBuilders.put(BatteryStatus.class, new JsonBatteryStatusBuilder());
     }
 
     public JSONObject createJsonObject(Object object) {
-        IJsonBuilder builder = jsonObjectBuilders.get(object.getClass());
+        IJsonBuilder builder = mJsonObjectBuilders.get(object.getClass());
         if (builder != null) {
             return builder.build(object);
         }

@@ -67,6 +67,7 @@ public class PreferencesProviderTest extends AndroidTestCase implements
         mSharedPreferences
                 .unregisterOnSharedPreferenceChangeListener(mPreferenceValidator);
         mSharedPreferences.unregisterOnSharedPreferenceChangeListener(this);
+        mConfig.close();
     }
 
 

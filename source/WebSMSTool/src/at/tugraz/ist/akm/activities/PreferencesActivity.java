@@ -168,6 +168,8 @@ public class PreferencesActivity extends PreferenceActivity implements
 
         appKeyStore.loadKeystore(preferencesProvider.getKeyStorePassword(),
                 preferencesProvider.getKeyStoreFilePath());
+        preferencesProvider.close();
+        preferencesProvider = null;
         X509Certificate cert = appKeyStore.getX509Certficate();
         appKeyStore.close();
 

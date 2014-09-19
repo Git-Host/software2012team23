@@ -89,8 +89,8 @@ public class SimpleWebServerTest extends WebSMSToolActivityTestcase
         SharedPreferencesProvider serverConfig = new SharedPreferencesProvider(mContext);
         serverConfig.setProtocol("http");
         serverConfig.setPort("8888");
+        serverConfig.close();
     }
-
 
     public void testStartStopServer()
     {

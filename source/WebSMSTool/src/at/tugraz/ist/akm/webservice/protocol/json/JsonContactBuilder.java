@@ -24,52 +24,79 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.util.Base64;
-import at.tugraz.ist.akm.phonebook.Contact;
-import at.tugraz.ist.akm.phonebook.Contact.Number;
+import at.tugraz.ist.akm.phonebook.contact.Contact;
+import at.tugraz.ist.akm.phonebook.contact.Contact.Number;
 import at.tugraz.ist.akm.trace.LogClient;
 
-public class JsonContactBuilder implements IJsonBuilder {
+public class JsonContactBuilder implements IJsonBuilder
+{
 
-    private final static String mDefaultEncoding="UTF8";
-    
+    private final static String mDefaultEncoding = "UTF8";
+
+    public class ContactValueNames
+    {
+        public static final String DISPLAY_NAME = "display_name";
+        public static final String ID = "id";
+        public static final String IMAGE_BASE64 = "image";
+        public static final String PHONE_NUMBERS = "phone_numbers";
+        public class NumbersValueNames {
+            public static final String NUMBER = "number";
+            public static final String CLEAN_NUMBER = "clean_number";
+            public static final String TYPE = "type";
+        }
+    }
+
+
     @Override
-    public JSONObject build(Object data) {
-    	LogClient log = new LogClient(this);
-    	
+    public JSONObject build(Object data)
+    {
+        LogClient log = new LogClient(this);
+
         Contact contact = (Contact) data;
-        try {
+        try
+        {
             JSONObject json = new JSONObject();
-            json.put("display_name", contact.getDisplayName());
-            json.put("last_name", contact.getFamilyName());
-            json.put("name", contact.getName());
-            json.put("id", contact.getId());
-            
+            json.put(ContactValueNames.DISPLAY_NAME, contact.getDisplayName());
+            json.put(ContactValueNames.ID, contact.getId());
+
             byte[] imageBytes = contact.getPhotoBytes();
-            if(imageBytes != null){
-            	byte[] imageEncoded = Base64.encode(imageBytes, Base64.DEFAULT);
-                json.put("image", new String(imageEncoded, mDefaultEncoding));       
+            if (imageBytes != null)
+            {
+                byte[] imageEncoded = Base64.encode(imageBytes, Base64.DEFAULT);
+                json.put(ContactValueNames.IMAGE_BASE64, new String(imageEncoded, mDefaultEncoding));
             }
-            
-            json.put("phone_numbers", buildPhoneNumbers(contact.getPhoneNumbers()));
-            
-            //log.logInfo(json.toString());
+
+            json.put(ContactValueNames.PHONE_NUMBERS,
+                    buildPhoneNumbers(contact.getPhoneNumbers()));
+
+            // log.logInfo(json.toString());
             return json;
-        } catch (JSONException jsonException) {
-			log.error("failed to create jsonContact Object",jsonException);
-        } catch (UnsupportedEncodingException encEx) {
-            log.error("failed to create jsonContact Object due to encoding error", encEx);
+        }
+        catch (JSONException jsonException)
+        {
+            log.error("failed to create jsonContact Object", jsonException);
+        }
+        catch (UnsupportedEncodingException encEx)
+        {
+            log.error(
+                    "failed to create jsonContact Object due to encoding error",
+                    encEx);
         }
         return null;
     }
 
-    private JSONArray buildPhoneNumbers(List<Number> phoneNumbers) throws JSONException {
+
+    private JSONArray buildPhoneNumbers(List<Number> phoneNumbers)
+            throws JSONException
+    {
         JSONArray jsonNumberList = new JSONArray();
 
-        for (Contact.Number number : phoneNumbers) {
+        for (Contact.Number number : phoneNumbers)
+        {
             JSONObject jsonNumber = new JSONObject();
-            jsonNumber.put("number", number.getNumber());
-            jsonNumber.put("type", Integer.toString(number.getType()));
-            jsonNumber.put("clean_number", number.getNumber());
+            jsonNumber.put(ContactValueNames.NumbersValueNames.NUMBER, number.getNumber());
+            jsonNumber.put(ContactValueNames.NumbersValueNames.TYPE, Integer.toString(number.getType()));
+            jsonNumber.put(ContactValueNames.NumbersValueNames.CLEAN_NUMBER, number.getNumber());
             jsonNumberList.put(jsonNumber);
         }
 

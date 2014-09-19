@@ -24,30 +24,50 @@ import org.json.JSONObject;
 import at.tugraz.ist.akm.monitoring.BatteryStatus;
 import at.tugraz.ist.akm.trace.LogClient;
 
-public class JsonBatteryStatusBuilder implements IJsonBuilder {
+public class JsonBatteryStatusBuilder implements IJsonBuilder
+{
 
-    private final static String mDefaultEncoding="UTF8";
-    
-	@Override
-	public JSONObject build(Object data) {
-    	LogClient log = new LogClient(this);
-		BatteryStatus status = (BatteryStatus) data;
-		
+    private final static String mDefaultEncoding = "UTF8";
+
+    public class BatteryLevelValueNames
+    {
+        public static final String BATTERY_LEVEL = "battery_level";
+        public static final String BATTERY_LEVEL_ICON = "battery_level_icon";
+        public static final String IS_CHARGING = "is_charging";
+        public static final String IS_AC_CHARGE = "is_ac_charge";
+        public static final String IS_USB_CHARGE = "is_usb_charge";
+        public static final String IS_FULL = "is_full";
+    }
+
+
+    @Override
+    public JSONObject build(Object data)
+    {
+        LogClient log = new LogClient(this);
+        BatteryStatus status = (BatteryStatus) data;
+
         JSONObject json = new JSONObject();
-        try {
-			json.put("battery_level", status.getBatteryLevel());
-            json.put("battery_level_icon", new String(status.getBatteryIconBytes(), mDefaultEncoding ));
-			json.put("is_charging", status.getIsCharging());
-        	json.put("is_ac_charge", status.getIsAcCharge());
-			json.put("is_usb_charge", status.getIsUsbCharge());
-			json.put("is_full", status.getIsFull());
-		} catch (JSONException jsonException) {
-			log.error("failed to create jsonBatteryStatus Object",jsonException);
-		}
-    	catch (UnsupportedEncodingException e)
-    	{
-    	    log.error("failed to create jsonBatteryStatus Object due to encoding error", e);
-    	}
+        try
+        {
+            json.put(BatteryLevelValueNames.BATTERY_LEVEL, status.getBatteryLevel());
+            json.put(BatteryLevelValueNames.BATTERY_LEVEL_ICON,
+                    new String(status.getBatteryIconBytes(), mDefaultEncoding));
+            json.put(BatteryLevelValueNames.IS_CHARGING, status.getIsCharging());
+            json.put(BatteryLevelValueNames.IS_AC_CHARGE, status.getIsAcCharge());
+            json.put(BatteryLevelValueNames.IS_USB_CHARGE, status.getIsUsbCharge());
+            json.put(BatteryLevelValueNames.IS_FULL, status.getIsFull());
+        }
+        catch (JSONException jsonException)
+        {
+            log.error("failed to create jsonBatteryStatus Object",
+                    jsonException);
+        }
+        catch (UnsupportedEncodingException e)
+        {
+            log.error(
+                    "failed to create jsonBatteryStatus Object due to encoding error",
+                    e);
+        }
         return json;
-	}
+    }
 }

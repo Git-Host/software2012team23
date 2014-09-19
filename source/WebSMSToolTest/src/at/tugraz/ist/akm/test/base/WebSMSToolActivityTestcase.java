@@ -27,7 +27,7 @@ public class WebSMSToolActivityTestcase extends ActivityTestCase {
 
 	protected Context mContext = null;
 	protected ContentResolver mContentResolver = null;
-	private LogClient mLog = null;
+	protected LogClient mLog = null;
 
 	public WebSMSToolActivityTestcase(String logTag) {
 		TraceService.setSink(new ThrowingLogSink());
