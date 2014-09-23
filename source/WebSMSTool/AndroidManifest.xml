@@ -21,7 +21,7 @@
     android:versionName="1.0" >
 
     <uses-sdk
-        android:minSdkVersion="14"
+        android:minSdkVersion="16"
         android:targetSdkVersion="19" />
 
     <uses-permission android:name="android.permission.INTERNET" />
@@ -44,14 +44,15 @@
     <application
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
-        android:label="@string/app_name" 
-        android:largeHeap="true">
+        android:label="@string/app_name"
+        android:largeHeap="true" >
         <activity
             android:name="at.tugraz.ist.akm.activities.MainActivity"
             android:label="@string/app_name"
             android:launchMode="singleInstance" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
@@ -60,21 +61,19 @@
         </service>
 
         <activity
-            android:name="at.tugraz.ist.akm.activities.PreferencesActivity"
-            android:parentActivityName="at.tugraz.ist.akm.activities.MainActivity">
+            android:name="at.tugraz.ist.akm.activities.preferences.PreferencesActivity"
+            android:parentActivityName="at.tugraz.ist.akm.activities.MainActivity" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.PREFERENCE" />
             </intent-filter>
         </activity>
-        
         <activity
             android:name="at.tugraz.ist.akm.activities.AboutActivity"
-            android:parentActivityName="at.tugraz.ist.akm.activities.MainActivity">
+            android:parentActivityName="at.tugraz.ist.akm.activities.MainActivity" >
         </activity>
-        
-        <activity android:name="at.tugraz.ist.akm.activities.DefaultActionBar">
+        <activity android:name="at.tugraz.ist.akm.activities.DefaultActionBar" >
         </activity>
     </application>
 

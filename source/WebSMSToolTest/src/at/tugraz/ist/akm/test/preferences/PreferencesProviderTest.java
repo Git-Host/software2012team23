@@ -20,7 +20,8 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.preference.PreferenceManager;
 import android.test.AndroidTestCase;
-import at.tugraz.ist.akm.preferences.OnSharedPreferenceChangeListenerValidator;
+import at.tugraz.ist.akm.activities.preferences.PrefsFragment;
+import at.tugraz.ist.akm.preferences.OnSharedPreferenceEventListenValidator;
 import at.tugraz.ist.akm.preferences.SharedPreferencesProvider;
 import at.tugraz.ist.akm.test.trace.ThrowingLogSink;
 import at.tugraz.ist.akm.trace.LogClient;
@@ -33,7 +34,7 @@ public class PreferencesProviderTest extends AndroidTestCase implements
     private SharedPreferencesProvider mConfig = null;
     private LogClient mLog = new LogClient(this);
     private int mExpectedOnValueChangedCallbacks = 0;
-    private OnSharedPreferenceChangeListenerValidator mPreferenceValidator = null;
+    private OnSharedPreferenceEventListenValidator mPreferenceValidator = null;
 
 
     public PreferencesProviderTest()
@@ -50,8 +51,8 @@ public class PreferencesProviderTest extends AndroidTestCase implements
         super.setUp();
 
         mConfig = new SharedPreferencesProvider(getContext());
-        mPreferenceValidator = new OnSharedPreferenceChangeListenerValidator(
-                getContext());
+        mPreferenceValidator = new OnSharedPreferenceEventListenValidator(
+                new PrefsFragment(mContext), mContext);
         mSharedPreferences = PreferenceManager
                 .getDefaultSharedPreferences(getContext());
         mSharedPreferences.registerOnSharedPreferenceChangeListener(this);
@@ -117,9 +118,9 @@ public class PreferencesProviderTest extends AndroidTestCase implements
     public void testGetSetting_serverProtocolWithErroneousValue()
     {
         String expectedInProtocol = "https";
-        //mExpectedOnValueChangedCallbacks = 2;
+        // mExpectedOnValueChangedCallbacks = 2;
         mConfig.setProtocol("asdf");
-        //waitForOutstandingSharedPreferencesCallbacks();
+        // waitForOutstandingSharedPreferencesCallbacks();
         String inProtocol = mConfig.getProtocol();
         assertEquals(expectedInProtocol, inProtocol);
     }
@@ -148,13 +149,12 @@ public class PreferencesProviderTest extends AndroidTestCase implements
         }
     }
 
-
-//    private void waitForOutstandingSharedPreferencesCallbacks()
-//    {
-//        mLog.debug("waiting for callback/s being finished ["
-//                + mExpectedOnValueChangedCallbacks + "]");
-//        while (mExpectedOnValueChangedCallbacks > 0)
-//            ;
-//    }
+    // private void waitForOutstandingSharedPreferencesCallbacks()
+    // {
+    // mLog.debug("waiting for callback/s being finished ["
+    // + mExpectedOnValueChangedCallbacks + "]");
+    // while (mExpectedOnValueChangedCallbacks > 0)
+    // ;
+    // }
 
 }

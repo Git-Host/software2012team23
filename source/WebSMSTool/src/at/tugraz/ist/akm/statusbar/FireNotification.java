@@ -59,7 +59,7 @@ public class FireNotification
                 .setContentText(wInfos.text).setSmallIcon(icon)
                 .setTicker(wInfos.tickerText)
                 .setContentTitle(wInfos.title)
-                .setContentIntent(pi).getNotification();
+                .setContentIntent(pi).build(); 
         notification.flags = Notification.FLAG_NO_CLEAR;
         
         mNotificationManager.notify(NOTIFICATION_ID, notification);

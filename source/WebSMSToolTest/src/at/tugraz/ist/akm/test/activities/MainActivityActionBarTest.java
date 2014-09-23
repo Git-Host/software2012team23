@@ -22,7 +22,7 @@ import android.test.ActivityInstrumentationTestCase2;
 import at.tugraz.ist.akm.R;
 import at.tugraz.ist.akm.activities.AboutActivity;
 import at.tugraz.ist.akm.activities.MainActivity;
-import at.tugraz.ist.akm.activities.PreferencesActivity;
+import at.tugraz.ist.akm.activities.preferences.PreferencesActivity;
 import at.tugraz.ist.akm.test.trace.ThrowingLogSink;
 import at.tugraz.ist.akm.trace.LogClient;
 import at.tugraz.ist.akm.trace.TraceService;

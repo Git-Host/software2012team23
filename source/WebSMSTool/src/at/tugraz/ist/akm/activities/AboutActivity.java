@@ -18,17 +18,30 @@ package at.tugraz.ist.akm.activities;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.os.Debug;
 import android.text.util.Linkify;
 import android.widget.TextView;
 import at.tugraz.ist.akm.R;
+import at.tugraz.ist.akm.exceptional.UncaughtExceptionLogger;
+import at.tugraz.ist.akm.trace.LogClient;
 
 public class AboutActivity extends Activity
 {
+
+    LogClient mLog = new LogClient(AboutActivity.class.getCanonicalName());
+
 
     @Override
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
+
+        if (Debug.isDebuggerConnected())
+        {
+            UncaughtExceptionLogger exLogger = new UncaughtExceptionLogger(mLog);
+            exLogger.register();
+        }
+
         setContentView(R.layout.about_activity);
         getActionBar().setIcon(
                 getResources().getDrawable(R.drawable.ic_notification));

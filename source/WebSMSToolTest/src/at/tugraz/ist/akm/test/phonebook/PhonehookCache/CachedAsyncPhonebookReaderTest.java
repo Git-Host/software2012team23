@@ -7,7 +7,6 @@ import android.provider.ContactsContract;
 import at.tugraz.ist.akm.content.query.ContactFilter;
 import at.tugraz.ist.akm.phonebook.PhonebookCache.CacheStateMachine;
 import at.tugraz.ist.akm.phonebook.PhonebookCache.CacheStates;
-import at.tugraz.ist.akm.phonebook.PhonebookCache.CachedAsyncPhonebookReader;
 import at.tugraz.ist.akm.phonebook.contact.Contact;
 import at.tugraz.ist.akm.phonebook.contact.Contact.Number;
 import at.tugraz.ist.akm.phonebook.contact.ContactReader;

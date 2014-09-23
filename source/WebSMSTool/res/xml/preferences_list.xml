@@ -1,55 +1,54 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
-    <PreferenceCategory
-        android:title="@string/preferences_user"
-        >
-        <CheckBoxPreference 
-            android:title="@string/preferences_checkbox"
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <PreferenceCategory android:title="@string/preferences_user" >
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:icon="@drawable/ic_action_social_person"
             android:key="@string/preferences_access_restriction_key"
             android:summaryOff="@string/preferences_checkbox_summary_off"
             android:summaryOn="@string/preferences_checkbox_summary_on"
-            android:defaultValue="false"
-            android:icon="@drawable/ic_action_social_person"
-        />
+            android:title="@string/preferences_checkbox" />
+
         <EditTextPreference
-            android:title="@string/preferences_username"
-            android:key="@string/preferences_username_key"
-            android:inputType="textNoSuggestions"
             android:defaultValue=""
             android:dependency="@string/preferences_access_restriction_key"
-        />
-        <EditTextPreference 
-            android:title="@string/preferences_password"
-            android:key="@string/preferences_password_key"
-            android:inputType="textVisiblePassword"
+            android:inputType="textNoSuggestions"
+            android:key="@string/preferences_username_key"
+            android:title="@string/preferences_username" />
+        <EditTextPreference
             android:defaultValue=""
-            android:dependency="@string/preferences_access_restriction_key" 
-        />
+            android:dependency="@string/preferences_access_restriction_key"
+            android:inputType="textVisiblePassword"
+            android:key="@string/preferences_password_key"
+            android:title="@string/preferences_password" />
     </PreferenceCategory>
-    <PreferenceCategory 
-        android:title="@string/preferences_server">
-        <EditTextPreference 
-            android:title="@string/preferences_server_port"
-            android:key="@string/preferences_server_port_key"
+    <PreferenceCategory android:title="@string/preferences_server" >
+        <EditTextPreference
             android:defaultValue="8888"
-            android:inputType="number"
             android:icon="@drawable/ic_action_hardware_computer"
-        />
-  
-        <CheckBoxPreference 
-            android:title="@string/preferences_protocol_ckeckbox"
+            android:inputType="number"
+            android:key="@string/preferences_server_port_key"
+            android:title="@string/preferences_server_port" />
+
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:icon="@drawable/ic_action_device_access_accounts"
             android:key="@string/preferences_protocol_checkbox_key"
             android:summaryOff="@string/preferences_protocol_checkbox_off"
             android:summaryOn="@string/preferences_protocol_checkbox_on"
-            android:defaultValue="false"
-            android:icon="@drawable/ic_action_device_access_accounts"
-        />
-        <CheckBoxPreference 
-            android:title="@string/preferences_protocol_renew_certificate_ckeckbox"
-            android:key="@string/preferences_protocol_renew_certificate_checkbox_key"
-            android:defaultValue="false"
+            android:title="@string/preferences_protocol_ckeckbox" />
+
+        <at.tugraz.ist.akm.preferences.RenewCertificateDialogPreference
             android:dependency="@string/preferences_protocol_checkbox_key"
+            android:dialogMessage="@string/preferences_security_renew_certificate_dialog_message"
+            android:dialogTitle="@string/preferences_security_renew_certificate_dialog_title"
             android:icon="@drawable/ic_action_navigation_refresh"
-        />
+            android:key="@string/preferences_security_renew_certificate_dialog_key"
+            android:negativeButtonText="@string/preferences_security_renew_certificate_dialog_negative_button"
+            android:positiveButtonText="@string/preferences_security_renew_certificate_dialog_positive_button"
+            android:summary="@string/preferences_security_renew_certificate_dialog_preference_no_certificate"
+            android:title="@string/preferences_security_renew_certificate_dialo_preference_title" />
     </PreferenceCategory>
+
 </PreferenceScreen>

@@ -22,7 +22,6 @@ import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
 import java.util.List;
 import java.util.Vector;
 
@@ -241,8 +240,8 @@ public class SimpleWebServer
 
     private void readWebServerConfiguration()
     {
-
-        if (mConfig.getProtocol().compareTo("https") == 0)
+        String protocol = mConfig.getProtocol();
+        if (protocol.compareTo("https") == 0)
         {
             mHttps = true;
         } else
@@ -252,6 +251,9 @@ public class SimpleWebServer
 
         mServerPort = Integer.parseInt(mConfig.getPort());
         mKeyStorePass = mConfig.getKeyStorePassword();
+
+        mLog.debug("server preferences protocol[" + protocol + "] port["
+                + mServerPort + "]");
     }
 
 
@@ -334,8 +336,7 @@ public class SimpleWebServer
                             R.string.preferences_keystore_store_filename);
             appKeystore.loadKeystore(mKeyStorePass, keystoreFilePath);
 
-            mSSLContext.init(appKeystore.getKeystoreManagers(), null,
-                    new SecureRandom());
+            mSSLContext.init(appKeystore.getKeystoreManagers(), null, null);
         }
         catch (NoSuchAlgorithmException algoException)
         {

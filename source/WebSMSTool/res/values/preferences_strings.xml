@@ -34,8 +34,12 @@
   <string name="preferences_protocol_checkbox_key">preferences_protocol_checkbox_key</string>
   <string name="preferences_protocol_checkbox_off">http - no encryption</string>
   <string name="preferences_protocol_checkbox_on">https - more secure</string>  
-   
-  <string name="preferences_protocol_renew_certificate_ckeckbox">New Certificate</string>
-  <string name="preferences_protocol_renew_certificate_checkbox_key">preferences_protocol_renew_keystore_checkbox_key</string>
   
+  <string name="preferences_security_renew_certificate_dialog_preference_no_certificate">no certificate</string>
+  <string name="preferences_security_renew_certificate_dialo_preference_title">New Certificate</string>
+  <string name="preferences_security_renew_certificate_dialog_message">Create new Certificate?</string>
+  <string name="preferences_security_renew_certificate_dialog_title">SSL Certificate</string>
+  <string name="preferences_security_renew_certificate_dialog_negative_button">Cancel</string>
+  <string name="preferences_security_renew_certificate_dialog_positive_button">Create</string>
+  <string name="preferences_security_renew_certificate_dialog_key">preferences_security_renew_certificate_dialog_key</string>
 </resources>

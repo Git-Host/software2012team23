@@ -38,6 +38,7 @@ import android.net.NetworkInfo;
 import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Debug;
 import android.text.format.Formatter;
 import android.view.MenuItem;
 import android.view.View;
@@ -45,7 +46,7 @@ import android.widget.TextView;
 import android.widget.ToggleButton;
 import at.tugraz.ist.akm.R;
 import at.tugraz.ist.akm.activities.trace.AndroidUILogSink;
-import at.tugraz.ist.akm.preferences.OnSharedPreferenceChangeListenerValidator;
+import at.tugraz.ist.akm.exceptional.UncaughtExceptionLogger;
 import at.tugraz.ist.akm.preferences.SharedPreferencesProvider;
 import at.tugraz.ist.akm.trace.LogClient;
 import at.tugraz.ist.akm.trace.TraceService;
@@ -111,20 +112,20 @@ public class MainActivity extends DefaultActionBar implements
                     .compareTo(WebSMSToolService.SERVICE_STOPPING))
             {
             }
-
-            if (0 == action
-                    .compareTo(OnSharedPreferenceChangeListenerValidator.CERTIFICATE_RENEWED))
-            {
-                mCallback.onCertificateRenewed(intent);
-            }
         }
     }
 
 
     public MainActivity()
     {
+        if (Debug.isDebuggerConnected())
+        {
+            UncaughtExceptionLogger exLogger = new UncaughtExceptionLogger(mLog);
+            exLogger.register();
+        }
         mLog.debug("constructing " + getClass().getSimpleName());
         mServiceListener = new ServiceStateListener(this);
+
     }
 
 
@@ -413,8 +414,6 @@ public class MainActivity extends DefaultActionBar implements
                 WebSMSToolService.SERVICE_STOPPED));
         registerReceiver(mServiceListener, new IntentFilter(
                 WebSMSToolService.SERVICE_STOPPED_BOGUS));
-        registerReceiver(mServiceListener, new IntentFilter(
-                OnSharedPreferenceChangeListenerValidator.CERTIFICATE_RENEWED));
     }
 
 
@@ -462,14 +461,6 @@ public class MainActivity extends DefaultActionBar implements
     public void webServiceStopFailed()
     {
         mLog.verbose("service stopped erroneous - please stop it manually");
-    }
-
-
-    public void onCertificateRenewed(Intent i)
-    {
-        String extra = i.getExtras().getString(
-                OnSharedPreferenceChangeListenerValidator.CERTIFICATE_RENEWED);
-        mLog.verbose("certificate renewed: " + extra);
     }
 
 

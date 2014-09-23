@@ -27,8 +27,10 @@ import android.content.pm.ApplicationInfo;
 import android.net.NetworkInfo;
 import android.net.wifi.WifiManager;
 import android.os.Binder;
+import android.os.Debug;
 import android.os.IBinder;
 import at.tugraz.ist.akm.activities.MainActivity;
+import at.tugraz.ist.akm.exceptional.UncaughtExceptionLogger;
 import at.tugraz.ist.akm.trace.LogClient;
 import at.tugraz.ist.akm.webservice.server.SimpleWebServer;
 
@@ -105,6 +107,12 @@ public class WebSMSToolService extends Service
     @Override
     public int onStartCommand(Intent intent, int flags, int startId)
     {
+        if (Debug.isDebuggerConnected())
+        {
+            UncaughtExceptionLogger exLogger = new UncaughtExceptionLogger(mLog);
+            exLogger.register();
+        }
+
         synchronized (this)
         {
             if (!mServiceRunning)
@@ -123,7 +131,6 @@ public class WebSMSToolService extends Service
                     return START_STICKY;
                 }
 
-                mLog.info("Try to start webserver.");
                 try
                 {
                     mServer = new SimpleWebServer(this, mSocketIp);

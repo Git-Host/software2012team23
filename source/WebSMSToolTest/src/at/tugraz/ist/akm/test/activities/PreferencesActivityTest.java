@@ -22,7 +22,7 @@ import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.preference.PreferenceManager;
 import android.test.ActivityInstrumentationTestCase2;
 import at.tugraz.ist.akm.R;
-import at.tugraz.ist.akm.activities.PreferencesActivity;
+import at.tugraz.ist.akm.activities.preferences.PreferencesActivity;
 import at.tugraz.ist.akm.test.trace.ThrowingLogSink;
 import at.tugraz.ist.akm.trace.LogClient;
 import at.tugraz.ist.akm.trace.TraceService;
@@ -30,12 +30,14 @@ import at.tugraz.ist.akm.trace.TraceService;
 import com.jayway.android.robotium.solo.Solo;
 
 public class PreferencesActivityTest extends
-        ActivityInstrumentationTestCase2<PreferencesActivity> implements OnSharedPreferenceChangeListener
+        ActivityInstrumentationTestCase2<PreferencesActivity> implements
+        OnSharedPreferenceChangeListener
 {
 
     private LogClient mLog = null;
     private SharedPreferences mSharedPreferences = null;
     private int mOutstandingSaredPreferencesCallbacks = 0;
+
 
     public PreferencesActivityTest()
     {
@@ -50,41 +52,52 @@ public class PreferencesActivityTest extends
         String outUsername = "username";
         String outPassword = "secret";
         String outPortNumber = "1";
-//        String expectedInPort ="1024";
-//        String outProtocolName = "http";
-        
+        // String expectedInPort ="1024";
+        // String outProtocolName = "http";
+
         Editor spEdit = mSharedPreferences.edit();
         spEdit.clear();
         spEdit.commit();
-        spEdit.putString(resourceString(R.string.preferences_username_key), outUsername);
+        spEdit.putString(resourceString(R.string.preferences_username_key),
+                outUsername);
         spEdit.commit();
-        spEdit.putString(resourceString(R.string.preferences_password_key), outPassword);
+        spEdit.putString(resourceString(R.string.preferences_password_key),
+                outPassword);
         spEdit.commit();
         mOutstandingSaredPreferencesCallbacks = 2;
-        spEdit.putString(resourceString(R.string.preferences_server_port_key), outPortNumber);
+        spEdit.putString(resourceString(R.string.preferences_server_port_key),
+                outPortNumber);
         spEdit.commit();
         busyWaitForOutstandingCallsToBeFinished();
-        
-        assert(false);
+
+        assert (false);
         /*
-        spEdit.putString(resourceString(R.string.preferences_server_protocol_key), outProtocolName);
-        spEdit.commit();
-        
-        String inUsername = mSharedPreferences.getString(resourceString(R.string.preferences_username_key), "");
-        String inPassword = mSharedPreferences.getString(resourceString(R.string.preferences_password_key), "");
-        String inPortNumber = mSharedPreferences.getString(resourceString(R.string.preferences_server_port_key), "");
-        String inProtocolName = mSharedPreferences.getString(resourceString(R.string.preferences_server_protocol_key), "");
-  
-        assertEquals(outUsername, inUsername);
-        assertEquals(outPassword, inPassword);
-        assertEquals(expectedInPort, inPortNumber);
-        assertEquals(outProtocolName, inProtocolName);
-        */
+         * spEdit.putString(resourceString(R.string.preferences_server_protocol_key
+         * ), outProtocolName); spEdit.commit();
+         * 
+         * String inUsername =
+         * mSharedPreferences.getString(resourceString(R.string
+         * .preferences_username_key), ""); String inPassword =
+         * mSharedPreferences
+         * .getString(resourceString(R.string.preferences_password_key), "");
+         * String inPortNumber =
+         * mSharedPreferences.getString(resourceString(R.string
+         * .preferences_server_port_key), ""); String inProtocolName =
+         * mSharedPreferences
+         * .getString(resourceString(R.string.preferences_server_protocol_key),
+         * "");
+         * 
+         * assertEquals(outUsername, inUsername); assertEquals(outPassword,
+         * inPassword); assertEquals(expectedInPort, inPortNumber);
+         * assertEquals(outProtocolName, inProtocolName);
+         */
     }
-    
+
+
     public void testProctocolValues()
     {
-        try {
+        try
+        {
             mOutstandingSaredPreferencesCallbacks = 0;
             assertExpectedProtocolValues("http", "http");
             mOutstandingSaredPreferencesCallbacks = 0;
@@ -93,18 +106,20 @@ public class PreferencesActivityTest extends
             assertExpectedProtocolValues("httpf", "https");
             mOutstandingSaredPreferencesCallbacks = 2;
             assertExpectedProtocolValues("xxo", "https");
-        } catch (Exception e)
+        }
+        catch (Exception e)
         {
             e.printStackTrace();
         }
     }
-    
+
+
     public void testPortValues()
     {
         try
         {
             mOutstandingSaredPreferencesCallbacks = 2;
-            assertExpectedPortValues(1, 1024);   
+            assertExpectedPortValues(1, 1024);
             mOutstandingSaredPreferencesCallbacks = 2;
             assertExpectedPortValues(1023, 1024);
             mOutstandingSaredPreferencesCallbacks = 0;
@@ -115,44 +130,61 @@ public class PreferencesActivityTest extends
             assertExpectedPortValues(65535, 65535);
             mOutstandingSaredPreferencesCallbacks = 2;
             assertExpectedPortValues(65536, 65535);
-        } catch (Exception e)
+        }
+        catch (Exception e)
         {
             e.printStackTrace();
         }
     }
-    
-    public void assertExpectedProtocolValues(String outProto, String expectedProto) throws Exception
+
+
+    public void assertExpectedProtocolValues(String outProto,
+            String expectedProto) throws Exception
     {
-        assert(false);
+        assert (false);
         /*
-        Editor spEdit = mSharedPreferences.edit();
-        String serverProtocolResourceKey = resourceString(R.string.preferences_server_protocol_key); 
-        
-        spEdit.putString(serverProtocolResourceKey, outProto);
-        spEdit.commit();
-        busyWaitForOutstandingCallsToBeFinished();
-        
-        String inProto = mSharedPreferences.getString(serverProtocolResourceKey, "");  
-        assertEquals(expectedProto, inProto);
-        */
+         * Editor spEdit = mSharedPreferences.edit(); String
+         * serverProtocolResourceKey =
+         * resourceString(R.string.preferences_server_protocol_key);
+         * 
+         * spEdit.putString(serverProtocolResourceKey, outProto);
+         * spEdit.commit(); busyWaitForOutstandingCallsToBeFinished();
+         * 
+         * String inProto =
+         * mSharedPreferences.getString(serverProtocolResourceKey, "");
+         * assertEquals(expectedProto, inProto);
+         */
     }
-    
-    
+
+
     private void busyWaitForOutstandingCallsToBeFinished()
     {
-        while ( mOutstandingSaredPreferencesCallbacks > 0);
+        while (mOutstandingSaredPreferencesCallbacks > 0)
+            ;
+        try
+        {
+            Thread.sleep(200);
+        }
+        catch (InterruptedException e)
+        {
+            // don't care
+        }
     }
-    
-    public void assertExpectedPortValues(int outPortNumber, int expectedInPort) throws Exception
+
+
+    public void assertExpectedPortValues(int outPortNumber, int expectedInPort)
+            throws Exception
     {
         Editor spEdit = mSharedPreferences.edit();
-        String serverPortResourceKey = resourceString(R.string.preferences_server_port_key); 
-        
+        String serverPortResourceKey = resourceString(R.string.preferences_server_port_key);
+
         spEdit.putString(serverPortResourceKey, Integer.toString(outPortNumber));
         spEdit.commit();
-        while ( mOutstandingSaredPreferencesCallbacks > 0);
-        
-        String inPortNumber = mSharedPreferences.getString(serverPortResourceKey, "");  
+        while (mOutstandingSaredPreferencesCallbacks > 0)
+            ;
+
+        String inPortNumber = mSharedPreferences.getString(
+                serverPortResourceKey, "");
         assertEquals(Integer.toString(expectedInPort), inPortNumber);
     }
 
@@ -162,7 +194,7 @@ public class PreferencesActivityTest extends
         return getActivity().getApplicationContext().getResources()
                 .getString(resourceStringId);
     }
-    
+
 
     @Override
     protected void setUp() throws Exception
@@ -173,7 +205,7 @@ public class PreferencesActivityTest extends
                         .getApplicationContext());
         mSharedPreferences.registerOnSharedPreferenceChangeListener(this);
         mLog.debug(getName() + ".setUp()");
-        
+
     }
 
 
@@ -191,7 +223,7 @@ public class PreferencesActivityTest extends
     @Override
     public void onSharedPreferenceChanged(SharedPreferences arg0, String arg1)
     {
-        if ( mOutstandingSaredPreferencesCallbacks > 0) 
+        if (mOutstandingSaredPreferencesCallbacks > 0)
             mOutstandingSaredPreferencesCallbacks--;
     }
 }

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<resources>
+    
+  <string name="OnSharedPreferenceEventListenValidator_serial_number_abbrev">SN</string>
+  <string name="OnSharedPreferenceEventListenValidator_expires">Expires</string>
+  
+  <string name="OnSharedPreferenceEventListenValidator_default_port">8888</string>
+ 
+</resources>
