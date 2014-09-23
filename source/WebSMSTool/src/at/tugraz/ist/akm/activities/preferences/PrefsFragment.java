@@ -47,12 +47,10 @@ public class PrefsFragment extends PreferenceFragment
         for (Map.Entry<String, ?> entry : keys.entrySet())
         {
             String p = entry.getKey();
-            mLog.debug("register to pref ["+p+"]");
             findPreference(p).setOnPreferenceClickListener(
                     mPreferenceChangedListener);
         }
-        
-       
+
     }
 
 
@@ -78,7 +76,6 @@ public class PrefsFragment extends PreferenceFragment
         super.onStart();
         mLog.debug("fragment onStart()");
         mPreferenceChangedListener.updateSettingsOnPrefsView();
-        // registerListener();
     }
 
 
@@ -95,7 +92,7 @@ public class PrefsFragment extends PreferenceFragment
     public void onPause()
     {
         super.onPause();
-        mLog.debug("fragment onPause)");
+        mLog.debug("fragment onPause()");
         unregisterListener();
     }
 
@@ -104,7 +101,6 @@ public class PrefsFragment extends PreferenceFragment
     public void onStop()
     {
         mLog.debug("fragment onStop()");
-        // unregisterListener();
         super.onStop();
     }
 }

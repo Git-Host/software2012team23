@@ -27,7 +27,7 @@ import at.tugraz.ist.akm.test.trace.ThrowingLogSink;
 import at.tugraz.ist.akm.trace.LogClient;
 import at.tugraz.ist.akm.trace.TraceService;
 
-import com.jayway.android.robotium.solo.Solo;
+import com.robotium.solo.Solo;
 
 public class MainActivityActionBarTest extends
         ActivityInstrumentationTestCase2<MainActivity>

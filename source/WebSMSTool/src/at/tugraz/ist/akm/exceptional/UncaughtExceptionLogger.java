@@ -1,6 +1,7 @@
 package at.tugraz.ist.akm.exceptional;
 
 import java.lang.Thread.UncaughtExceptionHandler;
+import java.util.Map;
 
 import at.tugraz.ist.akm.trace.LogClient;
 
@@ -34,6 +35,7 @@ public class UncaughtExceptionLogger
                 @Override
                 public void uncaughtException(Thread t, Throwable e)
                 {
+                    printRunningThreads();
                     mLog.error(
                             "uncaught exception detected in thread["
                                     + t.getId() + "}", e);
@@ -50,5 +52,15 @@ public class UncaughtExceptionLogger
     public void unregister()
     {
         Thread.setDefaultUncaughtExceptionHandler(mDefaultHandler);
+    }
+    
+    public void printRunningThreads()
+    {
+        Map<Thread, StackTraceElement[]> threads = Thread.getAllStackTraces();
+        for (Thread t : threads.keySet())
+        {
+            mLog.debug("*[" + t.getName() + "][" + t.getId() + "]["
+                    + t.getThreadGroup() + "] ");
+        }
     }
 }

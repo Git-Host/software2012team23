@@ -34,7 +34,7 @@ import at.tugraz.ist.akm.trace.LogClient;
 import at.tugraz.ist.akm.trace.TraceService;
 import at.tugraz.ist.akm.webservice.WebSMSToolService;
 
-import com.jayway.android.robotium.solo.Solo;
+import com.robotium.solo.Solo;
 
 public class MainActivityTest extends
         ActivityInstrumentationTestCase2<MainActivity>

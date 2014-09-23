@@ -23,27 +23,30 @@ import android.preference.PreferenceManager;
 import android.test.ActivityInstrumentationTestCase2;
 import at.tugraz.ist.akm.R;
 import at.tugraz.ist.akm.activities.preferences.PreferencesActivity;
+import at.tugraz.ist.akm.exceptional.UncaughtExceptionLogger;
 import at.tugraz.ist.akm.test.trace.ThrowingLogSink;
 import at.tugraz.ist.akm.trace.LogClient;
 import at.tugraz.ist.akm.trace.TraceService;
 
-import com.jayway.android.robotium.solo.Solo;
+import com.robotium.solo.Solo;
 
 public class PreferencesActivityTest extends
         ActivityInstrumentationTestCase2<PreferencesActivity> implements
         OnSharedPreferenceChangeListener
 {
 
-    private LogClient mLog = null;
+    private LogClient mLog = new LogClient(PreferencesActivityTest.class.getName());
+    private UncaughtExceptionLogger mExLogger = new UncaughtExceptionLogger(mLog);
     private SharedPreferences mSharedPreferences = null;
     private int mOutstandingSaredPreferencesCallbacks = 0;
+
 
 
     public PreferencesActivityTest()
     {
         super(PreferencesActivity.class);
         TraceService.setSink(new ThrowingLogSink());
-        mLog = new LogClient(PreferencesActivityTest.class.getName());
+        mExLogger.register();
     }
 
 
