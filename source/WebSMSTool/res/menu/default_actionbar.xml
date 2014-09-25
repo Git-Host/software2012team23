@@ -1,15 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE activity>
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
+
     <item
         android:id="@+id/actionbar_settings"
         android:icon="@android:drawable/ic_menu_edit"
-        android:showAsAction="ifRoom"
+        android:showAsAction="collapseActionView"
         android:title="@string/actionbar_settings"/>
     <item
         android:id="@+id/actionbar_about"
         android:icon="@android:drawable/ic_menu_info_details"
-        android:showAsAction="ifRoom"
+        android:showAsAction="collapseActionView"
         android:title="@string/actionbar_about"/>
 
 </menu>
