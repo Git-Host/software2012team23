@@ -39,7 +39,6 @@ public class PreferencesProviderTest extends AndroidTestCase implements
 
     public PreferencesProviderTest()
     {
-        // super("at.tugraz.ist.akm", PreferencesActivity.class);
         super();
         TraceService.setSink(new ThrowingLogSink());
     }
@@ -118,9 +117,7 @@ public class PreferencesProviderTest extends AndroidTestCase implements
     public void testGetSetting_serverProtocolWithErroneousValue()
     {
         String expectedInProtocol = "https";
-        // mExpectedOnValueChangedCallbacks = 2;
         mConfig.setProtocol("asdf");
-        // waitForOutstandingSharedPreferencesCallbacks();
         String inProtocol = mConfig.getProtocol();
         assertEquals(expectedInProtocol, inProtocol);
     }
@@ -148,13 +145,5 @@ public class PreferencesProviderTest extends AndroidTestCase implements
             mExpectedOnValueChangedCallbacks--;
         }
     }
-
-    // private void waitForOutstandingSharedPreferencesCallbacks()
-    // {
-    // mLog.debug("waiting for callback/s being finished ["
-    // + mExpectedOnValueChangedCallbacks + "]");
-    // while (mExpectedOnValueChangedCallbacks > 0)
-    // ;
-    // }
 
 }

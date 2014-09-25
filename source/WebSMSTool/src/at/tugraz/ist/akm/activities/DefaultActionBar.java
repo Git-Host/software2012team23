@@ -24,14 +24,10 @@ public class DefaultActionBar extends Activity
     @Override
     public boolean onOptionsItemSelected(MenuItem item)
     {
+        mLog.debug("handling [" + item + "]");
         Intent i = null;
         switch (item.getItemId())
         {
-        // case android.R.id.home:
-        // NavUtils.navigateUpFromSameTask(this);
-        // //i = new Intent(this, MainActivity.class);
-        // //startActivity(i);
-        // return true;
         case android.R.id.home:
             Intent upIntent = NavUtils.getParentActivityIntent(this);
             if (NavUtils.shouldUpRecreateTask(this, upIntent))
@@ -50,7 +46,7 @@ public class DefaultActionBar extends Activity
                 // navigate up to the logical parent activity.
                 NavUtils.navigateUpTo(this, upIntent);
             }
-            return true;
+            return false;
         case R.id.actionbar_about:
             i = new Intent(this, AboutActivity.class);
             startActivity(i);
@@ -60,15 +56,13 @@ public class DefaultActionBar extends Activity
             startActivity(i);
             return true;
         default:
-            TraceService.log(
-                    LogLevel.INFO,
-                    "FRANZ",
-                    new StringBuffer("actionbar intent ").append(
-                            Integer.toHexString(item.getItemId())).toString(),
-                    null);
+            mLog.debug(
+                    new StringBuffer("unhandled actionbar intent [").append(
+                            Integer.toHexString(item.getItemId()) + "]")
+                            .toString(), null);
             i = new Intent(this, MainActivity.class);
             startActivity(i);
-            return true;
+            return false;
         }
 
     }
@@ -82,7 +76,7 @@ public class DefaultActionBar extends Activity
             UncaughtExceptionLogger exLogger = new UncaughtExceptionLogger(mLog);
             exLogger.register();
         }
-        
+
         MenuInflater inflater = getMenuInflater();
         getActionBar().setIcon(
                 getResources().getDrawable(R.drawable.ic_notification));

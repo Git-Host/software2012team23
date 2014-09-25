@@ -27,6 +27,7 @@ import android.net.Uri;
 import android.provider.ContactsContract;
 import android.provider.ContactsContract.PhoneLookup;
 import android.provider.ContactsContract.RawContacts;
+import android.test.InstrumentationTestCase;
 import at.tugraz.ist.akm.phonebook.contact.Contact;
 import at.tugraz.ist.akm.trace.LogClient;
 
@@ -84,7 +85,7 @@ public class PhonebookTestsHelper
         ContentProviderResult[] res = contentResolver.applyBatch(
                 ContactsContract.AUTHORITY, ops);
 
-        assert (res != null);
+        InstrumentationTestCase.assertTrue(res != null);
     }
 
 

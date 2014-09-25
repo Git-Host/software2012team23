@@ -29,7 +29,7 @@ import at.tugraz.ist.akm.trace.TraceService;
 
 import com.robotium.solo.Solo;
 
-public class MainActivityActionBarTest extends
+public class ActionBarTest extends
         ActivityInstrumentationTestCase2<MainActivity>
 {
 
@@ -38,11 +38,11 @@ public class MainActivityActionBarTest extends
     private static final int ACTIVITY_SHOW_TIMEOUT = 1000;
 
 
-    public MainActivityActionBarTest()
+    public ActionBarTest()
     {
         super(MainActivity.class);
         TraceService.setSink(new ThrowingLogSink());
-        mLog = new LogClient(MainActivityActionBarTest.class.getName());
+        mLog = new LogClient(ActionBarTest.class.getName());
     }
 
 
@@ -72,7 +72,8 @@ public class MainActivityActionBarTest extends
             Solo mainSolo = new Solo(instrumentation, getActivity());
             mainSolo.assertCurrentActivity("wrong activity", MainActivity.class);
             Thread.sleep(ACTIVITY_SHOW_TIMEOUT);
-        } catch (Exception e)
+        }
+        catch (Exception e)
         {
             assertTrue(false);
         }
@@ -84,8 +85,7 @@ public class MainActivityActionBarTest extends
         Instrumentation instrumentation = getInstrumentation();
 
         Solo mainSolo = new Solo(instrumentation, getActivity());
-        mainSolo.assertCurrentActivity("wrong activity",
-                MainActivity.class);
+        mainSolo.assertCurrentActivity("wrong activity", MainActivity.class);
 
         mainSolo.clickOnActionBarItem(resourceId);
         Instrumentation.ActivityMonitor monitor = instrumentation.addMonitor(
@@ -95,70 +95,8 @@ public class MainActivityActionBarTest extends
                 .waitForMonitorWithTimeout(monitor, WAIT_FOR_MONITOR_TIMEOUT);
         assertNotNull("wrong activity", activityToBeClicked);
         Solo clickedSolo = new Solo(instrumentation, activityToBeClicked);
-        clickedSolo.assertCurrentActivity(
-                "wrong activity", activity);
+        clickedSolo.assertCurrentActivity("wrong activity", activity);
         return clickedSolo;
-    }
-
-
-    public void testCheckboxDisabledIfPasswordEmpty()
-    {
-        Solo preferencesSolo = clickActivity(PreferencesActivity.class, R.id.actionbar_settings);
-        setUsernamePasswort(preferencesSolo, "foo", "");
-        preferencesSolo.getCurrentActivity().finish();
-        preferencesSolo = clickActivity(PreferencesActivity.class, R.id.actionbar_settings);
-        assertFalse(preferencesSolo.isCheckBoxChecked(0));
-    }
-
-
-    public void testCheckboxDisabledIfUsernameEmpty()
-    {
-        Solo preferencesSolo = clickActivity(PreferencesActivity.class, R.id.actionbar_settings);
-        setUsernamePasswort(preferencesSolo, "", "bar");
-        preferencesSolo.getCurrentActivity().finish();
-        preferencesSolo = clickActivity(PreferencesActivity.class, R.id.actionbar_settings);
-        assertFalse(preferencesSolo.isCheckBoxChecked(0));
-    }
-
-
-    public void testCheckboxDisabledIfNoCredentials()
-    {
-        Solo preferencesSolo = clickActivity(PreferencesActivity.class, R.id.actionbar_settings);
-        setUsernamePasswort(preferencesSolo, "", "");
-        preferencesSolo.getCurrentActivity().finish();
-        preferencesSolo = clickActivity(PreferencesActivity.class, R.id.actionbar_settings);
-        assertFalse(preferencesSolo.isCheckBoxChecked(0));
-    }
-
-
-    public void testCheckboxEnabled()
-    {
-        Solo preferencesSolo = clickActivity(PreferencesActivity.class, R.id.actionbar_settings);
-        setUsernamePasswort(preferencesSolo, "foo", "bar");
-        preferencesSolo.getCurrentActivity().finish();
-        preferencesSolo = clickActivity(PreferencesActivity.class, R.id.actionbar_settings);
-        assertTrue(preferencesSolo.isCheckBoxChecked(0));
-    }
-
-
-    private void setUsernamePasswort(Solo preferencesSolo, String username,
-            String password)
-    {
-        if (false == preferencesSolo.isCheckBoxChecked(0))
-        {
-            preferencesSolo.clickOnCheckBox(0);
-        }
-        preferencesSolo.clickOnText(getActivity().getString(
-                R.string.preferences_username));
-        preferencesSolo.clearEditText(0);
-        preferencesSolo.enterText(0, username);
-        preferencesSolo.clickOnButton("OK");
-        preferencesSolo.clickOnText(getActivity().getString(
-                R.string.preferences_password));
-        preferencesSolo.clearEditText(0);
-        preferencesSolo.enterText(0, password);
-        preferencesSolo.clickOnButton("OK");
-
     }
 
 

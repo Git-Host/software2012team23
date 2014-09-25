@@ -1,5 +1,6 @@
 package at.tugraz.ist.akm.test.keystore;
 
+import android.content.Context;
 import android.test.AndroidTestCase;
 import at.tugraz.ist.akm.R;
 import at.tugraz.ist.akm.keystore.ApplicationKeyStore;
@@ -23,11 +24,11 @@ public class ApplicationKeyStoreTest extends AndroidTestCase
     {
         mLog.debug("remove keystore");        
         ApplicationKeyStore appKeystore = new ApplicationKeyStore();
-        appKeystore.deleteKeystore(getKeystoreFilePath());
+        appKeystore.deleteKeystore(getKeystoreFilePath(mContext, mLog));
         
         mLog.debug("load missing keystore");
         assertTrue(appKeystore.loadKeystore(getDefaultKeystorePassword(),
-                getKeystoreFilePath()));
+                getKeystoreFilePath(mContext, mLog)));
         assertTrue(appKeystore.getKeystoreManagers().length > 0);
         appKeystore.close();
     }
@@ -37,18 +38,18 @@ public class ApplicationKeyStoreTest extends AndroidTestCase
     {
         mLog.debug("remove keystore");
         ApplicationKeyStore appKeystore = new ApplicationKeyStore();
-        appKeystore.deleteKeystore(getKeystoreFilePath());
+        appKeystore.deleteKeystore(getKeystoreFilePath(mContext, mLog));
         
         mLog.debug("load missing keystore");
         assertTrue(appKeystore.loadKeystore(getDefaultKeystorePassword(),
-                getKeystoreFilePath()));
+                getKeystoreFilePath(mContext, mLog)));
         assertTrue(appKeystore.getKeystoreManagers().length == 1);
         appKeystore.close();
 
         mLog.debug("load available keystore");
         appKeystore = new ApplicationKeyStore();
         assertTrue(appKeystore.loadKeystore(getDefaultKeystorePassword(),
-                getKeystoreFilePath()));
+                getKeystoreFilePath(mContext, mLog)));
         assertTrue(appKeystore.getKeystoreManagers().length == 1);
     }
 
@@ -57,18 +58,18 @@ public class ApplicationKeyStoreTest extends AndroidTestCase
     {
         mLog.debug("remove keystore");
         ApplicationKeyStore appKeystore = new ApplicationKeyStore();
-        appKeystore.deleteKeystore(getKeystoreFilePath());
+        appKeystore.deleteKeystore(getKeystoreFilePath(mContext, mLog));
         
         mLog.debug("crate new keystore");
         assertTrue(appKeystore.loadKeystore(getDefaultKeystorePassword(),
-                getKeystoreFilePath()));
+                getKeystoreFilePath(mContext, mLog)));
         assertTrue(appKeystore.getKeystoreManagers().length > 0);
         appKeystore.close();
         
         mLog.debug("load available keystore using wrong password");
         appKeystore = new ApplicationKeyStore();
         assertTrue(appKeystore.loadKeystore(getNewRandomKeystorePassword(),
-                getKeystoreFilePath()));
+                getKeystoreFilePath(mContext, mLog)));
         assertTrue(appKeystore.getKeystoreManagers().length > 0);
         appKeystore.close();
     }
@@ -78,25 +79,25 @@ public class ApplicationKeyStoreTest extends AndroidTestCase
         ApplicationKeyStore appKeystore = new ApplicationKeyStore();
         
         assertTrue(appKeystore.loadKeystore(getDefaultKeystorePassword(),
-                getKeystoreFilePath()));
+                getKeystoreFilePath(mContext, mLog)));
         assertTrue(appKeystore.getKeystoreManagers().length > 0);
         assertTrue(appKeystore.getX509Certficate() != null);
         appKeystore.close();
     }
 
-    private String getKeystoreFilePath()
+    public static String getKeystoreFilePath(Context context, LogClient log)
     {
         
-        String filePath = getContext().getFilesDir().getPath().toString()
+        String filePath = context.getFilesDir().getPath().toString()
                 + "/"
-                + mContext.getResources().getString(
+                + context.getResources().getString(
                         R.string.preferences_keystore_store_filename);
-        mLog.debug("keystore filepath: " + filePath);
+        log.debug("keystore filepath: " + filePath);
         return filePath;
     }
 
 
-    private String getDefaultKeystorePassword()
+    public static String getDefaultKeystorePassword()
     {
         return "foobar64";
     }

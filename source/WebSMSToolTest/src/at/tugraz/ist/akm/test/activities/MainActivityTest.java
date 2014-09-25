@@ -53,9 +53,6 @@ public class MainActivityTest extends
     }
 
 
-    /**
-     * just show that the main activity starts without crashing
-     */
     public void testMainActivityStart() throws Exception
     {
         MainActivity activity = getActivity();
@@ -85,6 +82,8 @@ public class MainActivityTest extends
                 R.id.start_stop_server);
         startStop.setActivated(false);
         stopWebService();
+
+        sleepdMs(800);
         assertFalse(startStop.isChecked());
 
         solo.clickOnView(startStop);
@@ -92,10 +91,12 @@ public class MainActivityTest extends
 
         if (wm.isWifiEnabled() || getActivity().isRunningOnEmulator())
         {
+            sleepdMs(800);
             assertTrue(startStop.isChecked());
 
             solo.clickOnView(startStop);
             waitForServiceBeingStopped();
+            sleepdMs(800);
             assertFalse(startStop.isChecked());
             stopWebService();
         } else
@@ -106,6 +107,24 @@ public class MainActivityTest extends
             waitForServiceBeingStopped();
             assertFalse(startStop.isChecked());
             stopWebService();
+        }
+    }
+
+
+    private void sleepdMs(long msecs)
+    {
+
+        synchronized (this)
+        {
+            try
+            {
+
+                wait(msecs);
+            }
+            catch (InterruptedException e)
+            {
+                // don't care
+            }
         }
     }
 

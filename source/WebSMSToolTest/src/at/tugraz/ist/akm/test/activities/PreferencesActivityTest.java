@@ -16,14 +16,14 @@
 
 package at.tugraz.ist.akm.test.activities;
 
-import android.content.SharedPreferences;
-import android.content.SharedPreferences.Editor;
-import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
-import android.preference.PreferenceManager;
+import java.security.cert.X509Certificate;
+
 import android.test.ActivityInstrumentationTestCase2;
 import at.tugraz.ist.akm.R;
 import at.tugraz.ist.akm.activities.preferences.PreferencesActivity;
-import at.tugraz.ist.akm.exceptional.UncaughtExceptionLogger;
+import at.tugraz.ist.akm.keystore.ApplicationKeyStore;
+import at.tugraz.ist.akm.preferences.SharedPreferencesProvider;
+import at.tugraz.ist.akm.test.keystore.ApplicationKeyStoreTest;
 import at.tugraz.ist.akm.test.trace.ThrowingLogSink;
 import at.tugraz.ist.akm.trace.LogClient;
 import at.tugraz.ist.akm.trace.TraceService;
@@ -31,171 +31,24 @@ import at.tugraz.ist.akm.trace.TraceService;
 import com.robotium.solo.Solo;
 
 public class PreferencesActivityTest extends
-        ActivityInstrumentationTestCase2<PreferencesActivity> implements
-        OnSharedPreferenceChangeListener
+        ActivityInstrumentationTestCase2<PreferencesActivity>
 {
 
-    private LogClient mLog = new LogClient(PreferencesActivityTest.class.getName());
-    private UncaughtExceptionLogger mExLogger = new UncaughtExceptionLogger(mLog);
-    private SharedPreferences mSharedPreferences = null;
-    private int mOutstandingSaredPreferencesCallbacks = 0;
-
+    private LogClient mLog = new LogClient(
+            PreferencesActivityTest.class.getName());
 
 
     public PreferencesActivityTest()
     {
         super(PreferencesActivity.class);
         TraceService.setSink(new ThrowingLogSink());
-        mExLogger.register();
     }
 
 
-    public void testOverallSettigns()
+    public void test_startPreferencesActivity()
     {
-        String outUsername = "username";
-        String outPassword = "secret";
-        String outPortNumber = "1";
-        // String expectedInPort ="1024";
-        // String outProtocolName = "http";
-
-        Editor spEdit = mSharedPreferences.edit();
-        spEdit.clear();
-        spEdit.commit();
-        spEdit.putString(resourceString(R.string.preferences_username_key),
-                outUsername);
-        spEdit.commit();
-        spEdit.putString(resourceString(R.string.preferences_password_key),
-                outPassword);
-        spEdit.commit();
-        mOutstandingSaredPreferencesCallbacks = 2;
-        spEdit.putString(resourceString(R.string.preferences_server_port_key),
-                outPortNumber);
-        spEdit.commit();
-        busyWaitForOutstandingCallsToBeFinished();
-
-        assert (false);
-        /*
-         * spEdit.putString(resourceString(R.string.preferences_server_protocol_key
-         * ), outProtocolName); spEdit.commit();
-         * 
-         * String inUsername =
-         * mSharedPreferences.getString(resourceString(R.string
-         * .preferences_username_key), ""); String inPassword =
-         * mSharedPreferences
-         * .getString(resourceString(R.string.preferences_password_key), "");
-         * String inPortNumber =
-         * mSharedPreferences.getString(resourceString(R.string
-         * .preferences_server_port_key), ""); String inProtocolName =
-         * mSharedPreferences
-         * .getString(resourceString(R.string.preferences_server_protocol_key),
-         * "");
-         * 
-         * assertEquals(outUsername, inUsername); assertEquals(outPassword,
-         * inPassword); assertEquals(expectedInPort, inPortNumber);
-         * assertEquals(outProtocolName, inProtocolName);
-         */
-    }
-
-
-    public void testProctocolValues()
-    {
-        try
-        {
-            mOutstandingSaredPreferencesCallbacks = 0;
-            assertExpectedProtocolValues("http", "http");
-            mOutstandingSaredPreferencesCallbacks = 0;
-            assertExpectedProtocolValues("https", "https");
-            mOutstandingSaredPreferencesCallbacks = 2;
-            assertExpectedProtocolValues("httpf", "https");
-            mOutstandingSaredPreferencesCallbacks = 2;
-            assertExpectedProtocolValues("xxo", "https");
-        }
-        catch (Exception e)
-        {
-            e.printStackTrace();
-        }
-    }
-
-
-    public void testPortValues()
-    {
-        try
-        {
-            mOutstandingSaredPreferencesCallbacks = 2;
-            assertExpectedPortValues(1, 1024);
-            mOutstandingSaredPreferencesCallbacks = 2;
-            assertExpectedPortValues(1023, 1024);
-            mOutstandingSaredPreferencesCallbacks = 0;
-            assertExpectedPortValues(1024, 1024);
-            mOutstandingSaredPreferencesCallbacks = 0;
-            assertExpectedPortValues(1024, 1024);
-            mOutstandingSaredPreferencesCallbacks = 0;
-            assertExpectedPortValues(65535, 65535);
-            mOutstandingSaredPreferencesCallbacks = 2;
-            assertExpectedPortValues(65536, 65535);
-        }
-        catch (Exception e)
-        {
-            e.printStackTrace();
-        }
-    }
-
-
-    public void assertExpectedProtocolValues(String outProto,
-            String expectedProto) throws Exception
-    {
-        assert (false);
-        /*
-         * Editor spEdit = mSharedPreferences.edit(); String
-         * serverProtocolResourceKey =
-         * resourceString(R.string.preferences_server_protocol_key);
-         * 
-         * spEdit.putString(serverProtocolResourceKey, outProto);
-         * spEdit.commit(); busyWaitForOutstandingCallsToBeFinished();
-         * 
-         * String inProto =
-         * mSharedPreferences.getString(serverProtocolResourceKey, "");
-         * assertEquals(expectedProto, inProto);
-         */
-    }
-
-
-    private void busyWaitForOutstandingCallsToBeFinished()
-    {
-        while (mOutstandingSaredPreferencesCallbacks > 0)
-            ;
-        try
-        {
-            Thread.sleep(200);
-        }
-        catch (InterruptedException e)
-        {
-            // don't care
-        }
-    }
-
-
-    public void assertExpectedPortValues(int outPortNumber, int expectedInPort)
-            throws Exception
-    {
-        Editor spEdit = mSharedPreferences.edit();
-        String serverPortResourceKey = resourceString(R.string.preferences_server_port_key);
-
-        spEdit.putString(serverPortResourceKey, Integer.toString(outPortNumber));
-        spEdit.commit();
-        while (mOutstandingSaredPreferencesCallbacks > 0)
-            ;
-
-        String inPortNumber = mSharedPreferences.getString(
-                serverPortResourceKey, "");
-        assertEquals(Integer.toString(expectedInPort), inPortNumber);
-    }
-
-
-    private String resourceString(int resourceStringId)
-    {
-        return getActivity().getApplicationContext().getResources()
-                .getString(resourceStringId);
+        PreferencesActivity prefs = getActivity();
+        assertTrue(prefs != null);
     }
 
 
@@ -203,10 +56,6 @@ public class PreferencesActivityTest extends
     protected void setUp() throws Exception
     {
         super.setUp();
-        mSharedPreferences = PreferenceManager
-                .getDefaultSharedPreferences(getActivity()
-                        .getApplicationContext());
-        mSharedPreferences.registerOnSharedPreferenceChangeListener(this);
         mLog.debug(getName() + ".setUp()");
 
     }
@@ -215,7 +64,6 @@ public class PreferencesActivityTest extends
     @Override
     protected void tearDown() throws Exception
     {
-        mSharedPreferences.unregisterOnSharedPreferenceChangeListener(this);
         Solo s = new Solo(getInstrumentation());
         s.finishOpenedActivities();
         mLog.debug(getName() + ".tearDown()");
@@ -223,10 +71,185 @@ public class PreferencesActivityTest extends
     }
 
 
-    @Override
-    public void onSharedPreferenceChanged(SharedPreferences arg0, String arg1)
+    private void setUsernamePasswort(Solo preferencesSolo, String username,
+            String password)
     {
-        if (mOutstandingSaredPreferencesCallbacks > 0)
-            mOutstandingSaredPreferencesCallbacks--;
+        if (false == preferencesSolo.isCheckBoxChecked(0))
+        {
+            preferencesSolo.clickOnCheckBox(0);
+        }
+        preferencesSolo.clickOnText(getActivity().getString(
+                R.string.preferences_username));
+        preferencesSolo.clearEditText(0);
+        preferencesSolo.enterText(0, username);
+        preferencesSolo.clickOnButton("OK");
+        preferencesSolo.clickOnText(getActivity().getString(
+                R.string.preferences_password));
+        preferencesSolo.clearEditText(0);
+        preferencesSolo.enterText(0, password);
+        preferencesSolo.clickOnButton("OK");
+    }
+
+
+    public void test_checkboxDisabledIfNoCredentials()
+    {
+        Solo preferencesSolo = new Solo(getInstrumentation(), getActivity());
+        setUsernamePasswort(preferencesSolo, "", "");
+
+        // click elsewhere
+        preferencesSolo.clickOnCheckBox(1);
+        preferencesSolo.clickOnCheckBox(1);
+
+        assertFalse(preferencesSolo.isCheckBoxChecked(0));
+    }
+
+
+    public void test_checkboxDisabledIfPasswordEmpty()
+    {
+        Solo preferencesSolo = new Solo(getInstrumentation(), getActivity());
+        setUsernamePasswort(preferencesSolo, "asdf", "");
+
+        // click elsewhere
+        preferencesSolo.clickOnCheckBox(1);
+        preferencesSolo.clickOnCheckBox(1);
+
+        assertFalse(preferencesSolo.isCheckBoxChecked(0));
+        ;
+    }
+
+
+    public void test_checkboxDisabledIfUsernameEmpty()
+    {
+        Solo preferencesSolo = new Solo(getInstrumentation(), getActivity());
+        setUsernamePasswort(preferencesSolo, "", "asdf");
+
+        // click elsewhere
+        preferencesSolo.clickOnCheckBox(1);
+        preferencesSolo.clickOnCheckBox(1);
+
+        assertFalse(preferencesSolo.isCheckBoxChecked(0));
+    }
+
+
+    public void test_checkboxEnabledWithUsernameAndPasswordNotEmpty()
+    {
+        Solo preferencesSolo = new Solo(getInstrumentation(), getActivity());
+        setUsernamePasswort(preferencesSolo, "asdf", "asdfasdf");
+
+        // click elsewhere
+        preferencesSolo.clickOnCheckBox(1);
+        preferencesSolo.clickOnCheckBox(1);
+
+        assertTrue(preferencesSolo.isCheckBoxChecked(0));
+    }
+
+
+    public void test_setPortAboveMaximum()
+    {
+        Solo preferencesSolo = new Solo(getInstrumentation(), getActivity());
+
+        preferencesSolo
+                .clickOnText(resourceString(R.string.preferences_server_port));
+        preferencesSolo.clearEditText(0);
+        preferencesSolo.enterText(0, "65536");
+        preferencesSolo.clickOnButton("OK");
+        preferencesSolo.finishOpenedActivities();
+
+        SharedPreferencesProvider prefsProvider = new SharedPreferencesProvider(
+                getActivity().getApplicationContext());
+
+        assertEquals("65535", prefsProvider.getPort());
+        prefsProvider.close();
+    }
+
+
+    public void test_setPortBelowMinimum()
+    {
+        Solo preferencesSolo = new Solo(getInstrumentation(), getActivity());
+
+        preferencesSolo
+                .clickOnText(resourceString(R.string.preferences_server_port));
+        preferencesSolo.clearEditText(0);
+        preferencesSolo.enterText(0, "1023");
+        preferencesSolo.clickOnButton("OK");
+        preferencesSolo.finishOpenedActivities();
+
+        SharedPreferencesProvider prefsProvider = new SharedPreferencesProvider(
+                getActivity().getApplicationContext());
+
+        assertEquals("1024", prefsProvider.getPort());
+        prefsProvider.close();
+    }
+
+
+    private String resourceString(int id)
+    {
+        return getActivity().getApplicationContext().getResources()
+                .getString(id);
+    }
+
+
+    public void test_protocolEnabled()
+    {
+        Solo preferencesSolo = new Solo(getInstrumentation(), getActivity());
+
+        if (preferencesSolo.isCheckBoxChecked(1))
+        {
+            preferencesSolo.clickOnCheckBox(1);
+        }
+
+        preferencesSolo.clickOnCheckBox(1);
+        preferencesSolo.finishOpenedActivities();
+
+        assertEquals("https", new SharedPreferencesProvider(getActivity()
+                .getApplicationContext()).getProtocol());
+
+    }
+
+
+    public void test_protocolDisabled()
+    {
+        Solo preferencesSolo = new Solo(getInstrumentation(), getActivity());
+
+        if (!preferencesSolo.isCheckBoxChecked(1))
+        {
+            preferencesSolo.clickOnCheckBox(1);
+        }
+
+        preferencesSolo.clickOnCheckBox(1);
+        preferencesSolo.finishOpenedActivities();
+
+        assertEquals("http", new SharedPreferencesProvider(getActivity()
+                .getApplicationContext()).getProtocol());
+
+    }
+
+
+    public void test_renewCertificate()
+    {
+
+        Solo preferencesSolo = new Solo(getInstrumentation(), getActivity());
+        ApplicationKeyStore keyStore = new ApplicationKeyStore();
+        keyStore.loadKeystore(ApplicationKeyStoreTest
+                .getDefaultKeystorePassword(), ApplicationKeyStoreTest
+                .getKeystoreFilePath(getActivity().getApplicationContext(), mLog));
+
+        X509Certificate certBefore = keyStore.getX509Certficate();
+
+        if (!preferencesSolo.isCheckBoxChecked(1))
+        {
+            preferencesSolo.clickOnCheckBox(1);
+        }
+
+        preferencesSolo
+                .clickOnText(resourceString(R.string.preferences_security_renew_certificate_dialog_preference_title));
+        preferencesSolo
+                .clickOnButton(resourceString(R.string.preferences_security_renew_certificate_dialog_positive_button));
+        preferencesSolo.finishOpenedActivities();
+
+        X509Certificate certAfter = keyStore.getX509Certficate();
+        keyStore.close();
+
+        assertNotSame(certBefore, certAfter);
     }
 }

@@ -46,7 +46,7 @@ public class PhoneBookCacheDBTest extends WebSMSToolActivityTestcase
         }
         catch (Throwable e)
         {
-            assert (false);
+            assertTrue(false);
         }
     }
 
@@ -63,7 +63,7 @@ public class PhoneBookCacheDBTest extends WebSMSToolActivityTestcase
         }
         catch (Throwable e)
         {
-            assert (false);
+            assertTrue(false);
         }
     }
 
@@ -82,7 +82,7 @@ public class PhoneBookCacheDBTest extends WebSMSToolActivityTestcase
     {
         List<Contact> outContacts = new Vector<Contact>();
 
-        assert (mCache.numEntries() == 0);
+        assertEquals(0, mCache.numEntries());
         outContacts.add(newRandomContact());
         outContacts.add(newRandomContact());
         outContacts.add(newRandomContact());
@@ -90,7 +90,7 @@ public class PhoneBookCacheDBTest extends WebSMSToolActivityTestcase
         mCache.cache(outContacts.get(0));
         mCache.cache(outContacts.get(1));
         mCache.cache(outContacts.get(2));
-        assert (mCache.numEntries() == outContacts.size());
+        assertTrue(mCache.numEntries() == outContacts.size());
 
         List<Contact> inContacts = mCache.getCached(null);
         assertTrue(inContacts.get(0).getDisplayName()
@@ -107,7 +107,7 @@ public class PhoneBookCacheDBTest extends WebSMSToolActivityTestcase
         outContacts.remove(0);
 
         mCache.clear();
-        assert (mCache.numEntries() == 0);
+        assertTrue(mCache.numEntries() == 0);
         mCache.close();
     }
 
