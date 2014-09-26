@@ -27,6 +27,7 @@ import android.test.ActivityInstrumentationTestCase2;
 import android.widget.ToggleButton;
 import at.tugraz.ist.akm.R;
 import at.tugraz.ist.akm.activities.MainActivity;
+import at.tugraz.ist.akm.activities.StartServiceFragment;
 import at.tugraz.ist.akm.keystore.ApplicationKeyStore;
 import at.tugraz.ist.akm.preferences.SharedPreferencesProvider;
 import at.tugraz.ist.akm.test.trace.ThrowingLogSink;
@@ -89,7 +90,8 @@ public class MainActivityTest extends
         solo.clickOnView(startStop);
         waitForServiceBeingStarted();
 
-        if (wm.isWifiEnabled() || getActivity().isRunningOnEmulator())
+        StartServiceFragment fragment = new StartServiceFragment();
+        if (wm.isWifiEnabled() || fragment.isRunningOnEmulator())
         {
             sleepdMs(800);
             assertTrue(startStop.isChecked());

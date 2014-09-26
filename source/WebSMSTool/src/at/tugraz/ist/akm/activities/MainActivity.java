@@ -16,150 +16,58 @@
 
 package at.tugraz.ist.akm.activities;
 
-import java.math.BigInteger;
-import java.net.InetAddress;
-import java.net.NetworkInterface;
-import java.net.SocketException;
-import java.net.UnknownHostException;
-import java.util.Enumeration;
-import java.util.Iterator;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 
-import org.apache.http.conn.util.InetAddressUtils;
-
-import android.app.ActivityManager;
-import android.content.BroadcastReceiver;
-import android.content.Context;
+import android.app.ActionBar;
+import android.app.Activity;
+import android.app.Fragment;
+import android.app.FragmentTransaction;
+import android.app.TaskStackBuilder;
 import android.content.Intent;
-import android.content.IntentFilter;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
-import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Debug;
-import android.text.format.Formatter;
+import android.support.v4.app.ActionBarDrawerToggle;
+import android.support.v4.app.NavUtils;
+import android.support.v4.widget.DrawerLayout;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.TextView;
-import android.widget.ToggleButton;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
+import android.widget.ListView;
+import android.widget.SimpleAdapter;
 import at.tugraz.ist.akm.R;
 import at.tugraz.ist.akm.activities.trace.AndroidUILogSink;
 import at.tugraz.ist.akm.exceptional.UncaughtExceptionLogger;
-import at.tugraz.ist.akm.preferences.SharedPreferencesProvider;
 import at.tugraz.ist.akm.trace.LogClient;
 import at.tugraz.ist.akm.trace.TraceService;
 import at.tugraz.ist.akm.webservice.WebSMSToolService;
 
-public class MainActivity extends DefaultActionBar implements
-        View.OnClickListener
+public class MainActivity extends Activity
 {
 
     public static final String SERVER_IP_ADDRESS_INTENT_KEY = "at.tugraz.ist.akm.SERVER_IP_ADDRESS_INTENT_KEY";
-    private Intent mSmsServiceIntent = null;
     private LogClient mLog = new LogClient(this);
     final String mServiceName = WebSMSToolService.class.getName();
-    private ToggleButton mButton = null;
-    private TextView mInfoFieldView = null;
-    private SharedPreferencesProvider mApplicationConfig = null;
-    private ServiceStateListener mServiceListener = null;
 
-    private WifiManager mWifiManager = null;
-    private ConnectivityManager mConnectivityManager = null;
+    private String[] mDrawerEntryTitles = null;
+    private String[] mDrawerIcons = null;
+    private String[] mDrawerFragments = null;
+    private DrawerLayout mDrawerLayout = null;
+    private ListView mDrawerList = null;
+    private ActionBarDrawerToggle mDrawerToggle = null;
 
-    private String mLocalIp = null;
-
-    private static class ServiceStateListener extends BroadcastReceiver
-    {
-
-        private MainActivity mCallback = null;
-
-
-        public ServiceStateListener(MainActivity callback)
-        {
-            mCallback = callback;
-        }
-
-
-        @Override
-        public void onReceive(Context context, Intent intent)
-        {
-            String action = intent.getAction();
-            if (0 == action.compareTo(WebSMSToolService.SERVICE_STARTED))
-            {
-                mCallback.webServiceStarted();
-            } else if (0 == action
-                    .compareTo(WebSMSToolService.SERVICE_STARTED_BOGUS))
-            {
-                mCallback.webServiceStartFailed();
-            } else if (0 == action
-                    .compareTo(WebSMSToolService.SERVICE_STARTING))
-            {
-                mCallback.webServiceStarting();
-            } else if (0 == action.compareTo(WebSMSToolService.SERVICE_STOPPED))
-            {
-                mCallback.webServiceStopped();
-            } else if (0 == action
-                    .compareTo(WebSMSToolService.SERVICE_STOPPED_BOGUS))
-            {
-                mCallback.webServiceStopFailed();
-            } else if (0 == action
-                    .compareTo(WebSMSToolService.SERVICE_STOPPING))
-            {
-                mCallback.webServiceStopping();
-            } else if (0 == action
-                    .compareTo(WebSMSToolService.SERVICE_STOPPING))
-            {
-            }
-        }
-    }
+    private String mDefaultAppPackage = "at.tugraz.ist.akm";
+    private String mDefaultSystemPackage = "android";
 
 
     public MainActivity()
     {
-        if (Debug.isDebuggerConnected())
-        {
-            UncaughtExceptionLogger exLogger = new UncaughtExceptionLogger(mLog);
-            exLogger.register();
-        }
         mLog.debug("constructing " + getClass().getSimpleName());
-        mServiceListener = new ServiceStateListener(this);
-
-    }
-
-
-    /**
-     * starts the main service (web server etc.)
-     */
-    @Override
-    public void onCreate(Bundle savedInstanceState)
-    {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.main_activity);
-        TraceService.setSink(new AndroidUILogSink(this));
-        mSmsServiceIntent = new Intent(this.getApplicationContext(),
-                WebSMSToolService.class);
-        mButton = (ToggleButton) findViewById(R.id.start_stop_server);
-        mInfoFieldView = (TextView) findViewById(R.id.adress_data_field);
-        mApplicationConfig = new SharedPreferencesProvider(
-                getApplicationContext());
-
-        mWifiManager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
-        mConnectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-
-        mButton.setChecked(false);
-        if (isServiceRunning(mServiceName))
-        {
-            mButton.setChecked(true);
-        }
-
-        mLog.debug("launched activity on device [" + Build.PRODUCT + "]");
-
-        registerServiceStateChangeReceiver();
-        mButton.setOnClickListener(this);
-
-        updateLocalIp();
     }
 
 
@@ -167,6 +75,7 @@ public class MainActivity extends DefaultActionBar implements
     protected void onStart()
     {
         super.onStart();
+        // setUpMainFragmentUI();
         mLog.debug("brought activity to front");
     }
 
@@ -176,17 +85,6 @@ public class MainActivity extends DefaultActionBar implements
     {
         super.onResume();
         mLog.debug("user returned to activity  - updating local ip address");
-        if (isServiceRunning(mServiceName))
-        {
-            mButton.setChecked(true);
-            updateLocalIp();
-            displayConnectionUrl();
-        } else
-        {
-            mInfoFieldView.setText("");
-            mButton.setChecked(false);
-        }
-
     }
 
 
@@ -210,265 +108,219 @@ public class MainActivity extends DefaultActionBar implements
     protected void onDestroy()
     {
         mLog.debug("activity goes to Hades");
-        unregisterServiceStateChangeReceiver();
-        mSmsServiceIntent = null;
         mLog = null;
-        mButton = null;
-        mInfoFieldView = null;
-        mApplicationConfig.close();
-        mApplicationConfig = null;
-        mServiceListener = null;
-        mWifiManager = null;
-        mConnectivityManager = null;
-        mLocalIp = null;
         super.onDestroy();
     }
 
 
-    private boolean updateLocalIp()
+    private SimpleAdapter newItemDrawerAdapter()
     {
-        mLocalIp = readLocalIpAddress();
-        mSmsServiceIntent.putExtra(SERVER_IP_ADDRESS_INTENT_KEY, mLocalIp);
-        return mWifiManager.isWifiEnabled();
+        mDrawerEntryTitles = getResources().getStringArray(
+                R.array.drawer_string_array);
+        mDrawerIcons = getResources().getStringArray(R.array.drawer_icon_array);
+
+        List<HashMap<String, String>> data = new ArrayList<HashMap<String, String>>();
+        for (int i = 0; i < mDrawerFragments.length; i++)
+        {
+            HashMap<String, String> map = new HashMap<String, String>();
+            map.put("icon",
+                    Integer.toString(getDrawableIdentifier(mDrawerIcons[i])));
+            map.put("title", mDrawerEntryTitles[i]);
+            data.add(map);
+            mLog.debug("drawer int[" + getDrawableIdentifier(mDrawerIcons[i])
+                    + "]");
+
+            mLog.debug("drawer str[" + mDrawerIcons[i] + "]");
+        }
+
+        String[] fromMapping = { "icon", "title" };
+        int[] toMapping = { R.id.drawer_item_icon, R.id.drawer_item_text };
+
+        return new SimpleAdapter(getBaseContext(), data,
+                R.layout.drawer_list_item, fromMapping, toMapping);
     }
 
 
-    private String readLocalIpAddress()
+    private int getDrawableIdentifier(String drawable)
     {
-        String ip4Address = "0.0.0.0";
+        int id = getResources().getIdentifier(drawable, "drawable", mDefaultAppPackage);
 
-        NetworkInfo mobileNetInfo = mConnectivityManager
-                .getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
+        if (id == 0)
+        {
+            id = getResources().getIdentifier(drawable, "drawable", mDefaultSystemPackage);
+        }
+        return id;
+    }
 
-        if (mWifiManager.isWifiEnabled())
-        {
-            ip4Address = readWifiIP4Address();
-        } else if (isRunningOnEmulator() && mobileNetInfo != null
-                && mobileNetInfo.isConnected())
-        {
-            try
+
+    // TODO android ui log sink should log to message log fragment
+    @Override
+    protected void onCreate(Bundle savedInstanceState)
+    {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.navigation_drawer);
+
+        mDrawerFragments = getResources().getStringArray(
+                R.array.drawer_fragment_array);
+        mDrawerEntryTitles = getResources().getStringArray(
+                R.array.drawer_string_array);
+        mDrawerLayout = (DrawerLayout) findViewById(R.id.navigation_drawer_drawer_layout);
+        mDrawerList = (ListView) findViewById(R.id.navigation_drawer_left_drawer);
+
+        mDrawerList.setAdapter(newItemDrawerAdapter());
+
+        mDrawerList.setOnItemClickListener(new OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view,
+                    final int pos, long id)
             {
-                ip4Address = readIP4AddressOfEmulator();
+                mDrawerLayout
+                        .setDrawerListener(new DrawerLayout.SimpleDrawerListener() {
+                            @Override
+                            public void onDrawerClosed(View drawerView)
+                            {
+                                super.onDrawerClosed(drawerView);
+
+                                MainActivity.this
+                                        .fragmentTransaction(mDrawerFragments[pos]);
+                            }
+                        });
+                mDrawerLayout.closeDrawer(mDrawerList);
             }
-            catch (SocketException e)
-            {
-            } // don't care
-        }
-        return ip4Address;
+        });
+
+        fragmentTransaction(mDrawerFragments[0]);
+        mDrawerList.setItemChecked(0, true);
+        setUpDrawerToggle();
+        TraceService.setSink(new AndroidUILogSink(this));
+        mLog.debug("launched activity on device [" + Build.PRODUCT + "]");
     }
 
 
-    @SuppressWarnings("deprecation")
-    private String readWifiIP4Address()
+    private void fragmentTransaction(String fragmentTag)
     {
-        String ip4Address = "0.0.0.0";
-        byte[] ipAddress = BigInteger.valueOf(
-                mWifiManager.getConnectionInfo().getIpAddress()).toByteArray();
-        try
+        FragmentTransaction transaction = getFragmentManager()
+                .beginTransaction();
+
+        Fragment newFragment = Fragment.instantiate(MainActivity.this,
+                fragmentTag);
+
+        transaction.replace(R.id.navigation_drawer_content_frame, newFragment,
+                fragmentTag);
+        if (getFragmentManager().getBackStackEntryCount() <= 1)
         {
-            InetAddress address = InetAddress.getByAddress(ipAddress);
-            String concreteAddressString = address.getHostAddress()
-                    .toUpperCase(Locale.getDefault());
-            if (InetAddressUtils.isIPv4Address(concreteAddressString))
-            {
-                // do not replace formatter by InetAddress here since this
-                // returns "1.0.0.127" instead of "127.0.0.1"
-                ip4Address = Formatter.formatIpAddress(mWifiManager
-                        .getConnectionInfo().getIpAddress());
-            }
-        }
-        catch (UnknownHostException e)
+            transaction.addToBackStack(null);
+        } else
         {
-            return ip4Address;
+            getFragmentManager().popBackStackImmediate();
+            transaction.addToBackStack(null);
         }
-        return ip4Address;
-    }
-
-
-    private String readIP4AddressOfEmulator() throws SocketException
-    {
-        String inet4Address = "0.0.0.0";
-
-        for (Enumeration<NetworkInterface> iter = NetworkInterface
-                .getNetworkInterfaces(); iter.hasMoreElements();)
-        {
-            NetworkInterface nic = iter.nextElement();
-
-            if (nic.getName().startsWith("eth"))
-            {
-                Enumeration<InetAddress> addresses = nic.getInetAddresses();
-                addresses.nextElement(); // skip first
-                if (addresses.hasMoreElements())
-                {
-                    InetAddress address = addresses.nextElement();
-
-                    String concreteAddressString = address.getHostAddress()
-                            .toUpperCase(Locale.getDefault());
-                    if (InetAddressUtils.isIPv4Address(concreteAddressString))
-                    {
-                        inet4Address = concreteAddressString;
-                    }
-                }
-            }
-        }
-        return inet4Address;
-    }
-
-
-    private boolean isServiceRunning(String serviceName)
-    {
-        int serviceMaxCount = 75;
-        ActivityManager activityManager = (ActivityManager) this
-                .getSystemService(ACTIVITY_SERVICE);
-        List<ActivityManager.RunningServiceInfo> runningServices = activityManager
-                .getRunningServices(serviceMaxCount);
-        Iterator<ActivityManager.RunningServiceInfo> service = runningServices
-                .iterator();
-        mLog.debug("found running [" + runningServices.size() + "] services ");
-        while (service.hasNext())
-        {
-            ActivityManager.RunningServiceInfo serviceInfo = (ActivityManager.RunningServiceInfo) service
-                    .next();
-            if (serviceInfo.service.getClassName().equals(serviceName))
-            {
-                mLog.debug("back service is actually running [" + serviceName
-                        + "]");
-                return true;
-            }
-        }
-        return false;
-    }
-
-
-    public final boolean isRunningOnEmulator()
-    {
-        return ("google_sdk".equals(Build.PRODUCT) || "sdk_x86"
-                .equals(Build.PRODUCT));
+        transaction.commit();
     }
 
 
     @Override
-    public void onClick(View view)
+    public void onBackPressed()
     {
-        if (!isServiceRunning(mServiceName))
+        if (getFragmentManager().getBackStackEntryCount() <= 1)
         {
-            if (updateLocalIp() || isRunningOnEmulator())
-            {
-                mLog.info("starting web service with address " + mLocalIp);
-                displayStartingService();
-                view.getContext().startService(mSmsServiceIntent);
-            } else
-            {
-                displayNoWifiConnected();
-                String message = "will not start service without wifi connection";
-                mLog.warning(message);
-                mLog.verbose(message);
-                mButton.setChecked(false);
-            }
+            finish();
         } else
         {
-            displayStoppingService();
-            view.getContext().stopService(mSmsServiceIntent);
+            super.onBackPressed();
+            mDrawerList.setItemChecked(0, true);
         }
     }
 
 
-    private void displayConnectionUrl()
+    private void setUpDrawerToggle()
     {
-        String wifiIp = mLocalIp;
-        mLog.debug("Actual IP: " + wifiIp);
-        mInfoFieldView.setText(mApplicationConfig.getProtocol() + "://"
-                + wifiIp + ":" + mApplicationConfig.getPort());
-    }
+        ActionBar actionBar = getActionBar();
+        actionBar.setDisplayHomeAsUpEnabled(true);
+        actionBar.setHomeButtonEnabled(true);
+
+        mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout,
+                R.drawable.ic_navigation_drawer,
+                R.string.navigation_drawer_open,
+                R.string.navigation_drawer_close) {
+            @Override
+            public void onDrawerClosed(View drawerView)
+            {
+                invalidateOptionsMenu();
+            }
 
 
-    private void displayStoppingService()
-    {
-        mInfoFieldView.setText("stopping service...");
-    }
+            @Override
+            public void onDrawerOpened(View drawerView)
+            {
+                invalidateOptionsMenu();
+            }
+        };
 
+        mDrawerLayout.post(new Runnable() {
+            @Override
+            public void run()
+            {
+                mDrawerToggle.syncState();
+            }
+        });
 
-    private void displayStartingService()
-    {
-        mInfoFieldView.setText("starting service...");
-    }
-
-
-    private void displayNoWifiConnected()
-    {
-        mInfoFieldView.setText("no WIFI connection available");
-    }
-
-
-    private void registerServiceStateChangeReceiver()
-    {
-        registerReceiver(mServiceListener, new IntentFilter(
-                WebSMSToolService.SERVICE_STARTING));
-        registerReceiver(mServiceListener, new IntentFilter(
-                WebSMSToolService.SERVICE_STARTED));
-        registerReceiver(mServiceListener, new IntentFilter(
-                WebSMSToolService.SERVICE_STARTED_BOGUS));
-        registerReceiver(mServiceListener, new IntentFilter(
-                WebSMSToolService.SERVICE_STOPPING));
-        registerReceiver(mServiceListener, new IntentFilter(
-                WebSMSToolService.SERVICE_STOPPED));
-        registerReceiver(mServiceListener, new IntentFilter(
-                WebSMSToolService.SERVICE_STOPPED_BOGUS));
-    }
-
-
-    private void unregisterServiceStateChangeReceiver()
-    {
-        unregisterReceiver(mServiceListener);
-    }
-
-
-    public void webServiceStarting()
-    {
-        displayStartingService();
-    }
-
-
-    public void webServiceStarted()
-    {
-        displayConnectionUrl();
-        mButton.setChecked(true);
-        mLog.verbose("service started");
-    }
-
-
-    public void webServiceStartFailed()
-    {
-        mLog.verbose("service started erroneous - please stop it manually before starting again");
-    }
-
-
-    public void webServiceStopping()
-    {
-        displayStoppingService();
-        mLog.verbose("shut down service");
-    }
-
-
-    public void webServiceStopped()
-    {
-        mInfoFieldView.setText("");
-        mButton.setChecked(false);
-        mLog.verbose("service stopped");
-    }
-
-
-    public void webServiceStopFailed()
-    {
-        mLog.verbose("service stopped erroneous - please stop it manually");
+        mDrawerLayout.setDrawerListener(mDrawerToggle);
     }
 
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item)
     {
-        if (item.getItemId() == R.id.home)
-            return true;
-        return super.onOptionsItemSelected(item);
+        Intent i = null;
+        switch (item.getItemId())
+        {
+        case android.R.id.home:
+            Intent upIntent = NavUtils.getParentActivityIntent(this);
+
+            if (upIntent == null)
+            {
+                upIntent = new Intent(getApplicationContext(),
+                        MainActivity.class);
+            }
+
+            mLog.debug("intent [" + upIntent + "]");
+            if (NavUtils.shouldUpRecreateTask(this, upIntent))
+            {
+                TaskStackBuilder.create(this)
+                        .addNextIntentWithParentStack(upIntent)
+                        .startActivities();
+            } else
+            {
+                NavUtils.navigateUpTo(this, upIntent);
+            }
+            return false;
+        default:
+            mLog.debug(
+                    new StringBuffer("unhandled actionbar intent [").append(
+                            Integer.toHexString(item.getItemId()) + "]")
+                            .toString(), null);
+            i = new Intent(this, MainActivity.class);
+            startActivity(i);
+            return false;
+        }
+
     }
+
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu)
+    {
+        if (Debug.isDebuggerConnected())
+        {
+            UncaughtExceptionLogger exLogger = new UncaughtExceptionLogger(mLog);
+            exLogger.register();
+        }
+
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.default_actionbar, menu);
+        getActionBar().setDisplayHomeAsUpEnabled(true);
+        return true;
+    }
+
 }

@@ -51,7 +51,7 @@ public class PreferencesProviderTest extends AndroidTestCase implements
 
         mConfig = new SharedPreferencesProvider(getContext());
         mPreferenceValidator = new OnSharedPreferenceEventListenValidator(
-                new PrefsFragment(mContext), mContext);
+                new PrefsFragment(), mContext);
         mSharedPreferences = PreferenceManager
                 .getDefaultSharedPreferences(getContext());
         mSharedPreferences.registerOnSharedPreferenceChangeListener(this);

@@ -20,11 +20,8 @@ public class PrefsFragment extends PreferenceFragment
     private OnSharedPreferenceEventListenValidator mPreferenceChangedListener = null;
 
 
-    public PrefsFragment(Context appContext)
+    public PrefsFragment()
     {
-        mApplicationContext = appContext;
-        mPreferenceChangedListener = new OnSharedPreferenceEventListenValidator(
-                this, mApplicationContext);
     }
 
 
@@ -75,6 +72,10 @@ public class PrefsFragment extends PreferenceFragment
     {
         super.onStart();
         mLog.debug("fragment onStart()");
+
+        mApplicationContext = getActivity();
+        mPreferenceChangedListener = new OnSharedPreferenceEventListenValidator(
+                this, mApplicationContext);
         mPreferenceChangedListener.updateSettingsOnPrefsView();
     }
 

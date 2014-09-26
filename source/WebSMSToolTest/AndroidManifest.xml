@@ -14,7 +14,7 @@
   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
   See the License for the specific language governing permissions and
   limitations under the License.
-  -->
+-->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="at.tugraz.ist.akm.test"
     android:versionCode="1"
@@ -24,11 +24,11 @@
         android:minSdkVersion="16"
         android:targetSdkVersion="19" />
 
-    <!--android:name="android.test.InstrumentationTestRunner"-->
+    <!-- android:name="android.test.InstrumentationTestRunner" -->
     <instrumentation
         android:name="com.zutubi.android.junitreport.JUnitReportTestRunner"
-        android:targetPackage="at.tugraz.ist.akm" 
-        android:label="Tests for at.tugraz.ist.akm"/>
+        android:label="Tests for at.tugraz.ist.akm"
+        android:targetPackage="at.tugraz.ist.akm" />
 
     <application
         android:allowBackup="true"

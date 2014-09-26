@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string-array name="drawer_string_array">
+        <item>Home</item>
+        <item>Messages</item>
+        <item>Settings</item>
+        <item>About</item>
+    </string-array>
+    <string-array name="drawer_fragment_array">
+        <item>at.tugraz.ist.akm.activities.StartServiceFragment</item>
+        <item>at.tugraz.ist.akm.activities.MessagesLogFragment</item>
+        <item>at.tugraz.ist.akm.activities.preferences.PrefsFragment</item>
+        <item>at.tugraz.ist.akm.activities.AboutFragment</item>
+    </string-array>
+    <string-array name="drawer_icon_array">
+        <item>ic_menu_home</item>
+        <item>ic_menu_notifications</item>
+        <item>ic_menu_edit</item>
+        <item>ic_menu_info_details</item>
+    </string-array>
+
+    <string name="navigation_drawer_item_icon_description">icon</string>
+    <string name="navigation_drawer_open">open navigation</string>
+    <string name="navigation_drawer_close">close navigation</string>
+
+</resources>

@@ -46,6 +46,7 @@
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
         android:largeHeap="true" >
+        
         <activity
             android:name="at.tugraz.ist.akm.activities.MainActivity"
             android:label="@string/app_name"
@@ -70,7 +71,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="at.tugraz.ist.akm.activities.AboutActivity"
+            android:name="at.tugraz.ist.akm.activities.AboutFragment"
             android:parentActivityName="at.tugraz.ist.akm.activities.MainActivity" >
         </activity>
         <activity android:name="at.tugraz.ist.akm.activities.DefaultActionBar" >

@@ -1,13 +1,16 @@
-package at.tugraz.ist.akm.activities.preferences;
+package at.tugraz.ist.akm.test.activities;
 
+import android.app.Activity;
 import android.app.FragmentTransaction;
 import android.os.Bundle;
-import android.preference.PreferenceActivity;
 import at.tugraz.ist.akm.R;
+import at.tugraz.ist.akm.activities.StartServiceFragment;
 
-public class PreferencesActivity extends PreferenceActivity
+public class StartServiceActivity extends Activity
 {
 
+    StartServiceFragment mFragment = new StartServiceFragment();
+    
     @Override
     public void onCreate(Bundle savedInstanceState)
     {
@@ -15,10 +18,10 @@ public class PreferencesActivity extends PreferenceActivity
         getActionBar().setIcon(
                 getResources().getDrawable(R.drawable.ic_notification));
 
-        PrefsFragment preferenceFragment = new PrefsFragment();
+
         FragmentTransaction transaction = getFragmentManager()
                 .beginTransaction();
-        transaction.replace(android.R.id.content, preferenceFragment);
+        transaction.replace(android.R.id.content, mFragment);
         transaction.commit();
     }
 
@@ -26,8 +29,11 @@ public class PreferencesActivity extends PreferenceActivity
     @Override
     protected void onStop()
     {
-        // updateAccessRestrictionCheckboxDependingOnCredentials();
         super.onStop();
+    }
+    
+    public boolean isRunningOnEmulator() {
+        return mFragment.isRunningOnEmulator();
     }
 
 }
