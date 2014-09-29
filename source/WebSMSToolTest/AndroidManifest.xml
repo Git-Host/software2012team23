@@ -22,7 +22,8 @@
 
     <uses-sdk
         android:minSdkVersion="16"
-        android:targetSdkVersion="19" />
+        android:targetSdkVersion="19" 
+        android:maxSdkVersion="19"/>
 
     <!-- android:name="android.test.InstrumentationTestRunner" -->
     <instrumentation

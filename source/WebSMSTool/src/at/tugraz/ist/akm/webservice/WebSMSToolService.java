@@ -31,6 +31,7 @@ import android.os.Debug;
 import android.os.IBinder;
 import at.tugraz.ist.akm.activities.MainActivity;
 import at.tugraz.ist.akm.exceptional.UncaughtExceptionLogger;
+import at.tugraz.ist.akm.secureRandom.PRNGFixes;
 import at.tugraz.ist.akm.trace.LogClient;
 import at.tugraz.ist.akm.webservice.server.SimpleWebServer;
 
@@ -96,6 +97,12 @@ public class WebSMSToolService extends Service
         }
     }
 
+    @Override
+    public void onCreate()
+    {
+        super.onCreate();
+        PRNGFixes.apply();
+    }
 
     @Override
     public IBinder onBind(Intent intent)

@@ -13,52 +13,49 @@
   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
   See the License for the specific language governing permissions and
   limitations under the License.
-  -->
+-->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/home"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:layout_centerInParent="true"
     android:divider="?android:attr/dividerHorizontal"
-    android:showDividers="middle" 
     android:gravity="left|top"
     android:orientation="vertical"
-    >
+    android:showDividers="middle" >
 
     <LinearLayout
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal" 
-        >
-        
-		    <ToggleButton
-		        android:id="@+id/start_stop_server"
-		        android:hapticFeedbackEnabled="true"
-		        android:layout_width="wrap_content"
-		        android:layout_height="wrap_content"
-		        android:textOff="Start Service"
-		        android:textOn="Stop Service "
-		    />
-		
-		    <TextView
-		        android:id="@+id/adress_data_field"
-		        android:layout_width="wrap_content"
-		        android:layout_height="wrap_content"
-		        android:textAppearance="?android:attr/textAppearanceMedium" />
-		        
-     </LinearLayout>
+        android:orientation="horizontal" >
 
-    <LinearLayout
-         android:layout_width="fill_parent"
-         android:layout_height="match_parent"
-         android:orientation="vertical"
-    >
-			         
-      <TextView
-             android:saveEnabled="false"
-             android:id="@+id/info_log_field"
-             android:layout_width="wrap_content"
-             android:layout_height="wrap_content"/>
+        <ToggleButton
+            android:id="@+id/start_stop_server"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:hapticFeedbackEnabled="true"
+            android:textOff="Start Service"
+            android:textOn="Stop Service " />
+
+        <TextView
+            android:id="@+id/adress_data_field"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textIsSelectable="false" />
     </LinearLayout>
 
-</LinearLayout>    
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical" >
+
+        <TextView
+            android:id="@+id/info_log_field"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:saveEnabled="false"
+            android:textIsSelectable="false" />
+    </LinearLayout>
+
+</LinearLayout>

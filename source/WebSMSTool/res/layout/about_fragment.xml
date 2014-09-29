@@ -19,7 +19,6 @@
             android:orientation="vertical" >
 
             <TextView
-                android:id="@+id/tv_about_title"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/app_name"
@@ -27,39 +26,33 @@
         </LinearLayout>
 
         <TextView
-            android:id="@+id/textView3"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/aboutInfo" />
 
         <TextView
-            android:id="@+id/tv_developer_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/aboutDeveloperTitle"
             android:textAppearance="?android:attr/textAppearanceMedium" />
 
         <TextView
-            android:id="@+id/tv_developers"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/aboutDevelopers" />
 
         <TextView
-            android:id="@+id/textView1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/aboutSupervisorTitle"
             android:textAppearance="?android:attr/textAppearanceMedium" />
 
         <TextView
-            android:id="@+id/textView2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/aboutSupervisor" />
 
         <TextView
-            android:id="@+id/textView4"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/aboutFurtherInformation"
@@ -72,19 +65,17 @@
             android:text="@string/aboutInfoGoogleCodeLinks" />
 
         <TextView
-            android:id="@+id/textView5"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/about_credits_title"
             android:textAppearance="?android:attr/textAppearanceMedium" />
 
         <ImageView
-            android:id="@+id/imageView1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="#ffffff"
             android:contentDescription="@string/about_credits_onlinelogomaker_image_description"
-            android:src="@drawable/online_logo_maker" />
+            android:src="@raw/online_logo_maker" />
 
         <TextView
             android:id="@+id/about_credits_onlinelogomaker_id"
@@ -99,12 +90,11 @@
             android:text="@string/about_credits_online_launcher_icon_generator_text" />
 
         <ImageView
-            android:id="@+id/imageView12"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="#ffffff"
             android:contentDescription="@string/about_credits_robotium_image_description"
-            android:src="@drawable/robotium_logo" />
+            android:src="@raw/robotium_logo" />
 
         <TextView
             android:id="@+id/about_credits_robotium_id"
@@ -113,11 +103,10 @@
             android:text="@string/about_credits_robotium_text" />
 
         <ImageView
-            android:id="@+id/imageView11"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:contentDescription="@string/about_credits_bouncy_castle_image_description"
-            android:src="@drawable/bouncy_castle_logo" />
+            android:src="@raw/bouncy_castle_logo" />
 
         <TextView
             android:id="@+id/about_credits_bouncycastle_id"
@@ -126,12 +115,11 @@
             android:text="@string/about_credits_bouncy_castle_text" />
 
         <ImageView
-            android:id="@+id/imageView13"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="#ffffff"
             android:contentDescription="@string/about_credits_zutubi_image_description"
-            android:src="@drawable/zutubi_logo" />
+            android:src="@raw/zutubi_logo" />
 
         <TextView
             android:id="@+id/about_credits_zutubi_id"
@@ -140,11 +128,10 @@
             android:text="@string/about_credits_zutubi_text" />
 
         <ImageView
-            android:id="@+id/imageView14"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:contentDescription="@string/about_credits_apachesf_image_description"
-            android:src="@drawable/apache_logo_wide" />
+            android:src="@raw/apache_logo" />
 
         <TextView
             android:id="@+id/about_credits_apache_id"

@@ -43,6 +43,7 @@ import android.widget.SimpleAdapter;
 import at.tugraz.ist.akm.R;
 import at.tugraz.ist.akm.activities.trace.AndroidUILogSink;
 import at.tugraz.ist.akm.exceptional.UncaughtExceptionLogger;
+import at.tugraz.ist.akm.secureRandom.PRNGFixes;
 import at.tugraz.ist.akm.trace.LogClient;
 import at.tugraz.ist.akm.trace.TraceService;
 import at.tugraz.ist.akm.webservice.WebSMSToolService;
@@ -157,6 +158,7 @@ public class MainActivity extends Activity
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
+        PRNGFixes.apply();
         super.onCreate(savedInstanceState);
         setContentView(R.layout.navigation_drawer);
 

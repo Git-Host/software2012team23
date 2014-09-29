@@ -22,7 +22,8 @@
 
     <uses-sdk
         android:minSdkVersion="16"
-        android:targetSdkVersion="19" />
+        android:targetSdkVersion="19"
+        android:maxSdkVersion="19" />
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.READ_CONTACTS" />
@@ -46,7 +47,6 @@
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
         android:largeHeap="true" >
-        
         <activity
             android:name="at.tugraz.ist.akm.activities.MainActivity"
             android:label="@string/app_name"
@@ -73,8 +73,6 @@
         <activity
             android:name="at.tugraz.ist.akm.activities.AboutFragment"
             android:parentActivityName="at.tugraz.ist.akm.activities.MainActivity" >
-        </activity>
-        <activity android:name="at.tugraz.ist.akm.activities.DefaultActionBar" >
         </activity>
     </application>
 

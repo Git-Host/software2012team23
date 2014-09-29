@@ -20,7 +20,7 @@
     <string name="app_name">WebSMSTool</string>
     <string name="aboutDeveloperTitle">\nDevelopers</string>
     <string name="aboutDevelopers">Martin Decker\nHerman Felbinger\nThomas Gödl\nStefan Lexow\nRaoul Rubien</string>
-    <string name="aboutInfo">Developed during the course \"AK Medientechnologien\" in 2012 and BSc Thesis in 2014 at Graz University of Technology</string>
+    <string name="aboutInfo">Developed during the course AK Medientechnologien in 2012 and BSc Thesis in 2014 at Graz University of Technology</string>
     <string name="aboutFurtherInformation">\nFurther information and contact</string>
     <string name="aboutInfoGoogleCodeLinks">Project-Page:\nhttp://code.google.com/p/software2012team23\n\nE-Mail:\nsoftware2012team23@googlecode.com</string>
     <string name="aboutSupervisorTitle">\nSupervisor</string>
@@ -28,7 +28,7 @@
     <string name="about_credits_title">\nCredits</string>
     <string name="about_credits_onlinelogomaker_text">http://www.onlinelogomaker.com</string>
     <string name="about_credits_onlinelogomaker_image_description">OnlineLogoMaker</string>
-    <string name="about_credits_online_launcher_icon_generator_text">\nLauncher Icon Generator http://www.onlinelogomaker.com\n</string>
+    <string name="about_credits_online_launcher_icon_generator_text">\nAndroid Asset Studio http://romannurik.github.io/AndroidAssetStudio\n</string>
     <string name="about_credits_robotium_text">Robotium http://code.google.com/p/robotium\n</string>
     <string name="about_credits_robotium_image_description">Robotium</string>
     <string name="about_credits_bouncy_castle_text">The Legion of the Bouncy Castle https://www.bouncycastle.org\n</string>
