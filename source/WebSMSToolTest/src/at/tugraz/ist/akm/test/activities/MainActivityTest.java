@@ -21,7 +21,6 @@ import java.util.List;
 
 import android.app.ActivityManager;
 import android.app.Fragment;
-import android.app.FragmentManager;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Point;

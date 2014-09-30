@@ -102,7 +102,8 @@ public class StartServiceFragment extends Fragment implements
 
     public StartServiceFragment()
     {
-        mLog.debug("constructing " + getClass().getSimpleName());
+        mLog.debug("constructing " + getClass().getSimpleName() + " "
+                + (Object) this);
         mServiceListener = new ServiceStateListener(this);
     }
 
@@ -111,15 +112,21 @@ public class StartServiceFragment extends Fragment implements
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState)
     {
-        super.onCreateView(inflater, container, savedInstanceState);
-        return inflater.inflate(R.layout.main_fragment, container, false);
+        // View view = super.onCreateView(inflater, container,
+        // savedInstanceState);
+        View view = inflater.inflate(R.layout.main_fragment, container, false);
+
+        mLog.debug("on create view " + (Object) this);
+        setUpApplicationConfig();
+        setUpUiReferences(view);
+        return view;
     }
 
 
     @Override
     public void onDestroy()
     {
-        mLog.debug("activity goes to Hades");
+        mLog.debug("fragment goes to hades " + (Object) this);
         mSmsServiceIntent = null;
         mLog = null;
         mButton = null;
@@ -161,16 +168,14 @@ public class StartServiceFragment extends Fragment implements
     public void onStart()
     {
         super.onStart();
-        mSmsServiceIntent = new Intent(getActivity(), WebSMSToolService.class);
-        setUpMainFragmentUI();
-        mLog.debug("brought fragment to front");
+        mLog.debug("brought fragment to front " + (Object) this);
     }
 
 
     public void onStop()
     {
         tearDownMainFragmentUI();
-        mLog.debug("fragment no longer visible");
+        mLog.debug("fragment no longer visible " + (Object) this);
         super.onStop();
     }
 
@@ -179,7 +184,8 @@ public class StartServiceFragment extends Fragment implements
     public void onResume()
     {
         super.onResume();
-        mLog.debug("user returned to activity  - updating local ip address");
+        mLog.debug("user returned to fragment  - updating local ip address for "
+                + (Object) this);
         if (isServiceRunning(mServiceName))
         {
             mButton.setChecked(true);
@@ -197,25 +203,29 @@ public class StartServiceFragment extends Fragment implements
     @Override
     public void onPause()
     {
-        mLog.debug("activity goes to background");
+        mLog.debug("fragment goes to background " + (Object) this);
         unregisterServiceStateChangeReceiver();
         super.onStop();
     }
 
 
-    private void setUpMainFragmentUI()
+    private void setUpApplicationConfig()
     {
-        mButton = (ToggleButton) getActivity().findViewById(
-                R.id.start_stop_server);
-        mInfoFieldView = (TextView) getActivity().findViewById(
-                R.id.adress_data_field);
         mApplicationConfig = new SharedPreferencesProvider(getActivity()
                 .getApplicationContext());
+        mSmsServiceIntent = new Intent(getActivity(), WebSMSToolService.class);
 
         mWifiManager = (WifiManager) getActivity().getSystemService(
                 Context.WIFI_SERVICE);
         mConnectivityManager = (ConnectivityManager) getActivity()
                 .getSystemService(Context.CONNECTIVITY_SERVICE);
+    }
+
+
+    private void setUpUiReferences(View view)
+    {
+        mButton = (ToggleButton) view.findViewById(R.id.start_stop_server);
+        mInfoFieldView = (TextView) view.findViewById(R.id.adress_data_field);
 
         mButton.setChecked(false);
         if (isServiceRunning(mServiceName))
@@ -270,7 +280,7 @@ public class StartServiceFragment extends Fragment implements
                 .getRunningServices(serviceMaxCount);
         Iterator<ActivityManager.RunningServiceInfo> service = runningServices
                 .iterator();
-        mLog.debug("found running [" + runningServices.size() + "] services ");
+        mLog.debug("found [" + runningServices.size() + "] running services ");
         while (service.hasNext())
         {
             ActivityManager.RunningServiceInfo serviceInfo = (ActivityManager.RunningServiceInfo) service

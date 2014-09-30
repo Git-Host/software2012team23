@@ -53,6 +53,10 @@ public class MainActivity extends Activity
 {
 
     public static final String SERVER_IP_ADDRESS_INTENT_KEY = "at.tugraz.ist.akm.SERVER_IP_ADDRESS_INTENT_KEY";
+    private static final String LAST_ACTIVE_NAVIGATION_DRAWER_ENTRY_KEY = "at.tugraz.ist.akm.LAST_ACTIVE_NAVIGATION_DRAWER_ITEM_KEY";
+
+    private int mCurrentNavigationDrawerEntry = 0;
+
     private LogClient mLog = new LogClient(this);
     final String mServiceName = WebSMSToolService.class.getName();
 
@@ -70,6 +74,7 @@ public class MainActivity extends Activity
     public MainActivity()
     {
         mLog.debug("constructing " + getClass().getSimpleName());
+        PRNGFixes.apply();
     }
 
 
@@ -77,7 +82,6 @@ public class MainActivity extends Activity
     protected void onStart()
     {
         super.onStart();
-        // setUpMainFragmentUI();
         mLog.debug("brought activity to front");
     }
 
@@ -86,7 +90,7 @@ public class MainActivity extends Activity
     protected void onResume()
     {
         super.onResume();
-        mLog.debug("user returned to activity  - updating local ip address");
+        mLog.debug("user returned to activity");
     }
 
 
@@ -129,10 +133,6 @@ public class MainActivity extends Activity
                     Integer.toString(getDrawableIdentifier(mDrawerIcons[i])));
             map.put("title", mDrawerEntryTitles[i]);
             data.add(map);
-            mLog.debug("drawer int[" + getDrawableIdentifier(mDrawerIcons[i])
-                    + "]");
-
-            mLog.debug("drawer str[" + mDrawerIcons[i] + "]");
         }
 
         String[] fromMapping = { "icon", "title" };
@@ -157,14 +157,18 @@ public class MainActivity extends Activity
     }
 
 
-    // TODO android ui log sink should log to message log fragment
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
-        PRNGFixes.apply();
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.navigation_drawer);
 
+        if (null != savedInstanceState)
+        {
+            mCurrentNavigationDrawerEntry = savedInstanceState
+                    .getInt(LAST_ACTIVE_NAVIGATION_DRAWER_ENTRY_KEY);
+        }
+
+        setContentView(R.layout.navigation_drawer);
         mDrawerFragments = getResources().getStringArray(
                 R.array.drawer_fragment_array);
         mDrawerEntryTitles = getResources().getStringArray(
@@ -179,6 +183,7 @@ public class MainActivity extends Activity
             public void onItemClick(AdapterView<?> parent, View view,
                     final int pos, long id)
             {
+                mCurrentNavigationDrawerEntry = pos;
                 mDrawerLayout
                         .setDrawerListener(new DrawerLayout.SimpleDrawerListener() {
                             @Override
@@ -194,11 +199,21 @@ public class MainActivity extends Activity
             }
         });
 
-        fragmentTransaction(mDrawerFragments[0]);
-        mDrawerList.setItemChecked(0, true);
+        fragmentTransaction(mDrawerFragments[mCurrentNavigationDrawerEntry]);
+        mDrawerList.setItemChecked(mCurrentNavigationDrawerEntry, true);
         setUpDrawerToggle();
+        // TODO: replace sink with a kind of buffered logging sink
         TraceService.setSink(new AndroidUILogSink(this));
         mLog.debug("launched activity on device [" + Build.PRODUCT + "]");
+    }
+
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState)
+    {
+        outState.putInt(LAST_ACTIVE_NAVIGATION_DRAWER_ENTRY_KEY,
+                mCurrentNavigationDrawerEntry);
+        super.onSaveInstanceState(outState);
     }
 
 
@@ -227,7 +242,8 @@ public class MainActivity extends Activity
                 mDrawerFragments[0]))
         {
             fragmentTransaction(mDrawerFragments[0]);
-        } else {
+        } else
+        {
             finish();
         }
     }

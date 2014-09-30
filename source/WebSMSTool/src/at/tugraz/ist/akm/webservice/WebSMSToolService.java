@@ -87,6 +87,7 @@ public class WebSMSToolService extends Service
     public WebSMSToolService()
     {
         mServiceStartedStickyIntend = new Intent(SERVICE_STARTED);
+        PRNGFixes.apply();
     }
 
     public class LocalBinder extends Binder
@@ -101,7 +102,6 @@ public class WebSMSToolService extends Service
     public void onCreate()
     {
         super.onCreate();
-        PRNGFixes.apply();
     }
 
     @Override
