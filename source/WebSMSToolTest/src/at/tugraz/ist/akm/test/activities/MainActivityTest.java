@@ -40,6 +40,7 @@ import at.tugraz.ist.akm.trace.LogClient;
 import at.tugraz.ist.akm.trace.TraceService;
 import at.tugraz.ist.akm.webservice.WebSMSToolService;
 
+import com.robotium.solo.Condition;
 import com.robotium.solo.Solo;
 
 public class MainActivityTest extends
@@ -118,35 +119,65 @@ public class MainActivityTest extends
     }
 
 
-    public void test_backStack_homeToHome()
-    {
-        assertTrue(false);
-    }
-
-
-    private void bringMainFragmentOnTop_thenBringOhterFragmentOnTop_thenBringMainFragmentOnTop_usingBackstack_and_NavigationDrawer(
-            int otherFragmentIdxInNavigationDrawer)
+    public void test_backStack_multipleClicks_results_in_stack_size_max_2()
     {
         Solo solo = new Solo(getInstrumentation(), getActivity());
 
-        dragNavigationMenu();
+        String mainFragmentTag = getFragmentOfNavigationDrawerMenu(0);
+        String otherFragmentTag1 = getFragmentOfNavigationDrawerMenu(1);
+        String otherFragmentTag2 = getFragmentOfNavigationDrawerMenu(2);
+        String otherFragmentTag3 = getFragmentOfNavigationDrawerMenu(3);
 
-        solo.waitForFragmentByTag(getFragmentOfNavigationDrawerMenu(0));
-        solo.clickOnView(findNavigationDrawerMenu(otherFragmentIdxInNavigationDrawer));
-        solo.waitForFragmentByTag(getFragmentOfNavigationDrawerMenu(otherFragmentIdxInNavigationDrawer));
-        assertFragmentVisible(
-                true,
-                getFragmentOfNavigationDrawerMenu(otherFragmentIdxInNavigationDrawer));
-        assertFragmentVisible(false, getFragmentOfNavigationDrawerMenu(0));
+        solo.waitForFragmentByTag(mainFragmentTag);
+
+        dragToOpenNavigationMenu();
+        solo.clickOnView(findNavigationDrawerMenuView(1));
+        solo.waitForFragmentByTag(otherFragmentTag1);
+        assertFragmentVisible(true, otherFragmentTag1);
+        assertFragmentVisible(false, mainFragmentTag);
+
+        dragToOpenNavigationMenu();
+        solo.clickOnView(findNavigationDrawerMenuView(2));
+        solo.waitForFragmentByTag(otherFragmentTag2);
+        assertFragmentVisible(true, otherFragmentTag2);
+        assertFragmentVisible(false, mainFragmentTag);
+
+        dragToOpenNavigationMenu();
+        solo.clickOnView(findNavigationDrawerMenuView(3));
+        solo.waitForFragmentByTag(otherFragmentTag3);
+        assertFragmentVisible(true, otherFragmentTag3);
+        assertFragmentVisible(false, mainFragmentTag);
         solo.sendKey(KeyEvent.KEYCODE_BACK);
 
-        dragNavigationMenu();
-        solo.clickOnView(findNavigationDrawerMenu(0));
-        solo.waitForFragmentByTag(getFragmentOfNavigationDrawerMenu(0));
-        assertFragmentVisible(true, getFragmentOfNavigationDrawerMenu(0));
-        assertFragmentVisible(
-                false,
-                getFragmentOfNavigationDrawerMenu(otherFragmentIdxInNavigationDrawer));
+        solo.waitForFragmentByTag(mainFragmentTag);
+        assertFragmentVisible(true, mainFragmentTag);
+        assertFragmentVisible(false, otherFragmentTag1);
+        assertFragmentVisible(false, otherFragmentTag2);
+        assertFragmentVisible(false, otherFragmentTag3);
+    }
+
+
+    private void bringMainFragment_thenOhterFragment_thenMainFragment_onTop_usingBackstack_and_NavigationDrawer(
+            int otherNavigationDrawerIdxIDx)
+    {
+        Solo solo = new Solo(getInstrumentation(), getActivity());
+
+        String mainFragmentTag = getFragmentOfNavigationDrawerMenu(0);
+        String otherFragmentTag = getFragmentOfNavigationDrawerMenu(otherNavigationDrawerIdxIDx);
+
+        solo.waitForFragmentByTag(mainFragmentTag);
+
+        dragToOpenNavigationMenu();
+        solo.clickOnView(findNavigationDrawerMenuView(otherNavigationDrawerIdxIDx));
+        solo.waitForFragmentByTag(otherFragmentTag);
+        assertFragmentVisible(true, otherFragmentTag);
+        assertFragmentVisible(false, mainFragmentTag);
+
+        solo.sendKey(KeyEvent.KEYCODE_BACK);
+
+        solo.waitForFragmentByTag(mainFragmentTag);
+        assertFragmentVisible(true, mainFragmentTag);
+        assertFragmentVisible(false, otherFragmentTag);
     }
 
 
@@ -173,7 +204,7 @@ public class MainActivityTest extends
     }
 
 
-    private void dragNavigationMenu()
+    private void dragToOpenNavigationMenu()
     {
         Solo solo = new Solo(getInstrumentation(), getActivity());
         Point size = new Point();
@@ -197,7 +228,7 @@ public class MainActivityTest extends
     }
 
 
-    private View findNavigationDrawerMenu(int id)
+    private View findNavigationDrawerMenuView(int id)
     {
         Solo solo = new Solo(getInstrumentation(), getActivity());
         try
@@ -238,25 +269,88 @@ public class MainActivityTest extends
 
     public void test_backStack_messagesToHome()
     {
-        bringMainFragmentOnTop_thenBringOhterFragmentOnTop_thenBringMainFragmentOnTop_usingBackstack_and_NavigationDrawer(1);
+        bringMainFragment_thenOhterFragment_thenMainFragment_onTop_usingBackstack_and_NavigationDrawer(1);
     }
 
 
     public void test_backStack_settingsToHome()
     {
-        bringMainFragmentOnTop_thenBringOhterFragmentOnTop_thenBringMainFragmentOnTop_usingBackstack_and_NavigationDrawer(2);
+        bringMainFragment_thenOhterFragment_thenMainFragment_onTop_usingBackstack_and_NavigationDrawer(2);
     }
 
 
     public void test_backStack_aboutToHome()
     {
-        bringMainFragmentOnTop_thenBringOhterFragmentOnTop_thenBringMainFragmentOnTop_usingBackstack_and_NavigationDrawer(3);
+        bringMainFragment_thenOhterFragment_thenMainFragment_onTop_usingBackstack_and_NavigationDrawer(3);
     }
 
 
-    public void test_backStack_multipletimesSettingsKlickedToHome()
+    public void test_backStack_homeClicks_result_in_only_one_stack_etnry()
     {
-        assertTrue(false);
+        Solo solo = new Solo(getInstrumentation(), getActivity());
+
+        String mainFragmentTag = getFragmentOfNavigationDrawerMenu(0);
+
+        solo.waitForFragmentByTag(mainFragmentTag);
+
+        dragToOpenNavigationMenu();
+        solo.clickOnView(findNavigationDrawerMenuView(0));
+        solo.waitForFragmentByTag(mainFragmentTag);
+        assertFragmentVisible(true, mainFragmentTag);
+
+        dragToOpenNavigationMenu();
+        solo.clickOnView(findNavigationDrawerMenuView(0));
+        solo.waitForFragmentByTag(mainFragmentTag);
+        assertFragmentVisible(true, mainFragmentTag);
+
+        dragToOpenNavigationMenu();
+        solo.clickOnView(findNavigationDrawerMenuView(0));
+        solo.waitForFragmentByTag(mainFragmentTag);
+        assertFragmentVisible(true, mainFragmentTag);
+
+        solo.sendKey(KeyEvent.KEYCODE_BACK);
+
+        solo.waitForCondition(newActivityDetacedCondition(), 2000);
+
+    }
+
+
+    private Condition newActivityDetacedCondition()
+    {
+        return new Condition() {
+
+            boolean mIsDetached = false;
+
+            {
+                View rootView = getActivity().getWindow().getDecorView()
+                        .getRootView();
+
+                rootView.addOnAttachStateChangeListener(new View.OnAttachStateChangeListener() {
+
+                    @Override
+                    public void onViewDetachedFromWindow(View v)
+                    {
+                        mIsDetached = true;
+                    }
+
+
+                    @Override
+                    public void onViewAttachedToWindow(View v)
+                    {
+                        mIsDetached = false;
+
+                    }
+                });
+            }
+
+
+            @Override
+            public boolean isSatisfied()
+            {
+                return mIsDetached;
+            }
+
+        };
     }
 
 
