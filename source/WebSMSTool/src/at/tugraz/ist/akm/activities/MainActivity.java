@@ -31,6 +31,7 @@ import android.os.Bundle;
 import android.os.Debug;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.app.NavUtils;
+import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -138,17 +139,19 @@ public class MainActivity extends Activity
         int[] toMapping = { R.id.drawer_item_icon, R.id.drawer_item_text };
 
         return new SimpleAdapter(getBaseContext(), data,
-                R.layout.drawer_list_item, fromMapping, toMapping);
+                R.layout.navigation_drawer_list_entry, fromMapping, toMapping);
     }
 
 
     private int getDrawableIdentifier(String drawable)
     {
-        int id = getResources().getIdentifier(drawable, "drawable", mDefaultAppPackage);
+        int id = getResources().getIdentifier(drawable, "drawable",
+                mDefaultAppPackage);
 
         if (id == 0)
         {
-            id = getResources().getIdentifier(drawable, "drawable", mDefaultSystemPackage);
+            id = getResources().getIdentifier(drawable, "drawable",
+                    mDefaultSystemPackage);
         }
         return id;
     }
@@ -209,14 +212,7 @@ public class MainActivity extends Activity
 
         transaction.replace(R.id.navigation_drawer_content_frame, newFragment,
                 fragmentTag);
-        if (getFragmentManager().getBackStackEntryCount() <= 1)
-        {
-            transaction.addToBackStack(null);
-        } else
-        {
-            getFragmentManager().popBackStackImmediate();
-            transaction.addToBackStack(null);
-        }
+
         transaction.commit();
     }
 
@@ -224,13 +220,15 @@ public class MainActivity extends Activity
     @Override
     public void onBackPressed()
     {
-        if (getFragmentManager().getBackStackEntryCount() <= 1)
+        if (mDrawerLayout.isDrawerOpen(GravityCompat.START))
         {
+            mDrawerLayout.closeDrawer(GravityCompat.START);
+        } else if (null == getFragmentManager().findFragmentByTag(
+                mDrawerFragments[0]))
+        {
+            fragmentTransaction(mDrawerFragments[0]);
+        } else {
             finish();
-        } else
-        {
-            super.onBackPressed();
-            mDrawerList.setItemChecked(0, true);
         }
     }
 

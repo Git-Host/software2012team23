@@ -16,12 +16,12 @@
 
 package at.tugraz.ist.akm.test.activities;
 
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
 import android.app.ActivityManager;
 import android.app.Fragment;
+import android.app.FragmentManager;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Point;
@@ -40,7 +40,6 @@ import at.tugraz.ist.akm.trace.LogClient;
 import at.tugraz.ist.akm.trace.TraceService;
 import at.tugraz.ist.akm.webservice.WebSMSToolService;
 
-import com.robotium.solo.Condition;
 import com.robotium.solo.Solo;
 
 public class MainActivityTest extends
@@ -157,21 +156,22 @@ public class MainActivityTest extends
     }
 
 
-    private void bringMainFragment_thenOhterFragment_thenMainFragment_onTop_usingBackstack_and_NavigationDrawer(
+    private void bringMainFragment_thenOhterFragment_thenMainFragment_onTop_using_NavigationDrawer(
             int otherNavigationDrawerIdxIDx)
     {
         Solo solo = new Solo(getInstrumentation(), getActivity());
-
+        
         String mainFragmentTag = getFragmentOfNavigationDrawerMenu(0);
         String otherFragmentTag = getFragmentOfNavigationDrawerMenu(otherNavigationDrawerIdxIDx);
 
         solo.waitForFragmentByTag(mainFragmentTag);
-
+        
         dragToOpenNavigationMenu();
         solo.clickOnView(findNavigationDrawerMenuView(otherNavigationDrawerIdxIDx));
         solo.waitForFragmentByTag(otherFragmentTag);
         assertFragmentVisible(true, otherFragmentTag);
         assertFragmentVisible(false, mainFragmentTag);
+        
 
         solo.sendKey(KeyEvent.KEYCODE_BACK);
 
@@ -243,45 +243,21 @@ public class MainActivityTest extends
     }
 
 
-    private void logViews(ArrayList<View> views)
-    {
-        int numIdLessViews = 0;
-        int numViews = 0;
-
-        for (View v : views)
-        {
-            String name = "-";
-            numViews++;
-            try
-            {
-                name = getActivity().getResources().getResourceName(v.getId());
-                mLog.debug("*[" + name + "][" + v.getId() + "] ");
-            }
-            catch (Throwable e)
-            {
-                numIdLessViews++;
-            }
-        }
-        mLog.debug("found [" + numViews + "] and suppressed [" + numIdLessViews
-                + "] views");
-    }
-
-
     public void test_backStack_messagesToHome()
     {
-        bringMainFragment_thenOhterFragment_thenMainFragment_onTop_usingBackstack_and_NavigationDrawer(1);
+        bringMainFragment_thenOhterFragment_thenMainFragment_onTop_using_NavigationDrawer(1);
     }
 
 
     public void test_backStack_settingsToHome()
     {
-        bringMainFragment_thenOhterFragment_thenMainFragment_onTop_usingBackstack_and_NavigationDrawer(2);
+        bringMainFragment_thenOhterFragment_thenMainFragment_onTop_using_NavigationDrawer(2);
     }
 
 
     public void test_backStack_aboutToHome()
     {
-        bringMainFragment_thenOhterFragment_thenMainFragment_onTop_usingBackstack_and_NavigationDrawer(3);
+        bringMainFragment_thenOhterFragment_thenMainFragment_onTop_using_NavigationDrawer(3);
     }
 
 
@@ -297,60 +273,20 @@ public class MainActivityTest extends
         solo.clickOnView(findNavigationDrawerMenuView(0));
         solo.waitForFragmentByTag(mainFragmentTag);
         assertFragmentVisible(true, mainFragmentTag);
-
+        
         dragToOpenNavigationMenu();
         solo.clickOnView(findNavigationDrawerMenuView(0));
         solo.waitForFragmentByTag(mainFragmentTag);
         assertFragmentVisible(true, mainFragmentTag);
-
+        solo.sleep(1000);
+        
         dragToOpenNavigationMenu();
         solo.clickOnView(findNavigationDrawerMenuView(0));
         solo.waitForFragmentByTag(mainFragmentTag);
         assertFragmentVisible(true, mainFragmentTag);
-
+        
         solo.sendKey(KeyEvent.KEYCODE_BACK);
-
-        solo.waitForCondition(newActivityDetacedCondition(), 2000);
-
-    }
-
-
-    private Condition newActivityDetacedCondition()
-    {
-        return new Condition() {
-
-            boolean mIsDetached = false;
-
-            {
-                View rootView = getActivity().getWindow().getDecorView()
-                        .getRootView();
-
-                rootView.addOnAttachStateChangeListener(new View.OnAttachStateChangeListener() {
-
-                    @Override
-                    public void onViewDetachedFromWindow(View v)
-                    {
-                        mIsDetached = true;
-                    }
-
-
-                    @Override
-                    public void onViewAttachedToWindow(View v)
-                    {
-                        mIsDetached = false;
-
-                    }
-                });
-            }
-
-
-            @Override
-            public boolean isSatisfied()
-            {
-                return mIsDetached;
-            }
-
-        };
+        
     }
 
 
@@ -385,8 +321,6 @@ public class MainActivityTest extends
     @Override
     protected void tearDown() throws Exception
     {
-        Solo s = new Solo(getInstrumentation());
-        s.finishOpenedActivities();
         log(getName() + ".tearDown()");
         super.tearDown();
     }

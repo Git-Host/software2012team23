@@ -64,8 +64,6 @@ public class PreferencesActivityTest extends
     @Override
     protected void tearDown() throws Exception
     {
-        Solo s = new Solo(getInstrumentation());
-        s.finishOpenedActivities();
         mLog.debug(getName() + ".tearDown()");
         super.tearDown();
     }
@@ -218,7 +216,7 @@ public class PreferencesActivityTest extends
 
         preferencesSolo.clickOnCheckBox(1);
         preferencesSolo.finishOpenedActivities();
-
+        
         assertEquals("http", new SharedPreferencesProvider(getActivity()
                 .getApplicationContext()).getProtocol());
 
