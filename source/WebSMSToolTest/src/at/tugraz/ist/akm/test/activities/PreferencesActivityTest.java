@@ -24,7 +24,7 @@ import at.tugraz.ist.akm.activities.preferences.PreferencesActivity;
 import at.tugraz.ist.akm.keystore.ApplicationKeyStore;
 import at.tugraz.ist.akm.preferences.SharedPreferencesProvider;
 import at.tugraz.ist.akm.test.keystore.ApplicationKeyStoreTest;
-import at.tugraz.ist.akm.test.trace.ThrowingLogSink;
+import at.tugraz.ist.akm.test.trace.ExceptionThrowingLogSink;
 import at.tugraz.ist.akm.trace.LogClient;
 import at.tugraz.ist.akm.trace.TraceService;
 
@@ -41,7 +41,7 @@ public class PreferencesActivityTest extends
     public PreferencesActivityTest()
     {
         super(PreferencesActivity.class);
-        TraceService.setSink(new ThrowingLogSink());
+        TraceService.setSink(new ExceptionThrowingLogSink());
     }
 
 

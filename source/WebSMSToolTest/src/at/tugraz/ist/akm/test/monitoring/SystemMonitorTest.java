@@ -18,33 +18,34 @@ package at.tugraz.ist.akm.test.monitoring;
 
 import at.tugraz.ist.akm.monitoring.BatteryStatus;
 import at.tugraz.ist.akm.monitoring.SystemMonitor;
-import at.tugraz.ist.akm.monitoring.TelephonySignalStrength;
 import at.tugraz.ist.akm.test.base.WebSMSToolActivityTestcase;
 
 public class SystemMonitorTest extends WebSMSToolActivityTestcase
 {
 
     private SystemMonitor mSystemMonitor = null;
+
     public SystemMonitorTest()
     {
         super(SystemMonitorTest.class.getSimpleName());
     }
 
+
     @Override
-    protected void setUp() throws Exception 
+    protected void setUp() throws Exception
     {
         super.setUp();
         mSystemMonitor = new SystemMonitor(mContext);
         mSystemMonitor.start();
     };
-    
-    
-    @Override 
+
+
+    @Override
     public void tearDown()
     {
         mSystemMonitor.stop();
     }
-    
+
 
     public void testSystemMonitor_batteryState()
     {
@@ -55,36 +56,14 @@ public class SystemMonitorTest extends WebSMSToolActivityTestcase
             assertTrue(bStats.getBatteryIconId() > 0);
             byte[] bytes = bStats.getBatteryIconBytes();
             assertTrue(bytes.length > 0);
-        } catch (Exception ex)
+        }
+        catch (Exception ex)
         {
             assertTrue(false);
         }
     }
 
 
-    /* skipped test due to necessary cell signal
-    public void testSystemMonitor_signalStrength()
-    {
-        try
-        {
-            TelephonySignalStrength sStats = null;
-            
-            while (null == sStats ) {
-                sStats = mSystemMonitor.getSignalStrength();
-            }
-            assertTrue(null != sStats);
-            logSStats(sStats);
-            assertTrue(sStats.getSignalStrength() > 0);
-            assertTrue(sStats.getSignalIconId() > 0);
-            byte[] bytes = sStats.getSignalStrengthIconBytes();
-            assertTrue(bytes.length > 0);
-        } catch (Exception e)
-        {
-            assertTrue(false);
-        }
-    }
-    */
-    
     private void logBStats(BatteryStatus bStats)
     {
         logVerbose(" BatteryStatus: batteryIconId ["
@@ -93,15 +72,6 @@ public class SystemMonitorTest extends WebSMSToolActivityTestcase
                 + "] chargePlug[" + bStats.getChargePlug() + "]usbCharge ["
                 + bStats.getIsUsbCharge() + "] acCharge["
                 + bStats.getIsAcCharge() + "]");
-    }
-
-
-    @SuppressWarnings("unused")
-    private void logSStats(TelephonySignalStrength sStats)
-    {
-        logVerbose(" TelephonySignalStrength: signal icon id ["
-                + sStats.getSignalIconId() + "] signal strength ["
-                + sStats.getSignalStrength() + "%]");
     }
 
 }

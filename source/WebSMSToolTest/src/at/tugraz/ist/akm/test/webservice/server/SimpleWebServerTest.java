@@ -189,17 +189,6 @@ public class SimpleWebServerTest extends WebSMSToolActivityTestcase
 
             String hasContactChanged = response.getString("contact_changed");
 
-            /*
-             * // wel'll get no signal strength changed intent in the very first
-             * // seconds the app is running on device. // if app is running on
-             * emulator we won't get the intent at all. JSONObject signalStatus
-             * = response.getJSONObject("signal"); String cdmaLevel =
-             * batteryStatus.getString("cdma_level"); String evdoLevel =
-             * batteryStatus.getString("evdo_level"); String gsmLevel =
-             * batteryStatus.getString("gsm_level"); String signalIcon =
-             * batteryStatus.getString("signal_icon"); String signalStrength =
-             * batteryStatus.getString("signal_strength");
-             */
             String smsReceived = response.getString("sms_received");
             String smsSentError = response.getString("sms_sent_error");
             String smsSentSuccess = response.getString("sms_sent_success");
@@ -213,12 +202,7 @@ public class SimpleWebServerTest extends WebSMSToolActivityTestcase
             assertFalse(null == isFull);
             assertFalse(null == isUsbCharge);
             assertFalse(null == hasContactChanged);
-            /*
-             * assertFalse( null == signalStatus); assertFalse( null ==
-             * cdmaLevel); assertFalse( null == evdoLevel); assertFalse( null ==
-             * gsmLevel); assertFalse( null == signalIcon); assertFalse( null ==
-             * signalStrength);
-             */
+
             assertFalse(null == smsReceived);
             assertFalse(null == smsSentError);
             assertFalse(null == smsSentSuccess);

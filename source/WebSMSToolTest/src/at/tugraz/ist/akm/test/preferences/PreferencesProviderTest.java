@@ -23,7 +23,7 @@ import android.test.AndroidTestCase;
 import at.tugraz.ist.akm.activities.preferences.PrefsFragment;
 import at.tugraz.ist.akm.preferences.OnSharedPreferenceEventListenValidator;
 import at.tugraz.ist.akm.preferences.SharedPreferencesProvider;
-import at.tugraz.ist.akm.test.trace.ThrowingLogSink;
+import at.tugraz.ist.akm.test.trace.ExceptionThrowingLogSink;
 import at.tugraz.ist.akm.trace.LogClient;
 import at.tugraz.ist.akm.trace.TraceService;
 
@@ -40,7 +40,7 @@ public class PreferencesProviderTest extends AndroidTestCase implements
     public PreferencesProviderTest()
     {
         super();
-        TraceService.setSink(new ThrowingLogSink());
+        TraceService.setSink(new ExceptionThrowingLogSink());
     }
 
 
