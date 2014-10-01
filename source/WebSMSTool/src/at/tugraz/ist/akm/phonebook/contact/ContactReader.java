@@ -187,9 +187,9 @@ public class ContactReader implements IContactReader
                 }
                 bytes = oStream.toByteArray();
             }
-            catch (IOException ioException)
+            catch (IOException e)
             {
-                // there is no picture, don't care
+                mLog.error("could not retreive photo bytes", e);
             }
             finally
             {

@@ -121,7 +121,7 @@ public class OnSharedPreferenceEventListenValidator implements
                 }
                 catch (Exception e)
                 {
-                    // i don't care
+                    mLog.error("shared preference key not found", e);
                 }
 
                 if (key.equals(resourceString(R.string.preferences_password_key)))
@@ -134,7 +134,7 @@ public class OnSharedPreferenceEventListenValidator implements
                 }
                 catch (Exception e)
                 {
-                    // i don't care
+                    mLog.error("shared preference set summary error", e);
                 }
             }
         }

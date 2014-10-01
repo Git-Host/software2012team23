@@ -48,14 +48,6 @@ public class TextingAdapterTest extends WebSMSToolActivityTestcase implements
 
     public void testSendLongText() throws Exception
     {
-        // android.telephony.ServiceState voiceService = new
-        // android.telephony.ServiceState();
-        // if (android.telephony.ServiceState.STATE_IN_SERVICE != voiceService
-        // .getState())
-        // {
-        // assertTrue(false);
-        // }
-
         int awaitedCallbacks = 3, tries = 30, durationMs = 200;
         mIsTestcaseSendLongText = true;
         TextMessage message = SmsHelper.getDummyMultiTextMessage();
@@ -76,13 +68,6 @@ public class TextingAdapterTest extends WebSMSToolActivityTestcase implements
 
     public void testSendNoException() throws Exception
     {
-        // android.telephony.ServiceState voiceService = new
-        // android.telephony.ServiceState();
-        // if (android.telephony.ServiceState.STATE_IN_SERVICE != voiceService
-        // .getState())
-        // {
-        // assertTrue(false);
-        // }
         mIsTestcaseSendNoFail = true;
         TextingInterface texting = new TextingAdapter(mContext, this, this);
         texting.start();

@@ -32,7 +32,7 @@ public class ThrowingLogableTest extends TestCase
     public void setUp() throws Exception
     {
         super.setUp();
-        TraceService.setSink(new ThrowingLogSink());
+        TraceService.setSink(new ExceptionThrowingLogSink());
     }
 
 

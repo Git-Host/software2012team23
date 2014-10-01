@@ -19,7 +19,7 @@ package at.tugraz.ist.akm.test.base;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.test.ActivityTestCase;
-import at.tugraz.ist.akm.test.trace.ThrowingLogSink;
+import at.tugraz.ist.akm.test.trace.ExceptionThrowingLogSink;
 import at.tugraz.ist.akm.trace.LogClient;
 import at.tugraz.ist.akm.trace.TraceService;
 
@@ -30,7 +30,7 @@ public class WebSMSToolActivityTestcase extends ActivityTestCase {
 	protected LogClient mLog = null;
 
 	public WebSMSToolActivityTestcase(String logTag) {
-		TraceService.setSink(new ThrowingLogSink());
+		TraceService.setSink(new ExceptionThrowingLogSink());
 		mLog = new LogClient(logTag);
 	}
 

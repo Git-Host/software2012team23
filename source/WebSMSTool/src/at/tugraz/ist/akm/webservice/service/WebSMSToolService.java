@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package at.tugraz.ist.akm.webservice;
+package at.tugraz.ist.akm.webservice.service;
 
 import java.util.Map;
 
@@ -27,10 +27,8 @@ import android.content.pm.ApplicationInfo;
 import android.net.NetworkInfo;
 import android.net.wifi.WifiManager;
 import android.os.Binder;
-import android.os.Debug;
 import android.os.IBinder;
-import at.tugraz.ist.akm.activities.MainActivity;
-import at.tugraz.ist.akm.exceptional.UncaughtExceptionLogger;
+import android.os.Messenger;
 import at.tugraz.ist.akm.secureRandom.PRNGFixes;
 import at.tugraz.ist.akm.trace.LogClient;
 import at.tugraz.ist.akm.webservice.server.SimpleWebServer;
@@ -38,20 +36,36 @@ import at.tugraz.ist.akm.webservice.server.SimpleWebServer;
 public class WebSMSToolService extends Service
 {
 
-    public static final String SERVICE_STARTING = "at.tugraz.ist.akm.sms.SERVICE_STARTING";
-    public static final String SERVICE_STARTED_BOGUS = "at.tugraz.ist.akm.sms.SERVICE_STARTED_BOGUS";
+    // public static final String SERVICE_STARTING =
+    // "at.tugraz.ist.akm.sms.SERVICE_STARTING";
+    // public static final String SERVICE_STARTED_BOGUS =
+    // "at.tugraz.ist.akm.sms.SERVICE_STARTED_BOGUS";
     public static final String SERVICE_STARTED = "at.tugraz.ist.akm.sms.SERVICE_STARTED";
-    public static final String SERVICE_STOPPING = "at.tugraz.ist.akm.sms.SERVICE_STOPPING";
-    public static final String SERVICE_STOPPED_BOGUS = "at.tugraz.ist.akm.sms.SERVICE_STOPPED_BOGUS";
-    public static final String SERVICE_STOPPED = "at.tugraz.ist.akm.sms.SERVICE_STOPPED";
+    // public static final String SERVICE_STOPPING =
+    // "at.tugraz.ist.akm.sms.SERVICE_STOPPING";
+    // public static final String SERVICE_STOPPED_BOGUS =
+    // "at.tugraz.ist.akm.sms.SERVICE_STOPPED_BOGUS";
+    // public static final String SERVICE_STOPPED =
+    // "at.tugraz.ist.akm.sms.SERVICE_STOPPED";
 
     private Intent mServiceStartedStickyIntend = null;
     private String mSocketIp = null;
     private final LogClient mLog = new LogClient(this);
-    private static boolean mServiceRunning = false;
+    // private static boolean mServiceRunning = false;
     private SimpleWebServer mServer = null;
-    private final IBinder mBinder = new LocalBinder();
     private static BroadcastReceiver mIntentReceiver = null;
+    private Messenger mClientMessenger = null;
+    private final Messenger mServiceMessenger = new Messenger(
+            new IncomingClientMessageHandler(this));
+
+    private ServiceRunningStates mServiceRunningState = ServiceRunningStates.STOPPED;
+
+    public enum ServiceRunningStates {
+        STOPPED, STARTING, STARTED_ERRONEOUS, RUNNING, STOPPING, STOPPED_ERRONEOUS, UNKNOWN;
+        private ServiceRunningStates()
+        {
+        }
+    }
 
     private static class WebSMSToolBroadcastReceiver extends BroadcastReceiver
     {
@@ -71,16 +85,28 @@ public class WebSMSToolService extends Service
             String action = intent.getAction();
             if (0 == action.compareTo(WifiManager.WIFI_STATE_CHANGED_ACTION))
             {
-                mCallback.wifiStateChanged(context, intent);
+                mCallback.onWifiStateChanged(context, intent);
             } else if (0 == action
                     .compareTo(WifiManager.NETWORK_STATE_CHANGED_ACTION))
             {
-                mCallback.networkStateChanged(context, intent);
+                mCallback.onNetworkStateChanged(context, intent);
             } else
             {
-                mCallback.unknownIntent(context, intent);
+                mCallback.onUnknownIntent(context, intent);
             }
         }
+    }
+
+
+    protected void setClient(Messenger clientMessenger)
+    {
+        mClientMessenger = clientMessenger;
+    }
+
+
+    protected Messenger getClientMessenger()
+    {
+        return mClientMessenger;
     }
 
 
@@ -90,7 +116,7 @@ public class WebSMSToolService extends Service
         PRNGFixes.apply();
     }
 
-    public class LocalBinder extends Binder
+    public class WebSMSToolServiceBinder extends Binder
     {
         WebSMSToolService getService()
         {
@@ -98,45 +124,56 @@ public class WebSMSToolService extends Service
         }
     }
 
+
     @Override
     public void onCreate()
     {
         super.onCreate();
+        mLog.debug("on create");
     }
+
 
     @Override
     public IBinder onBind(Intent intent)
     {
-        return mBinder;
+        mLog.debug("server binder created");
+        mClientMessenger = null;
+        return mServiceMessenger.getBinder();
+    }
+
+
+    @Override
+    public boolean onUnbind(Intent intent)
+    {
+        
+        return super.onUnbind(intent);
     }
 
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId)
     {
-        if (Debug.isDebuggerConnected())
-        {
-            UncaughtExceptionLogger exLogger = new UncaughtExceptionLogger(mLog);
-            exLogger.register();
-        }
-
+        mLog.debug("on start command received");
+        super.onStartCommand(intent, flags, startId);
         synchronized (this)
         {
-            if (!mServiceRunning)
+            if (mServiceRunningState == ServiceRunningStates.STOPPED)
             {
+                mServiceRunningState = ServiceRunningStates.STARTING;
                 registerIntentReceiver();
 
-                try
-                {
-                    mSocketIp = intent
-                            .getStringExtra(MainActivity.SERVER_IP_ADDRESS_INTENT_KEY);
-                }
-                catch (NullPointerException npe)
-                {
-                    mLog.error("got bad start intent - not starting service");
-                    stopSelf();
-                    return START_STICKY;
-                }
+                // try
+                // {
+                // mSocketIp = intent
+                // .getStringExtra(MainActivity.SERVER_IP_ADDRESS_INTENT_KEY);
+                // }
+                // catch (NullPointerException npe)
+                // {
+                // mLog.error("received unknown intent [" + intent
+                // + "] flags[" + flags + "] id[" + startId + "]");
+                // stopSelf();
+                // return START_STICKY;
+                // }
 
                 try
                 {
@@ -144,30 +181,40 @@ public class WebSMSToolService extends Service
                     getApplicationContext().removeStickyBroadcast(
                             mServiceStartedStickyIntend);
 
-                    getApplicationContext().sendBroadcast(
-                            new Intent(SERVICE_STARTING));
+                    // getApplicationContext().sendBroadcast(
+                    // new Intent(SERVICE_STARTING));
                     mServer.startServer();
-                    mServiceRunning = mServer.isRunning();
-                    if (!mServiceRunning)
+
+                    if (mServer.isRunning())
+                    {
+                        mServiceRunningState = ServiceRunningStates.RUNNING;
+                    } else
+                    {
                         throw new Exception("server failed to start");
-                    getApplicationContext().sendStickyBroadcast(
-                            mServiceStartedStickyIntend);
+                    }
+
+                    // mServiceRunning = mServer.isRunning();
+                    // if (!mServiceRunning)
+                    // throw new Exception("server failed to start");
+                    // getApplicationContext().sendStickyBroadcast(
+                    // mServiceStartedStickyIntend);
                     mLog.info("Web service has been started");
                 }
                 catch (Exception ex)
                 {
-                    mLog.error("Couldn't start web service", ex);
-                    getApplicationContext().sendBroadcast(
-                            new Intent(SERVICE_STARTED_BOGUS));
+                    mLog.error("failed starting web service", ex);
+                    // getApplicationContext().sendBroadcast(
+                    // new Intent(SERVICE_STARTED_BOGUS));
+                    mServiceRunningState = ServiceRunningStates.STARTED_ERRONEOUS;
                     stopSelf();
                 }
             } else
             {
-                mLog.error("Couldn't start web service (already running)");
+                mLog.error("failed to start web service, state ["
+                        + mServiceRunningState + "]");
             }
 
-            super.onStartCommand(intent, flags, startId);
-            return START_STICKY;
+            return START_NOT_STICKY;
         }
     }
 
@@ -191,7 +238,7 @@ public class WebSMSToolService extends Service
     @Override
     public boolean stopService(Intent name)
     {
-        boolean stopped = stopWebSMSToolService(name);
+        boolean stopped = stopWebSMSToolService();
         super.stopService(name);
         return stopped;
     }
@@ -200,49 +247,78 @@ public class WebSMSToolService extends Service
     @Override
     public void onDestroy()
     {
-        stopWebSMSToolService(null);
+        stopWebSMSToolService();
         super.onDestroy();
     }
 
 
-    private boolean stopWebSMSToolService(Intent name)
+    protected ServiceRunningStates getRunningState()
     {
+        return mServiceRunningState;
+    }
+
+
+    protected String getServerProtocol()
+    {
+        return mServer.getServerProtocol();
+    }
+
+
+    protected String getServerAddress()
+    {
+        return mServer.getServerAddress();
+    }
+
+
+    protected int getServerPort()
+    {
+        return mServer.getServerPort();
+    }
+
+
+    protected boolean stopWebSMSToolService()
+    {
+        mServiceRunningState = ServiceRunningStates.STOPPING;
         printThreadList();
-        boolean stopped;
         synchronized (this)
         {
-            stopped = false;
             unregisterIntentReceiver();
             getApplicationContext().removeStickyBroadcast(
                     mServiceStartedStickyIntend);
             try
             {
-                getApplicationContext().sendBroadcast(
-                        new Intent(SERVICE_STOPPING));
+                // getApplicationContext().sendBroadcast(
+                // new Intent(SERVICE_STOPPING));
                 mServer.stopServer();
                 waitForServiceBeingStopped();
-                mServiceRunning = mServer.isRunning();
-                if (mServiceRunning)
+                // mServiceRunning = mServer.isRunning();
+                // if (mServiceRunning)
+                // {
+                // throw new Exception("server failed to stop");
+                // }
+
+                // getApplicationContext().sendBroadcast(
+                // new Intent(SERVICE_STOPPED));
+                if (mServer.isRunning())
                 {
                     throw new Exception("server failed to stop");
                 }
-                getApplicationContext().sendBroadcast(
-                        new Intent(SERVICE_STOPPED));
-                stopped = true;
+                mServiceRunningState = ServiceRunningStates.STOPPED;
             }
             catch (Exception ex)
             {
                 mLog.error("Error while stopping server!", ex);
-                getApplicationContext().sendBroadcast(
-                        new Intent(SERVICE_STOPPED_BOGUS));
+                // getApplicationContext().sendBroadcast(
+                // new Intent(SERVICE_STOPPED_BOGUS));
+                mServiceRunningState = ServiceRunningStates.STOPPED_ERRONEOUS;
             }
         }
         printThreadList();
-        return stopped;
+        return (mServiceRunningState == ServiceRunningStates.STOPPED);
     }
 
 
-    public void wifiStateChanged(Context context, Intent intent)
+    public void onWifiStateChanged(Context context, Intent intent)
     {
         String extraKey = WifiManager.EXTRA_WIFI_STATE;
         boolean disabled = WifiManager.WIFI_STATE_DISABLED == intent
@@ -264,12 +340,12 @@ public class WebSMSToolService extends Service
         {
             return;
         }
-        mLog.debug("wifi state changed: address may be invalid from now on - turning off service");
+        mLog.debug("wifi state changed, turning off service");
         stopSelf();
     }
 
 
-    public void networkStateChanged(Context context, Intent intent)
+    public void onNetworkStateChanged(Context context, Intent intent)
     {
         NetworkInfo networkInfo = (NetworkInfo) intent.getExtras().get(
                 WifiManager.EXTRA_NETWORK_INFO);
@@ -278,14 +354,14 @@ public class WebSMSToolService extends Service
         {
             return;
         }
-        mLog.debug("network state changed: address may be invalid from now on - turning off service");
+        mLog.debug("network state changed, turning off service");
         stopSelf();
     }
 
 
-    public void unknownIntent(Context context, Intent intent)
+    public void onUnknownIntent(Context context, Intent intent)
     {
-        mLog.debug("recived unhandled intent [" + intent.getAction() + "]");
+        mLog.debug("recived unknown intent [" + intent.getAction() + "]");
     }
 
 
@@ -315,9 +391,9 @@ public class WebSMSToolService extends Service
             {
                 this.wait(delayMs);
             }
-            catch (Throwable ex)
+            catch (InterruptedException ex)
             {
-                ; // don't care
+                mLog.error("interrupted during wait", ex);
             }
         }
     }

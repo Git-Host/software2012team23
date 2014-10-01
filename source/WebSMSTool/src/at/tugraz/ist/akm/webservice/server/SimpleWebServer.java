@@ -279,7 +279,7 @@ public class SimpleWebServer
             }
             catch (IOException e)
             {
-                // don't care
+                mLog.error("error closing socket", e);
             }
             finally
             {
@@ -349,6 +349,24 @@ public class SimpleWebServer
         finally
         {
             appKeystore.close();
+        }
+    }
+
+
+    public synchronized String getServerAddress()
+    {
+        return mSocketAddress.getHostAddress();
+    }
+
+
+    public synchronized String getServerProtocol()
+    {
+        if (mHttps)
+        {
+            return "https";
+        } else
+        {
+            return "http";
         }
     }
 

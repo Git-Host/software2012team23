@@ -37,6 +37,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.content.Context;
+import android.telephony.SignalStrength;
 import at.tugraz.ist.akm.content.SmsContentConstants;
 import at.tugraz.ist.akm.content.query.ContactFilter;
 import at.tugraz.ist.akm.content.query.TextMessageFilter;
@@ -54,8 +55,8 @@ import at.tugraz.ist.akm.trace.LogClient;
 import at.tugraz.ist.akm.webservice.WebServerConfig;
 import at.tugraz.ist.akm.webservice.protocol.json.JsonFactory;
 
-public class JsonAPIRequestProcessor extends AbstractHttpRequestProcessor implements
-        SmsIOCallback, IContactModifiedCallback
+public class JsonAPIRequestProcessor extends AbstractHttpRequestProcessor
+        implements SmsIOCallback, IContactModifiedCallback
 {
     private final static String JSON_STATE_SUCCESS = "success";
     private final static String JSON_STATE_ERROR = "error";
@@ -80,6 +81,8 @@ public class JsonAPIRequestProcessor extends AbstractHttpRequestProcessor implem
     private volatile JSONArray mJsonContactList = null;
     private Object mJsonContactListLock = new Object();
 
+    private TelephonySignalStrength mTelephonySignal = null;
+
 
     public JsonAPIRequestProcessor(final Context context, final XmlNode config,
             final HttpRequestHandlerRegistry registry) throws Throwable
@@ -91,11 +94,18 @@ public class JsonAPIRequestProcessor extends AbstractHttpRequestProcessor implem
         mJsonContactList = fetchContactsJsonArray();
         mLog.debug("preloading contacts [done]");
 
+        mTelephonySignal = new TelephonySignalStrength(mContext);
         mSystemMonitor = new SystemMonitor(context);
         mSMSThreadMessageCount = 20;
 
         mSystemMonitor.start();
         mTextingAdapter.start();
+    }
+
+
+    private JsonAPIRequestProcessor()
+    {
+        super(null, null, null);
     }
 
 
@@ -333,7 +343,8 @@ public class JsonAPIRequestProcessor extends AbstractHttpRequestProcessor implem
                 conFilter.setId(Integer.parseInt(contact_id));
                 List<Contact> contacts = mTextingAdapter
                         .fetchContacts(conFilter);
-                mLog.debug("found contacts - list size [" + contacts.size() +"]");
+                mLog.debug("found contacts - list size [" + contacts.size()
+                        + "]");
                 if (contacts.size() == 1)
                 {
                     Contact contact = contacts.get(0);
@@ -359,8 +370,8 @@ public class JsonAPIRequestProcessor extends AbstractHttpRequestProcessor implem
                             TextMessageFilter msgFilter = new TextMessageFilter();
                             msgFilter.setThreadId(threadId.longValue());
                             msgFilter.setBox(SmsContentConstants.Uri.BASE_URI);
-                            mLog.debug("fetch SMS thread with ID ["
-                                    + threadId + "]");
+                            mLog.debug("fetch SMS thread with ID [" + threadId
+                                    + "]");
                             List<TextMessage> threadMessages = mTextingAdapter
                                     .fetchTextMessages(msgFilter);
 
@@ -559,8 +570,8 @@ public class JsonAPIRequestProcessor extends AbstractHttpRequestProcessor implem
             {
                 this.mSMSWaitingForSentCallback.put(address, parts);
             }
-            mLog.debug("message queued for sending to address "
-                    + address + "] and parts [" + parts +"]");
+            mLog.debug("message queued for sending to address " + address
+                    + "] and parts [" + parts + "]");
 
             this.setSuccessState(resultObject);
         } else
@@ -643,16 +654,18 @@ public class JsonAPIRequestProcessor extends AbstractHttpRequestProcessor implem
             this.mSMSReceivedList.clear();
 
             mLog.debug("evaluate current telephone state");
-            BatteryStatus status = this.mSystemMonitor.getBatteryStatus();
-            TelephonySignalStrength signal = this.mSystemMonitor
-                    .getSignalStrength();
-            if (status != null)
+            BatteryStatus batteryStatus = this.mSystemMonitor.getBatteryStatus();
+            mTelephonySignal.takeNewSignalStrength(this.mSystemMonitor
+                    .getSignalStrength());
+            SignalStrength signalStrength = mTelephonySignal.currentSignalStrength();
+            
+            if (batteryStatus != null)
             {
-                result.put("battery", mJsonFactory.createJsonObject(status));
+                result.put("battery", mJsonFactory.createJsonObject(batteryStatus));
             }
-            if (signal != null)
+            if (signalStrength != null)
             {
-                result.put("signal", mJsonFactory.createJsonObject(signal));
+                result.put("signal", mJsonFactory.createJsonObject(signalStrength));
             }
 
             this.setSuccessState(result);

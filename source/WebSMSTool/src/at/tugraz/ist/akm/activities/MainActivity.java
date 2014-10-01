@@ -47,7 +47,7 @@ import at.tugraz.ist.akm.exceptional.UncaughtExceptionLogger;
 import at.tugraz.ist.akm.secureRandom.PRNGFixes;
 import at.tugraz.ist.akm.trace.LogClient;
 import at.tugraz.ist.akm.trace.TraceService;
-import at.tugraz.ist.akm.webservice.WebSMSToolService;
+import at.tugraz.ist.akm.webservice.service.WebSMSToolService;
 
 public class MainActivity extends Activity
 {

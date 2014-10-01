@@ -209,14 +209,14 @@ public class JsonFactoryTest extends TestCase
             String person, String date, String address, String seen,
             String body, String status)
     {
-        String protocol = "don't care";
-        String type = "don't care";
-        String serviceCenter = "don't care";
-        String locked = "don't care";
-        String replyPathPresent = "don't care";
-        String subject = "don't care";
-        String errorCode = "don't care";
-        String read = "don't care";
+        String protocol = "xxx";
+        String type = "xxx";
+        String serviceCenter = "xxx";
+        String locked = "xxx";
+        String replyPathPresent = "xxx";
+        String subject = "xxx";
+        String errorCode = "xxx";
+        String read = "xxx";
 
         TextMessage textMessage = new TextMessage();
         textMessage.setThreadId(threadId);

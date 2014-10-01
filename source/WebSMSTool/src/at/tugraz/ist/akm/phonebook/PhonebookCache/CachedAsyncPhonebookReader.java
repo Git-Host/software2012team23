@@ -168,8 +168,7 @@ public class CachedAsyncPhonebookReader extends Thread implements
                 }
                 catch (InterruptedException e)
                 {
-                    // don't care
-                    mLog.debug("ignoring interrupted exception");
+                    mLog.error("ignore interrupted exception", e);
                 }
             }
         }
@@ -184,8 +183,7 @@ public class CachedAsyncPhonebookReader extends Thread implements
         }
         catch (InterruptedException ie)
         {
-            // don't care
-            mLog.debug("ignored interrupted exception");
+            mLog.error("ignore interrupted exception", ie);
         }
     }
 

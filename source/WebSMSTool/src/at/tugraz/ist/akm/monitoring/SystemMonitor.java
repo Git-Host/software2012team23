@@ -24,54 +24,65 @@ import android.telephony.SignalStrength;
 import android.telephony.TelephonyManager;
 import at.tugraz.ist.akm.trace.LogClient;
 
-public class SystemMonitor extends PhoneStateListener {
+public class SystemMonitor extends PhoneStateListener
+{
 
-	private Context mContext = null;
-	private TelephonyManager mTel = null;
-	private SignalStrength mSingalStrength = null;
-	private LogClient mLog = new LogClient(this);
+    private Context mContext = null;
+    private TelephonyManager mTel = null;
+    private SignalStrength mSingalStrength = null;
+    private LogClient mLog = new LogClient(this);
 
-	public SystemMonitor(Context context) {
-		mContext = context;
-		mTel = (TelephonyManager) mContext
-				.getSystemService(Context.TELEPHONY_SERVICE);
 
-	}
+    public SystemMonitor(Context context)
+    {
+        mContext = context;
+        mTel = (TelephonyManager) mContext
+                .getSystemService(Context.TELEPHONY_SERVICE);
 
-	public void start() {
-		mLog.info("start: registering phone state listener");
-		mTel.listen(this, PhoneStateListener.LISTEN_SIGNAL_STRENGTHS);
-	}
+    }
 
-	public void stop() {
-		mLog.info("stop: unregistering phone state listener");
-		mTel.listen(this, PhoneStateListener.LISTEN_NONE);
-	}
 
-	public BatteryStatus getBatteryStatus() {
-		IntentFilter filter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
-		Intent batteryInfos = mContext.registerReceiver(null, filter);
-		return new BatteryStatus(mContext, batteryInfos);
-	}
+    public void start()
+    {
+        mLog.debug("register phone state listener");
+        mTel.listen(this, PhoneStateListener.LISTEN_SIGNAL_STRENGTHS);
+    }
 
-	public synchronized TelephonySignalStrength getSignalStrength() {
-		if (null != mSingalStrength) {
-			mLog.debug("passing signal strength to external caller");
-			return new TelephonySignalStrength(mContext, mSingalStrength);
-		} else {
-			mLog.warning("failed to pass SignalStrength - no info available at the moment");	
-			return null;
-		}
-	}
 
-	private void setSignalStrength(SignalStrength signalStrength) {
-		mLog.info("signal strength changed");
-		mSingalStrength = signalStrength;
-	}
+    public void stop()
+    {
+        mLog.debug("unregister phone state listener");
+        mTel.listen(this, PhoneStateListener.LISTEN_NONE);
+    }
 
-	@Override
-	public synchronized void onSignalStrengthsChanged(SignalStrength signalStrength) {
-		super.onSignalStrengthsChanged(signalStrength);
-		setSignalStrength(signalStrength);
-	}
+
+    public BatteryStatus getBatteryStatus()
+    {
+        IntentFilter filter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
+        Intent batteryInfos = mContext.registerReceiver(null, filter);
+        return new BatteryStatus(mContext, batteryInfos);
+    }
+
+
+    public synchronized SignalStrength getSignalStrength()
+    {
+        if (null != mSingalStrength)
+        {
+            mLog.debug("passig SignalStrength forward");
+        } else
+        {
+            mLog.warning("no SignalStrength available, passing NULL forward");
+        }
+        return mSingalStrength;
+    }
+
+
+    @Override
+    public synchronized void onSignalStrengthsChanged(
+            SignalStrength signalStrength)
+    {
+        mLog.info("signal strength changed ["+signalStrength+"]");
+        super.onSignalStrengthsChanged(signalStrength);
+        mSingalStrength = signalStrength;
+    }
 }

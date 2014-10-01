@@ -31,13 +31,13 @@ import android.view.View;
 import android.widget.ToggleButton;
 import at.tugraz.ist.akm.R;
 import at.tugraz.ist.akm.activities.MainActivity;
-import at.tugraz.ist.akm.activities.StartServiceFragment;
+import at.tugraz.ist.akm.environment.AppEnvironment;
 import at.tugraz.ist.akm.keystore.ApplicationKeyStore;
 import at.tugraz.ist.akm.preferences.SharedPreferencesProvider;
-import at.tugraz.ist.akm.test.trace.ThrowingLogSink;
+import at.tugraz.ist.akm.test.trace.ExceptionThrowingLogSink;
 import at.tugraz.ist.akm.trace.LogClient;
 import at.tugraz.ist.akm.trace.TraceService;
-import at.tugraz.ist.akm.webservice.WebSMSToolService;
+import at.tugraz.ist.akm.webservice.service.WebSMSToolService;
 
 import com.robotium.solo.Solo;
 
@@ -53,21 +53,20 @@ public class MainActivityTest extends
     public MainActivityTest()
     {
         super(MainActivity.class);
-        TraceService.setSink(new ThrowingLogSink());
+        TraceService.setSink(new ExceptionThrowingLogSink());
         mLog = new LogClient(MainActivityTest.class.getName());
     }
 
 
-    public void testMainActivityStart() throws Exception
+    public void test_MainActivityStart() throws Exception
     {
         MainActivity activity = getActivity();
         assertTrue(null != activity);
     }
 
 
-    public void testStartStopButton() throws InterruptedException
+    public void test_StartStopButton() throws InterruptedException
     {
-
         SharedPreferencesProvider prefs = new SharedPreferencesProvider(
                 getActivity().getApplicationContext());
         ApplicationKeyStore appKeystore = new ApplicationKeyStore();
@@ -78,6 +77,7 @@ public class MainActivityTest extends
         appKeystore.close();
 
         Solo solo = new Solo(getInstrumentation(), getActivity());
+        
         solo.assertCurrentActivity("Current activty is not MainActivity",
                 MainActivity.class);
         WifiManager wm = (WifiManager) mContext
@@ -94,8 +94,7 @@ public class MainActivityTest extends
         solo.clickOnView(startStop);
         waitForServiceBeingStarted();
 
-        StartServiceFragment fragment = new StartServiceFragment();
-        if (wm.isWifiEnabled() || fragment.isRunningOnEmulator())
+        if (wm.isWifiEnabled() || AppEnvironment.isRunningOnEmulator())
         {
             sleepdMs(800);
             assertTrue(startStop.isChecked());
@@ -155,22 +154,77 @@ public class MainActivityTest extends
     }
 
 
+    public void test_StartStopServiceFragment_portrait_landscape_portrait()
+    {
+        switchOrientationForNavigationDrawerFragment(0);
+    }
+
+
+    public void test_MessagesLog_portrait_landscape_portrait()
+    {
+        switchOrientationForNavigationDrawerFragment(1);
+    }
+
+
+    public void test_Preferences_portrait_landscape_portrait()
+    {
+        switchOrientationForNavigationDrawerFragment(2);
+    }
+
+
+    public void test_About_portrait_landscape_portrait()
+    {
+        switchOrientationForNavigationDrawerFragment(3);
+    }
+
+
+    public void switchOrientationForNavigationDrawerFragment(
+            int navigationDrawerEntryIdx)
+    {
+        try
+        {
+            Solo solo = new Solo(getInstrumentation(), getActivity());
+
+            String mainFragmentTag = getFragmentOfNavigationDrawerMenu(0);
+            String otherFragmentTag = getFragmentOfNavigationDrawerMenu(navigationDrawerEntryIdx);
+
+            solo.waitForFragmentByTag(mainFragmentTag);
+
+            dragToOpenNavigationMenu();
+            solo.clickOnView(findNavigationDrawerMenuView(navigationDrawerEntryIdx));
+            solo.waitForFragmentByTag(otherFragmentTag);
+            assertFragmentVisible(true, otherFragmentTag);
+
+            solo.setActivityOrientation(Solo.PORTRAIT);
+            getInstrumentation().waitForIdleSync();
+            solo.setActivityOrientation(Solo.LANDSCAPE);
+            getInstrumentation().waitForIdleSync();
+            solo.setActivityOrientation(Solo.PORTRAIT);
+            getInstrumentation().waitForIdleSync();
+        }
+        catch (Throwable e)
+        {
+            e.printStackTrace();
+            assertTrue(false);
+        }
+    }
+
+
     private void bringMainFragment_thenOhterFragment_thenMainFragment_onTop_using_NavigationDrawer(
             int otherNavigationDrawerIdxIDx)
     {
         Solo solo = new Solo(getInstrumentation(), getActivity());
-        
+
         String mainFragmentTag = getFragmentOfNavigationDrawerMenu(0);
         String otherFragmentTag = getFragmentOfNavigationDrawerMenu(otherNavigationDrawerIdxIDx);
 
         solo.waitForFragmentByTag(mainFragmentTag);
-        
+
         dragToOpenNavigationMenu();
         solo.clickOnView(findNavigationDrawerMenuView(otherNavigationDrawerIdxIDx));
         solo.waitForFragmentByTag(otherFragmentTag);
         assertFragmentVisible(true, otherFragmentTag);
         assertFragmentVisible(false, mainFragmentTag);
-        
 
         solo.sendKey(KeyEvent.KEYCODE_BACK);
 
@@ -272,20 +326,20 @@ public class MainActivityTest extends
         solo.clickOnView(findNavigationDrawerMenuView(0));
         solo.waitForFragmentByTag(mainFragmentTag);
         assertFragmentVisible(true, mainFragmentTag);
-        
+
         dragToOpenNavigationMenu();
         solo.clickOnView(findNavigationDrawerMenuView(0));
         solo.waitForFragmentByTag(mainFragmentTag);
         assertFragmentVisible(true, mainFragmentTag);
         solo.sleep(1000);
-        
+
         dragToOpenNavigationMenu();
         solo.clickOnView(findNavigationDrawerMenuView(0));
         solo.waitForFragmentByTag(mainFragmentTag);
         assertFragmentVisible(true, mainFragmentTag);
-        
+
         solo.sendKey(KeyEvent.KEYCODE_BACK);
-        
+
     }
 
 
@@ -301,7 +355,7 @@ public class MainActivityTest extends
             }
             catch (InterruptedException e)
             {
-                // don't care
+                mLog.error("interrupted diring wait", e);
             }
         }
     }
@@ -383,9 +437,9 @@ public class MainActivityTest extends
                 mLog.debug("waiting ...");
             }
         }
-        catch (Exception ex)
+        catch (InterruptedException ex)
         {
-            // i don't care
+            mLog.error("interrupted diring wait", ex);
         }
         mLog.debug("service has been stopped");
     }
@@ -404,9 +458,9 @@ public class MainActivityTest extends
                 mLog.debug("waiting ...");
             }
         }
-        catch (Exception ex)
+        catch (InterruptedException ex)
         {
-            // i don't care
+            mLog.error("interrupted diring wait", ex);
         }
         mLog.debug("service is running");
     }
