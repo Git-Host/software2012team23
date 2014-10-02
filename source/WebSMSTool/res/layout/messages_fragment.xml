@@ -9,11 +9,105 @@
     android:orientation="vertical"
     android:showDividers="middle" >
 
-    <TextView
-        android:id="@+id/info_log_field"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:saveEnabled="false"
-        android:textIsSelectable="false"/>
+        android:orientation="horizontal" >
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_time" />
+
+        <Space
+            android:layout_width="5pt"
+            android:layout_height="match_parent" />
+
+        <ImageView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.5"
+            android:src="@drawable/ic_phone_number" />
+
+        <Space
+            android:layout_width="5pt"
+            android:layout_height="match_parent" />
+
+        <ImageView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:src="@drawable/ic_action_messages" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal" >
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="10:50" />
+
+        <Space
+            android:layout_width="5pt"
+            android:layout_height="match_parent" />
+
+        <TextView
+            android:layout_height="match_parent"
+            android:layout_width="0dp"
+            android:layout_weight="0.5"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:text="0043(0)680 3116664" />
+
+        <Space
+            android:layout_width="5pt"
+            android:layout_height="match_parent" />
+
+        <TextView
+            android:layout_height="match_parent"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:text="Hallo Mr foo adf adf aSDd SDSAd ASDf afd aadf " />
+    </LinearLayout>
+    
+        <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal" >
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="10:50" />
+
+        <Space
+            android:layout_width="5pt"
+            android:layout_height="match_parent" />
+
+        <TextView
+            android:layout_height="match_parent"
+            android:layout_width="0dp"
+            android:layout_weight="0.5"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:text="0043(0)680 3116664" />
+
+        <Space
+            android:layout_width="5pt"
+            android:layout_height="match_parent" />
+
+        <TextView
+            android:layout_height="match_parent"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:text="Hallo Mr foo adf adf aSDd SDSAd ASDf afd aadf " />
+    </LinearLayout>
 
 </LinearLayout>
