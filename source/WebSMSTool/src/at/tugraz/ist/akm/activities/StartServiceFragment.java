@@ -1,10 +1,5 @@
 package at.tugraz.ist.akm.activities;
 
-import java.util.Iterator;
-import java.util.List;
-
-import android.app.Activity;
-import android.app.ActivityManager;
 import android.app.Fragment;
 import android.content.ComponentName;
 import android.content.Context;
@@ -23,10 +18,10 @@ import android.widget.ToggleButton;
 import at.tugraz.ist.akm.R;
 import at.tugraz.ist.akm.environment.AppEnvironment;
 import at.tugraz.ist.akm.networkInterface.WifiIpAddress;
-import at.tugraz.ist.akm.preferences.SharedPreferencesProvider;
 import at.tugraz.ist.akm.trace.LogClient;
 import at.tugraz.ist.akm.webservice.service.ServiceConnectionMessageTypes;
 import at.tugraz.ist.akm.webservice.service.WebSMSToolService;
+import at.tugraz.ist.akm.webservice.service.WebSMSToolService.ServiceRunningStates;
 
 public class StartServiceFragment extends Fragment implements
         View.OnClickListener, ServiceConnection
@@ -34,77 +29,27 @@ public class StartServiceFragment extends Fragment implements
     LogClient mLog = new LogClient(
             StartServiceFragment.class.getCanonicalName());
 
-    // public static final String SERVER_IP_ADDRESS_INTENT_KEY =
-    // "at.tugraz.ist.akm.SERVER_IP_ADDRESS_INTENT_KEY";
-    private Intent mSmsServiceIntent = null;
+    private Intent mStartSmsServiceIntent = null;
     final String mServiceName = WebSMSToolService.class.getName();
     private ToggleButton mButton = null;
     private TextView mInfoFieldView = null;
-    private SharedPreferencesProvider mApplicationConfig = null;
-    // private ServiceStateListener mServiceListener = null;
 
     private Class<WebSMSToolService> mServiceClass = WebSMSToolService.class;
-    private String mServiceComponentNameSuffix = mServiceClass.getSimpleName();
+    private final String mServiceComponentNameSuffix = mServiceClass
+            .getSimpleName();
 
-    private WifiIpAddress mWifiIp = null;
-    // private String mLocalIp = null;
-    private String mServiceUrl = "";
-    private WebSMSToolService.ServiceRunningStates mServiceRunningState = WebSMSToolService.ServiceRunningStates.UNKNOWN;
+    private WifiIpAddress mWifiState = null;
 
     private Messenger mServiceMessenger = null;
     final Messenger mClientMessenger = new Messenger(
             new IncomingServiceMessageHandler(this));
 
+    private ServiceRunningStates mServiceRunningState = ServiceRunningStates.BEFORE_SINGULARITY;
 
-    // private static class ServiceStateListener extends BroadcastReceiver
-    // {
-    //
-    // private StartServiceFragment mCallback = null;
-    //
-    //
-    // public ServiceStateListener(StartServiceFragment callback)
-    // {
-    // mCallback = callback;
-    // }
-    //
-    //
-    // @Override
-    // public void onReceive(Context context, Intent intent)
-    // {
-    // String action = intent.getAction();
-    // if (0 == action.compareTo(WebSMSToolService.SERVICE_STARTED))
-    // {
-    // mCallback.onWebServiceStarted();
-    // } else if (0 == action
-    // .compareTo(WebSMSToolService.SERVICE_STARTED_BOGUS))
-    // {
-    // mCallback.onWebServiceStartFailed();
-    // } else if (0 == action
-    // .compareTo(WebSMSToolService.SERVICE_STARTING))
-    // {
-    // mCallback.onWebServiceStarting();
-    // } else if (0 == action.compareTo(WebSMSToolService.SERVICE_STOPPED))
-    // {
-    // mCallback.onWebServiceStopped();
-    // } else if (0 == action
-    // .compareTo(WebSMSToolService.SERVICE_STOPPED_BOGUS))
-    // {
-    // mCallback.onWebServiceStopFailed();
-    // } else if (0 == action
-    // .compareTo(WebSMSToolService.SERVICE_STOPPING))
-    // {
-    // mCallback.onWebServiceStopping();
-    // } else if (0 == action
-    // .compareTo(WebSMSToolService.SERVICE_STOPPING))
-    // {
-    // }
-    // }
-    // }
 
     public StartServiceFragment()
     {
         mLog.debug("constructing " + getClass().getSimpleName());
-        // mServiceListener = new ServiceStateListener(this);
     }
 
 
@@ -115,8 +60,12 @@ public class StartServiceFragment extends Fragment implements
         View view = inflater.inflate(R.layout.main_fragment, container, false);
 
         mLog.debug("on create view");
-        setUpApplicationConfig();
+        // setUpApplicationConfig();
         setUpUiReferences(view);
+        if (savedInstanceState != null)
+        {
+            // TODO
+        }
         // updateLocalIp();
         return view;
     }
@@ -126,51 +75,13 @@ public class StartServiceFragment extends Fragment implements
     public void onDestroy()
     {
         mLog.debug("fragment goes to hades");
-        mSmsServiceIntent = null;
+        mStartSmsServiceIntent = null;
         mLog = null;
         mButton = null;
         mInfoFieldView = null;
-        mApplicationConfig.close();
-        mApplicationConfig = null;
-        // mServiceListener = null;
-        // mLocalIp = null;
         super.onDestroy();
     }
 
-
-    // private void unregisterServiceStateChangeReceiver()
-    // {
-    // getActivity().unregisterReceiver(mServiceListener);
-    // }
-
-    protected void setHttpUrl(String serviceUrl)
-    {
-        mServiceUrl = serviceUrl;
-    }
-
-
-    protected void setServiceRunningState(
-            WebSMSToolService.ServiceRunningStates runningState)
-    {
-        mServiceRunningState = runningState;
-    };
-
-
-    // private void registerServiceStateChangeReceiver()
-    // {
-    // getActivity().registerReceiver(mServiceListener,
-    // new IntentFilter(WebSMSToolService.SERVICE_STARTING));
-    // getActivity().registerReceiver(mServiceListener,
-    // new IntentFilter(WebSMSToolService.SERVICE_STARTED));
-    // getActivity().registerReceiver(mServiceListener,
-    // new IntentFilter(WebSMSToolService.SERVICE_STARTED_BOGUS));
-    // getActivity().registerReceiver(mServiceListener,
-    // new IntentFilter(WebSMSToolService.SERVICE_STOPPING));
-    // getActivity().registerReceiver(mServiceListener,
-    // new IntentFilter(WebSMSToolService.SERVICE_STOPPED));
-    // getActivity().registerReceiver(mServiceListener,
-    // new IntentFilter(WebSMSToolService.SERVICE_STOPPED_BOGUS));
-    // }
 
     @Override
     public void onStart()
@@ -194,7 +105,6 @@ public class StartServiceFragment extends Fragment implements
         super.onResume();
         mLog.debug("user returned to fragment, update ui");
         updateUi();
-        // registerServiceStateChangeReceiver();
     }
 
 
@@ -205,7 +115,7 @@ public class StartServiceFragment extends Fragment implements
             mButton.setChecked(true);
             // TODO
             // updateLocalIp();
-            displayConnectionUrl();
+            // displayConnectionUrl();
         } else
         {
             mInfoFieldView.setText("");
@@ -223,20 +133,13 @@ public class StartServiceFragment extends Fragment implements
     }
 
 
-    private void setUpApplicationConfig()
-    {
-        mApplicationConfig = new SharedPreferencesProvider(getActivity()
-                .getApplicationContext());
-        mSmsServiceIntent = new Intent(getActivity(), mServiceClass);
-    }
-
-
     private void setUpUiReferences(View view)
     {
+        mStartSmsServiceIntent = new Intent(getActivity(), mServiceClass);
         mButton = (ToggleButton) view.findViewById(R.id.start_stop_server);
         mInfoFieldView = (TextView) view.findViewById(R.id.adress_data_field);
         mButton.setOnClickListener(this);
-        mWifiIp = new WifiIpAddress(view.getContext());
+        mWifiState = new WifiIpAddress(view.getContext());
     }
 
 
@@ -251,13 +154,14 @@ public class StartServiceFragment extends Fragment implements
     {
         if (!isServiceRunning())
         {
-            if (mWifiIp.isWifiEnabled() || AppEnvironment.isRunningOnEmulator())
+            if (mWifiState.isWifiEnabled()
+                    || AppEnvironment.isRunningOnEmulator())
             {
                 mLog.info("start web service");
                 displayStartingService();
-                 view.getContext().startService(mSmsServiceIntent);
+                view.getContext().startService(mStartSmsServiceIntent);
                 getActivity().getApplicationContext().bindService(
-                        mSmsServiceIntent, this, Context.BIND_AUTO_CREATE);
+                        mStartSmsServiceIntent, this, Context.BIND_AUTO_CREATE);
             } else
             {
                 displayNoWifiConnected();
@@ -268,34 +172,18 @@ public class StartServiceFragment extends Fragment implements
             }
         } else
         {
-            displayStoppingService();
-            // getActivity().getApplicationContext().unbindService(this);
-            askForServiceStopAsync();
-            // view.getContext().stopService(mSmsServiceIntent);
+            askWebServiceForServiceStopAsync();
+            getActivity().getApplicationContext().unbindService(this);
         }
     }
 
 
     private boolean isServiceRunning()
     {
-        ActivityManager activityManager = (ActivityManager) getActivity()
-                .getSystemService(Activity.ACTIVITY_SERVICE);
-        List<ActivityManager.RunningServiceInfo> runningServices = activityManager
-                .getRunningServices(Integer.MAX_VALUE);
-        Iterator<ActivityManager.RunningServiceInfo> service = runningServices
-                .iterator();
-
-        while (service.hasNext())
-        {
-            ActivityManager.RunningServiceInfo serviceInfo = (ActivityManager.RunningServiceInfo) service
-                    .next();
-            if (serviceInfo.service.getClassName().equals(mServiceName))
-            {
-                mLog.debug("our service is running [" + mServiceName + "]");
-                return true;
-            }
-        }
-        return false;
+        mLog.debug("service is in runningstate["
+                + mServiceRunningState.equals(ServiceRunningStates.RUNNING)
+                + "] state[" + mServiceRunningState + "]");
+        return (mServiceRunningState.equals(ServiceRunningStates.RUNNING));
     }
 
 
@@ -305,73 +193,90 @@ public class StartServiceFragment extends Fragment implements
     }
 
 
-    private void displayConnectionUrl()
-    {
-        mLog.debug("service url [" + mServiceUrl + "]");
-        // TODO
-
-        // mInfoFieldView.setText(mApplicationConfig.getProtocol() + "://"
-        // + mLocalIp + ":" + mApplicationConfig.getPort());
-        mInfoFieldView.setText(mServiceUrl);
-    }
-
-
-    private void displayStoppingService()
-    {
-        mInfoFieldView.setText("stopping service...");
-    }
-
-
     private void displayStartingService()
     {
         mInfoFieldView.setText("starting service...");
     }
 
 
-    // private boolean updateLocalIp()
-    // {
-    // mLocalIp = mWifiIp.readLocalIpAddress();
-    // return mWifiIp.isWifiEnabled();
-    // }
-
-    public void onWebServiceStarted()
+    private void setRunningState(ServiceRunningStates newState)
     {
-        displayConnectionUrl();
-        mButton.setChecked(true);
-        mLog.verbose("service started");
+        mLog.debug("client mirrored running state changed ["
+                + mServiceRunningState + "] -> [" + newState + "]");
+        mServiceRunningState = newState;
+        mInfoFieldView.setText("client state set to [" + mServiceRunningState
+                + "]");
+
     }
 
 
-    public void onWebServiceStartFailed()
+    protected void onWebServiceRunningBeforeSingularity()
     {
-        mLog.verbose("service started erroneous - please stop it manually before starting again");
+        setRunningState(ServiceRunningStates.BEFORE_SINGULARITY);
+        mInfoFieldView.setText("state: " + mServiceRunningState);
+        // askWebServiceForConnectionUrlAsync();
     }
 
 
-    public void onWebServiceStarting()
+    protected void onWebServiceRunning()
     {
-        displayStartingService();
+        // displayConnectionUrl();
+        setRunningState(ServiceRunningStates.RUNNING);
+        mInfoFieldView.setText("state: " + mServiceRunningState);
+        // askWebServiceForConnectionUrlAsync();
     }
 
 
-    public void onWebServiceStopFailed()
+    protected void onWebServiceURLChanged(String newUrl)
     {
-        mLog.verbose("service stopped erroneous - please stop it manually");
+        mLog.debug("url changed [" + newUrl + "]");
+        mInfoFieldView.setText(newUrl);
     }
 
 
-    public void onWebServiceStopped()
+    protected void onWebServiceStartErroneous()
     {
-        mInfoFieldView.setText("");
+        setRunningState(ServiceRunningStates.STARTED_ERRONEOUS);
+        mInfoFieldView.setText("state: " + mServiceRunningState);
+    }
+
+
+    protected void onWebServiceStarting()
+    {
+        setRunningState(ServiceRunningStates.STARTING);
+        mInfoFieldView.setText("state: " + mServiceRunningState);
+    }
+
+
+    protected void onWebServiceStoppedErroneous()
+    {
+        setRunningState(ServiceRunningStates.STOPPED_ERRONEOUS);
+        mInfoFieldView.setText("state: " + mServiceRunningState);
+    }
+
+
+    protected void onWebServiceStopped()
+    {
+
+        setRunningState(ServiceRunningStates.STOPPED);
+        mInfoFieldView.setText("state: " + mServiceRunningState);
         mButton.setChecked(false);
-        mLog.verbose("service stopped");
+        // getActivity().getApplicationContext().unbindService(this);
     }
 
 
-    public void onWebServiceStopping()
+    protected void onWebServiceStopping()
     {
-        displayStoppingService();
-        mLog.verbose("shut down service");
+        // displayStoppingService();
+        setRunningState(ServiceRunningStates.STOPPING);
+        mInfoFieldView.setText("state: " + mServiceRunningState);
+    }
+
+
+    protected void onWebServiceClientRegistered()
+    {
+        mLog.debug("client registered to service");
+        askWebServiceForRepublishStatesAsync();
     }
 
 
@@ -383,8 +288,7 @@ public class StartServiceFragment extends Fragment implements
         {
             mLog.debug("bound to service [" + mServiceComponentNameSuffix + "]");
             mServiceMessenger = new Messenger(service);
-            askForClientRegistrationAsync();
-            askForConnectionUrlAsync();
+            askWebServiceForClientRegistrationAsync();
         } else
         {
             mLog.error("failed binding fragment to service[" + inServiceName
@@ -399,7 +303,8 @@ public class StartServiceFragment extends Fragment implements
         String inServiceName = name.flattenToShortString();
         if (inServiceName.endsWith(mServiceComponentNameSuffix))
         {
-            mLog.debug("bound to service [" + mServiceComponentNameSuffix + "]");
+            mLog.debug("unbound from service [" + mServiceComponentNameSuffix
+                    + "]");
             mServiceMessenger = null;
         } else
         {
@@ -410,76 +315,56 @@ public class StartServiceFragment extends Fragment implements
     }
 
 
-    private void askForConnectionUrlAsync()
+    private void askWebServiceForConnectionUrlAsync()
     {
-        mLog.debug("asking for connection url");
-        if (mServiceMessenger != null)
-        {
-            try
-            {
-                mServiceMessenger.send(Message.obtain(null,
-                        ServiceConnectionMessageTypes.Client.Request.HTTP_URL));
-            }
-            catch (RemoteException e)
-            {
-                mLog.error("failed sending message to service", e);
-            }
-        } else
-        {
-            mLog.error("failed asking for url, service not available");
-        }
+        sendMessageToService(ServiceConnectionMessageTypes.Client.Request.CONNECTION_URL);
     }
 
 
-    private void askForClientRegistrationAsync()
+    private void askWebServiceForClientRegistrationAsync()
     {
-        mLog.debug("asking for client registration");
-        if (mServiceMessenger != null)
-        {
-            try
-            {
-                Message registration = Message
-                                .obtain(null,
-                                        ServiceConnectionMessageTypes.Client.Request.REGISTER_TO_SERVICE);
-                registration.replyTo = mClientMessenger;
-
-                mServiceMessenger
-                        .send(registration);
-            }
-            catch (RemoteException e)
-            {
-                mLog.error("failed sending message to service", e);
-            }
-        } else
-        {
-            mLog.error("failed asking for client registration, service not available");
-        }
+        sendMessageToService(ServiceConnectionMessageTypes.Client.Request.REGISTER_TO_SERVICE);
     }
 
 
-    private void askForServiceStopAsync()
+    private void askWebServiceForRepublishStatesAsync()
     {
-        mLog.debug("asking for service being stopped");
+        sendMessageToService(ServiceConnectionMessageTypes.Client.Request.REPUBLISH_STATES);
+    }
+
+
+    private void askWebServiceForServiceStopAsync()
+    {
+        sendMessageToService(ServiceConnectionMessageTypes.Client.Request.STOP_SERVICE);
+    }
+
+
+    private void sendMessageToService(int messageId)
+    {
+        String messageName = ServiceConnectionMessageTypes
+                .getMessageName(messageId);
+
+        mLog.debug("client sending [" + messageName + "] to service");
         if (mServiceMessenger != null)
         {
             try
             {
-                mServiceMessenger
-                        .send(Message
-                                .obtain(null,
-                                        ServiceConnectionMessageTypes.Client.Request.UNREGISTER_TO_SERVICE));
-                mServiceMessenger
-                        .send(Message
-                                .obtain(null,
-                                        ServiceConnectionMessageTypes.Client.Request.STOP_SERVICE));
+                Message messengerMessage = Message.obtain(null, messageId);
+                if (messageId == ServiceConnectionMessageTypes.Client.Request.REGISTER_TO_SERVICE)
+                {
+                    messengerMessage.replyTo = mClientMessenger;
+                }
+
+                mServiceMessenger.send(messengerMessage);
             }
             catch (RemoteException e)
             {
-                mLog.error("failed sending message to service", e);
+                mLog.error("failed sending [" + messageName + "] to service", e);
             }
         } else
         {
-            mLog.error("failed asking for service being stopped, service not available");
+            mLog.error("failed sending [" + messageName
+                    + "], service not available");
         }
     }
 }

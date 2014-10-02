@@ -16,19 +16,18 @@
 
 package at.tugraz.ist.akm.webservice.service;
 
-import java.util.Map;
-
 import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.pm.ApplicationInfo;
 import android.net.NetworkInfo;
 import android.net.wifi.WifiManager;
 import android.os.Binder;
 import android.os.IBinder;
+import android.os.Message;
 import android.os.Messenger;
+import android.os.RemoteException;
 import at.tugraz.ist.akm.secureRandom.PRNGFixes;
 import at.tugraz.ist.akm.trace.LogClient;
 import at.tugraz.ist.akm.webservice.server.SimpleWebServer;
@@ -36,17 +35,7 @@ import at.tugraz.ist.akm.webservice.server.SimpleWebServer;
 public class WebSMSToolService extends Service
 {
 
-    // public static final String SERVICE_STARTING =
-    // "at.tugraz.ist.akm.sms.SERVICE_STARTING";
-    // public static final String SERVICE_STARTED_BOGUS =
-    // "at.tugraz.ist.akm.sms.SERVICE_STARTED_BOGUS";
     public static final String SERVICE_STARTED = "at.tugraz.ist.akm.sms.SERVICE_STARTED";
-    // public static final String SERVICE_STOPPING =
-    // "at.tugraz.ist.akm.sms.SERVICE_STOPPING";
-    // public static final String SERVICE_STOPPED_BOGUS =
-    // "at.tugraz.ist.akm.sms.SERVICE_STOPPED_BOGUS";
-    // public static final String SERVICE_STOPPED =
-    // "at.tugraz.ist.akm.sms.SERVICE_STOPPED";
 
     private Intent mServiceStartedStickyIntend = null;
     private String mSocketIp = null;
@@ -58,10 +47,10 @@ public class WebSMSToolService extends Service
     private final Messenger mServiceMessenger = new Messenger(
             new IncomingClientMessageHandler(this));
 
-    private ServiceRunningStates mServiceRunningState = ServiceRunningStates.STOPPED;
+    private ServiceRunningStates mServiceRunningState = ServiceRunningStates.BEFORE_SINGULARITY;
 
     public enum ServiceRunningStates {
-        STOPPED, STARTING, STARTED_ERRONEOUS, RUNNING, STOPPING, STOPPED_ERRONEOUS, UNKNOWN;
+        STOPPED, STARTING, STARTED_ERRONEOUS, RUNNING, STOPPING, STOPPED_ERRONEOUS, BEFORE_SINGULARITY;
         private ServiceRunningStates()
         {
         }
@@ -95,12 +84,24 @@ public class WebSMSToolService extends Service
                 mCallback.onUnknownIntent(context, intent);
             }
         }
+
+
+        public IntentFilter newFilter()
+        {
+            IntentFilter filter = new IntentFilter();
+            filter.addAction(WifiManager.WIFI_STATE_CHANGED_ACTION);
+            filter.addAction(WifiManager.NETWORK_STATE_CHANGED_ACTION);
+            return filter;
+        }
     }
 
 
-    protected void setClient(Messenger clientMessenger)
+    protected void onClientRequestRegister(Messenger clientMessenger)
     {
         mClientMessenger = clientMessenger;
+        sendMessageToClient(
+                ServiceConnectionMessageTypes.Service.Response.REGISTERED_TO_SERVICE,
+                0, null);
     }
 
 
@@ -145,7 +146,7 @@ public class WebSMSToolService extends Service
     @Override
     public boolean onUnbind(Intent intent)
     {
-        
+
         return super.onUnbind(intent);
     }
 
@@ -157,23 +158,11 @@ public class WebSMSToolService extends Service
         super.onStartCommand(intent, flags, startId);
         synchronized (this)
         {
-            if (mServiceRunningState == ServiceRunningStates.STOPPED)
+            if (getRunningState() == ServiceRunningStates.BEFORE_SINGULARITY
+                    || getRunningState() == ServiceRunningStates.STOPPED)
             {
-                mServiceRunningState = ServiceRunningStates.STARTING;
+                setRunningState(ServiceRunningStates.STARTING);
                 registerIntentReceiver();
-
-                // try
-                // {
-                // mSocketIp = intent
-                // .getStringExtra(MainActivity.SERVER_IP_ADDRESS_INTENT_KEY);
-                // }
-                // catch (NullPointerException npe)
-                // {
-                // mLog.error("received unknown intent [" + intent
-                // + "] flags[" + flags + "] id[" + startId + "]");
-                // stopSelf();
-                // return START_STICKY;
-                // }
 
                 try
                 {
@@ -181,56 +170,31 @@ public class WebSMSToolService extends Service
                     getApplicationContext().removeStickyBroadcast(
                             mServiceStartedStickyIntend);
 
-                    // getApplicationContext().sendBroadcast(
-                    // new Intent(SERVICE_STARTING));
                     mServer.startServer();
 
                     if (mServer.isRunning())
                     {
-                        mServiceRunningState = ServiceRunningStates.RUNNING;
+                        setRunningState(ServiceRunningStates.RUNNING);
                     } else
                     {
                         throw new Exception("server failed to start");
                     }
 
-                    // mServiceRunning = mServer.isRunning();
-                    // if (!mServiceRunning)
-                    // throw new Exception("server failed to start");
-                    // getApplicationContext().sendStickyBroadcast(
-                    // mServiceStartedStickyIntend);
                     mLog.info("Web service has been started");
                 }
                 catch (Exception ex)
                 {
                     mLog.error("failed starting web service", ex);
-                    // getApplicationContext().sendBroadcast(
-                    // new Intent(SERVICE_STARTED_BOGUS));
-                    mServiceRunningState = ServiceRunningStates.STARTED_ERRONEOUS;
+                    setRunningState(ServiceRunningStates.STARTED_ERRONEOUS);
                     stopSelf();
                 }
             } else
             {
                 mLog.error("failed to start web service, state ["
-                        + mServiceRunningState + "]");
+                        + getRunningState() + "]");
             }
 
             return START_NOT_STICKY;
-        }
-    }
-
-
-    private void printThreadList()
-    {
-        if ((getApplicationContext().getApplicationInfo().flags & ApplicationInfo.FLAG_DEBUGGABLE) != 0)
-        {
-            Map<Thread, StackTraceElement[]> traces = Thread
-                    .getAllStackTraces();
-            StringBuilder threads = new StringBuilder("ServiceThreads:");
-            for (Thread t : traces.keySet())
-            {
-                threads.append(" *[" + t.getId() + "][" + t.getName() + "]");
-            }
-            mLog.debug(threads.toString());
         }
     }
 
@@ -247,7 +211,6 @@ public class WebSMSToolService extends Service
     @Override
     public void onDestroy()
     {
-        stopWebSMSToolService();
         super.onDestroy();
     }
 
@@ -255,6 +218,13 @@ public class WebSMSToolService extends Service
     protected ServiceRunningStates getRunningState()
     {
         return mServiceRunningState;
+    }
+
+
+    private void setRunningState(ServiceRunningStates newState)
+    {
+        mServiceRunningState = newState;
+        onClientRequestCurrentRunningState();
     }
 
 
@@ -276,10 +246,9 @@ public class WebSMSToolService extends Service
     }
 
 
-    protected boolean stopWebSMSToolService()
+    private boolean stopWebSMSToolService()
     {
-        mServiceRunningState = ServiceRunningStates.STOPPING;
-        printThreadList();
+        setRunningState(ServiceRunningStates.STOPPING);
         synchronized (this)
         {
             unregisterIntentReceiver();
@@ -287,34 +256,22 @@ public class WebSMSToolService extends Service
                     mServiceStartedStickyIntend);
             try
             {
-                // getApplicationContext().sendBroadcast(
-                // new Intent(SERVICE_STOPPING));
                 mServer.stopServer();
                 waitForServiceBeingStopped();
-                // mServiceRunning = mServer.isRunning();
-                // if (mServiceRunning)
-                // {
-                // throw new Exception("server failed to stop");
-                // }
-
-                // getApplicationContext().sendBroadcast(
-                // new Intent(SERVICE_STOPPED));
                 if (mServer.isRunning())
                 {
                     throw new Exception("server failed to stop");
                 }
-                mServiceRunningState = ServiceRunningStates.STOPPED;
+                setRunningState(ServiceRunningStates.STOPPED);
             }
             catch (Exception ex)
             {
                 mLog.error("Error while stopping server!", ex);
-                // getApplicationContext().sendBroadcast(
-                // new Intent(SERVICE_STOPPED_BOGUS));
-                mServiceRunningState = ServiceRunningStates.STOPPED_ERRONEOUS;
+                setRunningState(ServiceRunningStates.STOPPED_ERRONEOUS);
             }
         }
-        printThreadList();
-        return (mServiceRunningState == ServiceRunningStates.STOPPED);
+        onClientRequestRegister(null);
+        return (getRunningState() == ServiceRunningStates.STOPPED);
     }
 
 
@@ -332,7 +289,7 @@ public class WebSMSToolService extends Service
         boolean unknown = WifiManager.WIFI_STATE_UNKNOWN == intent.getIntExtra(
                 extraKey, -1);
 
-        mLog.debug("wifi statechanged: disabled [" + disabled
+        mLog.debug("wifi state changed disabled [" + disabled
                 + "], disabling [" + disabling + "], enabled [" + enabled
                 + "], enabling [" + enabling + "], unknown [" + unknown + "]");
 
@@ -340,6 +297,8 @@ public class WebSMSToolService extends Service
         {
             return;
         }
+        // TODO stopwerbsmstoolservie() before stopself();
+        // on enabled only?s
         mLog.debug("wifi state changed, turning off service");
         stopSelf();
     }
@@ -367,16 +326,17 @@ public class WebSMSToolService extends Service
 
     private void registerIntentReceiver()
     {
-        mIntentReceiver = new WebSMSToolBroadcastReceiver(this);
-        IntentFilter filter = new IntentFilter();
-        filter.addAction(WifiManager.WIFI_STATE_CHANGED_ACTION);
-        filter.addAction(WifiManager.NETWORK_STATE_CHANGED_ACTION);
-        registerReceiver(mIntentReceiver, filter);
+        WebSMSToolBroadcastReceiver intentReceiver = new WebSMSToolBroadcastReceiver(
+                this);
+        mIntentReceiver = intentReceiver;
+        mLog.debug("register wifi change intent receiver");
+        registerReceiver(mIntentReceiver, intentReceiver.newFilter());
     }
 
 
     private void unregisterIntentReceiver()
     {
+        mLog.debug("unregister wifi change intent receiver");
         unregisterReceiver(mIntentReceiver);
     }
 
@@ -395,6 +355,108 @@ public class WebSMSToolService extends Service
             {
                 mLog.error("interrupted during wait", ex);
             }
+        }
+    }
+
+
+    protected void onClientRequestCurrentRunningState()
+    {
+        sendMessageToClient(
+                ServiceConnectionMessageTypes.Service.Response.CURRENT_RUNNING_STATE,
+                translateRunningStateToInt(getRunningState()), null);
+    }
+
+
+    private void sendMessageToClient(int what, int arg1, Object objParameter)
+    {
+
+        String messageName = ServiceConnectionMessageTypes.getMessageName(what);
+
+        mLog.debug("service sending [" + messageName + "=" + arg1 + "] obj ["
+                + objParameter + "] to client");
+        if (mClientMessenger != null)
+        {
+            try
+            {
+                mClientMessenger.send(Message.obtain(null, what, arg1, 0,
+                        objParameter));
+            }
+            catch (RemoteException e)
+            {
+                mLog.error("failed sending to client [" + messageName + "]", e);
+            }
+        } else
+        {
+            mLog.debug("failed sending [" + messageName + "=" + arg1
+                    + "] obj [" + objParameter + "] client not registered");
+        }
+    }
+
+
+    private String formatConnectionUrl()
+    {
+        StringBuffer connectionUrl = new StringBuffer();
+        connectionUrl.append(mServer.getServerProtocol()).append("://")
+                .append(mServer.getServerAddress()).append(":")
+                .append(mServer.getServerPort());
+        return connectionUrl.toString();
+    }
+
+
+    protected void onClientRequestConnectionUrl()
+    {
+        sendMessageToClient(
+                ServiceConnectionMessageTypes.Service.Response.CONNECTION_URL,
+                0, formatConnectionUrl());
+    }
+
+
+    protected void onClientRequestRepublishStates()
+    {
+        sendMessageToClient(
+                ServiceConnectionMessageTypes.Service.Response.CURRENT_RUNNING_STATE,
+                translateRunningStateToInt(getRunningState()), null);
+
+        sendMessageToClient(
+                ServiceConnectionMessageTypes.Service.Response.CONNECTION_URL,
+                0, formatConnectionUrl());
+    }
+
+
+    protected void onClientRequstStopService()
+    {
+        if (getRunningState() == ServiceRunningStates.RUNNING)
+        {
+            stopWebSMSToolService();
+            stopSelf();
+        } else
+        {
+            mLog.debug("failed client request for stopping service in state ["
+                    + getRunningState() + "]");
+        }
+    }
+
+
+    private int translateRunningStateToInt(ServiceRunningStates state)
+    {
+        switch (state)
+        {
+        case BEFORE_SINGULARITY:
+            return ServiceConnectionMessageTypes.Service.Response.RUNNING_STATE_BEFORE_SINGULARITY;
+        case STARTED_ERRONEOUS:
+            return ServiceConnectionMessageTypes.Service.Response.RUNNING_STATE_STARTED_ERRONEOUS;
+        case RUNNING:
+            return ServiceConnectionMessageTypes.Service.Response.RUNNING_STATE_RUNNING;
+        case STARTING:
+            return ServiceConnectionMessageTypes.Service.Response.RUNNING_STATE_STARTING;
+        case STOPPED:
+            return ServiceConnectionMessageTypes.Service.Response.RUNNING_STATE_STOPPED;
+        case STOPPED_ERRONEOUS:
+            return ServiceConnectionMessageTypes.Service.Response.RUNNING_STATE_STOPPED_ERRONEOUS;
+        case STOPPING:
+            return ServiceConnectionMessageTypes.Service.Response.RUNNING_STATE_STOPPING;
+        default:
+            return -1;
         }
     }
 }

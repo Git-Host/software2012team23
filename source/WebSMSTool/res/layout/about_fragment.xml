@@ -28,41 +28,52 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/aboutInfo" />
+            android:text="@string/about_info" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/aboutDeveloperTitle"
+            android:text="@string/about_developer_title"
             android:textAppearance="?android:attr/textAppearanceMedium" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/aboutDevelopers" />
+            android:text="@string/about_developer" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/aboutSupervisorTitle"
+            android:text="@string/about_main_developer_title"
             android:textAppearance="?android:attr/textAppearanceMedium" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/aboutSupervisor" />
+            android:text="@string/about_main_developer" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/aboutFurtherInformation"
+            android:text="@string/about_supervisor_title"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/about_supervisor" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/about_further_information"
             android:textAppearance="?android:attr/textAppearanceMedium" />
 
         <TextView
             android:id="@+id/aboutInfoLink"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/aboutInfoGoogleCodeLinks" />
+            android:text="@string/about_info_googlecode_links" />
 
         <TextView
             android:layout_width="wrap_content"

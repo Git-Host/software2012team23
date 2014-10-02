@@ -81,7 +81,7 @@ public class SystemMonitor extends PhoneStateListener
     public synchronized void onSignalStrengthsChanged(
             SignalStrength signalStrength)
     {
-        mLog.info("signal strength changed ["+signalStrength+"]");
+        mLog.debug("signal strength changed ["+signalStrength+"]");
         super.onSignalStrengthsChanged(signalStrength);
         mSingalStrength = signalStrength;
     }

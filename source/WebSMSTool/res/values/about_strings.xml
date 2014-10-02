@@ -18,13 +18,15 @@
 <resources>
 
     <string name="app_name">WebSMSTool</string>
-    <string name="aboutDeveloperTitle">\nDevelopers</string>
-    <string name="aboutDevelopers">Martin Decker\nHerman Felbinger\nThomas Gödl\nStefan Lexow\nRaoul Rubien</string>
-    <string name="aboutInfo">Developed during the course AK Medientechnologien in 2012 and BSc Thesis in 2014 at Graz University of Technology</string>
-    <string name="aboutFurtherInformation">\nFurther information and contact</string>
-    <string name="aboutInfoGoogleCodeLinks">Project-Page:\nhttp://code.google.com/p/software2012team23\n\nE-Mail:\nsoftware2012team23@googlecode.com</string>
-    <string name="aboutSupervisorTitle">\nSupervisor</string>
-    <string name="aboutSupervisor">Wolfgang Slany</string>
+    <string name="about_main_developer_title">\nMain developer</string>
+    <string name="about_main_developer">Raoul Rubien</string>
+    <string name="about_developer_title">\nDevelopers</string>
+    <string name="about_developer">Martin Decker\nHerman Felbinger\nThomas Gödl\nStefan Lexow\nRaoul Rubien</string>
+    <string name="about_info">Developed during the course AK Medientechnologien in 2012 and BSc Thesis in 2014 at Graz University of Technology</string>
+    <string name="about_further_information">\nFurther information and contact</string>
+    <string name="about_info_googlecode_links">Project-Page:\nhttp://code.google.com/p/software2012team23\n\nE-Mail:\nsoftware2012team23@googlecode.com</string>
+    <string name="about_supervisor_title">\nSupervisor</string>
+    <string name="about_supervisor">Wolfgang Slany</string>
     <string name="about_credits_title">\nCredits</string>
     <string name="about_credits_onlinelogomaker_text">http://www.onlinelogomaker.com</string>
     <string name="about_credits_onlinelogomaker_image_description">OnlineLogoMaker</string>

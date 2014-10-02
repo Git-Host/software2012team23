@@ -2,9 +2,7 @@ package at.tugraz.ist.akm.webservice.service;
 
 import android.os.Handler;
 import android.os.Message;
-import android.os.Messenger;
 import at.tugraz.ist.akm.trace.LogClient;
-import at.tugraz.ist.akm.webservice.service.WebSMSToolService.ServiceRunningStates;
 
 class IncomingClientMessageHandler extends Handler
 {
@@ -25,56 +23,33 @@ class IncomingClientMessageHandler extends Handler
     {
         try
         {
-            Messenger client = null;
-
-            mLog.debug("incoming client message id [" + msg.what + "]");
+            mLog.debug("incoming client message ["
+                    + ServiceConnectionMessageTypes.getMessageName(msg.what)
+                    + "]");
             switch (msg.what)
             {
             case ServiceConnectionMessageTypes.Client.Request.REGISTER_TO_SERVICE:
-                mService.setClient(msg.replyTo);
+                mService.onClientRequestRegister(msg.replyTo);
                 break;
 
             case ServiceConnectionMessageTypes.Client.Request.UNREGISTER_TO_SERVICE:
-                mService.setClient(null);
+                mService.onClientRequestRegister(null);
                 break;
 
-            case ServiceConnectionMessageTypes.Client.Request.RUNNING_STATE:
-                client = mService.getClientMessenger();
-
-                if (client != null)
-                {
-                    client.send(Message
-                            .obtain(null,
-                                    ServiceConnectionMessageTypes.Service.Response.RUNNING_STATE,
-                                    mService.getRunningState()));
-                }
+            case ServiceConnectionMessageTypes.Client.Request.CURRENT_RUNNING_STATE:
+                mService.onClientRequestCurrentRunningState();
                 break;
 
             case ServiceConnectionMessageTypes.Client.Request.STOP_SERVICE:
-                if (mService.getRunningState() == ServiceRunningStates.RUNNING)
-                {
-                    mService.stopWebSMSToolService();
-                    mService.stopSelf();
-                }
-                ;
+                mService.onClientRequstStopService();
                 break;
 
-            case ServiceConnectionMessageTypes.Client.Request.HTTP_URL:
-                client = mService.getClientMessenger();
+            case ServiceConnectionMessageTypes.Client.Request.CONNECTION_URL:
+                mService.onClientRequestConnectionUrl();
+                break;
 
-                if (client != null)
-                {
-                    StringBuffer sb = new StringBuffer();
-                    sb.append(mService.getServerProtocol()).append("://")
-                            .append(mService.getServerAddress()).append(":")
-                            .append(mService.getServerPort());
-
-                    client.send(Message
-                            .obtain(null,
-                                    ServiceConnectionMessageTypes.Service.Response.HTTP_URL,
-                                    sb.toString()));
-                }
-
+            case ServiceConnectionMessageTypes.Client.Request.REPUBLISH_STATES:
+                mService.onClientRequestRepublishStates();
                 break;
 
             default:
@@ -85,9 +60,8 @@ class IncomingClientMessageHandler extends Handler
         }
         catch (Throwable e)
         {
-            mLog.error("failed reading message id [" + msg.what
-                    + "] from client");
-            mLog.debug("failed reading message id [" + msg.what
+            mLog.error("failed reading message id [" + ServiceConnectionMessageTypes.getMessageName(msg.what) + "]");
+            mLog.debug("failed reading message id [" + ServiceConnectionMessageTypes.getMessageName(msg.what)
                     + "] from client", e);
         }
     }

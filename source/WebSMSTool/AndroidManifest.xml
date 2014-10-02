@@ -58,7 +58,7 @@
             </intent-filter>
         </activity>
 
-        <service android:name="at.tugraz.ist.akm.webservice.service.WebSMSToolService" >
+        <service android:name="at.tugraz.ist.akm.webservice.service.WebSMSToolService" android:exported="false" >
         </service>
 
         <activity android:name="at.tugraz.ist.akm.activities.preferences.PreferencesActivity" >
