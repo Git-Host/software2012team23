@@ -6,5 +6,12 @@
   <string name="OnSharedPreferenceEventListenValidator_expires">Expires</string>
   
   <string name="OnSharedPreferenceEventListenValidator_default_port">8888</string>
+  
+  <string name="StartServiceFragment_service_before_first_start"></string>
+  <string name="StartServiceFragment_service_stopped"></string>
+  <string name="StartServiceFragment_service_stopping">stopping service &#8230;</string>
+  <string name="StartServiceFragment_service_stopped_erroneous">error: stop service manually</string>
+  <string name="StartServiceFragment_service_starting">starting service &#8230;</string>
+  <string name="StartServiceFragment_service_started_erroneous">error: stop service manually and try again</string>
  
 </resources>

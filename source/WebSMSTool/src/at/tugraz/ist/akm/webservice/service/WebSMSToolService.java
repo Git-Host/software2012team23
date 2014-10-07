@@ -421,9 +421,13 @@ public class WebSMSToolService extends Service
                 ServiceConnectionMessageTypes.Service.Response.CURRENT_RUNNING_STATE,
                 translateRunningStateToInt(getRunningState()), null);
 
+        try {
         sendMessageToClient(
                 ServiceConnectionMessageTypes.Service.Response.CONNECTION_URL,
                 0, formatConnectionUrl());
+        } catch (NullPointerException npe) {
+            mLog.debug("failed sending connection url, server not ready yet");
+        }
     }
 
 
