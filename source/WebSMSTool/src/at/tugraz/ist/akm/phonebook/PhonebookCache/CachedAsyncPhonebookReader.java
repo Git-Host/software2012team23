@@ -48,6 +48,7 @@ public class CachedAsyncPhonebookReader extends Thread implements
     private Object mWaitMonitor = new Object();
     private CacheModifiedHandler mCacheModifiedHandler = null;
     protected CacheStateMachine mStateMachine = new CacheStateMachine();
+    protected CacheStateMachine mBufferedState = new CacheStateMachine();
 
 
     public CachedAsyncPhonebookReader(ContactFilter filter,
@@ -168,7 +169,7 @@ public class CachedAsyncPhonebookReader extends Thread implements
                 }
                 catch (InterruptedException e)
                 {
-                    mLog.error("ignore interrupted exception", e);
+                    mLog.error("failed to wait, ignore interrupted exception", e);
                 }
             }
         }
@@ -205,9 +206,11 @@ public class CachedAsyncPhonebookReader extends Thread implements
         for (Contact c : mContactSources.contentProvider)
         {
             mPhonebookCacheDB.cache(c);
+            mLog.debug("store to db [" + c + "]");
         }
+        mLog.debug("cache closed, stored entries ["
+                + mPhonebookCacheDB.numEntries() + "]");
         mPhonebookCacheDB.close();
-        mLog.debug("cache closed");
     }
 
 
@@ -251,6 +254,12 @@ public class CachedAsyncPhonebookReader extends Thread implements
             synchronized (mContactSources)
             {
                 mContactSources.contentProvider = fetchFromContentProvider();
+
+                for (Contact c : mContactSources.contentProvider)
+                {
+                    mLog.debug("c [" + c + "]");
+
+                }
                 sendDelayedCacheModified();
             }
             break;
@@ -266,8 +275,8 @@ public class CachedAsyncPhonebookReader extends Thread implements
                 .fetchContacts(mContactFilter);
         mTimingInfo.readContentProvicerDurationMs = new Date().getTime()
                 - start.getTime();
-        mLog.debug("found contacts " + watchlist.size()
-                + " in content provider");
+        mLog.debug("found contacts [" + watchlist.size()
+                + "] in content provider");
         return watchlist;
     }
 

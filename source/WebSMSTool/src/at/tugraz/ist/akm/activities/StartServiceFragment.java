@@ -154,7 +154,7 @@ public class StartServiceFragment extends Fragment implements
     {
         if (!isServiceRunning())
         {
-            if (mWifiState.isWifiEnabled()
+            if (mWifiState.isWifiEnabled() || mWifiState.isWifiAPEnabled()
                     || AppEnvironment.isRunningOnEmulator())
             {
                 mLog.info("start web service");
@@ -180,9 +180,9 @@ public class StartServiceFragment extends Fragment implements
 
     private boolean isServiceRunning()
     {
-        mLog.debug("service is in runningstate["
+        mLog.debug("service is in runningstate ["
                 + mServiceRunningState.equals(ServiceRunningStates.RUNNING)
-                + "] state[" + mServiceRunningState + "]");
+                + "] state [" + mServiceRunningState + "]");
         return (mServiceRunningState.equals(ServiceRunningStates.RUNNING));
     }
 

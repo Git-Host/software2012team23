@@ -1,5 +1,7 @@
 package at.tugraz.ist.akm.networkInterface;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
@@ -123,4 +125,40 @@ public class WifiIpAddress
     {
         return mWifiManager.isWifiEnabled();
     }
+
+
+    public boolean isWifiAPEnabled()
+    {
+        String hiddenMethodToInvoke = "isWifiApEnabled";
+
+        Method[] methods = mWifiManager.getClass().getDeclaredMethods();
+        for (Method method : methods)
+        {
+            if (method.getName().equals(hiddenMethodToInvoke))
+            {
+
+                try
+                {
+                    return (Boolean) method.invoke(mWifiManager);
+                }
+                catch (IllegalArgumentException e)
+                {
+                    mLog.debug("illegal arguments for [" + hiddenMethodToInvoke
+                            + "]");
+                }
+                catch (IllegalAccessException e)
+                {
+                    mLog.debug("failed to access [" + hiddenMethodToInvoke
+                            + "]");
+                }
+                catch (InvocationTargetException e)
+                {
+                    mLog.debug("failed to invoke [" + hiddenMethodToInvoke
+                            + "]");
+                }
+            }
+        }
+        return false;
+    }
+
 }

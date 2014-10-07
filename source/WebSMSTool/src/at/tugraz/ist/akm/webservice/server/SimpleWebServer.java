@@ -37,6 +37,7 @@ import at.tugraz.ist.akm.R;
 import at.tugraz.ist.akm.io.xml.XmlNode;
 import at.tugraz.ist.akm.io.xml.XmlReader;
 import at.tugraz.ist.akm.keystore.ApplicationKeyStore;
+import at.tugraz.ist.akm.networkInterface.WifiIpAddress;
 import at.tugraz.ist.akm.preferences.SharedPreferencesProvider;
 import at.tugraz.ist.akm.statusbar.FireNotification;
 import at.tugraz.ist.akm.trace.LogClient;
@@ -70,8 +71,7 @@ public class SimpleWebServer
     private WakeLock mWakeLock = null;
 
 
-    public SimpleWebServer(Context context, String socketAddress)
-            throws Exception
+    public SimpleWebServer(Context context) throws Exception
     {
         this.mContext = context;
         PowerManager pm = (PowerManager) mContext
@@ -79,8 +79,13 @@ public class SimpleWebServer
 
         mWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, this
                 .getClass().getName());
-        this.mSocketAddress = InetAddress.getByName(socketAddress);
+        WifiIpAddress wifiAddressReader = new WifiIpAddress(context);
+
+        this.mSocketAddress = InetAddress.getByName(wifiAddressReader
+                .readLocalIpAddress());
         openSettings();
+        mLog.debug("starting server at [" + getServerProtocol() + "://"
+                + getServerAddress() + ":" + Integer.parseInt(mConfig.getPort()) + "]");
         readRequestHandlers();
         readRequestInterceptors();
     }
@@ -378,7 +383,7 @@ public class SimpleWebServer
             return mServerPort;
         } else
         {
-            return -1;
+            return Integer.parseInt(mConfig.getPort());
         }
     }
 
