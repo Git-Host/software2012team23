@@ -376,8 +376,14 @@ public class WebSMSToolService extends Service
         {
             try
             {
-                mClientMessenger.send(Message.obtain(null, what, arg1, 0,
-                        objParameter));
+                if (null != objParameter)
+                {
+                    mClientMessenger.send(Message.obtain(null, what, arg1, 0,
+                            objParameter));
+                } else
+                {
+                    mClientMessenger.send(Message.obtain(null, what, arg1, 0));
+                }
             }
             catch (RemoteException e)
             {

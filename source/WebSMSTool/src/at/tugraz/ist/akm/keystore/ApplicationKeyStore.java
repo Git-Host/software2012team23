@@ -31,12 +31,16 @@ import javax.security.auth.x500.X500Principal;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.x509.X509V3CertificateGenerator;
 
+import android.annotation.SuppressLint;
 import at.tugraz.ist.akm.trace.LogClient;
 
 @SuppressWarnings("deprecation")
 public class ApplicationKeyStore
 {
     private LogClient mLog = new LogClient(this);
+
+    @SuppressLint("TrulyRandom")
+    // secure random is initialized manually when application starts
     private SecureRandom mRandom = new SecureRandom();
 
     private Certificate mCertificate = null;
@@ -81,9 +85,8 @@ public class ApplicationKeyStore
         }
         catch (Exception e)
         {
-            String message = "failed to create new keystore with password [*****] and filepath ["
-                    + filePath + "]";
-            mLog.error(message, e);
+            mLog.debug("failed to store new keystore with password [*****] and filepath ["
+                    + filePath + "]");
             throw new Exception(e);
         }
 
@@ -118,7 +121,7 @@ public class ApplicationKeyStore
         catch (CertificateException e)
         {
             mLog.debug(
-                    "failed to load certificate from keystore -> create new store",
+                    "failed to load certificate from keystore, create new store",
                     e);
             try
             {
@@ -133,8 +136,7 @@ public class ApplicationKeyStore
         catch (IOException g)
         {
             mLog.debug(
-                    "failed to load keystore (file missing or wrong password) -> create new store",
-                    g);
+                    "failed to load keystore (file missing or wrong password) create new store");
             try
             {
                 wipeAndLoadNewKeystore(password, filePath);

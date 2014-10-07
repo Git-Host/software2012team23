@@ -170,7 +170,7 @@ public class SimpleWebServerTest extends WebSMSToolActivityTestcase
         {
             startServer(true);
             logDebug("testSimpleJsonRequest");
-            HttpPost httppost = newHttpPost();
+            HttpPost httppost = newJsonHttpPost();
 
             JSONObject request = new JSONObject();
             request.put("method", "info");
@@ -221,13 +221,22 @@ public class SimpleWebServerTest extends WebSMSToolActivityTestcase
     }
 
 
-    private HttpPost newHttpPost()
+    private HttpPost newHttpPost(String optPostfix)
     {
         String postUri = mWebserver.getServerProtocol() + "://"
                 + mWebserver.getServerAddress() + ":"
                 + mWebserver.getServerPort();
-        mLog.debug("new HttpPost for [" + postUri + "]");
-        return new HttpPost(postUri);
+        return new HttpPost(postUri + "/" + optPostfix);
+    }
+    
+    private HttpPost newFileHttpPost()
+    {
+        return newHttpPost("");
+    }
+    
+    private HttpPost newJsonHttpPost()
+    {
+        return  newHttpPost("api.html");
     }
 
 
@@ -237,7 +246,7 @@ public class SimpleWebServerTest extends WebSMSToolActivityTestcase
         {
             startServer(true);
             logDebug("testSimpleFileRequest");
-            HttpPost httppost = newHttpPost();
+            HttpPost httppost = newFileHttpPost();
             httppost.setHeader("Accept", "application/text");
             httppost.setHeader("Content-type", "application/text");
 
