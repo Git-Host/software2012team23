@@ -82,8 +82,9 @@
             android:textAppearance="?android:attr/textAppearanceMedium" />
 
         <ImageView
-            android:layout_width="wrap_content"
+             android:layout_width="290dp"
             android:layout_height="wrap_content"
+            android:adjustViewBounds="true"
             android:background="#ffffff"
             android:contentDescription="@string/about_credits_onlinelogomaker_image_description"
             android:src="@raw/online_logo_maker" />
@@ -94,15 +95,24 @@
             android:layout_height="wrap_content"
             android:text="@string/about_credits_onlinelogomaker_text" />
 
+         <ImageView
+            android:layout_width="290dp"
+            android:layout_height="wrap_content"
+            android:adjustViewBounds="true"
+            android:background="#ffffff"
+            android:contentDescription="@string/about_credits_android_asset_studio_image_description"
+            android:src="@raw/android_asset_studio" />
+         
         <TextView
             android:id="@+id/about_credits_online_launcher_icon_generator_id"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/about_credits_online_launcher_icon_generator_text" />
+            android:text="@string/about_credits_android_asset_studio_text" />
 
         <ImageView
-            android:layout_width="wrap_content"
+             android:layout_width="290dp"
             android:layout_height="wrap_content"
+            android:adjustViewBounds="true"
             android:background="#ffffff"
             android:contentDescription="@string/about_credits_robotium_image_description"
             android:src="@raw/robotium_logo" />
@@ -114,8 +124,9 @@
             android:text="@string/about_credits_robotium_text" />
 
         <ImageView
-            android:layout_width="wrap_content"
+            android:layout_width="290dp"
             android:layout_height="wrap_content"
+            android:adjustViewBounds="true"
             android:contentDescription="@string/about_credits_bouncy_castle_image_description"
             android:src="@raw/bouncy_castle_logo" />
 
@@ -126,8 +137,9 @@
             android:text="@string/about_credits_bouncy_castle_text" />
 
         <ImageView
-            android:layout_width="wrap_content"
+             android:layout_width="290dp"
             android:layout_height="wrap_content"
+            android:adjustViewBounds="true"
             android:background="#ffffff"
             android:contentDescription="@string/about_credits_zutubi_image_description"
             android:src="@raw/zutubi_logo" />
@@ -139,8 +151,9 @@
             android:text="@string/about_credits_zutubi_text" />
 
         <ImageView
-            android:layout_width="wrap_content"
+             android:layout_width="290dp"
             android:layout_height="wrap_content"
+            android:adjustViewBounds="true"
             android:contentDescription="@string/about_credits_apachesf_image_description"
             android:src="@raw/apache_logo" />
 

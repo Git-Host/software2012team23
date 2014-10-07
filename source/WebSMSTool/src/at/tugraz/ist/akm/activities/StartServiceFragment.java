@@ -5,14 +5,20 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
+import android.text.Layout;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 import at.tugraz.ist.akm.R;
@@ -104,7 +110,8 @@ public class StartServiceFragment extends Fragment implements
     public void onResume()
     {
         super.onResume();
-        mLog.debug("om resume");
+        mLog.debug("on resume");
+        setServiceDisabledIcon();
         getActivity().getApplicationContext().bindService(
                 mStartSmsServiceIntent, this, Context.BIND_AUTO_CREATE);
         askWebServiceForClientRegistrationAsync();
@@ -201,14 +208,17 @@ public class StartServiceFragment extends Fragment implements
     protected void onWebServiceRunningStateBeforeSingularity()
     {
         setRunningState(ServiceRunningStates.BEFORE_SINGULARITY);
-        mInfoFieldView.setText(getString(R.string.StartServiceFragment_service_before_first_start));
+        mInfoFieldView
+                .setText(getString(R.string.StartServiceFragment_service_before_first_start));
     }
 
 
     protected void onWebServiceRunning()
     {
         mButton.setChecked(true);
-        if (mServiceRunningState == ServiceRunningStates.RUNNING) {
+        setServiceEnabledIcon();
+        if (mServiceRunningState == ServiceRunningStates.RUNNING)
+        {
             return;
         }
         setRunningState(ServiceRunningStates.RUNNING);
@@ -226,36 +236,42 @@ public class StartServiceFragment extends Fragment implements
     protected void onWebServiceStartErroneous()
     {
         setRunningState(ServiceRunningStates.STARTED_ERRONEOUS);
-        mInfoFieldView.setText(getString(R.string.StartServiceFragment_service_started_erroneous));
+        mInfoFieldView
+                .setText(getString(R.string.StartServiceFragment_service_started_erroneous));
     }
 
 
     protected void onWebServiceStarting()
     {
         setRunningState(ServiceRunningStates.STARTING);
-        mInfoFieldView.setText(getString(R.string.StartServiceFragment_service_starting));
+        mInfoFieldView
+                .setText(getString(R.string.StartServiceFragment_service_starting));
     }
 
 
     protected void onWebServiceStoppedErroneous()
     {
         setRunningState(ServiceRunningStates.STOPPED_ERRONEOUS);
-        mInfoFieldView.setText(getString(R.string.StartServiceFragment_service_stopped_erroneous));
+        mInfoFieldView
+                .setText(getString(R.string.StartServiceFragment_service_stopped_erroneous));
     }
 
 
     protected void onWebServiceStopped()
     {
         setRunningState(ServiceRunningStates.STOPPED);
-        mInfoFieldView.setText(getString(R.string.StartServiceFragment_service_stopped));
+        mInfoFieldView
+                .setText(getString(R.string.StartServiceFragment_service_stopped));
         mButton.setChecked(false);
+        setServiceDisabledIcon();
     }
 
 
     protected void onWebServiceStopping()
     {
         setRunningState(ServiceRunningStates.STOPPING);
-        mInfoFieldView.setText(getString(R.string.StartServiceFragment_service_stopping));
+        mInfoFieldView
+                .setText(getString(R.string.StartServiceFragment_service_stopping));
     }
 
 
@@ -299,6 +315,7 @@ public class StartServiceFragment extends Fragment implements
         }
 
     }
+
 
     private void askWebServiceForClientUnregistrationAsync()
     {
@@ -351,5 +368,63 @@ public class StartServiceFragment extends Fragment implements
             mLog.error("failed sending [" + messageName
                     + "], service not available");
         }
+    }
+
+
+    public void setServiceDisabledIcon()
+    {
+        ImageView icActionbarLauncher = (ImageView) getView().findViewById(
+                R.id.main_fragment_ic_service);
+        icActionbarLauncher
+                .setImageBitmap(convertToGrayScaleImage(BitmapFactory
+                        .decodeResource(getResources(), R.drawable.ic_launcher)));
+        
+        LinearLayout statsLayout = (LinearLayout) getView().findViewById(R.id.main_fragment_statistics_linear_layout);
+        statsLayout.setAlpha((float)0.5);
+    }
+
+
+    public void setServiceEnabledIcon()
+    {
+        ImageView icActionbarLauncher = (ImageView) getView().findViewById(
+                R.id.main_fragment_ic_service);
+        icActionbarLauncher.setImageBitmap(BitmapFactory.decodeResource(
+                getResources(), R.drawable.ic_launcher));
+        
+        LinearLayout statsLayout = (LinearLayout) getView().findViewById(R.id.main_fragment_statistics_linear_layout);
+        statsLayout.setAlpha(1);
+    }
+
+
+    public static Bitmap convertToGrayScaleImage(Bitmap src)
+    {
+        double redGrayscale = 0.3, greenGrayscale = 0.6, blueGrayscale = 0.3;
+
+        Bitmap grayScaleBitmap = Bitmap.createBitmap(src.getWidth(),
+                src.getHeight(), src.getConfig());
+
+        for (int x = 0; x < src.getWidth(); ++x)
+        {
+            int pxAlpha, pxRed, pxGreen, pxBlue;
+            for (int y = 0; y < src.getHeight(); ++y)
+            {
+                int px = src.getPixel(x, y);
+
+                pxAlpha = Color.alpha(px);
+                pxRed = Color.red(px);
+                pxGreen = Color.green(px);
+                pxBlue = Color.blue(px);
+
+                pxRed = (int) (redGrayscale * pxRed + greenGrayscale * pxGreen + blueGrayscale
+                        * pxBlue);
+                pxGreen = pxRed;
+                pxBlue = pxRed;
+
+                grayScaleBitmap.setPixel(x, y,
+                        Color.argb(pxAlpha, pxRed, pxGreen, pxBlue));
+            }
+        }
+
+        return grayScaleBitmap;
     }
 }

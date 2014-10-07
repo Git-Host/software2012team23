@@ -28,16 +28,17 @@
     <string name="about_supervisor_title">\nSupervisor</string>
     <string name="about_supervisor">Wolfgang Slany</string>
     <string name="about_credits_title">\nCredits</string>
-    <string name="about_credits_onlinelogomaker_text">http://www.onlinelogomaker.com</string>
+    <string name="about_credits_onlinelogomaker_text">Online Logo Maker \nhttp://www.onlinelogomaker.com\n</string>
     <string name="about_credits_onlinelogomaker_image_description">OnlineLogoMaker</string>
-    <string name="about_credits_online_launcher_icon_generator_text">\nAndroid Asset Studio http://romannurik.github.io/AndroidAssetStudio\n</string>
-    <string name="about_credits_robotium_text">Robotium http://code.google.com/p/robotium\n</string>
+    <string name="about_credits_android_asset_studio_image_description">\nAndroid Asset Studio</string>
+    <string name="about_credits_android_asset_studio_text">Android Asset Studio \nhttp://romannurik.github.io/AndroidAssetStudio\n</string>
+    <string name="about_credits_robotium_text">Robotium \nhttp://code.google.com/p/robotium\n</string>
     <string name="about_credits_robotium_image_description">Robotium</string>
-    <string name="about_credits_bouncy_castle_text">The Legion of the Bouncy Castle https://www.bouncycastle.org\n</string>
+    <string name="about_credits_bouncy_castle_text">The Legion of the Bouncy Castle \nhttps://www.bouncycastle.org\n</string>
     <string name="about_credits_bouncy_castle_image_description">The Legion of the Bouncy Castle</string>
-    <string name="about_credits_zutubi_text">Zutubi (JUnit Reporter) http://zutubi.com\n</string>
+    <string name="about_credits_zutubi_text">Zutubi (JUnit Reporter) \nhttp://zutubi.com\n</string>
     <string name="about_credits_zutubi_image_description">Zutubi</string>
-    <string name="about_credits_apachesf_text">The Apache Software Foundation (HttpClient) http://hc.apache.org\n</string>
+    <string name="about_credits_apachesf_text">The Apache Software Foundation (HttpClient) \nhttp://hc.apache.org\n</string>
     <string name="about_credits_apachesf_image_description">The Apache Software Foundation</string>
 
 </resources>

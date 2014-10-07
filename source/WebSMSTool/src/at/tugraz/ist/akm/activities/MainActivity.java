@@ -247,10 +247,6 @@ public class MainActivity extends Activity
 
     private void setUpDrawerToggle()
     {
-        // ActionBar actionBar = getActionBar();
-        // actionBar.setDisplayHomeAsUpEnabled(true);
-        // actionBar.setHomeButtonEnabled(true);
-
         mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout,
                 R.drawable.ic_navigation_drawer,
                 R.string.navigation_drawer_open,
@@ -284,39 +280,6 @@ public class MainActivity extends Activity
     @Override
     public boolean onOptionsItemSelected(MenuItem item)
     {
-        // // Intent i = null;
-        // // switch (item.getItemId())
-        // // {
-        // // case android.R.id.home:
-        // // Intent upIntent = NavUtils.getParentActivityIntent(this);
-        // //
-        // // if (upIntent == null)
-        // // {
-        // // upIntent = new Intent(getApplicationContext(),
-        // // MainActivity.class);
-        // // }
-        // //
-        // // mLog.debug("intent [" + upIntent + "]");
-        // // if (NavUtils.shouldUpRecreateTask(this, upIntent))
-        // // {
-        // // TaskStackBuilder.create(this)
-        // // .addNextIntentWithParentStack(upIntent)
-        // // .startActivities();
-        // // } else
-        // // {
-        // // NavUtils.navigateUpTo(this, upIntent);
-        // // }
-        // // return false;
-        // // default:
-        // // mLog.debug(
-        // // new StringBuffer("unhandled actionbar intent [").append(
-        // // Integer.toHexString(item.getItemId()) + "]")
-        // // .toString(), null);
-        // // i = new Intent(this, MainActivity.class);
-        // // startActivity(i);
-        // // return false;
-        // //
-        // }
         if (mDrawerLayout.isDrawerOpen(GravityCompat.START))
         {
             mDrawerLayout.closeDrawer(GravityCompat.START);
@@ -325,7 +288,6 @@ public class MainActivity extends Activity
             mDrawerLayout.openDrawer(GravityCompat.START);
         }
         return false;
-
     }
 
 
@@ -340,8 +302,7 @@ public class MainActivity extends Activity
 
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.default_actionbar, menu);
-        getActionBar().setDisplayHomeAsUpEnabled(true);
+         getActionBar().setDisplayHomeAsUpEnabled(true);
         return true;
     }
-
 }
