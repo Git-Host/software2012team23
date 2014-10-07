@@ -40,27 +40,64 @@ public class WifiIpAddress
 
     public String readLocalIpAddress()
     {
-        String ip4Address = "0.0.0.0";
-
         NetworkInfo mobileNetInfo = mConnectivityManager
                 .getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
 
         if (mWifiManager.isWifiEnabled())
         {
-            ip4Address = readWifiIP4Address();
-        } else if (AppEnvironment.isRunningOnEmulator()
-                && mobileNetInfo != null && mobileNetInfo.isConnected())
+            return readWifiIP4Address();
+        }
+        if (AppEnvironment.isRunningOnEmulator() && mobileNetInfo != null
+                && mobileNetInfo.isConnected())
         {
             try
             {
-                ip4Address = readIP4AddressOfEmulator();
+                return readIP4AddressOfEmulator();
             }
             catch (SocketException e)
             {
                 mLog.error("not able to read local ip-address", e);
             }
+        } else if (isWifiAPEnabled())
+        {
+            return readIp4ApAddress();
         }
-        return ip4Address;
+
+        mLog.error("failed to determine correct ip address");
+        return null;
+    }
+
+
+    public String readIp4ApAddress()
+    {
+        try
+        {
+            for (Enumeration<NetworkInterface> en = NetworkInterface
+                    .getNetworkInterfaces(); en.hasMoreElements();)
+            {
+                NetworkInterface intf = en.nextElement();
+                if (intf.getName().contains("wlan"))
+                {
+                    for (Enumeration<InetAddress> enumIpAddr = intf
+                            .getInetAddresses(); enumIpAddr.hasMoreElements();)
+                    {
+                        InetAddress inetAddress = enumIpAddr.nextElement();
+                        if (!inetAddress.isLoopbackAddress()
+                                && (inetAddress.getAddress().length == 4))
+                        {
+                            mLog.debug("found AP address ["
+                                    + inetAddress.getHostAddress() + "]");
+                            return inetAddress.getHostAddress();
+                        }
+                    }
+                }
+            }
+        }
+        catch (SocketException ex)
+        {
+            mLog.debug("failed to read ip address in access point mode");
+        }
+        return null;
     }
 
 
@@ -77,8 +114,6 @@ public class WifiIpAddress
                     .toUpperCase(Locale.getDefault());
             if (InetAddressUtils.isIPv4Address(concreteAddressString))
             {
-                // do not replace formatter by InetAddress here since this
-                // returns "1.0.0.127" instead of "127.0.0.1"
                 ip4Address = Formatter.formatIpAddress(mWifiManager
                         .getConnectionInfo().getIpAddress());
             }
