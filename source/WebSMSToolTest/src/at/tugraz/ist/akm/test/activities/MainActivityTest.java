@@ -77,7 +77,7 @@ public class MainActivityTest extends
         appKeystore.close();
 
         Solo solo = new Solo(getInstrumentation(), getActivity());
-        
+
         solo.assertCurrentActivity("Current activty is not MainActivity",
                 MainActivity.class);
         WifiManager wm = (WifiManager) mContext
@@ -88,7 +88,7 @@ public class MainActivityTest extends
         startStop.setActivated(false);
         stopWebService();
 
-        sleepdMs(800);
+        waitMs(800);
         assertFalse(startStop.isChecked());
 
         solo.clickOnView(startStop);
@@ -96,12 +96,12 @@ public class MainActivityTest extends
 
         if (wm.isWifiEnabled() || AppEnvironment.isRunningOnEmulator())
         {
-            sleepdMs(800);
+            waitMs(800);
             assertTrue(startStop.isChecked());
 
             solo.clickOnView(startStop);
             waitForServiceBeingStopped();
-            sleepdMs(800);
+            waitMs(800);
             assertFalse(startStop.isChecked());
             stopWebService();
         } else
@@ -343,14 +343,13 @@ public class MainActivityTest extends
     }
 
 
-    private void sleepdMs(long msecs)
+    private void waitMs(long msecs)
     {
 
         synchronized (this)
         {
             try
             {
-
                 wait(msecs);
             }
             catch (InterruptedException e)
@@ -426,20 +425,14 @@ public class MainActivityTest extends
 
     private void waitForServiceBeingStopped()
     {
-        int maxTries = 20, delay = 200;
+
+        int maxTries = 20;
         mLog.debug("waitForServiceBeingStopped");
-        try
+        waitMs(2000);
+        while (isWebServiceRunning() && (maxTries-- > 0))
         {
-            this.wait(2000);
-            while (isWebServiceRunning() && (maxTries-- > 0))
-            {
-                this.wait(delay);
-                mLog.debug("waiting ...");
-            }
-        }
-        catch (InterruptedException ex)
-        {
-            mLog.error("interrupted diring wait", ex);
+            waitMs(200);
+            mLog.debug("waiting ...");
         }
         mLog.debug("service has been stopped");
     }
@@ -449,18 +442,11 @@ public class MainActivityTest extends
     {
         int maxTries = 20, delay = 200;
         mLog.debug("waitForServiceBeingStarted");
-        try
+        waitMs(5000);
+        while ((!isWebServiceRunning()) && (maxTries-- > 0))
         {
-            this.wait(5000);
-            while ((!isWebServiceRunning()) && (maxTries-- > 0))
-            {
-                this.wait(delay);
-                mLog.debug("waiting ...");
-            }
-        }
-        catch (InterruptedException ex)
-        {
-            mLog.error("interrupted diring wait", ex);
+            waitMs(delay);
+            mLog.debug("waiting ...");
         }
         mLog.debug("service is running");
     }

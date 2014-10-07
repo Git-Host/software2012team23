@@ -50,7 +50,6 @@ public class SimpleWebServerTest extends WebSMSToolActivityTestcase
 
     private void startServer(final boolean useMockServer) throws Exception
     {
-        logDebug("start server");
         if (mWebserver != null)
         {
             if (mWebserver.isRunning())
@@ -61,7 +60,7 @@ public class SimpleWebServerTest extends WebSMSToolActivityTestcase
         }
 
         mWebserver = useMockServer ? new MockSimpleWebServer(mContext)
-                : new SimpleWebServer(mContext, "0.0.0.0");
+                : new SimpleWebServer(mContext);
 
         mHttpClient = new DefaultHttpClient();
 
@@ -86,26 +85,29 @@ public class SimpleWebServerTest extends WebSMSToolActivityTestcase
     protected void setUp() throws Exception
     {
         super.setUp();
-        SharedPreferencesProvider serverConfig = new SharedPreferencesProvider(mContext);
+        SharedPreferencesProvider serverConfig = new SharedPreferencesProvider(
+                mContext);
         serverConfig.setProtocol("http");
         serverConfig.setPort("8888");
         serverConfig.close();
     }
+
 
     public void testStartStopServer()
     {
 
         try
         {
-            mWebserver = new SimpleWebServer(mContext, "0.0.0.0");
+            mWebserver = new SimpleWebServer(mContext);
             mWebserver.startServer();
 
             waitForServiceBeingStarted(20, 200);
             assertTrue(mWebserver.isRunning());
-        } catch (Exception ex)
+        }
+        catch (Exception ex)
         {
             ex.printStackTrace();
-            Assert.fail("failed to stat server");
+            Assert.fail("failed to start server");
         }
 
         try
@@ -113,7 +115,8 @@ public class SimpleWebServerTest extends WebSMSToolActivityTestcase
             mWebserver.stopServer();
             waitForServiceBeingStopped(20, 200);
             assertFalse(mWebserver.isRunning());
-        } catch (Exception ex)
+        }
+        catch (Exception ex)
         {
             ex.printStackTrace();
             Assert.fail("failed to stop server");
@@ -130,7 +133,8 @@ public class SimpleWebServerTest extends WebSMSToolActivityTestcase
                 try
                 {
                     SimpleWebServerTest.class.wait(delayMs);
-                } catch (InterruptedException interruptedException)
+                }
+                catch (InterruptedException interruptedException)
                 {
                     interruptedException.printStackTrace();
                 }
@@ -149,7 +153,8 @@ public class SimpleWebServerTest extends WebSMSToolActivityTestcase
                 try
                 {
                     SimpleWebServerTest.class.wait(delayMs);
-                } catch (InterruptedException interruptedException)
+                }
+                catch (InterruptedException interruptedException)
                 {
                     interruptedException.printStackTrace();
                 }
@@ -165,7 +170,7 @@ public class SimpleWebServerTest extends WebSMSToolActivityTestcase
         {
             startServer(true);
             logDebug("testSimpleJsonRequest");
-            HttpPost httppost = new HttpPost("http://localhost:8888/api.html");
+            HttpPost httppost = newJsonHttpPost();
 
             JSONObject request = new JSONObject();
             request.put("method", "info");
@@ -207,11 +212,31 @@ public class SimpleWebServerTest extends WebSMSToolActivityTestcase
             assertFalse(null == smsSentError);
             assertFalse(null == smsSentSuccess);
             assertFalse(null == requestStatus);
-        } catch (Exception ex)
+        }
+        catch (Exception ex)
         {
             ex.printStackTrace();
             Assert.fail(ex.getMessage());
         }
+    }
+
+
+    private HttpPost newHttpPost(String optPostfix)
+    {
+        String postUri = mWebserver.getServerProtocol() + "://"
+                + mWebserver.getServerAddress() + ":"
+                + mWebserver.getServerPort();
+        return new HttpPost(postUri + "/" + optPostfix);
+    }
+    
+    private HttpPost newFileHttpPost()
+    {
+        return newHttpPost("");
+    }
+    
+    private HttpPost newJsonHttpPost()
+    {
+        return  newHttpPost("api.html");
     }
 
 
@@ -221,7 +246,7 @@ public class SimpleWebServerTest extends WebSMSToolActivityTestcase
         {
             startServer(true);
             logDebug("testSimpleFileRequest");
-            HttpPost httppost = new HttpPost("http://localhost:8888/");
+            HttpPost httppost = newFileHttpPost();
             httppost.setHeader("Accept", "application/text");
             httppost.setHeader("Content-type", "application/text");
 
@@ -234,7 +259,8 @@ public class SimpleWebServerTest extends WebSMSToolActivityTestcase
                     new FileReader(mContext, "web/index.html").read(),
                     new String(baos.toByteArray(), DEFAULT_ENCODING));
 
-        } catch (Exception ex)
+        }
+        catch (Exception ex)
         {
             Assert.fail(ex.getMessage());
         }
@@ -245,12 +271,14 @@ public class SimpleWebServerTest extends WebSMSToolActivityTestcase
     {
         logDebug("testStartSecureServer");
 
-        SharedPreferencesProvider serverConfig = new SharedPreferencesProvider(mContext);
+        SharedPreferencesProvider serverConfig = new SharedPreferencesProvider(
+                mContext);
         serverConfig.setProtocol("https");
         serverConfig.setPort("8888");
         String keystorePassword = "foobar64";
         serverConfig.setKeyStorePassword(keystorePassword);
-        String keystoreFilePath = new String (mContext.getFilesDir().getPath().toString()
+        String keystoreFilePath = new String(mContext.getFilesDir().getPath()
+                .toString()
                 + "/"
                 + mContext.getResources().getString(
                         R.string.preferences_keystore_store_filename));
@@ -262,7 +290,8 @@ public class SimpleWebServerTest extends WebSMSToolActivityTestcase
         {
             startServer(true);
             Assert.assertTrue(mWebserver.isRunning());
-        } catch (Exception ex)
+        }
+        catch (Exception ex)
         {
             Assert.assertTrue(false);
         }

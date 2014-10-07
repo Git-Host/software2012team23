@@ -38,9 +38,7 @@ public class WebSMSToolService extends Service
     public static final String SERVICE_STARTED = "at.tugraz.ist.akm.sms.SERVICE_STARTED";
 
     private Intent mServiceStartedStickyIntend = null;
-    private String mSocketIp = null;
     private final LogClient mLog = new LogClient(this);
-    // private static boolean mServiceRunning = false;
     private SimpleWebServer mServer = null;
     private static BroadcastReceiver mIntentReceiver = null;
     private Messenger mClientMessenger = null;
@@ -166,7 +164,7 @@ public class WebSMSToolService extends Service
 
                 try
                 {
-                    mServer = new SimpleWebServer(this, mSocketIp);
+                    mServer = new SimpleWebServer(this);
                     getApplicationContext().removeStickyBroadcast(
                             mServiceStartedStickyIntend);
 
@@ -378,8 +376,14 @@ public class WebSMSToolService extends Service
         {
             try
             {
-                mClientMessenger.send(Message.obtain(null, what, arg1, 0,
-                        objParameter));
+                if (null != objParameter)
+                {
+                    mClientMessenger.send(Message.obtain(null, what, arg1, 0,
+                            objParameter));
+                } else
+                {
+                    mClientMessenger.send(Message.obtain(null, what, arg1, 0));
+                }
             }
             catch (RemoteException e)
             {
@@ -417,9 +421,13 @@ public class WebSMSToolService extends Service
                 ServiceConnectionMessageTypes.Service.Response.CURRENT_RUNNING_STATE,
                 translateRunningStateToInt(getRunningState()), null);
 
+        try {
         sendMessageToClient(
                 ServiceConnectionMessageTypes.Service.Response.CONNECTION_URL,
                 0, formatConnectionUrl());
+        } catch (NullPointerException npe) {
+            mLog.debug("failed sending connection url, server not ready yet");
+        }
     }
 
 

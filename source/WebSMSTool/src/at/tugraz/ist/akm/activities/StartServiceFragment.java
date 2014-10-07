@@ -61,7 +61,7 @@ public class StartServiceFragment extends Fragment implements
 
         mLog.debug("on create view");
         // setUpApplicationConfig();
-        setUpUiReferences(view);
+        setUpMainFragmentUI(view);
         if (savedInstanceState != null)
         {
             // TODO
@@ -74,7 +74,7 @@ public class StartServiceFragment extends Fragment implements
     @Override
     public void onDestroy()
     {
-        mLog.debug("fragment goes to hades");
+        mLog.debug("on destroy");
         mStartSmsServiceIntent = null;
         mLog = null;
         mButton = null;
@@ -87,14 +87,15 @@ public class StartServiceFragment extends Fragment implements
     public void onStart()
     {
         super.onStart();
-        mLog.debug("brought fragment to front");
+        setUpMainFragmentUI(getView());
+        mLog.debug("on start");
     }
 
 
     public void onStop()
     {
         tearDownMainFragmentUI();
-        mLog.debug("fragment no longer visible");
+        mLog.debug("on stop");
         super.onStop();
     }
 
@@ -103,37 +104,23 @@ public class StartServiceFragment extends Fragment implements
     public void onResume()
     {
         super.onResume();
-        mLog.debug("user returned to fragment, update ui");
-        updateUi();
-    }
-
-
-    private void updateUi()
-    {
-        if (isServiceRunning())
-        {
-            mButton.setChecked(true);
-            // TODO
-            // updateLocalIp();
-            // displayConnectionUrl();
-        } else
-        {
-            mInfoFieldView.setText("");
-            mButton.setChecked(false);
-        }
+        mLog.debug("om resume");
+        getActivity().getApplicationContext().bindService(
+                mStartSmsServiceIntent, this, Context.BIND_AUTO_CREATE);
+        askWebServiceForClientRegistrationAsync();
     }
 
 
     @Override
     public void onPause()
     {
-        mLog.debug("fragment goes to background");
-        // unregisterServiceStateChangeReceiver();
+        mLog.debug("on pause");
+        askWebServiceForClientUnregistrationAsync();
         super.onStop();
     }
 
 
-    private void setUpUiReferences(View view)
+    private void setUpMainFragmentUI(View view)
     {
         mStartSmsServiceIntent = new Intent(getActivity(), mServiceClass);
         mButton = (ToggleButton) view.findViewById(R.id.start_stop_server);
@@ -152,12 +139,13 @@ public class StartServiceFragment extends Fragment implements
     @Override
     public void onClick(View view)
     {
+        mLog.debug("on click");
         if (!isServiceRunning())
         {
-            if (mWifiState.isWifiEnabled()
+            if (mWifiState.isWifiEnabled() || mWifiState.isWifiAPEnabled()
                     || AppEnvironment.isRunningOnEmulator())
             {
-                mLog.info("start web service");
+                mLog.info("starting web service");
                 displayStartingService();
                 view.getContext().startService(mStartSmsServiceIntent);
                 getActivity().getApplicationContext().bindService(
@@ -165,13 +153,13 @@ public class StartServiceFragment extends Fragment implements
             } else
             {
                 displayNoWifiConnected();
-                String message = "will not start service without wifi connection";
+                String message = "failed starting service without wifi connection or if not in ap mode";
                 mLog.warning(message);
                 mLog.error(message);
-                mButton.setChecked(false);
             }
         } else
         {
+            mLog.debug("service seems running, asking for stop");
             askWebServiceForServiceStopAsync();
             getActivity().getApplicationContext().unbindService(this);
         }
@@ -180,9 +168,9 @@ public class StartServiceFragment extends Fragment implements
 
     private boolean isServiceRunning()
     {
-        mLog.debug("service is in runningstate["
+        mLog.debug("service is in runningstate ["
                 + mServiceRunningState.equals(ServiceRunningStates.RUNNING)
-                + "] state[" + mServiceRunningState + "]");
+                + "] state [" + mServiceRunningState + "]");
         return (mServiceRunningState.equals(ServiceRunningStates.RUNNING));
     }
 
@@ -210,20 +198,21 @@ public class StartServiceFragment extends Fragment implements
     }
 
 
-    protected void onWebServiceRunningBeforeSingularity()
+    protected void onWebServiceRunningStateBeforeSingularity()
     {
         setRunningState(ServiceRunningStates.BEFORE_SINGULARITY);
-        mInfoFieldView.setText("state: " + mServiceRunningState);
-        // askWebServiceForConnectionUrlAsync();
+        mInfoFieldView.setText(getString(R.string.StartServiceFragment_service_before_first_start));
     }
 
 
     protected void onWebServiceRunning()
     {
-        // displayConnectionUrl();
+        mButton.setChecked(true);
+        if (mServiceRunningState == ServiceRunningStates.RUNNING) {
+            return;
+        }
         setRunningState(ServiceRunningStates.RUNNING);
-        mInfoFieldView.setText("state: " + mServiceRunningState);
-        // askWebServiceForConnectionUrlAsync();
+        askWebServiceForRepublishStatesAsync();
     }
 
 
@@ -237,39 +226,36 @@ public class StartServiceFragment extends Fragment implements
     protected void onWebServiceStartErroneous()
     {
         setRunningState(ServiceRunningStates.STARTED_ERRONEOUS);
-        mInfoFieldView.setText("state: " + mServiceRunningState);
+        mInfoFieldView.setText(getString(R.string.StartServiceFragment_service_started_erroneous));
     }
 
 
     protected void onWebServiceStarting()
     {
         setRunningState(ServiceRunningStates.STARTING);
-        mInfoFieldView.setText("state: " + mServiceRunningState);
+        mInfoFieldView.setText(getString(R.string.StartServiceFragment_service_starting));
     }
 
 
     protected void onWebServiceStoppedErroneous()
     {
         setRunningState(ServiceRunningStates.STOPPED_ERRONEOUS);
-        mInfoFieldView.setText("state: " + mServiceRunningState);
+        mInfoFieldView.setText(getString(R.string.StartServiceFragment_service_stopped_erroneous));
     }
 
 
     protected void onWebServiceStopped()
     {
-
         setRunningState(ServiceRunningStates.STOPPED);
-        mInfoFieldView.setText("state: " + mServiceRunningState);
+        mInfoFieldView.setText(getString(R.string.StartServiceFragment_service_stopped));
         mButton.setChecked(false);
-        // getActivity().getApplicationContext().unbindService(this);
     }
 
 
     protected void onWebServiceStopping()
     {
-        // displayStoppingService();
         setRunningState(ServiceRunningStates.STOPPING);
-        mInfoFieldView.setText("state: " + mServiceRunningState);
+        mInfoFieldView.setText(getString(R.string.StartServiceFragment_service_stopping));
     }
 
 
@@ -314,10 +300,9 @@ public class StartServiceFragment extends Fragment implements
 
     }
 
-
-    private void askWebServiceForConnectionUrlAsync()
+    private void askWebServiceForClientUnregistrationAsync()
     {
-        sendMessageToService(ServiceConnectionMessageTypes.Client.Request.CONNECTION_URL);
+        sendMessageToService(ServiceConnectionMessageTypes.Client.Request.UNREGISTER_TO_SERVICE);
     }
 
 

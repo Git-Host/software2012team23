@@ -23,7 +23,7 @@ import at.tugraz.ist.akm.webservice.server.SimpleWebServer;
 public class MockSimpleWebServer extends SimpleWebServer {
 
     public MockSimpleWebServer(Context context) throws Exception {
-        super(context, "0.0.0.0");
+        super(context);
     }
     
     @Override

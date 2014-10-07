@@ -37,7 +37,7 @@ public class IncomingServiceMessageHandler extends Handler
                 switch (msg.arg1)
                 {
                 case ServiceConnectionMessageTypes.Service.Response.RUNNING_STATE_BEFORE_SINGULARITY:
-                    mClientFragment.onWebServiceRunningBeforeSingularity();
+                    mClientFragment.onWebServiceRunningStateBeforeSingularity();
                     break;
                 case ServiceConnectionMessageTypes.Service.Response.RUNNING_STATE_RUNNING:
                     mClientFragment.onWebServiceRunning();

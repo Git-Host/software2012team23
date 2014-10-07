@@ -20,17 +20,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import android.app.ActionBar;
 import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentTransaction;
-import android.app.TaskStackBuilder;
-import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Debug;
 import android.support.v4.app.ActionBarDrawerToggle;
-import android.support.v4.app.NavUtils;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.view.Menu;
@@ -251,9 +247,9 @@ public class MainActivity extends Activity
 
     private void setUpDrawerToggle()
     {
-        ActionBar actionBar = getActionBar();
-        actionBar.setDisplayHomeAsUpEnabled(true);
-        actionBar.setHomeButtonEnabled(true);
+        // ActionBar actionBar = getActionBar();
+        // actionBar.setDisplayHomeAsUpEnabled(true);
+        // actionBar.setHomeButtonEnabled(true);
 
         mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout,
                 R.drawable.ic_navigation_drawer,
@@ -288,38 +284,47 @@ public class MainActivity extends Activity
     @Override
     public boolean onOptionsItemSelected(MenuItem item)
     {
-        Intent i = null;
-        switch (item.getItemId())
+        // // Intent i = null;
+        // // switch (item.getItemId())
+        // // {
+        // // case android.R.id.home:
+        // // Intent upIntent = NavUtils.getParentActivityIntent(this);
+        // //
+        // // if (upIntent == null)
+        // // {
+        // // upIntent = new Intent(getApplicationContext(),
+        // // MainActivity.class);
+        // // }
+        // //
+        // // mLog.debug("intent [" + upIntent + "]");
+        // // if (NavUtils.shouldUpRecreateTask(this, upIntent))
+        // // {
+        // // TaskStackBuilder.create(this)
+        // // .addNextIntentWithParentStack(upIntent)
+        // // .startActivities();
+        // // } else
+        // // {
+        // // NavUtils.navigateUpTo(this, upIntent);
+        // // }
+        // // return false;
+        // // default:
+        // // mLog.debug(
+        // // new StringBuffer("unhandled actionbar intent [").append(
+        // // Integer.toHexString(item.getItemId()) + "]")
+        // // .toString(), null);
+        // // i = new Intent(this, MainActivity.class);
+        // // startActivity(i);
+        // // return false;
+        // //
+        // }
+        if (mDrawerLayout.isDrawerOpen(GravityCompat.START))
         {
-        case android.R.id.home:
-            Intent upIntent = NavUtils.getParentActivityIntent(this);
-
-            if (upIntent == null)
-            {
-                upIntent = new Intent(getApplicationContext(),
-                        MainActivity.class);
-            }
-
-            mLog.debug("intent [" + upIntent + "]");
-            if (NavUtils.shouldUpRecreateTask(this, upIntent))
-            {
-                TaskStackBuilder.create(this)
-                        .addNextIntentWithParentStack(upIntent)
-                        .startActivities();
-            } else
-            {
-                NavUtils.navigateUpTo(this, upIntent);
-            }
-            return false;
-        default:
-            mLog.debug(
-                    new StringBuffer("unhandled actionbar intent [").append(
-                            Integer.toHexString(item.getItemId()) + "]")
-                            .toString(), null);
-            i = new Intent(this, MainActivity.class);
-            startActivity(i);
-            return false;
+            mDrawerLayout.closeDrawer(GravityCompat.START);
+        } else
+        {
+            mDrawerLayout.openDrawer(GravityCompat.START);
         }
+        return false;
 
     }
 
