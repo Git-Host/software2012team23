@@ -13,12 +13,12 @@ import android.os.IBinder;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
-import android.text.Layout;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 import at.tugraz.ist.akm.R;
@@ -45,6 +45,7 @@ public class StartServiceFragment extends Fragment implements
             .getSimpleName();
 
     private WifiIpAddress mWifiState = null;
+    private ProgressBar mProgressBar = null;
 
     private Messenger mServiceMessenger = null;
     final Messenger mClientMessenger = new Messenger(
@@ -134,6 +135,8 @@ public class StartServiceFragment extends Fragment implements
         mInfoFieldView = (TextView) view.findViewById(R.id.adress_data_field);
         mButton.setOnClickListener(this);
         mWifiState = new WifiIpAddress(view.getContext());
+        mProgressBar = (ProgressBar) view
+                .findViewById(R.id.start_stop_server_progress_bar);
     }
 
 
@@ -154,9 +157,13 @@ public class StartServiceFragment extends Fragment implements
             {
                 mLog.info("starting web service");
                 displayStartingService();
-                view.getContext().startService(mStartSmsServiceIntent);
+
+                mProgressBar.setIndeterminate(true);
+                getActivity().getApplicationContext().startService(
+                        mStartSmsServiceIntent);
                 getActivity().getApplicationContext().bindService(
-                        mStartSmsServiceIntent, this, Context.BIND_AUTO_CREATE);
+                        mStartSmsServiceIntent, StartServiceFragment.this,
+                        Context.BIND_AUTO_CREATE);
             } else
             {
                 displayNoWifiConnected();
@@ -168,7 +175,15 @@ public class StartServiceFragment extends Fragment implements
         {
             mLog.debug("service seems running, asking for stop");
             askWebServiceForServiceStopAsync();
-            getActivity().getApplicationContext().unbindService(this);
+            try
+            {
+                getActivity().getApplicationContext().unbindService(this);
+            }
+            catch (IllegalArgumentException iae)
+            {
+                mLog.debug("failed to unbind service");
+                mLog.error("failed to unbind service", iae);
+            }
         }
     }
 
@@ -199,8 +214,7 @@ public class StartServiceFragment extends Fragment implements
         mLog.debug("client mirrored running state changed ["
                 + mServiceRunningState + "] -> [" + newState + "]");
         mServiceRunningState = newState;
-        mInfoFieldView.setText("client state set to [" + mServiceRunningState
-                + "]");
+        mInfoFieldView.setText("service started");
 
     }
 
@@ -216,6 +230,7 @@ public class StartServiceFragment extends Fragment implements
     protected void onWebServiceRunning()
     {
         mButton.setChecked(true);
+        mProgressBar.setIndeterminate(false);
         setServiceEnabledIcon();
         if (mServiceRunningState == ServiceRunningStates.RUNNING)
         {
@@ -243,6 +258,7 @@ public class StartServiceFragment extends Fragment implements
 
     protected void onWebServiceStarting()
     {
+        mProgressBar.setVisibility(View.VISIBLE);
         setRunningState(ServiceRunningStates.STARTING);
         mInfoFieldView
                 .setText(getString(R.string.StartServiceFragment_service_starting));
@@ -378,9 +394,10 @@ public class StartServiceFragment extends Fragment implements
         icActionbarLauncher
                 .setImageBitmap(convertToGrayScaleImage(BitmapFactory
                         .decodeResource(getResources(), R.drawable.ic_launcher)));
-        
-        LinearLayout statsLayout = (LinearLayout) getView().findViewById(R.id.main_fragment_statistics_linear_layout);
-        statsLayout.setAlpha((float)0.5);
+
+        LinearLayout statsLayout = (LinearLayout) getView().findViewById(
+                R.id.main_fragment_statistics_linear_layout);
+        statsLayout.setAlpha((float) 0.5);
     }
 
 
@@ -390,8 +407,9 @@ public class StartServiceFragment extends Fragment implements
                 R.id.main_fragment_ic_service);
         icActionbarLauncher.setImageBitmap(BitmapFactory.decodeResource(
                 getResources(), R.drawable.ic_launcher));
-        
-        LinearLayout statsLayout = (LinearLayout) getView().findViewById(R.id.main_fragment_statistics_linear_layout);
+
+        LinearLayout statsLayout = (LinearLayout) getView().findViewById(
+                R.id.main_fragment_statistics_linear_layout);
         statsLayout.setAlpha(1);
     }
 

@@ -16,7 +16,7 @@ class IncomingClientMessageHandler extends Handler
     {
         mService = service;
     }
-
+    
 
     @Override
     public void handleMessage(Message msg)

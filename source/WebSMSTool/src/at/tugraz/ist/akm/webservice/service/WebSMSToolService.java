@@ -24,6 +24,7 @@ import android.content.IntentFilter;
 import android.net.NetworkInfo;
 import android.net.wifi.WifiManager;
 import android.os.Binder;
+import android.os.Bundle;
 import android.os.IBinder;
 import android.os.Message;
 import android.os.Messenger;
@@ -186,7 +187,8 @@ public class WebSMSToolService extends Service
                     setRunningState(ServiceRunningStates.STARTED_ERRONEOUS);
                     stopSelf();
                 }
-            } else
+            } 
+            else
             {
                 mLog.error("failed to start web service, state ["
                         + getRunningState() + "]");
@@ -295,8 +297,8 @@ public class WebSMSToolService extends Service
         {
             return;
         }
-        // TODO stopwerbsmstoolservie() before stopself();
-        // on enabled only?s
+        // TODO stopwerbsmstoolservice() before stopself();
+        // on enabled only?
         mLog.debug("wifi state changed, turning off service");
         stopSelf();
     }
@@ -365,21 +367,25 @@ public class WebSMSToolService extends Service
     }
 
 
-    private void sendMessageToClient(int what, int arg1, Object objParameter)
+    private void sendMessageToClient(int what, int arg1, String optConnectionUrl)
     {
 
         String messageName = ServiceConnectionMessageTypes.getMessageName(what);
 
         mLog.debug("service sending [" + messageName + "=" + arg1 + "] obj ["
-                + objParameter + "] to client");
+                + optConnectionUrl + "] to client");
         if (mClientMessenger != null)
         {
             try
             {
-                if (null != objParameter)
+                if (null != optConnectionUrl)
                 {
-                    mClientMessenger.send(Message.obtain(null, what, arg1, 0,
-                            objParameter));
+                    Message message = Message.obtain(null, what, arg1, 0);
+                    Bundle objBundleParameter = new Bundle();
+                    objBundleParameter.putString(ServiceConnectionMessageTypes.Bundle.Key.CONNECTION_URL_STRING, optConnectionUrl);
+                    message.setData(objBundleParameter);
+                    mClientMessenger.send(message);
+                    
                 } else
                 {
                     mClientMessenger.send(Message.obtain(null, what, arg1, 0));
@@ -392,7 +398,7 @@ public class WebSMSToolService extends Service
         } else
         {
             mLog.debug("failed sending [" + messageName + "=" + arg1
-                    + "] obj [" + objParameter + "] client not registered");
+                    + "] obj [" + optConnectionUrl + "] client not registered");
         }
     }
 

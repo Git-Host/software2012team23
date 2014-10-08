@@ -30,7 +30,11 @@ public class IncomingServiceMessageHandler extends Handler
             {
 
             case ServiceConnectionMessageTypes.Service.Response.CONNECTION_URL:
-                mClientFragment.onWebServiceURLChanged((String) msg.obj);
+                mClientFragment
+                        .onWebServiceURLChanged(msg
+                                .getData()
+                                .getString(
+                                        ServiceConnectionMessageTypes.Bundle.Key.CONNECTION_URL_STRING));
                 break;
 
             case ServiceConnectionMessageTypes.Service.Response.CURRENT_RUNNING_STATE:
@@ -59,7 +63,8 @@ public class IncomingServiceMessageHandler extends Handler
                     break;
                 default:
                     mLog.debug("failed handling ["
-                            + ServiceConnectionMessageTypes.getMessageName(ServiceConnectionMessageTypes.Service.Response.CURRENT_RUNNING_STATE)
+                            + ServiceConnectionMessageTypes
+                                    .getMessageName(ServiceConnectionMessageTypes.Service.Response.CURRENT_RUNNING_STATE)
                             + "] = ["
                             + ServiceConnectionMessageTypes
                                     .getMessageName(msg.arg1) + "]");

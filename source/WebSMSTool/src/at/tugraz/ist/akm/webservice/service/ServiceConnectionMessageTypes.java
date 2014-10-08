@@ -34,6 +34,14 @@ public class ServiceConnectionMessageTypes
         }
     }
 
+    public static class Bundle
+    {
+        public static class Key
+        {
+            public static final String CONNECTION_URL_STRING = "CONNECTION_URL";
+        }
+    }
+
 
     public static String getMessageName(int messageId)
     {
