@@ -39,13 +39,16 @@ import at.tugraz.ist.akm.io.xml.XmlReader;
 import at.tugraz.ist.akm.keystore.ApplicationKeyStore;
 import at.tugraz.ist.akm.networkInterface.WifiIpAddress;
 import at.tugraz.ist.akm.preferences.SharedPreferencesProvider;
+import at.tugraz.ist.akm.sms.SmsIOCallback;
+import at.tugraz.ist.akm.sms.TextMessage;
 import at.tugraz.ist.akm.statusbar.FireNotification;
 import at.tugraz.ist.akm.trace.LogClient;
 import at.tugraz.ist.akm.webservice.WebServerConfig;
 import at.tugraz.ist.akm.webservice.requestprocessor.AbstractHttpRequestProcessor;
+import at.tugraz.ist.akm.webservice.requestprocessor.JsonAPIRequestProcessor;
 import at.tugraz.ist.akm.webservice.requestprocessor.interceptor.IRequestInterceptor;
 
-public class SimpleWebServer
+public class SimpleWebServer implements SmsIOCallback
 {
     private final static LogClient mLog = new LogClient(
             SimpleWebServer.class.getName());
@@ -70,6 +73,20 @@ public class SimpleWebServer
 
     private WakeLock mWakeLock = null;
 
+    private SmsIOCallback mExternalSmsIoCallback = null;
+
+
+    public synchronized void registerSmsIoCallback(SmsIOCallback callback)
+    {
+        mExternalSmsIoCallback = callback;
+    }
+
+
+    public synchronized void unregisterSMSIoCallback()
+    {
+        mExternalSmsIoCallback = null;
+    }
+
 
     public SimpleWebServer(Context context) throws Exception
     {
@@ -85,7 +102,8 @@ public class SimpleWebServer
                 .readLocalIpAddress());
         openSettings();
         mLog.debug("starting server at [" + getServerProtocol() + "://"
-                + getServerAddress() + ":" + Integer.parseInt(mConfig.getPort()) + "]");
+                + getServerAddress() + ":"
+                + Integer.parseInt(mConfig.getPort()) + "]");
         readRequestHandlers();
         readRequestInterceptors();
     }
@@ -115,11 +133,26 @@ public class SimpleWebServer
             }
             try
             {
+
                 Class<?> clazz = Class.forName(className);
                 Constructor<?> constr = clazz.getConstructor(Context.class,
                         XmlNode.class, HttpRequestHandlerRegistry.class);
-                AbstractHttpRequestProcessor newHandler = (AbstractHttpRequestProcessor) constr
-                        .newInstance(mContext, node, mRegistry);
+
+                AbstractHttpRequestProcessor newHandler = null;
+
+                if (className.equals(JsonAPIRequestProcessor.class.getCanonicalName()))
+                {
+                    mLog.debug("registered to sms callback");
+                    JsonAPIRequestProcessor jsonRequesProcessor = (JsonAPIRequestProcessor) constr
+                            .newInstance(mContext, node, mRegistry);
+                    newHandler = jsonRequesProcessor;
+                    jsonRequesProcessor.registerSMSIoListener(this);
+                } else
+                {
+                    newHandler = (AbstractHttpRequestProcessor) constr
+                            .newInstance(mContext, node, mRegistry);
+                }
+
                 mHandlerReferenceListing.add(newHandler);
             }
             catch (Exception ex)
@@ -408,6 +441,50 @@ public class SimpleWebServer
     private void statusbarClearConnectionUrl()
     {
         new FireNotification(mContext).cancelAll();
+    }
+
+
+    @Override
+    public synchronized void smsSentCallback(Context context,
+            List<TextMessage> messages)
+    {
+        if (null != mExternalSmsIoCallback)
+        {
+            mExternalSmsIoCallback.smsSentCallback(context, messages);
+        }
+    }
+
+
+    @Override
+    public synchronized void smsSentErrorCallback(Context context,
+            List<TextMessage> messages)
+    {
+        if (null != mExternalSmsIoCallback)
+        {
+            mExternalSmsIoCallback.smsSentErrorCallback(context, messages);
+        }
+    }
+
+
+    @Override
+    public synchronized void smsDeliveredCallback(Context context,
+            List<TextMessage> messagea)
+    {
+        if (null != mExternalSmsIoCallback)
+        {
+            mExternalSmsIoCallback.smsDeliveredCallback(context, messagea);
+        }
+    }
+
+
+    @Override
+    public synchronized void smsReceivedCallback(Context context,
+            List<TextMessage> messages)
+    {
+        if (null != mExternalSmsIoCallback)
+        {
+            mExternalSmsIoCallback.smsReceivedCallback(context, messages);
+        }
     }
 
 }

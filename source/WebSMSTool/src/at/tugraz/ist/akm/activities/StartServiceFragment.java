@@ -46,6 +46,9 @@ public class StartServiceFragment extends Fragment implements
 
     private WifiIpAddress mWifiState = null;
     private ProgressBar mProgressBar = null;
+    
+    private TextView mSmsSentView = null;
+    private TextView mSmsRecievedView = null;
 
     private Messenger mServiceMessenger = null;
     final Messenger mClientMessenger = new Messenger(
@@ -137,6 +140,8 @@ public class StartServiceFragment extends Fragment implements
         mWifiState = new WifiIpAddress(view.getContext());
         mProgressBar = (ProgressBar) view
                 .findViewById(R.id.start_stop_server_progress_bar);
+        mSmsRecievedView = (TextView) view.findViewById(R.id.main_fragment_sms_recieved);
+        mSmsSentView = (TextView) view.findViewById(R.id.main_fragment_sms_sent);
     }
 
 
@@ -444,5 +449,28 @@ public class StartServiceFragment extends Fragment implements
         }
 
         return grayScaleBitmap;
+    }
+
+
+    protected void onWebServiceSmsSent(int smsSentCount)
+    {
+        mLog.debug("sms sent [" + smsSentCount + "]");
+        mSmsSentView.setText(Integer.toString(smsSentCount));
+    }
+    
+    protected void onWebServiceSmsDelivered(int smsDeliveredCount)
+    {
+        mLog.debug("sms delivered [" + smsDeliveredCount + "]");
+    }
+    
+    protected void onWebServiceSmsSentErroneous(int smsSentCount)
+    {
+        mLog.debug("sms sent erroneous [" + smsSentCount + "]");
+    }
+    
+    protected void onWebServiceSmsReceived(int smsReceivedCount)
+    {
+        mLog.debug("sms received [" + smsReceivedCount + "]");
+        mSmsRecievedView.setText(Integer.toString(smsReceivedCount));
     }
 }

@@ -31,6 +31,11 @@ public class ServiceConnectionMessageTypes
             public static final int RUNNING_STATE_STOPPING = 14;
             public static final int RUNNING_STATE_STOPPED_ERRONEOUS = 16;
             public static final int CONNECTION_URL = 4;
+            public static final int SMS_SENT = 22;
+            public static final int SMS_SENT_ERRONEOUS = 28;
+            public static final int SMS_DELIVERED = 30;
+            public static final int SMS_RECEIVED = 24;
+            public static final int NETWORK_TRAFFIC_BYTES = 26;
         }
     }
 
@@ -38,7 +43,7 @@ public class ServiceConnectionMessageTypes
     {
         public static class Key
         {
-            public static final String CONNECTION_URL_STRING = "CONNECTION_URL";
+            public static final String STRING_ARG1 = "CONNECTION_URL";
         }
     }
 

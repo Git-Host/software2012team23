@@ -37,6 +37,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.content.Context;
+import android.content.SyncResult;
 import android.telephony.SignalStrength;
 import at.tugraz.ist.akm.content.SmsContentConstants;
 import at.tugraz.ist.akm.content.query.ContactFilter;
@@ -81,7 +82,21 @@ public class JsonAPIRequestProcessor extends AbstractHttpRequestProcessor
     private volatile JSONArray mJsonContactList = null;
     private Object mJsonContactListLock = new Object();
 
+    private SmsIOCallback mExternalSMSIoCallback = null;
+
     private TelephonySignalStrength mTelephonySignal = null;
+
+
+    public synchronized void registerSMSIoListener(SmsIOCallback smsListener)
+    {
+        mExternalSMSIoCallback = smsListener;
+    }
+
+
+    public synchronized void unregisterSMSIoListener()
+    {
+        mExternalSMSIoCallback = null;
+    }
 
 
     public JsonAPIRequestProcessor(final Context context, final XmlNode config,
@@ -226,6 +241,11 @@ public class JsonAPIRequestProcessor extends AbstractHttpRequestProcessor
         {
             mLog.warning("A sms sent callback was delivered but textmessages list was empty");
         }
+
+        if (null != mExternalSMSIoCallback)
+        {
+            mExternalSMSIoCallback.smsSentCallback(context, messages);
+        }
     }
 
 
@@ -238,6 +258,11 @@ public class JsonAPIRequestProcessor extends AbstractHttpRequestProcessor
         {
             this.mSMSSentErrorList.add(message);
         }
+
+        if (null != mExternalSMSIoCallback)
+        {
+            mExternalSMSIoCallback.smsSentErrorCallback(context, messages);
+        }
     }
 
 
@@ -245,7 +270,10 @@ public class JsonAPIRequestProcessor extends AbstractHttpRequestProcessor
     public synchronized void smsDeliveredCallback(Context context,
             List<TextMessage> message)
     {
-        // not working so we do not bother about it
+        if (null != mExternalSMSIoCallback)
+        {
+            mExternalSMSIoCallback.smsDeliveredCallback(context, message);
+        }
     }
 
 
@@ -259,6 +287,11 @@ public class JsonAPIRequestProcessor extends AbstractHttpRequestProcessor
             mLog.debug("textmessage from " + message.getAddress()
                     + " received in api request handler.");
             this.mSMSReceivedList.add(message);
+        }
+
+        if (null != mExternalSMSIoCallback)
+        {
+            mExternalSMSIoCallback.smsReceivedCallback(context, messages);
         }
     }
 
@@ -654,18 +687,22 @@ public class JsonAPIRequestProcessor extends AbstractHttpRequestProcessor
             this.mSMSReceivedList.clear();
 
             mLog.debug("evaluate current telephone state");
-            BatteryStatus batteryStatus = this.mSystemMonitor.getBatteryStatus();
+            BatteryStatus batteryStatus = this.mSystemMonitor
+                    .getBatteryStatus();
             mTelephonySignal.takeNewSignalStrength(this.mSystemMonitor
                     .getSignalStrength());
-            SignalStrength signalStrength = mTelephonySignal.currentSignalStrength();
-            
+            SignalStrength signalStrength = mTelephonySignal
+                    .currentSignalStrength();
+
             if (batteryStatus != null)
             {
-                result.put("battery", mJsonFactory.createJsonObject(batteryStatus));
+                result.put("battery",
+                        mJsonFactory.createJsonObject(batteryStatus));
             }
             if (signalStrength != null)
             {
-                result.put("signal", mJsonFactory.createJsonObject(signalStrength));
+                result.put("signal",
+                        mJsonFactory.createJsonObject(signalStrength));
             }
 
             this.setSuccessState(result);

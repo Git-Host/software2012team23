@@ -16,6 +16,8 @@
 
 package at.tugraz.ist.akm.webservice.service;
 
+import java.util.List;
+
 import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -30,10 +32,12 @@ import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
 import at.tugraz.ist.akm.secureRandom.PRNGFixes;
+import at.tugraz.ist.akm.sms.SmsIOCallback;
+import at.tugraz.ist.akm.sms.TextMessage;
 import at.tugraz.ist.akm.trace.LogClient;
 import at.tugraz.ist.akm.webservice.server.SimpleWebServer;
 
-public class WebSMSToolService extends Service
+public class WebSMSToolService extends Service implements SmsIOCallback
 {
 
     public static final String SERVICE_STARTED = "at.tugraz.ist.akm.sms.SERVICE_STARTED";
@@ -47,6 +51,11 @@ public class WebSMSToolService extends Service
             new IncomingClientMessageHandler(this));
 
     private ServiceRunningStates mServiceRunningState = ServiceRunningStates.BEFORE_SINGULARITY;
+
+    private int mSmsSentCount = 0;
+    private int mSmsReceivedCount = 0;
+    private int mSmsSentErroneousCount = 0;
+    private int mSmsDeliveredCount = 0;
 
     public enum ServiceRunningStates {
         STOPPED, STARTING, STARTED_ERRONEOUS, RUNNING, STOPPING, STOPPED_ERRONEOUS, BEFORE_SINGULARITY;
@@ -166,6 +175,7 @@ public class WebSMSToolService extends Service
                 try
                 {
                     mServer = new SimpleWebServer(this);
+                    mServer.registerSmsIoCallback(this);
                     getApplicationContext().removeStickyBroadcast(
                             mServiceStartedStickyIntend);
 
@@ -187,8 +197,7 @@ public class WebSMSToolService extends Service
                     setRunningState(ServiceRunningStates.STARTED_ERRONEOUS);
                     stopSelf();
                 }
-            } 
-            else
+            } else
             {
                 mLog.error("failed to start web service, state ["
                         + getRunningState() + "]");
@@ -382,10 +391,13 @@ public class WebSMSToolService extends Service
                 {
                     Message message = Message.obtain(null, what, arg1, 0);
                     Bundle objBundleParameter = new Bundle();
-                    objBundleParameter.putString(ServiceConnectionMessageTypes.Bundle.Key.CONNECTION_URL_STRING, optConnectionUrl);
+                    objBundleParameter
+                            .putString(
+                                    ServiceConnectionMessageTypes.Bundle.Key.STRING_ARG1,
+                                    optConnectionUrl);
                     message.setData(objBundleParameter);
                     mClientMessenger.send(message);
-                    
+
                 } else
                 {
                     mClientMessenger.send(Message.obtain(null, what, arg1, 0));
@@ -427,11 +439,14 @@ public class WebSMSToolService extends Service
                 ServiceConnectionMessageTypes.Service.Response.CURRENT_RUNNING_STATE,
                 translateRunningStateToInt(getRunningState()), null);
 
-        try {
-        sendMessageToClient(
-                ServiceConnectionMessageTypes.Service.Response.CONNECTION_URL,
-                0, formatConnectionUrl());
-        } catch (NullPointerException npe) {
+        try
+        {
+            sendMessageToClient(
+                    ServiceConnectionMessageTypes.Service.Response.CONNECTION_URL,
+                    0, formatConnectionUrl());
+        }
+        catch (NullPointerException npe)
+        {
             mLog.debug("failed sending connection url, server not ready yet");
         }
     }
@@ -472,5 +487,49 @@ public class WebSMSToolService extends Service
         default:
             return -1;
         }
+    }
+
+
+    @Override
+    public synchronized void smsSentCallback(Context context,
+            List<TextMessage> messages)
+    {
+        mSmsSentCount++;
+        sendMessageToClient(
+                ServiceConnectionMessageTypes.Service.Response.SMS_SENT,
+                mSmsSentCount, null);
+    }
+
+
+    @Override
+    public synchronized void smsSentErrorCallback(Context context,
+            List<TextMessage> messages)
+    {
+        mSmsSentErroneousCount++;
+        sendMessageToClient(
+                ServiceConnectionMessageTypes.Service.Response.SMS_SENT_ERRONEOUS,
+                mSmsSentErroneousCount, null);
+    }
+
+
+    @Override
+    public synchronized void smsDeliveredCallback(Context context,
+            List<TextMessage> messagea)
+    {
+        mSmsDeliveredCount++;
+        sendMessageToClient(
+                ServiceConnectionMessageTypes.Service.Response.SMS_DELIVERED,
+                mSmsDeliveredCount, null);
+    }
+
+
+    @Override
+    public synchronized void smsReceivedCallback(Context context,
+            List<TextMessage> messages)
+    {
+        mSmsReceivedCount++;
+        sendMessageToClient(
+                ServiceConnectionMessageTypes.Service.Response.SMS_RECEIVED,
+                mSmsReceivedCount, null);
     }
 }

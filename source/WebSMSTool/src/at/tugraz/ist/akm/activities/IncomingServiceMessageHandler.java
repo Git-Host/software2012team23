@@ -29,12 +29,22 @@ public class IncomingServiceMessageHandler extends Handler
             switch (msg.what)
             {
 
+            case ServiceConnectionMessageTypes.Service.Response.SMS_DELIVERED:
+                mClientFragment.onWebServiceSmsDelivered(msg.arg1);
+                break;
+            case ServiceConnectionMessageTypes.Service.Response.SMS_RECEIVED:
+                mClientFragment.onWebServiceSmsReceived(msg.arg1);
+                break;
+            case ServiceConnectionMessageTypes.Service.Response.SMS_SENT:
+                mClientFragment.onWebServiceSmsSent(msg.arg1);
+                break;
+            case ServiceConnectionMessageTypes.Service.Response.SMS_SENT_ERRONEOUS:
+                mClientFragment.onWebServiceSmsSentErroneous(msg.arg1);
+                break;
+
             case ServiceConnectionMessageTypes.Service.Response.CONNECTION_URL:
-                mClientFragment
-                        .onWebServiceURLChanged(msg
-                                .getData()
-                                .getString(
-                                        ServiceConnectionMessageTypes.Bundle.Key.CONNECTION_URL_STRING));
+                mClientFragment.onWebServiceURLChanged(msg.getData().getString(
+                        ServiceConnectionMessageTypes.Bundle.Key.STRING_ARG1));
                 break;
 
             case ServiceConnectionMessageTypes.Service.Response.CURRENT_RUNNING_STATE:

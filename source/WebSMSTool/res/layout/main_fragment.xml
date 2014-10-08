@@ -77,8 +77,8 @@
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
-            android:orientation="horizontal"
-            android:alpha="0.5" >
+            android:alpha="0.5"
+            android:orientation="horizontal" >
 
             <ImageView
                 android:layout_width="wrap_content"
@@ -138,10 +138,23 @@
                 android:layout_weight="1" />
 
             <TextView
+                android:id="@+id/main_fragment_sms_sent"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center|right"
-                android:text="3120 / 3120"
+                android:text="0"
+                android:textAppearance="?android:attr/textAppearanceMedium" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text=" / "
+                android:textAppearance="?android:attr/textAppearanceMedium" />
+
+            <TextView
+                android:id="@+id/main_fragment_sms_recieved"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="0"
                 android:textAppearance="?android:attr/textAppearanceMedium" />
         </LinearLayout>
 

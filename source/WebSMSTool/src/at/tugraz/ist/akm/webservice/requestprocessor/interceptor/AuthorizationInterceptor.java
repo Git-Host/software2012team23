@@ -59,8 +59,6 @@ public class AuthorizationInterceptor extends AbstractRequestInterceptor
         String userToCheck = mConfig.getUserName();
         String passToCkeck = mConfig.getPassWord();
 
-        // config values are not correctly set -> no restriction will be
-        // available
         if (userToCheck.length() == 0 || passToCkeck.length() == 0)
         {
             httpResponse.setStatusCode(WebServerConfig.HTTP.HTTP_CODE_OK);
