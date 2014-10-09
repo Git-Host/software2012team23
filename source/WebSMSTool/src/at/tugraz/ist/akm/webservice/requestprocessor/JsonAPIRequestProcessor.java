@@ -37,7 +37,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.content.Context;
-import android.telephony.SignalStrength;
 import at.tugraz.ist.akm.content.SmsContentConstants;
 import at.tugraz.ist.akm.content.query.ContactFilter;
 import at.tugraz.ist.akm.content.query.TextMessageFilter;
@@ -83,8 +82,6 @@ public class JsonAPIRequestProcessor extends AbstractHttpRequestProcessor
 
     private SmsIOCallback mExternalSMSIoCallback = null;
 
-    private TelephonySignalStrength mTelephonySignal = null;
-
 
     public synchronized void registerSMSIoListener(SmsIOCallback smsListener)
     {
@@ -108,7 +105,6 @@ public class JsonAPIRequestProcessor extends AbstractHttpRequestProcessor
         mJsonContactList = fetchContactsJsonArray();
         mLog.debug("preloading contacts [done]");
 
-        mTelephonySignal = new TelephonySignalStrength(mContext);
         mSystemMonitor = new SystemMonitor(context);
         mSMSThreadMessageCount = 20;
 
@@ -688,20 +684,18 @@ public class JsonAPIRequestProcessor extends AbstractHttpRequestProcessor
             mLog.debug("evaluate current telephone state");
             BatteryStatus batteryStatus = this.mSystemMonitor
                     .getBatteryStatus();
-            mTelephonySignal.takeNewSignalStrength(this.mSystemMonitor
-                    .getSignalStrength());
-            SignalStrength signalStrength = mTelephonySignal
-                    .currentSignalStrength();
+            TelephonySignalStrength telSignalStrength = this.mSystemMonitor
+                    .getTelephonySignalStrength();
 
             if (batteryStatus != null)
             {
                 result.put("battery",
                         mJsonFactory.createJsonObject(batteryStatus));
             }
-            if (signalStrength != null)
+            if (telSignalStrength != null)
             {
                 result.put("signal",
-                        mJsonFactory.createJsonObject(signalStrength));
+                        mJsonFactory.createJsonObject(telSignalStrength));
             }
 
             this.setSuccessState(result);

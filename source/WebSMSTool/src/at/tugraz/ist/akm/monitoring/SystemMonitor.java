@@ -77,11 +77,25 @@ public class SystemMonitor extends PhoneStateListener
     }
 
 
+    public synchronized TelephonySignalStrength getTelephonySignalStrength()
+    {
+        if (mSingalStrength == null)
+        {
+            return null;
+        }
+        
+        TelephonySignalStrength telSignalStrength = new TelephonySignalStrength(
+                mContext);
+        telSignalStrength.takeNewSignalStrength(mSingalStrength);
+        return telSignalStrength;
+    }
+
+
     @Override
     public synchronized void onSignalStrengthsChanged(
             SignalStrength signalStrength)
     {
-        mLog.debug("signal strength changed ["+signalStrength+"]");
+        mLog.debug("signal strength changed [" + signalStrength + "]");
         super.onSignalStrengthsChanged(signalStrength);
         mSingalStrength = signalStrength;
     }
