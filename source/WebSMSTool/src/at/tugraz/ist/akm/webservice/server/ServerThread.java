@@ -24,6 +24,7 @@ import java.util.concurrent.RejectedExecutionException;
 import javax.net.ssl.SSLException;
 
 import my.org.apache.http.ConnectionClosedException;
+import my.org.apache.http.HttpConnectionMetrics;
 import my.org.apache.http.HttpResponseInterceptor;
 import my.org.apache.http.HttpVersion;
 import my.org.apache.http.impl.DefaultConnectionReuseStrategy;
@@ -60,6 +61,19 @@ public class ServerThread extends Thread
     private boolean mStopServerThread = false;
 
     private final RequestThreadPool mThreadPool;
+
+    private long mSentBytesCount = 0;
+    private long mReceivedBytesCount = 0;
+
+
+    @SuppressWarnings("unused")
+    private ServerThread()
+    {
+        mThreadPool = null;
+        mServerSocket = null;
+        mRequestHandlerRegistry = null;
+        mHttpContext = null;
+    }
 
 
     public ServerThread(final ServerSocket serverSocket,
@@ -101,7 +115,7 @@ public class ServerThread extends Thread
                         + socket.getInetAddress() + "> on port <"
                         + socket.getPort() + ">");
 
-                final Socket tmpSocket = socket;
+                final Socket finalSocketReference = socket;
                 try
                 {
                     mThreadPool.executeTask(new Runnable() {
@@ -117,10 +131,20 @@ public class ServerThread extends Thread
                                 HttpProtocolParams.setContentCharset(params,
                                         HTTP.UTF_8);
 
-                                serverConn.bind(tmpSocket, params);
+                                serverConn.bind(finalSocketReference, params);
                                 HttpService httpService = initializeHTTPService();
                                 httpService.handleRequest(serverConn,
                                         mHttpContext);
+
+                                synchronized (ServerThread.this)
+                                {
+                                    HttpConnectionMetrics connMetrics = serverConn
+                                            .getMetrics();
+                                    mSentBytesCount += connMetrics
+                                            .getSentBytesCount();
+                                    mReceivedBytesCount += connMetrics
+                                            .getReceivedBytesCount();
+                                }
                             }
                             catch (SSLException iDon_tCare)
                             {
@@ -208,5 +232,17 @@ public class ServerThread extends Thread
                 params);
 
         return httpService;
+    }
+
+
+    public synchronized long getSentBytesCount()
+    {
+        return mSentBytesCount;
+    }
+
+
+    public synchronized long getReceivedBytesCount()
+    {
+        return mReceivedBytesCount;
     }
 }

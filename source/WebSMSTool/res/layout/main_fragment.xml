@@ -32,7 +32,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:contentDescription=""
+            android:contentDescription="@string/StartServiceFragment_service_icon_image_description"
             android:src="@drawable/ic_launcher" />
     </LinearLayout>
 
@@ -56,19 +56,13 @@
             android:layout_marginTop="10dp"
             android:orientation="horizontal" >
 
-            <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:contentDescription=""
-                android:src="@drawable/ic_action_hardware_computer" />
-
             <TextView
                 android:id="@+id/adress_data_field"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:text="https://123.123.123.123:65000"
+                android:drawableLeft="@drawable/ic_action_hardware_computer"
+                android:text="@string/StartServiceFragment_host_address_default_value"
                 android:textAppearance="?android:attr/textAppearanceMedium" />
         </LinearLayout>
 
@@ -80,18 +74,19 @@
             android:alpha="0.5"
             android:orientation="horizontal" >
 
-            <ImageView
+            <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:contentDescription=""
-                android:src="@drawable/ic_action_device_access_accounts" />
+                android:drawableLeft="@drawable/ic_action_device_access_accounts"
+                android:text="@string/StartServiceFragment_access_protection_username_text"
+                android:textAppearance="?android:attr/textAppearanceMedium" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:text="User: foo"
+                android:text="@string/StartServiceFragment_access_protection_default_username_value"
                 android:textAppearance="?android:attr/textAppearanceMedium" />
 
             <Space
@@ -103,7 +98,14 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:text="Password: ****"
+                android:text="@string/StartServiceFragment_access_protection_password_text"
+                android:textAppearance="?android:attr/textAppearanceMedium" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="@string/StartServiceFragment_access_protection_default_password_value"
                 android:textAppearance="?android:attr/textAppearanceMedium" />
 
             <Space
@@ -118,18 +120,12 @@
             android:layout_marginTop="10dp"
             android:orientation="horizontal" >
 
-            <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:contentDescription=""
-                android:src="@drawable/ic_action_messages" />
-
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:text="Sent / Received "
+                android:drawableLeft="@drawable/ic_action_messages"
+                android:text="@string/StartServiceFragment_sms_text"
                 android:textAppearance="?android:attr/textAppearanceMedium" />
 
             <Space
@@ -141,20 +137,20 @@
                 android:id="@+id/main_fragment_sms_sent"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="0"
+                android:text="@string/StartServiceFragment_sms_tx_default_value"
                 android:textAppearance="?android:attr/textAppearanceMedium" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text=" / "
+                android:text="@string/StartServiceFragment_sms_tx_rx_delimiter"
                 android:textAppearance="?android:attr/textAppearanceMedium" />
 
             <TextView
                 android:id="@+id/main_fragment_sms_recieved"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="0"
+                android:text="@string/StartServiceFragment_sms_rx_default_value"
                 android:textAppearance="?android:attr/textAppearanceMedium" />
         </LinearLayout>
 
@@ -164,18 +160,12 @@
             android:layout_marginTop="10dp"
             android:orientation="horizontal" >
 
-            <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:contentDescription=""
-                android:src="@drawable/ic_action_device_access_network_wifi" />
-
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:text="Network "
+                android:drawableLeft="@drawable/ic_action_device_access_network_wifi"
+                android:text="@string/StartServiceFragment_network_text"
                 android:textAppearance="?android:attr/textAppearanceMedium" />
 
             <Space
@@ -184,10 +174,26 @@
                 android:layout_weight="1" />
 
             <TextView
+                android:id="@+id/main_fragment_total_bytes_sent"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:text="1024.1024kb"
+                android:text="@string/StartServiceFragment_network_tx_default_value"
+                android:textAppearance="?android:attr/textAppearanceMedium" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="@string/StartServiceFragment_network_tx_rx_delimiter"
+                android:textAppearance="?android:attr/textAppearanceMedium" />
+
+            <TextView
+                android:id="@+id/main_fragment_total_bytes_recieved"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="@string/StartServiceFragment_network_rx_default_value"
                 android:textAppearance="?android:attr/textAppearanceMedium" />
         </LinearLayout>
 

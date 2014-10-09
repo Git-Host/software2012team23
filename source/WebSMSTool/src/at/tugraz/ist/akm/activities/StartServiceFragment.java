@@ -13,6 +13,7 @@ import android.os.IBinder;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
+import android.text.format.Formatter;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -46,9 +47,12 @@ public class StartServiceFragment extends Fragment implements
 
     private WifiIpAddress mWifiState = null;
     private ProgressBar mProgressBar = null;
-    
+
     private TextView mSmsSentView = null;
     private TextView mSmsRecievedView = null;
+
+    private TextView mNetworkTxBytes = null;
+    private TextView mNetworkRxBytes = null;
 
     private Messenger mServiceMessenger = null;
     final Messenger mClientMessenger = new Messenger(
@@ -115,7 +119,7 @@ public class StartServiceFragment extends Fragment implements
     {
         super.onResume();
         mLog.debug("on resume");
-        setServiceDisabledIcon();
+        setServiceDisabledUI();
         getActivity().getApplicationContext().bindService(
                 mStartSmsServiceIntent, this, Context.BIND_AUTO_CREATE);
         askWebServiceForClientRegistrationAsync();
@@ -127,7 +131,7 @@ public class StartServiceFragment extends Fragment implements
     {
         mLog.debug("on pause");
         askWebServiceForClientUnregistrationAsync();
-        super.onStop();
+        super.onPause();
     }
 
 
@@ -140,8 +144,15 @@ public class StartServiceFragment extends Fragment implements
         mWifiState = new WifiIpAddress(view.getContext());
         mProgressBar = (ProgressBar) view
                 .findViewById(R.id.start_stop_server_progress_bar);
-        mSmsRecievedView = (TextView) view.findViewById(R.id.main_fragment_sms_recieved);
-        mSmsSentView = (TextView) view.findViewById(R.id.main_fragment_sms_sent);
+        mSmsRecievedView = (TextView) view
+                .findViewById(R.id.main_fragment_sms_recieved);
+        mSmsSentView = (TextView) view
+                .findViewById(R.id.main_fragment_sms_sent);
+        mNetworkRxBytes = (TextView) view
+                .findViewById(R.id.main_fragment_total_bytes_recieved);
+        mNetworkTxBytes = (TextView) view
+                .findViewById(R.id.main_fragment_total_bytes_sent);
+
     }
 
 
@@ -236,7 +247,7 @@ public class StartServiceFragment extends Fragment implements
     {
         mButton.setChecked(true);
         mProgressBar.setIndeterminate(false);
-        setServiceEnabledIcon();
+        setServiceEnabledUI();
         if (mServiceRunningState == ServiceRunningStates.RUNNING)
         {
             return;
@@ -284,7 +295,7 @@ public class StartServiceFragment extends Fragment implements
         mInfoFieldView
                 .setText(getString(R.string.StartServiceFragment_service_stopped));
         mButton.setChecked(false);
-        setServiceDisabledIcon();
+        setServiceDisabledUI();
     }
 
 
@@ -392,7 +403,7 @@ public class StartServiceFragment extends Fragment implements
     }
 
 
-    public void setServiceDisabledIcon()
+    public void setServiceDisabledUI()
     {
         ImageView icActionbarLauncher = (ImageView) getView().findViewById(
                 R.id.main_fragment_ic_service);
@@ -406,7 +417,7 @@ public class StartServiceFragment extends Fragment implements
     }
 
 
-    public void setServiceEnabledIcon()
+    public void setServiceEnabledUI()
     {
         ImageView icActionbarLauncher = (ImageView) getView().findViewById(
                 R.id.main_fragment_ic_service);
@@ -454,23 +465,36 @@ public class StartServiceFragment extends Fragment implements
 
     protected void onWebServiceSmsSent(int smsSentCount)
     {
-        mLog.debug("sms sent [" + smsSentCount + "]");
         mSmsSentView.setText(Integer.toString(smsSentCount));
     }
-    
+
+
     protected void onWebServiceSmsDelivered(int smsDeliveredCount)
     {
-        mLog.debug("sms delivered [" + smsDeliveredCount + "]");
     }
-    
+
+
     protected void onWebServiceSmsSentErroneous(int smsSentCount)
     {
-        mLog.debug("sms sent erroneous [" + smsSentCount + "]");
     }
-    
+
+
     protected void onWebServiceSmsReceived(int smsReceivedCount)
     {
-        mLog.debug("sms received [" + smsReceivedCount + "]");
         mSmsRecievedView.setText(Integer.toString(smsReceivedCount));
+    }
+
+
+    protected void onWebServiceTxBytesUpdate(int newTxBytesStatus)
+    {
+        mNetworkTxBytes.setText(Formatter.formatFileSize(getActivity(),
+                newTxBytesStatus));
+    }
+
+
+    protected void onWebServiceRxBytesUpdate(int newRxBytesStatus)
+    {
+        mNetworkRxBytes.setText(Formatter.formatFileSize(getActivity(),
+                newRxBytesStatus));
     }
 }

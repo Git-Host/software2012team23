@@ -27,6 +27,7 @@ import android.net.NetworkInfo;
 import android.net.wifi.WifiManager;
 import android.os.Binder;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.os.IBinder;
 import android.os.Message;
 import android.os.Messenger;
@@ -63,6 +64,53 @@ public class WebSMSToolService extends Service implements SmsIOCallback
         {
         }
     }
+
+    private CountDownTimer mNetworkStatsPropagationTimer = new CountDownTimer(
+            (60 * 1000) * 60, 10 * 1000) {
+        private int mLastTxBytesPropagated = 0;
+        private int mLastRxBytesPropagated = 0;
+        private int mPropagationBytesDelta = 2 * (2 ^ 10);
+
+
+        @Override
+        public void onTick(long millisUntilFinished)
+        {
+            if (mServer == null)
+            {
+                return;
+            }
+
+            int currentTxByteStatus = (int) (mServer.getSentBytesCount());
+
+            if ((mLastTxBytesPropagated <= 0)
+                    || (mLastTxBytesPropagated + mPropagationBytesDelta) < currentTxByteStatus)
+            {
+                mLastTxBytesPropagated = currentTxByteStatus;
+                WebSMSToolService.this
+                        .sendMessageToClient(
+                                ServiceConnectionMessageTypes.Service.Response.NETWORK_TRAFFIC_TX_BYTES,
+                                mLastTxBytesPropagated, null);
+            }
+
+            int currentRxByteStatus = (int) (mServer.getReceivedBytesCount());
+            if ((mLastRxBytesPropagated <= 0)
+                    || (mLastRxBytesPropagated + mPropagationBytesDelta) < currentRxByteStatus)
+            {
+                mLastRxBytesPropagated = currentRxByteStatus;
+                WebSMSToolService.this
+                        .sendMessageToClient(
+                                ServiceConnectionMessageTypes.Service.Response.NETWORK_TRAFFIC_RX_BYTES,
+                                mLastRxBytesPropagated, null);
+            }
+        }
+
+
+        @Override
+        public void onFinish()
+        {
+            this.start();
+        }
+    };
 
     private static class WebSMSToolBroadcastReceiver extends BroadcastReceiver
     {
@@ -107,9 +155,17 @@ public class WebSMSToolService extends Service implements SmsIOCallback
     protected void onClientRequestRegister(Messenger clientMessenger)
     {
         mClientMessenger = clientMessenger;
-        sendMessageToClient(
-                ServiceConnectionMessageTypes.Service.Response.REGISTERED_TO_SERVICE,
-                0, null);
+
+        if (mClientMessenger != null)
+        {
+            sendMessageToClient(
+                    ServiceConnectionMessageTypes.Service.Response.REGISTERED_TO_SERVICE,
+                    0, null);
+            mNetworkStatsPropagationTimer.start();
+        } else
+        {
+            mNetworkStatsPropagationTimer.cancel();
+        }
     }
 
 
@@ -154,7 +210,6 @@ public class WebSMSToolService extends Service implements SmsIOCallback
     @Override
     public boolean onUnbind(Intent intent)
     {
-
         return super.onUnbind(intent);
     }
 
@@ -307,7 +362,7 @@ public class WebSMSToolService extends Service implements SmsIOCallback
             return;
         }
         // TODO stopwerbsmstoolservice() before stopself();
-        // on enabled only?
+        // check on enabled only?
         mLog.debug("wifi state changed, turning off service");
         stopSelf();
     }

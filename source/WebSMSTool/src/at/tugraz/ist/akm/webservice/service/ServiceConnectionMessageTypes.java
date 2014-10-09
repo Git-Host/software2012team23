@@ -35,7 +35,8 @@ public class ServiceConnectionMessageTypes
             public static final int SMS_SENT_ERRONEOUS = 28;
             public static final int SMS_DELIVERED = 30;
             public static final int SMS_RECEIVED = 24;
-            public static final int NETWORK_TRAFFIC_BYTES = 26;
+            public static final int NETWORK_TRAFFIC_TX_BYTES = 26;
+            public static final int NETWORK_TRAFFIC_RX_BYTES = 32;
         }
     }
 

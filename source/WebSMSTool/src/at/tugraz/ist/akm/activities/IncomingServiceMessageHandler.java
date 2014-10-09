@@ -41,6 +41,13 @@ public class IncomingServiceMessageHandler extends Handler
             case ServiceConnectionMessageTypes.Service.Response.SMS_SENT_ERRONEOUS:
                 mClientFragment.onWebServiceSmsSentErroneous(msg.arg1);
                 break;
+                
+            case ServiceConnectionMessageTypes.Service.Response.NETWORK_TRAFFIC_RX_BYTES:
+                mClientFragment.onWebServiceRxBytesUpdate(msg.arg1);
+                break;
+            case ServiceConnectionMessageTypes.Service.Response.NETWORK_TRAFFIC_TX_BYTES:
+                mClientFragment.onWebServiceTxBytesUpdate(msg.arg1);
+                break;
 
             case ServiceConnectionMessageTypes.Service.Response.CONNECTION_URL:
                 mClientFragment.onWebServiceURLChanged(msg.getData().getString(

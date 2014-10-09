@@ -140,7 +140,8 @@ public class SimpleWebServer implements SmsIOCallback
 
                 AbstractHttpRequestProcessor newHandler = null;
 
-                if (className.equals(JsonAPIRequestProcessor.class.getCanonicalName()))
+                if (className.equals(JsonAPIRequestProcessor.class
+                        .getCanonicalName()))
                 {
                     mLog.debug("registered to sms callback");
                     JsonAPIRequestProcessor jsonRequesProcessor = (JsonAPIRequestProcessor) constr
@@ -487,4 +488,23 @@ public class SimpleWebServer implements SmsIOCallback
         }
     }
 
+
+    public long getReceivedBytesCount()
+    {
+        if (mServerThread == null)
+        {
+            return 0;
+        }
+        return mServerThread.getReceivedBytesCount();
+    }
+
+
+    public long getSentBytesCount()
+    {
+        if (mServerThread == null)
+        {
+            return 0;
+        }
+        return mServerThread.getSentBytesCount();
+    }
 }

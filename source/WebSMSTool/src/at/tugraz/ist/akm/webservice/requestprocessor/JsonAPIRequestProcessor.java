@@ -37,7 +37,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.content.Context;
-import android.content.SyncResult;
 import android.telephony.SignalStrength;
 import at.tugraz.ist.akm.content.SmsContentConstants;
 import at.tugraz.ist.akm.content.query.ContactFilter;
