@@ -34,7 +34,7 @@ import my.org.apache.http.util.EntityUtils;
 import android.content.Context;
 import at.tugraz.ist.akm.io.xml.XmlNode;
 import at.tugraz.ist.akm.trace.LogClient;
-import at.tugraz.ist.akm.webservice.WebServerConfig;
+import at.tugraz.ist.akm.webservice.WebServerConstants;
 import at.tugraz.ist.akm.webservice.requestprocessor.interceptor.IRequestInterceptor;
 
 public abstract class AbstractHttpRequestProcessor implements HttpRequestHandler {
@@ -82,19 +82,19 @@ public abstract class AbstractHttpRequestProcessor implements HttpRequestHandler
         if (mConfig == null) {
             return;
         }
-        List<XmlNode> childNodes = mConfig.getChildNodes(WebServerConfig.XML.TAG_REQUEST);
+        List<XmlNode> childNodes = mConfig.getChildNodes(WebServerConstants.XML.TAG_REQUEST);
         for (XmlNode node : childNodes) {
-            String uri = node.getAttributeValue(WebServerConfig.XML.ATTRIBUTE_URI_PATTERN);
+            String uri = node.getAttributeValue(WebServerConstants.XML.ATTRIBUTE_URI_PATTERN);
             if (uri == null || uri.trim().length() == 0) {
                 mLog.error("no uri configured, ignore this request configuration");
                 continue;
             }
-            String contentType = node.getAttributeValue(WebServerConfig.XML.ATTRIBUTE_CONTENT_TYPE);
+            String contentType = node.getAttributeValue(WebServerConstants.XML.ATTRIBUTE_CONTENT_TYPE);
             if (contentType == null || contentType.trim().length() == 0) {
                 mLog.error("no content type configured for uri <" + uri + ">");
                 continue;
             }
-            String file = node.getAttributeValue(WebServerConfig.XML.ATTRIBUTE_DATA_FILE);
+            String file = node.getAttributeValue(WebServerConstants.XML.ATTRIBUTE_DATA_FILE);
             if (file == null || file.trim().length() == 0) {
                 mLog.error("no data file configured for uri <" + uri + ">");
                 continue;

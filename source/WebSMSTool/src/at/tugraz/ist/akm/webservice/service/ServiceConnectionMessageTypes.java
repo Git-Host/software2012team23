@@ -12,8 +12,17 @@ public class ServiceConnectionMessageTypes
             public static final int UNREGISTER_TO_SERVICE = 3;
             public static final int CURRENT_RUNNING_STATE = 5;
             public static final int STOP_SERVICE = 7;
-            public static final int CONNECTION_URL = 11; // TODO remove
+            public static final int CONNECTION_URL = 11; // TODO remove unused
+                                                         // call
             public static final int REPUBLISH_STATES = 13;
+            public static final int HTTP_USERNAME = 15;
+            public static final int HTTP_PASSWORD = 17;
+            public static final int HTTP_ACCESS_RESCRICTION_ENABLED = 19;
+        }
+
+        public static class Response
+        {
+            public static final int SERVER_SETTINGS_GHANGED = 21;
         }
     }
 
@@ -37,6 +46,9 @@ public class ServiceConnectionMessageTypes
             public static final int SMS_RECEIVED = 24;
             public static final int NETWORK_TRAFFIC_TX_BYTES = 26;
             public static final int NETWORK_TRAFFIC_RX_BYTES = 32;
+            public static final int HTTP_USERNAME = 34;
+            public static final int HTTP_PASSWORD = 36;
+            public static final int HTTP_ACCESS_RESCRICTION_ENABLED = 38;
         }
     }
 
@@ -44,7 +56,13 @@ public class ServiceConnectionMessageTypes
     {
         public static class Key
         {
-            public static final String STRING_ARG1 = "CONNECTION_URL";
+            public static final String STRING_CONNECTION_URL = "CONNECTION_URL";
+            public static final String STRING_ARG_SERVER_USERNAME = "STRING_ARG_SERVER_USERNAME";
+            public static final String STRING_ARG_SERVER_PASSWORD = "STRING_ARG_SERVER_PASSWORD";
+            public static final String STRING_ARG_SERVER_PROTOCOL = "STRING_ARG_SERVER_PROTOCOL";
+            public static final String INT_ARG_SERVER_PORT = "INT_ARG_SERVER_PORT";
+            public static final String BOOLEAN_ARG_SERVER_HTTPS = "BOOLEAN_ARG_SERVER_HTTPS";
+            public static final String BOOLEAN_ARG_SERVER_USER_AUTH = "BOOLEAN_ARG_SERVER_USER_AUTH";
         }
     }
 
@@ -55,19 +73,26 @@ public class ServiceConnectionMessageTypes
 
         fieldName = getFieldOfClass(
                 ServiceConnectionMessageTypes.Client.Request.class, messageId);
-        if (fieldName == null)
+        if (fieldName != null)
         {
-            fieldName = getFieldOfClass(
-                    ServiceConnectionMessageTypes.Service.Response.class,
-                    messageId);
+            return fieldName;
         }
 
-        if (fieldName == null)
+        fieldName = getFieldOfClass(
+                ServiceConnectionMessageTypes.Client.Response.class, messageId);
+        if (fieldName != null)
         {
-            return "invalid message id";
+            return fieldName;
         }
-        return fieldName;
 
+        fieldName = getFieldOfClass(
+                ServiceConnectionMessageTypes.Service.Response.class, messageId);
+        if (fieldName != null)
+        {
+            return fieldName;
+        }
+
+        return "invalid message id";
     }
 
 

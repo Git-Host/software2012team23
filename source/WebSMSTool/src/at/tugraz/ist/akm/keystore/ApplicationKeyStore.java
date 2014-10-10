@@ -184,7 +184,8 @@ public class ApplicationKeyStore
 
         mInKeyStore = KeyStore.getInstance(KeyStore.getDefaultType());
         mInKeyStoreStream = new FileInputStream(filePath);
-        mInKeyStore.load(mInKeyStoreStream, password.toCharArray());
+        mInKeyStore.
+        load(mInKeyStoreStream, password.toCharArray());
         mKeyFactory.init(mInKeyStore, password.toCharArray());
         mLog.debug("keystore loaded with password [*****] and filepath ["
                 + filePath + "]");

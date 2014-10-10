@@ -13,7 +13,7 @@ import android.graphics.BitmapFactory;
 import at.tugraz.ist.akm.R;
 import at.tugraz.ist.akm.io.xml.XmlNode;
 import at.tugraz.ist.akm.trace.LogClient;
-import at.tugraz.ist.akm.webservice.WebServerConfig;
+import at.tugraz.ist.akm.webservice.WebServerConstants;
 
 public class FaviconLoadRequestProcessor extends AbstractHttpRequestProcessor {
 
@@ -36,7 +36,7 @@ public class FaviconLoadRequestProcessor extends AbstractHttpRequestProcessor {
 			byte[] imageBytes = os.toByteArray();
 			
 			mResponseDataAppender.appendHttpResponseMediaType(httpResponse,
-					WebServerConfig.HTTP.CONTENTY_TYPE_IMAGE_PNG, imageBytes);
+					WebServerConstants.HTTP.CONTENTY_TYPE_IMAGE_PNG, imageBytes);
 		} catch (Exception ex) {
 			mLog.error("what a terrible failure", ex);
 		}

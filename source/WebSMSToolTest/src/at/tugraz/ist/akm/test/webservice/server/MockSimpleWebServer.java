@@ -19,14 +19,25 @@ package at.tugraz.ist.akm.test.webservice.server;
 import android.content.Context;
 import at.tugraz.ist.akm.webservice.requestprocessor.interceptor.IRequestInterceptor;
 import at.tugraz.ist.akm.webservice.server.SimpleWebServer;
+import at.tugraz.ist.akm.webservice.server.WebserverProtocolConfig;
 
-public class MockSimpleWebServer extends SimpleWebServer {
-
-    public MockSimpleWebServer(Context context) throws Exception {
-        super(context);
+public class MockSimpleWebServer extends SimpleWebServer
+{
+    public MockSimpleWebServer(Context context, WebserverProtocolConfig config)
+            throws Exception
+    {
+        super(context, config);
     }
-    
+
+
+    private MockSimpleWebServer(Context context) throws Exception
+    {
+        super(context, new WebserverProtocolConfig());
+    }
+
+
     @Override
-    protected void setInterceptor(IRequestInterceptor reqInterceptor) {
+    protected void setInterceptor(IRequestInterceptor reqInterceptor)
+    {
     }
 }

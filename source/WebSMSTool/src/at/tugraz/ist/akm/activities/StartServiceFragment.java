@@ -25,7 +25,9 @@ import android.widget.ToggleButton;
 import at.tugraz.ist.akm.R;
 import at.tugraz.ist.akm.environment.AppEnvironment;
 import at.tugraz.ist.akm.networkInterface.WifiIpAddress;
+import at.tugraz.ist.akm.preferences.SharedPreferencesProvider;
 import at.tugraz.ist.akm.trace.LogClient;
+import at.tugraz.ist.akm.webservice.server.WebserverProtocolConfig;
 import at.tugraz.ist.akm.webservice.service.ServiceConnectionMessageTypes;
 import at.tugraz.ist.akm.webservice.service.WebSMSToolService;
 import at.tugraz.ist.akm.webservice.service.WebSMSToolService.ServiceRunningStates;
@@ -53,6 +55,9 @@ public class StartServiceFragment extends Fragment implements
 
     private TextView mNetworkTxBytes = null;
     private TextView mNetworkRxBytes = null;
+    TextView mAccessRestrictionUsername = null;
+    TextView mAccessRestrictionPassword = null;
+    LinearLayout mAccessRestrictionLayout = null;
 
     private Messenger mServiceMessenger = null;
     final Messenger mClientMessenger = new Messenger(
@@ -72,15 +77,8 @@ public class StartServiceFragment extends Fragment implements
             Bundle savedInstanceState)
     {
         View view = inflater.inflate(R.layout.main_fragment, container, false);
-
         mLog.debug("on create view");
-        // setUpApplicationConfig();
         setUpMainFragmentUI(view);
-        if (savedInstanceState != null)
-        {
-            // TODO
-        }
-        // updateLocalIp();
         return view;
     }
 
@@ -122,7 +120,6 @@ public class StartServiceFragment extends Fragment implements
         setServiceDisabledUI();
         getActivity().getApplicationContext().bindService(
                 mStartSmsServiceIntent, this, Context.BIND_AUTO_CREATE);
-        askWebServiceForClientRegistrationAsync();
     }
 
 
@@ -144,14 +141,23 @@ public class StartServiceFragment extends Fragment implements
         mWifiState = new WifiIpAddress(view.getContext());
         mProgressBar = (ProgressBar) view
                 .findViewById(R.id.start_stop_server_progress_bar);
+
         mSmsRecievedView = (TextView) view
                 .findViewById(R.id.main_fragment_sms_recieved);
         mSmsSentView = (TextView) view
                 .findViewById(R.id.main_fragment_sms_sent);
+
         mNetworkRxBytes = (TextView) view
                 .findViewById(R.id.main_fragment_total_bytes_recieved);
         mNetworkTxBytes = (TextView) view
                 .findViewById(R.id.main_fragment_total_bytes_sent);
+
+        mAccessRestrictionUsername = (TextView) view
+                .findViewById(R.id.main_fragment_http_access_username);
+        mAccessRestrictionPassword = (TextView) view
+                .findViewById(R.id.main_fragment_http_access_password);
+        mAccessRestrictionLayout = (LinearLayout) view
+                .findViewById(R.id.main_fragment_access_restriction_info);
 
     }
 
@@ -174,12 +180,14 @@ public class StartServiceFragment extends Fragment implements
                 mLog.info("starting web service");
                 displayStartingService();
 
+                // TODO: we are bound here, send server config again before asking for start
                 mProgressBar.setIndeterminate(true);
                 getActivity().getApplicationContext().startService(
                         mStartSmsServiceIntent);
-                getActivity().getApplicationContext().bindService(
-                        mStartSmsServiceIntent, StartServiceFragment.this,
-                        Context.BIND_AUTO_CREATE);
+                
+//                getActivity().getApplicationContext().bindService(
+//                        mStartSmsServiceIntent, StartServiceFragment.this,
+//                        Context.BIND_AUTO_CREATE);
             } else
             {
                 displayNoWifiConnected();
@@ -310,6 +318,7 @@ public class StartServiceFragment extends Fragment implements
     protected void onWebServiceClientRegistered()
     {
         mLog.debug("client registered to service");
+        sendWebServiceServerConfigChanged();
         askWebServiceForRepublishStatesAsync();
     }
 
@@ -367,6 +376,12 @@ public class StartServiceFragment extends Fragment implements
     }
 
 
+    private void sendWebServiceServerConfigChanged()
+    {
+        sendMessageToService(ServiceConnectionMessageTypes.Client.Response.SERVER_SETTINGS_GHANGED);
+    }
+
+
     private void askWebServiceForServiceStopAsync()
     {
         sendMessageToService(ServiceConnectionMessageTypes.Client.Request.STOP_SERVICE);
@@ -384,11 +399,7 @@ public class StartServiceFragment extends Fragment implements
             try
             {
                 Message messengerMessage = Message.obtain(null, messageId);
-                if (messageId == ServiceConnectionMessageTypes.Client.Request.REGISTER_TO_SERVICE)
-                {
-                    messengerMessage.replyTo = mClientMessenger;
-                }
-
+                appendDataToMessage(messengerMessage, messageId);
                 mServiceMessenger.send(messengerMessage);
             }
             catch (RemoteException e)
@@ -400,6 +411,64 @@ public class StartServiceFragment extends Fragment implements
             mLog.error("failed sending [" + messageName
                     + "], service not available");
         }
+    }
+
+
+    private void appendDataToMessage(Message message, int messageId)
+    {
+        switch (messageId)
+        {
+        case ServiceConnectionMessageTypes.Client.Request.REGISTER_TO_SERVICE:
+            message.replyTo = mClientMessenger;
+            break;
+        case ServiceConnectionMessageTypes.Client.Response.SERVER_SETTINGS_GHANGED:
+            WebserverProtocolConfig config = newWebserverConfig();
+            Bundle objBundleParameter = new Bundle();
+            putServerconfigToBundle(objBundleParameter, config);
+            message.setData(objBundleParameter);
+            break;
+        }
+    }
+
+
+    private void putServerconfigToBundle(Bundle aBundle,
+            WebserverProtocolConfig configToStore)
+    {
+        aBundle.putBoolean(
+                ServiceConnectionMessageTypes.Bundle.Key.BOOLEAN_ARG_SERVER_HTTPS,
+                configToStore.isHttpsEnabled);
+        aBundle.putBoolean(
+                ServiceConnectionMessageTypes.Bundle.Key.BOOLEAN_ARG_SERVER_USER_AUTH,
+                configToStore.isUserAuthEnabled);
+        aBundle.putString(
+                ServiceConnectionMessageTypes.Bundle.Key.STRING_ARG_SERVER_PASSWORD,
+                configToStore.password);
+        aBundle.putString(
+                ServiceConnectionMessageTypes.Bundle.Key.STRING_ARG_SERVER_PROTOCOL,
+                configToStore.protocolName);
+        aBundle.putString(
+                ServiceConnectionMessageTypes.Bundle.Key.STRING_ARG_SERVER_USERNAME,
+                configToStore.username);
+        aBundle.putInt(
+                ServiceConnectionMessageTypes.Bundle.Key.INT_ARG_SERVER_PORT,
+                configToStore.port);
+    }
+
+
+    private WebserverProtocolConfig newWebserverConfig()
+    {
+        WebserverProtocolConfig config = new WebserverProtocolConfig();
+        SharedPreferencesProvider preferences = new SharedPreferencesProvider(
+                getActivity().getApplicationContext());
+
+        config.isHttpsEnabled = preferences.isHttpsEnabled();
+        config.isUserAuthEnabled = preferences.isAccessRestrictionEnabled();
+        config.password = preferences.getPassword();
+        config.port = preferences.getPort();
+        config.protocolName = preferences.getProtocol();
+        config.username = preferences.getUsername();
+
+        return config;
     }
 
 
@@ -496,5 +565,29 @@ public class StartServiceFragment extends Fragment implements
     {
         mNetworkRxBytes.setText(Formatter.formatFileSize(getActivity(),
                 newRxBytesStatus));
+    }
+
+
+    protected void onWebServiceHttpPassword(String maskedPassword)
+    {
+        mAccessRestrictionPassword.setText(maskedPassword);
+    }
+
+
+    protected void onWebServiceHttpUsername(String username)
+    {
+        mAccessRestrictionUsername.setText(username);
+    }
+
+
+    protected void onWebServiceHttpAccessRestriction(int isEnabled)
+    {
+        if (0 == isEnabled)
+        {
+            mAccessRestrictionLayout.setAlpha(1 / 2);
+        } else
+        {
+            mAccessRestrictionLayout.setAlpha(1);
+        }
     }
 }

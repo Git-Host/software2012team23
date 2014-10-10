@@ -37,6 +37,7 @@ import at.tugraz.ist.akm.sms.SmsIOCallback;
 import at.tugraz.ist.akm.sms.TextMessage;
 import at.tugraz.ist.akm.trace.LogClient;
 import at.tugraz.ist.akm.webservice.server.SimpleWebServer;
+import at.tugraz.ist.akm.webservice.server.WebserverProtocolConfig;
 
 public class WebSMSToolService extends Service implements SmsIOCallback
 {
@@ -46,6 +47,7 @@ public class WebSMSToolService extends Service implements SmsIOCallback
     private Intent mServiceStartedStickyIntend = null;
     private final LogClient mLog = new LogClient(this);
     private SimpleWebServer mServer = null;
+    private WebserverProtocolConfig mServerConfig = null;
     private static BroadcastReceiver mIntentReceiver = null;
     private Messenger mClientMessenger = null;
     private final Messenger mServiceMessenger = new Messenger(
@@ -229,7 +231,7 @@ public class WebSMSToolService extends Service implements SmsIOCallback
 
                 try
                 {
-                    mServer = new SimpleWebServer(this);
+                    mServer = new SimpleWebServer(this, mServerConfig);
                     mServer.registerSmsIoCallback(this);
                     getApplicationContext().removeStickyBroadcast(
                             mServiceStartedStickyIntend);
@@ -244,7 +246,7 @@ public class WebSMSToolService extends Service implements SmsIOCallback
                         throw new Exception("server failed to start");
                     }
 
-                    mLog.info("Web service has been started");
+                    mLog.info("service has been started");
                 }
                 catch (Exception ex)
                 {
@@ -438,25 +440,22 @@ public class WebSMSToolService extends Service implements SmsIOCallback
 
         mLog.debug("service sending [" + messageName + "=" + arg1 + "] obj ["
                 + optConnectionUrl + "] to client");
+
         if (mClientMessenger != null)
         {
             try
             {
+                Message message = Message.obtain(null, what, arg1, 0);
                 if (null != optConnectionUrl)
                 {
-                    Message message = Message.obtain(null, what, arg1, 0);
                     Bundle objBundleParameter = new Bundle();
                     objBundleParameter
                             .putString(
-                                    ServiceConnectionMessageTypes.Bundle.Key.STRING_ARG1,
+                                    ServiceConnectionMessageTypes.Bundle.Key.STRING_CONNECTION_URL,
                                     optConnectionUrl);
                     message.setData(objBundleParameter);
-                    mClientMessenger.send(message);
-
-                } else
-                {
-                    mClientMessenger.send(Message.obtain(null, what, arg1, 0));
                 }
+                mClientMessenger.send(message);
             }
             catch (RemoteException e)
             {
@@ -490,15 +489,16 @@ public class WebSMSToolService extends Service implements SmsIOCallback
 
     protected void onClientRequestRepublishStates()
     {
-        sendMessageToClient(
-                ServiceConnectionMessageTypes.Service.Response.CURRENT_RUNNING_STATE,
-                translateRunningStateToInt(getRunningState()), null);
-
         try
         {
             sendMessageToClient(
-                    ServiceConnectionMessageTypes.Service.Response.CONNECTION_URL,
-                    0, formatConnectionUrl());
+                    ServiceConnectionMessageTypes.Service.Response.CURRENT_RUNNING_STATE,
+                    translateRunningStateToInt(getRunningState()), null);
+
+            onClientRequestConnectionUrl();
+            onClientRequestHttpPassword();
+            onClientRequestHttpUsername();
+            onClientRequestIsHttpAccessRestrictionEnabled();
         }
         catch (NullPointerException npe)
         {
@@ -518,6 +518,49 @@ public class WebSMSToolService extends Service implements SmsIOCallback
             mLog.debug("failed client request for stopping service in state ["
                     + getRunningState() + "]");
         }
+    }
+
+
+    // TODO: wrong!
+    protected void onClientRequestHttpPassword()
+    {
+        // password has to be stored with password_string_type not
+        // as kind of url_string_type
+        sendMessageToClient(
+                ServiceConnectionMessageTypes.Service.Response.HTTP_PASSWORD,
+                0, mServer.getMaskedHttpPassword());
+    }
+
+
+    // TODO: wrong!
+    protected void onClientRequestHttpUsername()
+    {
+        sendMessageToClient(
+                ServiceConnectionMessageTypes.Service.Response.HTTP_USERNAME,
+                0, mServer.getHttpUsername());
+    }
+
+
+    // TODO: wrong!
+    protected void onClientRequestIsHttpAccessRestrictionEnabled()
+    {
+        int isRestrictionEnabled = 0;
+
+        if (mServer.isHttpAccessRestrictionEnabled())
+        {
+            isRestrictionEnabled = 1;
+        }
+
+        sendMessageToClient(
+                ServiceConnectionMessageTypes.Service.Response.HTTP_ACCESS_RESCRICTION_ENABLED,
+                isRestrictionEnabled, null);
+    }
+
+
+    protected void onClientResponseServerSettingsChanged(
+            WebserverProtocolConfig newConfig)
+    {
+        mServerConfig = newConfig;
     }
 
 

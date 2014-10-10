@@ -16,7 +16,7 @@
 
 package at.tugraz.ist.akm.webservice;
 
-public class WebServerConfig {
+public class WebServerConstants {
     /*
      * 
      * XML Configuration

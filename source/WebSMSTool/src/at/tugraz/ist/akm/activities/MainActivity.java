@@ -23,9 +23,11 @@ import java.util.List;
 import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentTransaction;
+import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Debug;
+import android.preference.PreferenceManager;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -157,6 +159,10 @@ public class MainActivity extends Activity
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
+
+        mLog.debug(MainActivity.class.getSimpleName() + " onCreate");
+
+        fixAndroidBugIssued6641();
 
         if (null != savedInstanceState)
         {
@@ -302,7 +308,32 @@ public class MainActivity extends Activity
 
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.default_actionbar, menu);
-         getActionBar().setDisplayHomeAsUpEnabled(true);
+        getActionBar().setDisplayHomeAsUpEnabled(true);
         return true;
+    }
+
+
+    private void fixAndroidBugIssued6641()
+    {
+        // These lines are working around an android bug:
+        // https://code.google.com/p/android/issues/detail?id=6641
+
+        PreferenceManager.setDefaultValues(this, R.xml.preferences_list, false);
+        setDefaultBooleanPreferenceValue(R.string.preferences_access_restriction_key);
+        setDefaultBooleanPreferenceValue(R.string.preferences_protocol_checkbox_key);
+    }
+
+
+    private void setDefaultBooleanPreferenceValue(int resourceId)
+    {
+        String sharedPreferenceKey = getApplicationContext().getString(
+                resourceId);
+
+        SharedPreferences prefs = PreferenceManager
+                .getDefaultSharedPreferences(getApplicationContext());
+
+        prefs.edit()
+                .putBoolean(sharedPreferenceKey,
+                        prefs.getBoolean(sharedPreferenceKey, false)).commit();
     }
 }

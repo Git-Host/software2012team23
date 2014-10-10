@@ -20,14 +20,21 @@ import my.org.apache.http.HttpRequest;
 import my.org.apache.http.HttpResponse;
 import android.content.Context;
 import at.tugraz.ist.akm.webservice.requestprocessor.HttpResponseDataAppender;
+import at.tugraz.ist.akm.webservice.server.WebserverProtocolConfig;
 
 public abstract class AbstractRequestInterceptor implements IRequestInterceptor {
-    protected final Context mContext;
     protected final HttpResponseDataAppender responseDataAppender = new HttpResponseDataAppender();
 
-    public AbstractRequestInterceptor(final Context context) {
+    protected final WebserverProtocolConfig mServerConfig;
+    protected final Context mContext;
+
+    public AbstractRequestInterceptor(WebserverProtocolConfig config,
+            Context context)
+    {
+        mServerConfig = config;
         mContext = context;
     }
+
 
     @Override
     public abstract boolean process(HttpRequest httpRequest, String requestData, HttpResponse httpResponse);

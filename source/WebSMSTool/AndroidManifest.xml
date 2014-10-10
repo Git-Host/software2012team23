@@ -58,10 +58,14 @@
             </intent-filter>
         </activity>
 
-        <service android:name="at.tugraz.ist.akm.webservice.service.WebSMSToolService" android:exported="false"  android:process=":process">
+        <service
+            android:name="at.tugraz.ist.akm.webservice.service.WebSMSToolService"
+            android:exported="false" android:process=":process">
         </service>
 
-        <activity android:name="at.tugraz.ist.akm.activities.preferences.PreferencesActivity" >
+        <activity
+            android:name="at.tugraz.ist.akm.activities.preferences.PreferencesActivity"
+            android:multiprocess="true" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

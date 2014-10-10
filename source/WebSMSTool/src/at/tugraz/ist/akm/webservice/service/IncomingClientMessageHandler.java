@@ -1,8 +1,10 @@
 package at.tugraz.ist.akm.webservice.service;
 
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import at.tugraz.ist.akm.trace.LogClient;
+import at.tugraz.ist.akm.webservice.server.WebserverProtocolConfig;
 
 class IncomingClientMessageHandler extends Handler
 {
@@ -16,7 +18,7 @@ class IncomingClientMessageHandler extends Handler
     {
         mService = service;
     }
-    
+
 
     @Override
     public void handleMessage(Message msg)
@@ -52,6 +54,19 @@ class IncomingClientMessageHandler extends Handler
                 mService.onClientRequestRepublishStates();
                 break;
 
+            case ServiceConnectionMessageTypes.Client.Request.HTTP_PASSWORD:
+                mService.onClientRequestHttpPassword();
+                break;
+
+            case ServiceConnectionMessageTypes.Client.Request.HTTP_USERNAME:
+                mService.onClientRequestHttpUsername();
+                break;
+
+            case ServiceConnectionMessageTypes.Client.Response.SERVER_SETTINGS_GHANGED:
+                WebserverProtocolConfig newSettings = newServerSettingsFromBundle(msg.getData());
+                mService.onClientResponseServerSettingsChanged(newSettings);
+                break;
+
             default:
                 super.handleMessage(msg);
                 mLog.debug("unhandled message id [" + msg.what + "]");
@@ -60,9 +75,32 @@ class IncomingClientMessageHandler extends Handler
         }
         catch (Throwable e)
         {
-            mLog.error("failed reading message id [" + ServiceConnectionMessageTypes.getMessageName(msg.what) + "]");
-            mLog.debug("failed reading message id [" + ServiceConnectionMessageTypes.getMessageName(msg.what)
+            mLog.error("failed reading message id ["
+                    + ServiceConnectionMessageTypes.getMessageName(msg.what)
+                    + "]");
+            mLog.debug("failed reading message id ["
+                    + ServiceConnectionMessageTypes.getMessageName(msg.what)
                     + "] from client", e);
         }
+    }
+    
+    private WebserverProtocolConfig newServerSettingsFromBundle(Bundle data) {
+        
+        WebserverProtocolConfig newSettings = new WebserverProtocolConfig();
+        
+        newSettings.isHttpsEnabled = data
+                .getBoolean(ServiceConnectionMessageTypes.Bundle.Key.BOOLEAN_ARG_SERVER_HTTPS);
+        newSettings.isUserAuthEnabled = data
+                .getBoolean(ServiceConnectionMessageTypes.Bundle.Key.BOOLEAN_ARG_SERVER_USER_AUTH);
+        newSettings.password = data
+                .getString(ServiceConnectionMessageTypes.Bundle.Key.STRING_ARG_SERVER_PASSWORD);
+        newSettings.protocolName = data
+                .getString(ServiceConnectionMessageTypes.Bundle.Key.STRING_ARG_SERVER_PROTOCOL);
+        newSettings.username = data
+                .getString(ServiceConnectionMessageTypes.Bundle.Key.STRING_ARG_SERVER_USERNAME);
+        newSettings.port = data
+                .getInt(ServiceConnectionMessageTypes.Bundle.Key.INT_ARG_SERVER_PORT);
+        
+        return newSettings;
     }
 }

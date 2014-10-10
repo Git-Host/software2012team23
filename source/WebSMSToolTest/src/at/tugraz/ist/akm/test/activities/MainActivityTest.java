@@ -316,29 +316,37 @@ public class MainActivityTest extends
 
     public void test_backStack_homeClicks_result_in_only_one_stack_etnry()
     {
-        Solo solo = new Solo(getInstrumentation(), getActivity());
+        try
+        {
+            Solo solo = new Solo(getInstrumentation(), getActivity());
 
-        String mainFragmentTag = getFragmentOfNavigationDrawerMenu(0);
+            String mainFragmentTag = getFragmentOfNavigationDrawerMenu(0);
 
-        solo.waitForFragmentByTag(mainFragmentTag);
+            solo.waitForFragmentByTag(mainFragmentTag);
 
-        dragToOpenNavigationMenu();
-        solo.clickOnView(findNavigationDrawerMenuView(0));
-        solo.waitForFragmentByTag(mainFragmentTag);
-        assertFragmentVisible(true, mainFragmentTag);
+            dragToOpenNavigationMenu();
+            solo.clickOnView(findNavigationDrawerMenuView(0));
+            solo.waitForFragmentByTag(mainFragmentTag);
+            assertFragmentVisible(true, mainFragmentTag);
 
-        dragToOpenNavigationMenu();
-        solo.clickOnView(findNavigationDrawerMenuView(0));
-        solo.waitForFragmentByTag(mainFragmentTag);
-        assertFragmentVisible(true, mainFragmentTag);
-        solo.sleep(1000);
+            dragToOpenNavigationMenu();
+            solo.clickOnView(findNavigationDrawerMenuView(0));
+            solo.waitForFragmentByTag(mainFragmentTag);
+            assertFragmentVisible(true, mainFragmentTag);
+            solo.sleep(1000);
 
-        dragToOpenNavigationMenu();
-        solo.clickOnView(findNavigationDrawerMenuView(0));
-        solo.waitForFragmentByTag(mainFragmentTag);
-        assertFragmentVisible(true, mainFragmentTag);
+            dragToOpenNavigationMenu();
+            solo.clickOnView(findNavigationDrawerMenuView(0));
+            solo.waitForFragmentByTag(mainFragmentTag);
+            assertFragmentVisible(true, mainFragmentTag);
 
-        solo.sendKey(KeyEvent.KEYCODE_BACK);
+            solo.sendKey(KeyEvent.KEYCODE_BACK);
+        }
+        catch (Throwable t)
+        {
+            t.printStackTrace();
+            assertTrue(false);
+        }
 
     }
 
@@ -374,6 +382,8 @@ public class MainActivityTest extends
     protected void tearDown() throws Exception
     {
         log(getName() + ".tearDown()");
+        Solo s = new Solo(getInstrumentation());
+        s.finishOpenedActivities();
         super.tearDown();
     }
 
@@ -411,8 +421,8 @@ public class MainActivityTest extends
         {
             ActivityManager.RunningServiceInfo runningServiceInfo = (ActivityManager.RunningServiceInfo) i
                     .next();
-            mLog.debug("found service ["
-                    + runningServiceInfo.service.getClassName() + "]");
+            // mLog.debug("found service ["
+            // + runningServiceInfo.service.getClassName() + "]");
             if (runningServiceInfo.service.getClassName().equals(
                     WebSMSToolService.class.getName()))
             {

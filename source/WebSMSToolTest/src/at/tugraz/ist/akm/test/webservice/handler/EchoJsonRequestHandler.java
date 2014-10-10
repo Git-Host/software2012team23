@@ -29,7 +29,7 @@ import org.json.JSONObject;
 
 import android.content.Context;
 import at.tugraz.ist.akm.io.xml.XmlNode;
-import at.tugraz.ist.akm.webservice.WebServerConfig;
+import at.tugraz.ist.akm.webservice.WebServerConstants;
 import at.tugraz.ist.akm.webservice.requestprocessor.JsonAPIRequestProcessor;
 
 public class EchoJsonRequestHandler extends JsonAPIRequestProcessor {
@@ -42,7 +42,7 @@ public class EchoJsonRequestHandler extends JsonAPIRequestProcessor {
     @Override
     public void handleRequest(RequestLine requestLine, String requestData, HttpResponse httpResponse)
             throws HttpException, IOException {
-        if (requestLine.getMethod().equals(WebServerConfig.HTTP.REQUEST_TYPE_POST)) {
+        if (requestLine.getMethod().equals(WebServerConstants.HTTP.REQUEST_TYPE_POST)) {
             final JSONObject json;
             try {
                 json = new JSONObject(requestData);

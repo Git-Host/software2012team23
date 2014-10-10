@@ -30,7 +30,7 @@ import org.json.JSONObject;
 import android.content.Context;
 import at.tugraz.ist.akm.io.xml.XmlNode;
 import at.tugraz.ist.akm.trace.LogClient;
-import at.tugraz.ist.akm.webservice.WebServerConfig;
+import at.tugraz.ist.akm.webservice.WebServerConstants;
 
 public class EchoJsonRequestProcessor extends AbstractHttpRequestProcessor
 {
@@ -48,7 +48,7 @@ public class EchoJsonRequestProcessor extends AbstractHttpRequestProcessor
             HttpResponse httpResponse) throws HttpException, IOException
     {
         if (requestLine.getMethod().equals(
-                WebServerConfig.HTTP.REQUEST_TYPE_POST))
+                WebServerConstants.HTTP.REQUEST_TYPE_POST))
         {
             final JSONObject json;
             try

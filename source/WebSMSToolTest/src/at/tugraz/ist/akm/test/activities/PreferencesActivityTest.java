@@ -156,7 +156,7 @@ public class PreferencesActivityTest extends
         SharedPreferencesProvider prefsProvider = new SharedPreferencesProvider(
                 getActivity().getApplicationContext());
 
-        assertEquals("65535", prefsProvider.getPort());
+        assertEquals(65535, prefsProvider.getPort());
         prefsProvider.close();
     }
 
@@ -175,7 +175,7 @@ public class PreferencesActivityTest extends
         SharedPreferencesProvider prefsProvider = new SharedPreferencesProvider(
                 getActivity().getApplicationContext());
 
-        assertEquals("1024", prefsProvider.getPort());
+        assertEquals(1024, prefsProvider.getPort());
         prefsProvider.close();
     }
 

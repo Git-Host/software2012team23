@@ -41,7 +41,7 @@ public class IncomingServiceMessageHandler extends Handler
             case ServiceConnectionMessageTypes.Service.Response.SMS_SENT_ERRONEOUS:
                 mClientFragment.onWebServiceSmsSentErroneous(msg.arg1);
                 break;
-                
+
             case ServiceConnectionMessageTypes.Service.Response.NETWORK_TRAFFIC_RX_BYTES:
                 mClientFragment.onWebServiceRxBytesUpdate(msg.arg1);
                 break;
@@ -50,8 +50,36 @@ public class IncomingServiceMessageHandler extends Handler
                 break;
 
             case ServiceConnectionMessageTypes.Service.Response.CONNECTION_URL:
-                mClientFragment.onWebServiceURLChanged(msg.getData().getString(
-                        ServiceConnectionMessageTypes.Bundle.Key.STRING_ARG1));
+                mClientFragment
+                        .onWebServiceURLChanged(msg
+                                .getData()
+                                .getString(
+                                        ServiceConnectionMessageTypes.Bundle.Key.STRING_CONNECTION_URL));
+                break;
+
+            case ServiceConnectionMessageTypes.Service.Response.REGISTERED_TO_SERVICE:
+                mClientFragment.onWebServiceClientRegistered();
+                break;
+
+            // TODO: wrong unpacking
+            case ServiceConnectionMessageTypes.Service.Response.HTTP_PASSWORD:
+                mClientFragment
+                        .onWebServiceHttpPassword(msg
+                                .getData()
+                                .getString(
+                                        ServiceConnectionMessageTypes.Bundle.Key.STRING_CONNECTION_URL));
+                break;
+            // TODO: wrong unpacking
+            case ServiceConnectionMessageTypes.Service.Response.HTTP_USERNAME:
+                mClientFragment
+                        .onWebServiceHttpUsername(msg
+                                .getData()
+                                .getString(
+                                        ServiceConnectionMessageTypes.Bundle.Key.STRING_CONNECTION_URL));
+                break;
+            // TODO: wrong unpacking
+            case ServiceConnectionMessageTypes.Service.Response.HTTP_ACCESS_RESCRICTION_ENABLED:
+                mClientFragment.onWebServiceHttpAccessRestriction(msg.arg1);
                 break;
 
             case ServiceConnectionMessageTypes.Service.Response.CURRENT_RUNNING_STATE:
@@ -87,9 +115,6 @@ public class IncomingServiceMessageHandler extends Handler
                                     .getMessageName(msg.arg1) + "]");
                     break;
                 }
-                break;
-            case ServiceConnectionMessageTypes.Service.Response.REGISTERED_TO_SERVICE:
-                mClientFragment.onWebServiceClientRegistered();
                 break;
             default:
                 super.handleMessage(msg);

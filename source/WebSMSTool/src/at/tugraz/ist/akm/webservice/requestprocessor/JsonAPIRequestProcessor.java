@@ -51,7 +51,7 @@ import at.tugraz.ist.akm.sms.TextMessage;
 import at.tugraz.ist.akm.texting.TextingAdapter;
 import at.tugraz.ist.akm.texting.TextingInterface;
 import at.tugraz.ist.akm.trace.LogClient;
-import at.tugraz.ist.akm.webservice.WebServerConfig;
+import at.tugraz.ist.akm.webservice.WebServerConstants;
 import at.tugraz.ist.akm.webservice.protocol.json.JsonFactory;
 
 public class JsonAPIRequestProcessor extends AbstractHttpRequestProcessor
@@ -126,20 +126,20 @@ public class JsonAPIRequestProcessor extends AbstractHttpRequestProcessor
     {
 
         if (requestLine.getMethod().equals(
-                WebServerConfig.HTTP.REQUEST_TYPE_POST))
+                WebServerConstants.HTTP.REQUEST_TYPE_POST))
         {
             JSONObject json;
             try
             {
                 json = new JSONObject(requestData);
-                String method = json.getString(WebServerConfig.JSON.METHOD);
+                String method = json.getString(WebServerConstants.JSON.METHOD);
                 if (method != null && method.length() > 0)
                 {
                     JSONArray jsonParams = null;
-                    if (json.isNull(WebServerConfig.JSON.PARAMS) == false)
+                    if (json.isNull(WebServerConstants.JSON.PARAMS) == false)
                     {
                         jsonParams = json
-                                .getJSONArray(WebServerConfig.JSON.PARAMS);
+                                .getJSONArray(WebServerConstants.JSON.PARAMS);
                     }
                     JSONObject jsonResponse = processMethod(method, jsonParams);
                     mResponseDataAppender.appendHttpResponseData(httpResponse,
