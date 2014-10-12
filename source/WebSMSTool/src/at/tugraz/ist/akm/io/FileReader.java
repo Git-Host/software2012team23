@@ -23,48 +23,72 @@ import java.io.InputStreamReader;
 
 import android.content.Context;
 
-public class FileReader {
-    private final Context mContext;
-    private final String mFilePath;
+public class FileReader
+{
+    private Context mContext;
+    private String mFilePath;
     private final static String mDefaultCharset = "UTF8";
 
-    public FileReader(final Context context, final String filePath) {
+
+    public FileReader(final Context context, final String filePath)
+    {
         this.mContext = context;
-        this.mFilePath = filePath;
+        this.mFilePath = new String(filePath);
     }
 
-    public String read() {
+
+    public String read()
+    {
         InputStream is = null;
         InputStreamReader isr = null;
         BufferedReader reader = null;
 
         StringBuilder builder = new StringBuilder();
-        try {
+        try
+        {
             is = mContext.getAssets().open(mFilePath);
             isr = new InputStreamReader(is, mDefaultCharset);
             reader = new BufferedReader(isr);
 
             String line;
-            while ((line = reader.readLine()) != null) {
+            while ((line = reader.readLine()) != null)
+            {
                 builder.append(line).append("\n");
             }
-        } catch (IOException ioException) {
+        }
+        catch (IOException ioException)
+        {
             ioException.printStackTrace();
-        } finally {
-            try {
-                if (is != null) {
+        }
+        finally
+        {
+            try
+            {
+                if (is != null)
+                {
                     is.close();
                 }
-                if (isr != null) {
+                if (isr != null)
+                {
                     isr.close();
                 }
-                if (reader != null) {
+                if (reader != null)
+                {
                     reader.close();
                 }
-            } catch (IOException ioException) {
+            }
+            catch (IOException ioException)
+            {
                 ioException.printStackTrace();
             }
         }
         return builder.toString();
+    }
+
+
+    public void onClose()
+    {
+        mContext = null;
+        mFilePath = null;
     }
 }

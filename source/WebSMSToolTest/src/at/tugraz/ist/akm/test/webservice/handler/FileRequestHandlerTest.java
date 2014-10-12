@@ -89,9 +89,12 @@ public class FileRequestHandlerTest extends InstrumentationTestCase {
             httpResponse.getEntity().writeTo(baos);
 
 
+            FileReader reader = new FileReader(getInstrumentation().getContext(), DATA_FILE);
             Assert.assertEquals(
-                    new FileReader(getInstrumentation().getContext(), DATA_FILE).read(),
+                    reader.read(),
                     new String(baos.toByteArray(), DEFAULT_ENCODING));
+            reader.onClose();
+            reader = null;
 
         } catch (HttpException httpException) {
             Assert.fail("Exception => " + httpException.getMessage());

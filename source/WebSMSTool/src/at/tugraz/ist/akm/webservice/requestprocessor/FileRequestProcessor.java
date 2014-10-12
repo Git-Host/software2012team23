@@ -29,7 +29,7 @@ import at.tugraz.ist.akm.trace.LogClient;
 
 public class FileRequestProcessor extends AbstractHttpRequestProcessor {
 
-	private final LogClient mLog = new LogClient(this);
+	private LogClient mLog = new LogClient(this);
 	
     public FileRequestProcessor(final Context context, final XmlNode config,
             final HttpRequestHandlerRegistry registry) {
@@ -49,7 +49,18 @@ public class FileRequestProcessor extends AbstractHttpRequestProcessor {
             return;
         }
 
-        final String data = new FileReader(mContext, fileInfo.mFile).read();
+        FileReader reader = new FileReader(mContext, fileInfo.mFile);
+        final String data = reader.read();
+        reader.onClose();
+        reader = null;
+        
         mResponseDataAppender.appendHttpResponseData(httpResponse, fileInfo.mContentType, data);
+    }
+    
+    @Override
+    public void close()
+    {
+        super.close();
+        mLog = null;
     }
 }

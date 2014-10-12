@@ -164,10 +164,19 @@ public class JsonAPIRequestProcessor extends AbstractHttpRequestProcessor
 
 
     @Override
-    public synchronized void onClose()
+    public synchronized void close()
     {
         mTextingAdapter.stop();
+        try
+        {
+            mTextingAdapter.close();
+        }
+        catch (IOException e)
+        {
+            mLog.debug("failed closing texting adapter", e);
+        }
         mSystemMonitor.stop();
+        mSystemMonitor.onClose();
 
         mJsonFactory = null;
         mTextingAdapter = null;
@@ -177,7 +186,12 @@ public class JsonAPIRequestProcessor extends AbstractHttpRequestProcessor
         mSMSReceivedList = null;
         mSMSSentErrorList = null;
 
-        super.onClose();
+        mJsonContactList = null;
+        mJsonContactListLock = null;
+
+        mExternalSMSIoCallback = null;
+
+        super.close();
     }
 
 
@@ -691,11 +705,13 @@ public class JsonAPIRequestProcessor extends AbstractHttpRequestProcessor
             {
                 result.put("battery",
                         mJsonFactory.createJsonObject(batteryStatus));
+                batteryStatus.onClose();
             }
             if (telSignalStrength != null)
             {
                 result.put("signal",
                         mJsonFactory.createJsonObject(telSignalStrength));
+                telSignalStrength.onClose();
             }
 
             this.setSuccessState(result);

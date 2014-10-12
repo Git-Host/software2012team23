@@ -45,12 +45,12 @@ public class WebSMSToolService extends Service implements SmsIOCallback
     public static final String SERVICE_STARTED = "at.tugraz.ist.akm.sms.SERVICE_STARTED";
 
     private Intent mServiceStartedStickyIntend = null;
-    private final LogClient mLog = new LogClient(this);
+    private LogClient mLog = new LogClient(this);
     private SimpleWebServer mServer = null;
     private WebserverProtocolConfig mServerConfig = null;
     private static BroadcastReceiver mIntentReceiver = null;
     private Messenger mClientMessenger = null;
-    private final Messenger mServiceMessenger = new Messenger(
+    private Messenger mServiceMessenger = new Messenger(
             new IncomingClientMessageHandler(this));
 
     private ServiceRunningStates mServiceRunningState = ServiceRunningStates.BEFORE_SINGULARITY;
@@ -268,15 +268,16 @@ public class WebSMSToolService extends Service implements SmsIOCallback
     @Override
     public boolean stopService(Intent name)
     {
-        boolean stopped = stopWebSMSToolService();
+        stopWebSMSToolService();
         super.stopService(name);
-        return stopped;
+        return true;
     }
 
 
     @Override
     public void onDestroy()
     {
+        onClose();
         super.onDestroy();
     }
 
@@ -329,6 +330,8 @@ public class WebSMSToolService extends Service implements SmsIOCallback
                     throw new Exception("server failed to stop");
                 }
                 setRunningState(ServiceRunningStates.STOPPED);
+                mServer.unregisterSMSIoCallback();
+                mServer.onClose();
             }
             catch (Exception ex)
             {
@@ -338,6 +341,20 @@ public class WebSMSToolService extends Service implements SmsIOCallback
         }
         onClientRequestRegister(null);
         return (getRunningState() == ServiceRunningStates.STOPPED);
+    }
+
+
+    private void onClose()
+    {
+        mNetworkStatsPropagationTimer.cancel();
+        mNetworkStatsPropagationTimer = null;
+        mServiceStartedStickyIntend = null;
+        mLog = null;
+        mServer = null;
+        mServerConfig = null;
+        mIntentReceiver = null;
+        mClientMessenger = null;
+        mServiceMessenger = null;
     }
 
 
@@ -363,8 +380,7 @@ public class WebSMSToolService extends Service implements SmsIOCallback
         {
             return;
         }
-        // TODO stopwerbsmstoolservice() before stopself();
-        // check on enabled only?
+
         mLog.debug("wifi state changed, turning off service");
         stopSelf();
     }
@@ -404,6 +420,7 @@ public class WebSMSToolService extends Service implements SmsIOCallback
     {
         mLog.debug("unregister wifi change intent receiver");
         unregisterReceiver(mIntentReceiver);
+        mIntentReceiver = null;
     }
 
 
@@ -512,7 +529,6 @@ public class WebSMSToolService extends Service implements SmsIOCallback
         if (getRunningState() == ServiceRunningStates.RUNNING)
         {
             stopWebSMSToolService();
-            stopSelf();
         } else
         {
             mLog.debug("failed client request for stopping service in state ["

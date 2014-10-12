@@ -63,6 +63,7 @@ public class TextingAdapterTest extends WebSMSToolActivityTestcase implements
         }
         assertTrue(mCountSent >= awaitedCallbacks);
         texting.stop();
+        texting.close();
     }
 
 
@@ -78,10 +79,11 @@ public class TextingAdapterTest extends WebSMSToolActivityTestcase implements
         Thread.sleep(1000);
         assertTrue(mCountSent > 0);
         texting.stop();
+        texting.close();
     }
 
 
-    public void testFetchContactsNoException()
+    public void testFetchContactsNoException() throws Exception
     {
         TextingInterface texting = new TextingAdapter(mContext, this, this);
         texting.start();
@@ -92,10 +94,11 @@ public class TextingAdapterTest extends WebSMSToolActivityTestcase implements
         assertTrue(contacts.size() == 1 | contacts.size() == 0);
 
         texting.stop();
+        texting.close();
     }
 
 
-    public void testFetchMessagesNoException()
+    public void testFetchMessagesNoException() throws Exception
     {
         TextingInterface texting = new TextingAdapter(mContext, this, this);
         texting.start();
@@ -104,6 +107,7 @@ public class TextingAdapterTest extends WebSMSToolActivityTestcase implements
         filter.setAddress("01906666");
         texting.fetchTextMessages(filter);
         texting.stop();
+        texting.close();
     }
 
 

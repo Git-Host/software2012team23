@@ -16,6 +16,7 @@
 
 package at.tugraz.ist.akm.webservice.requestprocessor;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -37,26 +38,24 @@ import at.tugraz.ist.akm.trace.LogClient;
 import at.tugraz.ist.akm.webservice.WebServerConstants;
 import at.tugraz.ist.akm.webservice.requestprocessor.interceptor.IRequestInterceptor;
 
-public abstract class AbstractHttpRequestProcessor implements HttpRequestHandler {
-    private final LogClient mLog = new LogClient(AbstractHttpRequestProcessor.class.getCanonicalName());
-    protected final Context mContext;
-    protected final XmlNode mConfig;
-    protected final HttpRequestHandlerRegistry mRegistry;
-    private final List<IRequestInterceptor> mRequestInterceptorList = new ArrayList<IRequestInterceptor>();
-
+public abstract class AbstractHttpRequestProcessor implements HttpRequestHandler, Closeable
+{
+    private LogClient mLog = new LogClient(AbstractHttpRequestProcessor.class.getCanonicalName());
+    protected Context mContext;
+    protected XmlNode mConfig;
+    protected HttpRequestHandlerRegistry mRegistry;
+    private List<IRequestInterceptor> mRequestInterceptorList = new ArrayList<IRequestInterceptor>();
     protected HttpResponseDataAppender mResponseDataAppender = new HttpResponseDataAppender();
-
     protected HashMap<String, FileInfo> mUri2FileInfo = new HashMap<String, AbstractHttpRequestProcessor.FileInfo>();
-
     private String mUriPattern = null;
 
     public static class FileInfo {
-        final String mContentType;
-        final String mFile;
+        String mContentType;
+        String mFile;
 
-        public FileInfo(final String file, final String contentType) {
-            this.mFile = file;
-            this.mContentType = contentType;
+        public FileInfo(String file,String contentType) {
+            mFile = file;
+            mContentType = contentType;
         }
 
         @Override
@@ -68,9 +67,9 @@ public abstract class AbstractHttpRequestProcessor implements HttpRequestHandler
 
     public AbstractHttpRequestProcessor(final Context context, final XmlNode config,
             final HttpRequestHandlerRegistry registry) {
-        this.mContext = context;
-        this.mConfig = config;
-        this.mRegistry = registry;
+        mContext = context;
+        mConfig = config;
+        mRegistry = registry;
         assignUriMappingToRegistry();
     }
 
@@ -142,17 +141,27 @@ public abstract class AbstractHttpRequestProcessor implements HttpRequestHandler
     public abstract void handleRequest(RequestLine requestLine, String requestData,
             HttpResponse httpResponse) throws HttpException, IOException;
 
-    /**
-     * adapter: call it to ensure proper cleanup
-     */
-    public void onClose() {
+    @Override
+    public void close() {
         if (mRegistry != null) {
             mLog.debug("close request handler for URI [" + mUriPattern + "]");
             mRegistry.unregister(mUriPattern);
+            mRegistry = null;
         }
         for ( IRequestInterceptor interceptor : mRequestInterceptorList ) {
             interceptor.onClose();
         }
         mRequestInterceptorList.clear();
+        mRequestInterceptorList = null;
+        
+        mContext = null;
+        mConfig = null;
+        
+        mResponseDataAppender = null;
+        mUri2FileInfo.clear();
+        mUri2FileInfo = null;
+        
+        mUriPattern = null;
+        mLog = null; 
     }
 }

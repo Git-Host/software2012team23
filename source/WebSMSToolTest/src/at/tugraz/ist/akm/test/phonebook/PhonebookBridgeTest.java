@@ -37,6 +37,7 @@ public class PhonebookBridgeTest extends WebSMSToolActivityTestcase {
 			PhonebookTestsHelper.deleteContact(mrFoo[2], mrFoo[0] + " " + mrFoo[1], mContentResolver);
 			Thread.sleep(1000);
 			phonebook.stop();
+			phonebook.onClose();
 		} catch (Exception ex) {
 			ex.printStackTrace();
 			assertTrue(false);

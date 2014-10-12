@@ -16,6 +16,7 @@
 
 package at.tugraz.ist.akm.webservice.requestprocessor;
 
+import java.io.Closeable;
 import java.io.IOException;
 
 import my.org.apache.http.HttpException;
@@ -32,9 +33,9 @@ import at.tugraz.ist.akm.io.xml.XmlNode;
 import at.tugraz.ist.akm.trace.LogClient;
 import at.tugraz.ist.akm.webservice.WebServerConstants;
 
-public class EchoJsonRequestProcessor extends AbstractHttpRequestProcessor
+public class EchoJsonRequestProcessor extends AbstractHttpRequestProcessor 
 {
-    private final LogClient mLog = new LogClient(this);
+    private LogClient mLog = new LogClient(this);
     
     public EchoJsonRequestProcessor(final Context context, final XmlNode config,
             final HttpRequestHandlerRegistry registry)
@@ -70,4 +71,11 @@ public class EchoJsonRequestProcessor extends AbstractHttpRequestProcessor
             mLog.debug("ignoring request type: " + requestLine.getMethod());
         }
     }
+    
+    @Override
+        public void close()
+        {
+            mLog = null;
+            super.close();
+        }
 }

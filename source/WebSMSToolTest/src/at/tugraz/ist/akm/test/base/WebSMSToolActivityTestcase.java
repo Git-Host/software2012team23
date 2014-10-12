@@ -27,16 +27,18 @@ public class WebSMSToolActivityTestcase extends ActivityTestCase {
 
 	protected Context mContext = null;
 	protected ContentResolver mContentResolver = null;
-	protected LogClient mLog = null;
+	private LogClient mLog = null;
+	private String mLogTag = null;
 
 	public WebSMSToolActivityTestcase(String logTag) {
 		TraceService.setSink(new ExceptionThrowingLogSink());
-		mLog = new LogClient(logTag);
+		mLogTag = new String(logTag);
 	}
 
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
+		mLog = new LogClient(mLogTag);
 		logVerbose(getName() + ".setUp()");
 		mContext = getInstrumentation().getTargetContext();
 		assertTrue(mContext != null);
@@ -47,6 +49,9 @@ public class WebSMSToolActivityTestcase extends ActivityTestCase {
 	@Override
 	protected void tearDown() throws Exception {
 		logVerbose(getName() + ".tearDown()");
+		mContext = null;
+	    mContentResolver = null;
+	    mLog = null;
 		super.tearDown();
 	}
 	

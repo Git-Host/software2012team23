@@ -32,7 +32,7 @@ public class MockSimpleWebServer extends SimpleWebServer
 
     private MockSimpleWebServer(Context context) throws Exception
     {
-        super(context, new WebserverProtocolConfig());
+        super(null, null);
     }
 
 

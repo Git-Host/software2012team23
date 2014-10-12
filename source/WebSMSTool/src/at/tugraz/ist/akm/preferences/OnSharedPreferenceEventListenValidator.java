@@ -18,7 +18,8 @@ public class OnSharedPreferenceEventListenValidator implements
 
     private int mMinPortNumber = 1024;
     private int mMaxPortNumber = 65535;
-    private LogClient mLog = new LogClient(this);
+    private LogClient mLog = new LogClient(
+            OnSharedPreferenceEventListenValidator.class.getCanonicalName());
     private PreferenceFragment mFragment = null;
     private Context mContext = null;
 
@@ -218,6 +219,14 @@ public class OnSharedPreferenceEventListenValidator implements
         }
 
         return false;
+    }
+
+
+    public void onClose()
+    {
+        mFragment = null;
+        mContext = null;
+        mLog = null;
     }
 
 }

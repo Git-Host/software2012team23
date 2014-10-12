@@ -17,7 +17,7 @@ import at.tugraz.ist.akm.webservice.WebServerConstants;
 
 public class FaviconLoadRequestProcessor extends AbstractHttpRequestProcessor {
 
-	private final LogClient mLog = new LogClient(this);
+	private LogClient mLog = new LogClient(this);
 
 	public FaviconLoadRequestProcessor(Context context, XmlNode config,
 			HttpRequestHandlerRegistry registry) {
@@ -40,5 +40,12 @@ public class FaviconLoadRequestProcessor extends AbstractHttpRequestProcessor {
 		} catch (Exception ex) {
 			mLog.error("what a terrible failure", ex);
 		}
+	}
+	
+	@Override
+	public void close()
+	{
+	    super.close();
+	    mLog = null;
 	}
 }

@@ -217,6 +217,7 @@ public class ApplicationKeyStore
         mKeyPair = null;
         mKeyFactory = null;
         mInKeyStore = null;
+        mLog = null;
     }
 
 

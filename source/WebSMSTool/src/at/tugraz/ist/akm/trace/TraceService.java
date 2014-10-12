@@ -51,6 +51,12 @@ public class TraceService {
 		return mLogger;
 	}
 	
+	public void onClose() {
+	    mSink.onClose();
+	    mSink = null;
+	    mLogger = null;
+	}
+	
 	private void distributeLog(final LogLevel level, final String tag,
 			final String message, final Throwable t) {
 		if (mEnabled) {

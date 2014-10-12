@@ -49,6 +49,8 @@ public class SharedPreferencesProvider
         if (mSettings != null)
             mSettings.closeDatabase();
         mSettings = null;
+        mApplicationContext = null;
+        mSharedPreferences = null;
     }
 
 

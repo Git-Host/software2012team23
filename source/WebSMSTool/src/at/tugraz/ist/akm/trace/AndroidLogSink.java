@@ -52,4 +52,9 @@ public class AndroidLogSink implements ILogSink
     {
         android.util.Log.v(tag, message);
     }
+    
+    @Override
+    public void onClose()
+    {
+    }
 }

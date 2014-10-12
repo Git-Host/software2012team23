@@ -96,6 +96,8 @@ public class AuthorizationInterceptor extends AbstractRequestInterceptor
             responseDataAppender.appendHttpResponseData(httpResponse,
                     WebServerConstants.HTTP.CONTENTY_TYPE_TEXT_HTML,
                     filereader.read());
+            filereader.onClose();
+            filereader = null;
         }
 
         return authSuccess;

@@ -45,8 +45,7 @@
     <application
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
-        android:label="@string/app_name"
-        android:largeHeap="true" >
+        android:label="@string/app_name" >
         <activity
             android:name="at.tugraz.ist.akm.activities.MainActivity"
             android:label="@string/app_name"
@@ -60,7 +59,8 @@
 
         <service
             android:name="at.tugraz.ist.akm.webservice.service.WebSMSToolService"
-            android:exported="false" android:process=":process">
+            android:exported="false"
+            android:process=":process" >
         </service>
 
         <activity

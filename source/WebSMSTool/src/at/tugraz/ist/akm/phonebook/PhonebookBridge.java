@@ -78,6 +78,12 @@ public class PhonebookBridge implements IContactModifiedCallback,
                 mCallback.contactModifiedCallback();
             }
         }
+
+
+        public void onClose()
+        {
+            mCallback = null;
+        }
     }
 
 
@@ -117,6 +123,20 @@ public class PhonebookBridge implements IContactModifiedCallback,
         mCachedContactReader.unregisterCacheModifiedHandler();
         mExternalContactModifiedCallback = null;
         unregisterContactChangedObserver();
+    }
+
+
+    public void onClose()
+    {
+        mContext = null;
+        mContentResolver = null;
+        mLog = null;
+        mContactReader = null;
+        mCachedContactReader = null;
+        mContactContentCursor = null;
+        mContactContentObserver = null;
+        mExternalContactModifiedCallback = null;
+        mCacheModifiedHandler = null;
     }
 
 
@@ -174,6 +194,7 @@ public class PhonebookBridge implements IContactModifiedCallback,
     {
         mContactContentCursor
                 .unregisterContentObserver(mContactContentObserver);
+        mContactContentObserver.onClose();
         mContactContentObserver = null;
         mContactContentCursor.close();
     }

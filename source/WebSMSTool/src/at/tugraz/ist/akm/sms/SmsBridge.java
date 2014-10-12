@@ -84,6 +84,15 @@ public class SmsBridge extends LogClient implements SmsIOCallback {
 		mContext.unregisterReceiver(mSmsSentNotifier);
 		mSmsSentNotifier = null;
 	}
+	
+	public void onClose() {
+	    mContext = null;
+	    mContentResolver = null;
+	    mSmsSink = null;
+	    mSmsBoxReader = null;
+	    mSmsBoxWriter = null;
+	    mExternalSmsSentCallback = null;
+	}
 
 	/**
 	 * 1st: try to parse the TextMessage and store to content://sms/sent 2nd:

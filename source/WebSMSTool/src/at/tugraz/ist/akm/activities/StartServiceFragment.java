@@ -38,14 +38,10 @@ public class StartServiceFragment extends Fragment implements
     LogClient mLog = new LogClient(
             StartServiceFragment.class.getCanonicalName());
 
-    private Intent mStartSmsServiceIntent = null;
+    // private Intent mStartSmsServiceIntent = null;
     final String mServiceName = WebSMSToolService.class.getName();
     private ToggleButton mButton = null;
     private TextView mInfoFieldView = null;
-
-    private Class<WebSMSToolService> mServiceClass = WebSMSToolService.class;
-    private final String mServiceComponentNameSuffix = mServiceClass
-            .getSimpleName();
 
     private WifiIpAddress mWifiState = null;
     private ProgressBar mProgressBar = null;
@@ -59,9 +55,14 @@ public class StartServiceFragment extends Fragment implements
     TextView mAccessRestrictionPassword = null;
     LinearLayout mAccessRestrictionLayout = null;
 
+    private Boolean mIsBoundToService = false;
+
     private Messenger mServiceMessenger = null;
+
+    private IncomingServiceMessageHandler mIncomingServiceMessageHandler = new IncomingServiceMessageHandler(
+            this);
     final Messenger mClientMessenger = new Messenger(
-            new IncomingServiceMessageHandler(this));
+            mIncomingServiceMessageHandler);
 
     private ServiceRunningStates mServiceRunningState = ServiceRunningStates.BEFORE_SINGULARITY;
 
@@ -84,14 +85,36 @@ public class StartServiceFragment extends Fragment implements
 
 
     @Override
+    public void onDestroyView()
+    {
+        invalidateMainFragmentUI();
+        super.onDestroyView();
+    }
+
+
+    @Override
     public void onDestroy()
     {
+        stopService();
         mLog.debug("on destroy");
-        mStartSmsServiceIntent = null;
         mLog = null;
         mButton = null;
         mInfoFieldView = null;
+        unbindFromService();
+        mIncomingServiceMessageHandler.onClose();
+        mIncomingServiceMessageHandler = null;
+        mLog = null;
         super.onDestroy();
+    }
+
+
+    private void unbindFromService()
+    {
+        if (mIsBoundToService)
+        {
+            getActivity().getApplicationContext().unbindService(this);
+            mIsBoundToService = false;
+        }
     }
 
 
@@ -99,7 +122,6 @@ public class StartServiceFragment extends Fragment implements
     public void onStart()
     {
         super.onStart();
-        setUpMainFragmentUI(getView());
         mLog.debug("on start");
     }
 
@@ -118,8 +140,19 @@ public class StartServiceFragment extends Fragment implements
         super.onResume();
         mLog.debug("on resume");
         setServiceDisabledUI();
-        getActivity().getApplicationContext().bindService(
-                mStartSmsServiceIntent, this, Context.BIND_AUTO_CREATE);
+        bindToService();
+    }
+
+
+    private void bindToService()
+    {
+        if (mIsBoundToService == false)
+        {
+            getActivity().getApplicationContext().bindService(
+                    new Intent(getActivity(), WebSMSToolService.class), this,
+                    Context.BIND_AUTO_CREATE);
+            mIsBoundToService = true;
+        }
     }
 
 
@@ -134,7 +167,6 @@ public class StartServiceFragment extends Fragment implements
 
     private void setUpMainFragmentUI(View view)
     {
-        mStartSmsServiceIntent = new Intent(getActivity(), mServiceClass);
         mButton = (ToggleButton) view.findViewById(R.id.start_stop_server);
         mInfoFieldView = (TextView) view.findViewById(R.id.adress_data_field);
         mButton.setOnClickListener(this);
@@ -162,6 +194,24 @@ public class StartServiceFragment extends Fragment implements
     }
 
 
+    private void invalidateMainFragmentUI()
+    {
+        mButton.setOnClickListener(null);
+        mButton = null;
+        mInfoFieldView = null;
+        mWifiState.onClose();
+        mWifiState = null;
+        mProgressBar = null;
+        mSmsRecievedView = null;
+        mSmsSentView = null;
+        mNetworkRxBytes = null;
+        mNetworkTxBytes = null;
+        mAccessRestrictionUsername = null;
+        mAccessRestrictionPassword = null;
+        mAccessRestrictionLayout = null;
+    }
+
+
     private void tearDownMainFragmentUI()
     {
         mButton.setOnClickListener(null);
@@ -180,14 +230,11 @@ public class StartServiceFragment extends Fragment implements
                 mLog.info("starting web service");
                 displayStartingService();
 
-                // TODO: we are bound here, send server config again before asking for start
+                // TODO: we are bound here, send server config again before
+                // asking for start
                 mProgressBar.setIndeterminate(true);
-                getActivity().getApplicationContext().startService(
-                        mStartSmsServiceIntent);
-                
-//                getActivity().getApplicationContext().bindService(
-//                        mStartSmsServiceIntent, StartServiceFragment.this,
-//                        Context.BIND_AUTO_CREATE);
+                startService();
+
             } else
             {
                 displayNoWifiConnected();
@@ -201,7 +248,7 @@ public class StartServiceFragment extends Fragment implements
             askWebServiceForServiceStopAsync();
             try
             {
-                getActivity().getApplicationContext().unbindService(this);
+                unbindFromService();
             }
             catch (IllegalArgumentException iae)
             {
@@ -209,6 +256,20 @@ public class StartServiceFragment extends Fragment implements
                 mLog.error("failed to unbind service", iae);
             }
         }
+    }
+
+
+    private void startService()
+    {
+        getActivity().getApplicationContext().startService(
+                new Intent(getActivity(), WebSMSToolService.class));
+    }
+
+
+    private void stopService()
+    {
+        getActivity().getApplicationContext().stopService(
+                new Intent(getActivity(), WebSMSToolService.class));
     }
 
 
@@ -326,16 +387,18 @@ public class StartServiceFragment extends Fragment implements
     @Override
     public void onServiceConnected(ComponentName name, IBinder service)
     {
+        String serviceComponentNameSuffix = WebSMSToolService.class
+                .getSimpleName();
         String inServiceName = name.flattenToShortString();
-        if (inServiceName.endsWith(mServiceComponentNameSuffix))
+        if (inServiceName.endsWith(serviceComponentNameSuffix))
         {
-            mLog.debug("bound to service [" + mServiceComponentNameSuffix + "]");
+            mLog.debug("bound to service [" + serviceComponentNameSuffix + "]");
             mServiceMessenger = new Messenger(service);
             askWebServiceForClientRegistrationAsync();
         } else
         {
             mLog.error("failed binding fragment to service[" + inServiceName
-                    + "] expected [*" + mServiceComponentNameSuffix + "]");
+                    + "] expected [*" + serviceComponentNameSuffix + "]");
         }
     }
 
@@ -344,15 +407,17 @@ public class StartServiceFragment extends Fragment implements
     public void onServiceDisconnected(ComponentName name)
     {
         String inServiceName = name.flattenToShortString();
-        if (inServiceName.endsWith(mServiceComponentNameSuffix))
+        String serviceComponentNameSuffix = WebSMSToolService.class
+                .getSimpleName();
+        if (inServiceName.endsWith(serviceComponentNameSuffix))
         {
-            mLog.debug("unbound from service [" + mServiceComponentNameSuffix
+            mLog.debug("unbound from service [" + serviceComponentNameSuffix
                     + "]");
             mServiceMessenger = null;
         } else
         {
             mLog.error("failed unbinding fragment to service[" + inServiceName
-                    + "] expected [*" + mServiceComponentNameSuffix + "]");
+                    + "] expected [*" + serviceComponentNameSuffix + "]");
         }
 
     }

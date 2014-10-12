@@ -40,6 +40,7 @@ public class WifiIpAddress
 
     public String readLocalIpAddress()
     {
+
         NetworkInfo mobileNetInfo = mConnectivityManager
                 .getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
 
@@ -194,6 +195,14 @@ public class WifiIpAddress
             }
         }
         return false;
+    }
+
+
+    public void onClose()
+    {
+        mWifiManager = null;
+        mLog = null;
+        mConnectivityManager = null;
     }
 
 }

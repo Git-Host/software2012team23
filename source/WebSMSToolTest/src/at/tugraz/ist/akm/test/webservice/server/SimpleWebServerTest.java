@@ -62,8 +62,8 @@ public class SimpleWebServerTest extends WebSMSToolActivityTestcase
             mWebserver = null;
         }
 
-        mWebserver = useMockServer ? new MockSimpleWebServer(mContext, mServerConfig)
-                : new SimpleWebServer(mContext, mServerConfig);
+        mWebserver = useMockServer ? new MockSimpleWebServer(mContext,
+                mServerConfig) : new SimpleWebServer(mContext, mServerConfig);
 
         mHttpClient = new DefaultHttpClient();
 
@@ -96,11 +96,13 @@ public class SimpleWebServerTest extends WebSMSToolActivityTestcase
         mServerConfig.username = "huaba";
     }
 
+
     @Override
     protected void tearDown() throws Exception
     {
         super.tearDown();
     }
+
 
     public void testStartStopServer()
     {
@@ -124,6 +126,7 @@ public class SimpleWebServerTest extends WebSMSToolActivityTestcase
             mWebserver.stopServer();
             waitForServiceBeingStopped(20, 200);
             assertFalse(mWebserver.isRunning());
+            mWebserver.onClose();
         }
         catch (Exception ex)
         {
@@ -187,6 +190,7 @@ public class SimpleWebServerTest extends WebSMSToolActivityTestcase
 
             HttpResponse httpresponse = mHttpClient.execute(httppost);
             stopServer();
+            mWebserver.onClose();
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             httpresponse.getEntity().writeTo(baos);
 
@@ -263,13 +267,15 @@ public class SimpleWebServerTest extends WebSMSToolActivityTestcase
 
             HttpResponse response = mHttpClient.execute(httppost);
             stopServer();
+            mWebserver.onClose();
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             response.getEntity().writeTo(baos);
 
-            Assert.assertEquals(
-                    new FileReader(mContext, "web/index.html").read(),
-                    new String(baos.toByteArray(), DEFAULT_ENCODING));
-
+            FileReader reader = new FileReader(mContext, "web/index.html");
+            Assert.assertEquals(reader.read(), new String(baos.toByteArray(),
+                    DEFAULT_ENCODING));
+            reader.onClose();
+            reader = null;
         }
         catch (Exception ex)
         {
@@ -289,7 +295,7 @@ public class SimpleWebServerTest extends WebSMSToolActivityTestcase
         mServerConfig.port = 8888;
         mServerConfig.protocolName = "https";
         mServerConfig.username = "huaba";
-        
+
         SharedPreferencesProvider serverConfig = new SharedPreferencesProvider(
                 mContext);
         String keystorePassword = "foobar64";
@@ -316,5 +322,6 @@ public class SimpleWebServerTest extends WebSMSToolActivityTestcase
 
         stopServer();
         Assert.assertFalse(mWebserver.isRunning());
+        mWebserver.onClose();
     }
 }

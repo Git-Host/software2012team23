@@ -102,6 +102,8 @@ public class PrefsFragment extends PreferenceFragment
     public void onStop()
     {
         mLog.debug("fragment onStop()");
+        mPreferenceChangedListener.onClose();
+        mPreferenceChangedListener = null;
         super.onStop();
     }
 }

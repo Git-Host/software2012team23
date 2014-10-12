@@ -70,4 +70,11 @@ public class AndroidUILogSink implements ILogSink
         }
         android.util.Log.v(tag, message);
     }
+    
+    @Override
+    public void onClose()
+    {
+        mActivity = null;
+        mLogView = null;        
+    }
 }

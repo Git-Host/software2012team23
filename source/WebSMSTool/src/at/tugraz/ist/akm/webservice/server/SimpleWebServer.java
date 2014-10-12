@@ -50,30 +50,21 @@ import at.tugraz.ist.akm.webservice.requestprocessor.interceptor.IRequestInterce
 
 public class SimpleWebServer implements SmsIOCallback
 {
-    private final static LogClient mLog = new LogClient(
+    private LogClient mLog = new LogClient(
             SimpleWebServer.class.getName());
-
-    HttpRequestHandlerRegistry mRegistry = new HttpRequestHandlerRegistry();
+    private HttpRequestHandlerRegistry mRegistry = new HttpRequestHandlerRegistry();
     private BasicHttpContext mHttpContext = new BasicHttpContext();
-
-    private final Context mContext;
+    private Context mContext = null;
     private ServerThread mServerThread = null;
     private Vector<AbstractHttpRequestProcessor> mHandlerReferenceListing = new Vector<AbstractHttpRequestProcessor>();
-
     private InetAddress mSocketAddress = null;
     private ServerSocket mServerSocket = null;
-
-    private String mKeyStorePass;
+    private String mKeyStorePass = null;
     private WebserverProtocolConfig mServerConfig = null;
-
-    private SSLContext mSSLContext;
-
+    private SSLContext mSSLContext = null;
     private boolean mIsServerRunning = false;
-
     private WakeLock mWakeLock = null;
-
     private SmsIOCallback mExternalSmsIoCallback = null;
-
 
     public synchronized void registerSmsIoCallback(SmsIOCallback callback)
     {
@@ -90,7 +81,7 @@ public class SimpleWebServer implements SmsIOCallback
     public SimpleWebServer(Context context, WebserverProtocolConfig serverConfig)
             throws Exception
     {
-        this.mContext = context;
+        mContext = context;
         PowerManager pm = (PowerManager) mContext
                 .getSystemService(Context.POWER_SERVICE);
 
@@ -98,8 +89,10 @@ public class SimpleWebServer implements SmsIOCallback
                 .getClass().getName());
         WifiIpAddress wifiAddressReader = new WifiIpAddress(context);
 
-        this.mSocketAddress = InetAddress.getByName(wifiAddressReader
+        mSocketAddress = InetAddress.getByName(wifiAddressReader
                 .readLocalIpAddress());
+        wifiAddressReader.onClose();
+        wifiAddressReader = null;
 
         setNewServerConfiguration(serverConfig);
 
@@ -267,9 +260,9 @@ public class SimpleWebServer implements SmsIOCallback
         }
         catch (IOException ioException)
         {
-            mLog.error("cannot bind [" + mServerConfig.protocolName + "] socket to ["
-                    + mSocketAddress + ":" + mServerConfig.port + "]",
-                    ioException);
+            mLog.error("cannot bind [" + mServerConfig.protocolName
+                    + "] socket to [" + mSocketAddress + ":"
+                    + mServerConfig.port + "]", ioException);
             return false;
         }
 
@@ -328,8 +321,25 @@ public class SimpleWebServer implements SmsIOCallback
     {
         for (AbstractHttpRequestProcessor toBeCleanedUp : mHandlerReferenceListing)
         {
-            toBeCleanedUp.onClose();
+            toBeCleanedUp.close();
         }
+    }
+
+
+    public void onClose()
+    {
+        mRegistry = null;
+        mHttpContext = null;
+        mContext = null;
+        mHandlerReferenceListing = null;
+        mSocketAddress = null;
+        mServerSocket = null;
+        mKeyStorePass = null;
+        mServerConfig = null;
+        mSSLContext = null;
+        mWakeLock = null;
+        mExternalSmsIoCallback = null;
+        mLog = null;
     }
 
 

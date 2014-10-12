@@ -14,7 +14,7 @@ public class RenewCertificateDialogPreference extends DialogPreference
             RenewCertificateDialogPreference.class.getCanonicalName());
 
     Context mContext = null;
-    StringFormatter mStrings  = null;
+    StringFormatter mStrings = null;
 
 
     public RenewCertificateDialogPreference(Context context, AttributeSet attrs)
@@ -45,6 +45,7 @@ public class RenewCertificateDialogPreference extends DialogPreference
         {
         }
         setSummary(mStrings.certificateDialogSummary());
+        onClose();
     }
 
 
@@ -63,6 +64,15 @@ public class RenewCertificateDialogPreference extends DialogPreference
     }
 
 
-   
-    
+    private void onClose()
+    {
+        mContext = null;
+        if (mStrings != null)
+        {
+            mStrings.onClose();
+            mStrings = null;
+        }
+        mLog = null;
+    }
+
 }

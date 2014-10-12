@@ -18,6 +18,12 @@ public class IncomingServiceMessageHandler extends Handler
     }
 
 
+    public void onClose()
+    {
+        mClientFragment = null;
+    }
+
+
     @Override
     public void handleMessage(Message msg)
     {

@@ -56,6 +56,7 @@ public class MainActivity extends Activity
     private int mCurrentNavigationDrawerEntry = 0;
 
     private LogClient mLog = new LogClient(this);
+    private AndroidUILogSink mAndroidUiLogSink = null;
     final String mServiceName = WebSMSToolService.class.getName();
 
     private String[] mDrawerEntryTitles = null;
@@ -112,6 +113,9 @@ public class MainActivity extends Activity
     protected void onDestroy()
     {
         mLog.debug("activity goes to Hades");
+        invalidateDrawerList();
+        mAndroidUiLogSink.onClose();
+        mAndroidUiLogSink = null;
         mLog = null;
         super.onDestroy();
     }
@@ -205,8 +209,23 @@ public class MainActivity extends Activity
         mDrawerList.setItemChecked(mCurrentNavigationDrawerEntry, true);
         setUpDrawerToggle();
         // TODO: replace sink with a kind of buffered logging sink
-        TraceService.setSink(new AndroidUILogSink(this));
+        mAndroidUiLogSink = new AndroidUILogSink(this);
+        TraceService.setSink(mAndroidUiLogSink);
         mLog.debug("launched activity on device [" + Build.PRODUCT + "]");
+    }
+
+
+    private void invalidateDrawerList()
+    {
+        mDrawerEntryTitles = null;
+        mDrawerFragments = null;
+        mDrawerLayout.setDrawerListener(null);
+        mDrawerLayout = null;
+        mDrawerIcons = null;
+        mDrawerList.setAdapter(null);
+        mDrawerList.setOnItemClickListener(null);
+        mDrawerList = null;
+        mDrawerToggle = null;
     }
 
 

@@ -32,6 +32,7 @@ public class CacheModifiedHandler extends Handler
 
     public void onClose() {
         mPhonebook = null;
+        mLog = null;
     }
 
     public Message newCacheModifiedMessage()
