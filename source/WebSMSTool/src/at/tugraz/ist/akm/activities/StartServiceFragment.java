@@ -23,8 +23,6 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 import at.tugraz.ist.akm.R;
-import at.tugraz.ist.akm.environment.AppEnvironment;
-import at.tugraz.ist.akm.networkInterface.WifiIpAddress;
 import at.tugraz.ist.akm.preferences.SharedPreferencesProvider;
 import at.tugraz.ist.akm.trace.LogClient;
 import at.tugraz.ist.akm.webservice.server.WebserverProtocolConfig;
@@ -35,35 +33,26 @@ import at.tugraz.ist.akm.webservice.service.WebSMSToolService.ServiceRunningStat
 public class StartServiceFragment extends Fragment implements
         View.OnClickListener, ServiceConnection
 {
-    LogClient mLog = new LogClient(
+    private LogClient mLog = new LogClient(
             StartServiceFragment.class.getCanonicalName());
-
-    // private Intent mStartSmsServiceIntent = null;
     final String mServiceName = WebSMSToolService.class.getName();
+    private LinearLayout mAccessRestrictionLayout = null;
     private ToggleButton mButton = null;
-    private TextView mInfoFieldView = null;
-
-    private WifiIpAddress mWifiState = null;
     private ProgressBar mProgressBar = null;
-
+    private TextView mInfoFieldView = null;
     private TextView mSmsSentView = null;
     private TextView mSmsRecievedView = null;
-
     private TextView mNetworkTxBytes = null;
     private TextView mNetworkRxBytes = null;
-    TextView mAccessRestrictionUsername = null;
-    TextView mAccessRestrictionPassword = null;
-    LinearLayout mAccessRestrictionLayout = null;
-
-    private Boolean mIsBoundToService = false;
-
+    private TextView mAccessRestrictionUsername = null;
+    private TextView mAccessRestrictionPassword = null;
+    private boolean mIsUnbindingFromService = false;
+    private boolean mIsRegisteredToService = false;
     private Messenger mServiceMessenger = null;
-
     private IncomingServiceMessageHandler mIncomingServiceMessageHandler = new IncomingServiceMessageHandler(
             this);
-    final Messenger mClientMessenger = new Messenger(
+    private Messenger mClientMessenger = new Messenger(
             mIncomingServiceMessageHandler);
-
     private ServiceRunningStates mServiceRunningState = ServiceRunningStates.BEFORE_SINGULARITY;
 
 
@@ -74,11 +63,19 @@ public class StartServiceFragment extends Fragment implements
 
 
     @Override
+    public void onCreate(Bundle savedInstanceState)
+    {
+        super.onCreate(savedInstanceState);
+        mLog.debug("on create");
+    }
+
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState)
     {
-        View view = inflater.inflate(R.layout.main_fragment, container, false);
         mLog.debug("on create view");
+        View view = inflater.inflate(R.layout.main_fragment, container, false);
         setUpMainFragmentUI(view);
         return view;
     }
@@ -87,6 +84,7 @@ public class StartServiceFragment extends Fragment implements
     @Override
     public void onDestroyView()
     {
+        mLog.debug("on destry view");
         invalidateMainFragmentUI();
         super.onDestroyView();
     }
@@ -95,25 +93,37 @@ public class StartServiceFragment extends Fragment implements
     @Override
     public void onDestroy()
     {
-        stopService();
         mLog.debug("on destroy");
-        mLog = null;
         mButton = null;
         mInfoFieldView = null;
-        unbindFromService();
         mIncomingServiceMessageHandler.onClose();
         mIncomingServiceMessageHandler = null;
-        mLog = null;
         super.onDestroy();
+    }
+
+
+    @Override
+    public void onDetach()
+    {
+        mLog.debug("on detach");
+        mLog = null;
+        super.onDetach();
     }
 
 
     private void unbindFromService()
     {
-        if (mIsBoundToService)
+        boolean hasServiceMessenger = mServiceMessenger != null;
+        if (mIsUnbindingFromService == false && hasServiceMessenger)
         {
+            askWebServiceForClientUnregistrationAsync();
             getActivity().getApplicationContext().unbindService(this);
-            mIsBoundToService = false;
+            mServiceMessenger = null;
+        } else
+        {
+            mLog.error("failed to UNbind because isUNbinding ["
+                    + mIsUnbindingFromService + "] and hasServiceMessenger ["
+                    + hasServiceMessenger + "]");
         }
     }
 
@@ -128,7 +138,6 @@ public class StartServiceFragment extends Fragment implements
 
     public void onStop()
     {
-        tearDownMainFragmentUI();
         mLog.debug("on stop");
         super.onStop();
     }
@@ -146,12 +155,17 @@ public class StartServiceFragment extends Fragment implements
 
     private void bindToService()
     {
-        if (mIsBoundToService == false)
+        boolean hasServiceMessenger = mServiceMessenger != null;
+        if (mIsUnbindingFromService == false && hasServiceMessenger == false)
         {
             getActivity().getApplicationContext().bindService(
                     new Intent(getActivity(), WebSMSToolService.class), this,
                     Context.BIND_AUTO_CREATE);
-            mIsBoundToService = true;
+        } else
+        {
+            mLog.error("failed to bind because isUNbinding ["
+                    + mIsUnbindingFromService + "] and hasServiceMessenger ["
+                    + hasServiceMessenger + "]");
         }
     }
 
@@ -160,7 +174,7 @@ public class StartServiceFragment extends Fragment implements
     public void onPause()
     {
         mLog.debug("on pause");
-        askWebServiceForClientUnregistrationAsync();
+        unbindFromService();
         super.onPause();
     }
 
@@ -170,7 +184,7 @@ public class StartServiceFragment extends Fragment implements
         mButton = (ToggleButton) view.findViewById(R.id.start_stop_server);
         mInfoFieldView = (TextView) view.findViewById(R.id.adress_data_field);
         mButton.setOnClickListener(this);
-        mWifiState = new WifiIpAddress(view.getContext());
+
         mProgressBar = (ProgressBar) view
                 .findViewById(R.id.start_stop_server_progress_bar);
 
@@ -199,8 +213,6 @@ public class StartServiceFragment extends Fragment implements
         mButton.setOnClickListener(null);
         mButton = null;
         mInfoFieldView = null;
-        mWifiState.onClose();
-        mWifiState = null;
         mProgressBar = null;
         mSmsRecievedView = null;
         mSmsSentView = null;
@@ -212,49 +224,24 @@ public class StartServiceFragment extends Fragment implements
     }
 
 
-    private void tearDownMainFragmentUI()
-    {
-        mButton.setOnClickListener(null);
-    }
-
-
     @Override
     public void onClick(View view)
     {
-        mLog.debug("on click");
+        mLog.debug("on click isRegisteredToService [" + mIsRegisteredToService
+                + "]");
         if (!isServiceRunning())
         {
-            if (mWifiState.isWifiEnabled() || mWifiState.isWifiAPEnabled()
-                    || AppEnvironment.isRunningOnEmulator())
-            {
-                mLog.info("starting web service");
-                displayStartingService();
-
-                // TODO: we are bound here, send server config again before
-                // asking for start
-                mProgressBar.setIndeterminate(true);
-                startService();
-
-            } else
-            {
-                displayNoWifiConnected();
-                String message = "failed starting service without wifi connection or if not in ap mode";
-                mLog.warning(message);
-                mLog.error(message);
-            }
+            mLog.info("webservice not running -> starting");
+            displayStartingService();
+            mProgressBar.setIndeterminate(true);
+            startService();
+            sendWebServiceServerConfigChangedAsync();
+            askWebServiceForServerStartAsync();
         } else
         {
-            mLog.debug("service seems running, asking for stop");
-            askWebServiceForServiceStopAsync();
-            try
-            {
-                unbindFromService();
-            }
-            catch (IllegalArgumentException iae)
-            {
-                mLog.debug("failed to unbind service");
-                mLog.error("failed to unbind service", iae);
-            }
+            mLog.debug("webservice service seems running -> stopping");
+            askWebServiceForServerStopAsync();
+            stopService();
         }
     }
 
@@ -379,7 +366,7 @@ public class StartServiceFragment extends Fragment implements
     protected void onWebServiceClientRegistered()
     {
         mLog.debug("client registered to service");
-        sendWebServiceServerConfigChanged();
+        mIsRegisteredToService = true;
         askWebServiceForRepublishStatesAsync();
     }
 
@@ -414,6 +401,7 @@ public class StartServiceFragment extends Fragment implements
             mLog.debug("unbound from service [" + serviceComponentNameSuffix
                     + "]");
             mServiceMessenger = null;
+            mIsUnbindingFromService = false;
         } else
         {
             mLog.error("failed unbinding fragment to service[" + inServiceName
@@ -426,6 +414,7 @@ public class StartServiceFragment extends Fragment implements
     private void askWebServiceForClientUnregistrationAsync()
     {
         sendMessageToService(ServiceConnectionMessageTypes.Client.Request.UNREGISTER_TO_SERVICE);
+        mIsRegisteredToService = false;
     }
 
 
@@ -441,13 +430,19 @@ public class StartServiceFragment extends Fragment implements
     }
 
 
-    private void sendWebServiceServerConfigChanged()
+    private void sendWebServiceServerConfigChangedAsync()
     {
         sendMessageToService(ServiceConnectionMessageTypes.Client.Response.SERVER_SETTINGS_GHANGED);
     }
 
 
-    private void askWebServiceForServiceStopAsync()
+    private void askWebServiceForServerStartAsync()
+    {
+        sendMessageToService(ServiceConnectionMessageTypes.Client.Request.START_WEB_SERVICE);
+    }
+
+
+    private void askWebServiceForServerStopAsync()
     {
         sendMessageToService(ServiceConnectionMessageTypes.Client.Request.STOP_SERVICE);
     }
@@ -486,6 +481,7 @@ public class StartServiceFragment extends Fragment implements
         case ServiceConnectionMessageTypes.Client.Request.REGISTER_TO_SERVICE:
             message.replyTo = mClientMessenger;
             break;
+        case ServiceConnectionMessageTypes.Client.Request.START_WEB_SERVICE:
         case ServiceConnectionMessageTypes.Client.Response.SERVER_SETTINGS_GHANGED:
             WebserverProtocolConfig config = newWebserverConfig();
             Bundle objBundleParameter = new Bundle();
@@ -616,6 +612,15 @@ public class StartServiceFragment extends Fragment implements
     protected void onWebServiceSmsReceived(int smsReceivedCount)
     {
         mSmsRecievedView.setText(Integer.toString(smsReceivedCount));
+    }
+
+
+    protected void onWebServiceNetworkNotConnected()
+    {
+        displayNoWifiConnected();
+        String message = "failed starting service without wifi connection or if not in ap mode";
+        mLog.warning(message);
+        mLog.error(message);
     }
 
 

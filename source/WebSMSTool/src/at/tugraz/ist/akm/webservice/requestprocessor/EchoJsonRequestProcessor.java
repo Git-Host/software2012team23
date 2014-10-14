@@ -33,12 +33,14 @@ import at.tugraz.ist.akm.io.xml.XmlNode;
 import at.tugraz.ist.akm.trace.LogClient;
 import at.tugraz.ist.akm.webservice.WebServerConstants;
 
-public class EchoJsonRequestProcessor extends AbstractHttpRequestProcessor 
+public class EchoJsonRequestProcessor extends AbstractHttpRequestProcessor
+        implements Closeable
 {
     private LogClient mLog = new LogClient(this);
-    
-    public EchoJsonRequestProcessor(final Context context, final XmlNode config,
-            final HttpRequestHandlerRegistry registry)
+
+
+    public EchoJsonRequestProcessor(final Context context,
+            final XmlNode config, final HttpRequestHandlerRegistry registry)
     {
         super(context, config, registry);
     }
@@ -55,14 +57,18 @@ public class EchoJsonRequestProcessor extends AbstractHttpRequestProcessor
             try
             {
                 json = new JSONObject(requestData);
-                mResponseDataAppender.appendHttpResponseData(httpResponse, json);
-            } catch (ParseException parseException)
+                mResponseDataAppender
+                        .appendHttpResponseData(httpResponse, json);
+            }
+            catch (ParseException parseException)
             {
                 parseException.printStackTrace();
-            } catch (JSONException jsonException)
+            }
+            catch (JSONException jsonException)
             {
                 jsonException.printStackTrace();
-            } finally
+            }
+            finally
             {
                 mLog.error("failed to parse json request");
             }
@@ -71,11 +77,12 @@ public class EchoJsonRequestProcessor extends AbstractHttpRequestProcessor
             mLog.debug("ignoring request type: " + requestLine.getMethod());
         }
     }
-    
+
+
     @Override
-        public void close()
-        {
-            mLog = null;
-            super.close();
-        }
+    public void close()
+    {
+        mLog = null;
+        super.close();
+    }
 }

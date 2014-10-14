@@ -18,6 +18,7 @@ public class ServiceConnectionMessageTypes
             public static final int HTTP_USERNAME = 15;
             public static final int HTTP_PASSWORD = 17;
             public static final int HTTP_ACCESS_RESCRICTION_ENABLED = 19;
+            public static final int START_WEB_SERVICE = 23;
         }
 
         public static class Response
@@ -49,6 +50,7 @@ public class ServiceConnectionMessageTypes
             public static final int HTTP_USERNAME = 34;
             public static final int HTTP_PASSWORD = 36;
             public static final int HTTP_ACCESS_RESCRICTION_ENABLED = 38;
+            public static final int NETWORK_NOT_AVAILABLE = 40;
         }
     }
 
@@ -56,7 +58,7 @@ public class ServiceConnectionMessageTypes
     {
         public static class Key
         {
-            public static final String STRING_CONNECTION_URL = "CONNECTION_URL";
+            public static final String STRING_ARG_CONNECTION_URL = "STRING_ARG_CONNECTION_URL";
             public static final String STRING_ARG_SERVER_USERNAME = "STRING_ARG_SERVER_USERNAME";
             public static final String STRING_ARG_SERVER_PASSWORD = "STRING_ARG_SERVER_PASSWORD";
             public static final String STRING_ARG_SERVER_PROTOCOL = "STRING_ARG_SERVER_PROTOCOL";
@@ -92,7 +94,7 @@ public class ServiceConnectionMessageTypes
             return fieldName;
         }
 
-        return "invalid message id";
+        return null;
     }
 
 

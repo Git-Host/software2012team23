@@ -23,15 +23,16 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.res.Configuration;
 import android.net.NetworkInfo;
 import android.net.wifi.WifiManager;
-import android.os.Binder;
 import android.os.Bundle;
-import android.os.CountDownTimer;
 import android.os.IBinder;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
+import at.tugraz.ist.akm.environment.AppEnvironment;
+import at.tugraz.ist.akm.networkInterface.WifiIpAddress;
 import at.tugraz.ist.akm.secureRandom.PRNGFixes;
 import at.tugraz.ist.akm.sms.SmsIOCallback;
 import at.tugraz.ist.akm.sms.TextMessage;
@@ -41,10 +42,6 @@ import at.tugraz.ist.akm.webservice.server.WebserverProtocolConfig;
 
 public class WebSMSToolService extends Service implements SmsIOCallback
 {
-
-    public static final String SERVICE_STARTED = "at.tugraz.ist.akm.sms.SERVICE_STARTED";
-
-    private Intent mServiceStartedStickyIntend = null;
     private LogClient mLog = new LogClient(this);
     private SimpleWebServer mServer = null;
     private WebserverProtocolConfig mServerConfig = null;
@@ -52,13 +49,13 @@ public class WebSMSToolService extends Service implements SmsIOCallback
     private Messenger mClientMessenger = null;
     private Messenger mServiceMessenger = new Messenger(
             new IncomingClientMessageHandler(this));
-
     private ServiceRunningStates mServiceRunningState = ServiceRunningStates.BEFORE_SINGULARITY;
-
+    private WifiIpAddress mWifiState = null;
     private int mSmsSentCount = 0;
     private int mSmsReceivedCount = 0;
     private int mSmsSentErroneousCount = 0;
     private int mSmsDeliveredCount = 0;
+    private NetworkTrafficPropagationTimer mNetworkStatsPropagationTimer = null;
 
     public enum ServiceRunningStates {
         STOPPED, STARTING, STARTED_ERRONEOUS, RUNNING, STOPPING, STOPPED_ERRONEOUS, BEFORE_SINGULARITY;
@@ -67,52 +64,25 @@ public class WebSMSToolService extends Service implements SmsIOCallback
         }
     }
 
-    private CountDownTimer mNetworkStatsPropagationTimer = new CountDownTimer(
-            (60 * 1000) * 60, 10 * 1000) {
-        private int mLastTxBytesPropagated = 0;
-        private int mLastRxBytesPropagated = 0;
-        private int mPropagationBytesDelta = 2 * (2 ^ 10);
 
-
-        @Override
-        public void onTick(long millisUntilFinished)
+    protected long getReceivedBytesCount()
+    {
+        if (mServer == null)
         {
-            if (mServer == null)
-            {
-                return;
-            }
-
-            int currentTxByteStatus = (int) (mServer.getSentBytesCount());
-
-            if ((mLastTxBytesPropagated <= 0)
-                    || (mLastTxBytesPropagated + mPropagationBytesDelta) < currentTxByteStatus)
-            {
-                mLastTxBytesPropagated = currentTxByteStatus;
-                WebSMSToolService.this
-                        .sendMessageToClient(
-                                ServiceConnectionMessageTypes.Service.Response.NETWORK_TRAFFIC_TX_BYTES,
-                                mLastTxBytesPropagated, null);
-            }
-
-            int currentRxByteStatus = (int) (mServer.getReceivedBytesCount());
-            if ((mLastRxBytesPropagated <= 0)
-                    || (mLastRxBytesPropagated + mPropagationBytesDelta) < currentRxByteStatus)
-            {
-                mLastRxBytesPropagated = currentRxByteStatus;
-                WebSMSToolService.this
-                        .sendMessageToClient(
-                                ServiceConnectionMessageTypes.Service.Response.NETWORK_TRAFFIC_RX_BYTES,
-                                mLastRxBytesPropagated, null);
-            }
+            return 0;
         }
+        return mServer.getReceivedBytesCount();
+    }
 
 
-        @Override
-        public void onFinish()
+    protected long getSentBytesCount()
+    {
+        if (mServer == null)
         {
-            this.start();
+            return 0;
         }
-    };
+        return mServer.getSentBytesCount();
+    }
 
     private static class WebSMSToolBroadcastReceiver extends BroadcastReceiver
     {
@@ -156,39 +126,33 @@ public class WebSMSToolService extends Service implements SmsIOCallback
 
     protected void onClientRequestRegister(Messenger clientMessenger)
     {
+        if (clientMessenger != null)
+        {
+            mLog.debug("on clientmessenger UNregister");
+        } else
+        {
+            mLog.debug("on clientmessenger register");
+        }
+
         mClientMessenger = clientMessenger;
 
         if (mClientMessenger != null)
         {
-            sendMessageToClient(
-                    ServiceConnectionMessageTypes.Service.Response.REGISTERED_TO_SERVICE,
-                    0, null);
+            sendMessageToClient(ServiceConnectionMessageTypes.Service.Response.REGISTERED_TO_SERVICE);
+            mNetworkStatsPropagationTimer = new NetworkTrafficPropagationTimer(
+                    60 * 60, 10, this);
             mNetworkStatsPropagationTimer.start();
         } else
         {
             mNetworkStatsPropagationTimer.cancel();
+            mNetworkStatsPropagationTimer = null;
         }
-    }
-
-
-    protected Messenger getClientMessenger()
-    {
-        return mClientMessenger;
     }
 
 
     public WebSMSToolService()
     {
-        mServiceStartedStickyIntend = new Intent(SERVICE_STARTED);
         PRNGFixes.apply();
-    }
-
-    public class WebSMSToolServiceBinder extends Binder
-    {
-        WebSMSToolService getService()
-        {
-            return WebSMSToolService.this;
-        }
     }
 
 
@@ -203,8 +167,7 @@ public class WebSMSToolService extends Service implements SmsIOCallback
     @Override
     public IBinder onBind(Intent intent)
     {
-        mLog.debug("server binder created");
-        mClientMessenger = null;
+        mLog.debug("on bind");
         return mServiceMessenger.getBinder();
     }
 
@@ -212,6 +175,7 @@ public class WebSMSToolService extends Service implements SmsIOCallback
     @Override
     public boolean onUnbind(Intent intent)
     {
+        mLog.debug("on unbind");
         return super.onUnbind(intent);
     }
 
@@ -219,12 +183,23 @@ public class WebSMSToolService extends Service implements SmsIOCallback
     @Override
     public int onStartCommand(Intent intent, int flags, int startId)
     {
-        mLog.debug("on start command received");
+        mLog.debug("on start command");
         super.onStartCommand(intent, flags, startId);
+        return START_STICKY;
+    }
+
+
+    private void startWebSMSToolServiceThread()
+    {
         synchronized (this)
         {
-            if (getRunningState() == ServiceRunningStates.BEFORE_SINGULARITY
-                    || getRunningState() == ServiceRunningStates.STOPPED)
+            mWifiState = new WifiIpAddress(getApplicationContext());
+            if ((AppEnvironment.isRunningOnEmulator() == false)
+                    && (mWifiState.isWifiEnabled() == false || mWifiState
+                            .isWifiAPEnabled() == false))
+            {
+                onWirelessNetworkNotAvailable();
+            } else if ((getRunningState() == ServiceRunningStates.BEFORE_SINGULARITY || getRunningState() == ServiceRunningStates.STOPPED))
             {
                 setRunningState(ServiceRunningStates.STARTING);
                 registerIntentReceiver();
@@ -233,8 +208,8 @@ public class WebSMSToolService extends Service implements SmsIOCallback
                 {
                     mServer = new SimpleWebServer(this, mServerConfig);
                     mServer.registerSmsIoCallback(this);
-                    getApplicationContext().removeStickyBroadcast(
-                            mServiceStartedStickyIntend);
+                    // getApplicationContext().removeStickyBroadcast(
+                    // mServiceStartedStickyIntend);
 
                     mServer.startServer();
 
@@ -259,8 +234,6 @@ public class WebSMSToolService extends Service implements SmsIOCallback
                 mLog.error("failed to start web service, state ["
                         + getRunningState() + "]");
             }
-
-            return START_NOT_STICKY;
         }
     }
 
@@ -268,7 +241,8 @@ public class WebSMSToolService extends Service implements SmsIOCallback
     @Override
     public boolean stopService(Intent name)
     {
-        stopWebSMSToolService();
+        mLog.debug("stop service");
+        stopWebSMSToolServiceThread();
         super.stopService(name);
         return true;
     }
@@ -277,8 +251,62 @@ public class WebSMSToolService extends Service implements SmsIOCallback
     @Override
     public void onDestroy()
     {
-        onClose();
+        mLog.debug("on destroy");
+        if (mWifiState != null)
+        {
+            mWifiState.onClose();
+            mWifiState = null;
+        }
+        if (mNetworkStatsPropagationTimer != null)
+        {
+            mNetworkStatsPropagationTimer.cancel();
+            mNetworkStatsPropagationTimer = null;
+        }
+        mServer = null;
+        mServerConfig = null;
+        mIntentReceiver = null;
+        mClientMessenger = null;
         super.onDestroy();
+    }
+
+
+    @Override
+    public void onRebind(Intent intent)
+    {
+        mLog.debug("on rebind");
+        super.onRebind(intent);
+    }
+
+
+    @Override
+    public void onLowMemory()
+    {
+        mLog.error("on low memory");
+        super.onLowMemory();
+    }
+
+
+    @Override
+    public void onTrimMemory(int level)
+    {
+        mLog.warning("on trim memory");
+        super.onTrimMemory(level);
+    }
+
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig)
+    {
+        mLog.debug("on configuration changed");
+        super.onConfigurationChanged(newConfig);
+    }
+
+
+    @Override
+    public void onTaskRemoved(Intent rootIntent)
+    {
+        mLog.debug("on task removed");
+        super.onTaskRemoved(rootIntent);
     }
 
 
@@ -313,21 +341,19 @@ public class WebSMSToolService extends Service implements SmsIOCallback
     }
 
 
-    private boolean stopWebSMSToolService()
+    private boolean stopWebSMSToolServiceThread()
     {
         setRunningState(ServiceRunningStates.STOPPING);
         synchronized (this)
         {
             unregisterIntentReceiver();
-            getApplicationContext().removeStickyBroadcast(
-                    mServiceStartedStickyIntend);
             try
             {
                 mServer.stopServer();
                 waitForServiceBeingStopped();
                 if (mServer.isRunning())
                 {
-                    throw new Exception("server failed to stop");
+                    throw new Exception("server failed to stop for any reason");
                 }
                 setRunningState(ServiceRunningStates.STOPPED);
                 mServer.unregisterSMSIoCallback();
@@ -335,26 +361,11 @@ public class WebSMSToolService extends Service implements SmsIOCallback
             }
             catch (Exception ex)
             {
-                mLog.error("Error while stopping server!", ex);
+                mLog.error("error while stopping server!", ex);
                 setRunningState(ServiceRunningStates.STOPPED_ERRONEOUS);
             }
         }
-        onClientRequestRegister(null);
         return (getRunningState() == ServiceRunningStates.STOPPED);
-    }
-
-
-    private void onClose()
-    {
-        mNetworkStatsPropagationTimer.cancel();
-        mNetworkStatsPropagationTimer = null;
-        mServiceStartedStickyIntend = null;
-        mLog = null;
-        mServer = null;
-        mServerConfig = null;
-        mIntentReceiver = null;
-        mClientMessenger = null;
-        mServiceMessenger = null;
     }
 
 
@@ -382,7 +393,7 @@ public class WebSMSToolService extends Service implements SmsIOCallback
         }
 
         mLog.debug("wifi state changed, turning off service");
-        stopSelf();
+        stopWebSMSToolServiceThread();
     }
 
 
@@ -390,13 +401,13 @@ public class WebSMSToolService extends Service implements SmsIOCallback
     {
         NetworkInfo networkInfo = (NetworkInfo) intent.getExtras().get(
                 WifiManager.EXTRA_NETWORK_INFO);
-        mLog.debug("network state: " + networkInfo);
+        mLog.debug("network state changed to [" + networkInfo + "]");
         if (0 == NetworkInfo.State.CONNECTED.compareTo(networkInfo.getState()))
         {
             return;
         }
-        mLog.debug("network state changed, turning off service");
-        stopSelf();
+        mLog.debug("turning off service");
+        stopWebSMSToolServiceThread();
     }
 
 
@@ -446,32 +457,33 @@ public class WebSMSToolService extends Service implements SmsIOCallback
     {
         sendMessageToClient(
                 ServiceConnectionMessageTypes.Service.Response.CURRENT_RUNNING_STATE,
-                translateRunningStateToInt(getRunningState()), null);
+                translateRunningStateToInt(getRunningState()));
     }
 
 
-    private void sendMessageToClient(int what, int arg1, String optConnectionUrl)
+    private void sendMessageToClient(int what)
+    {
+        sendMessageToClient(what, 0);
+    }
+
+
+    private void sendMessageToClient(int what, int arg1)
     {
 
         String messageName = ServiceConnectionMessageTypes.getMessageName(what);
-
-        mLog.debug("service sending [" + messageName + "=" + arg1 + "] obj ["
-                + optConnectionUrl + "] to client");
+        String messageValue = ServiceConnectionMessageTypes
+                .getMessageName(arg1);
+        if (messageValue == null)
+        {
+            messageValue = Integer.toString(arg1);
+        }
 
         if (mClientMessenger != null)
         {
             try
             {
                 Message message = Message.obtain(null, what, arg1, 0);
-                if (null != optConnectionUrl)
-                {
-                    Bundle objBundleParameter = new Bundle();
-                    objBundleParameter
-                            .putString(
-                                    ServiceConnectionMessageTypes.Bundle.Key.STRING_CONNECTION_URL,
-                                    optConnectionUrl);
-                    message.setData(objBundleParameter);
-                }
+                appendDataToMessage(message, what);
                 mClientMessenger.send(message);
             }
             catch (RemoteException e)
@@ -480,8 +492,36 @@ public class WebSMSToolService extends Service implements SmsIOCallback
             }
         } else
         {
-            mLog.debug("failed sending [" + messageName + "=" + arg1
-                    + "] obj [" + optConnectionUrl + "] client not registered");
+            mLog.debug("failed sending [" + messageName + "=" + messageValue
+                    + " to not registered client");
+        }
+    }
+
+
+    private void appendDataToMessage(Message message, int messageId)
+    {
+        Bundle bundle = new Bundle();
+        switch (messageId)
+        {
+        case ServiceConnectionMessageTypes.Service.Response.CONNECTION_URL:
+            bundle.putString(
+                    ServiceConnectionMessageTypes.Bundle.Key.STRING_ARG_CONNECTION_URL,
+                    formatConnectionUrl());
+            message.setData(bundle);
+            break;
+
+        case ServiceConnectionMessageTypes.Service.Response.HTTP_PASSWORD:
+            bundle.putString(
+                    ServiceConnectionMessageTypes.Bundle.Key.STRING_ARG_SERVER_PASSWORD,
+                    mServer.getMaskedHttpPassword());
+            message.setData(bundle);
+            break;
+        case ServiceConnectionMessageTypes.Service.Response.HTTP_USERNAME:
+            bundle.putString(
+                    ServiceConnectionMessageTypes.Bundle.Key.STRING_ARG_SERVER_USERNAME,
+                    mServer.getHttpUsername());
+            message.setData(bundle);
+            break;
         }
     }
 
@@ -498,9 +538,7 @@ public class WebSMSToolService extends Service implements SmsIOCallback
 
     protected void onClientRequestConnectionUrl()
     {
-        sendMessageToClient(
-                ServiceConnectionMessageTypes.Service.Response.CONNECTION_URL,
-                0, formatConnectionUrl());
+        sendMessageToClient(ServiceConnectionMessageTypes.Service.Response.CONNECTION_URL);
     }
 
 
@@ -510,7 +548,7 @@ public class WebSMSToolService extends Service implements SmsIOCallback
         {
             sendMessageToClient(
                     ServiceConnectionMessageTypes.Service.Response.CURRENT_RUNNING_STATE,
-                    translateRunningStateToInt(getRunningState()), null);
+                    translateRunningStateToInt(getRunningState()));
 
             onClientRequestConnectionUrl();
             onClientRequestHttpPassword();
@@ -524,11 +562,17 @@ public class WebSMSToolService extends Service implements SmsIOCallback
     }
 
 
-    protected void onClientRequstStopService()
+    protected void onWirelessNetworkNotAvailable()
+    {
+        sendMessageToClient(ServiceConnectionMessageTypes.Service.Response.NETWORK_NOT_AVAILABLE);
+    }
+
+
+    protected void onClientRequestStopWEBService()
     {
         if (getRunningState() == ServiceRunningStates.RUNNING)
         {
-            stopWebSMSToolService();
+            stopWebSMSToolServiceThread();
         } else
         {
             mLog.debug("failed client request for stopping service in state ["
@@ -537,27 +581,48 @@ public class WebSMSToolService extends Service implements SmsIOCallback
     }
 
 
-    // TODO: wrong!
+    protected void onClientRequestSentBytesCount(int txBytes)
+    {
+        sendMessageToClient(
+                ServiceConnectionMessageTypes.Service.Response.NETWORK_TRAFFIC_TX_BYTES,
+                txBytes);
+    }
+
+
+    protected void onClientRequestReceivedBytesCount(int rxBytes)
+    {
+        sendMessageToClient(
+                ServiceConnectionMessageTypes.Service.Response.NETWORK_TRAFFIC_RX_BYTES,
+                rxBytes);
+    }
+
+
+    protected void onClientRequestStartWEBService()
+    {
+        if (getRunningState() == ServiceRunningStates.BEFORE_SINGULARITY
+                || getRunningState() == ServiceRunningStates.STOPPED)
+        {
+            startWebSMSToolServiceThread();
+        } else
+        {
+            mLog.debug("failed client request for starting service in state ["
+                    + getRunningState() + "]");
+        }
+    }
+
+
     protected void onClientRequestHttpPassword()
     {
-        // password has to be stored with password_string_type not
-        // as kind of url_string_type
-        sendMessageToClient(
-                ServiceConnectionMessageTypes.Service.Response.HTTP_PASSWORD,
-                0, mServer.getMaskedHttpPassword());
+        sendMessageToClient(ServiceConnectionMessageTypes.Service.Response.HTTP_PASSWORD);
     }
 
 
-    // TODO: wrong!
     protected void onClientRequestHttpUsername()
     {
-        sendMessageToClient(
-                ServiceConnectionMessageTypes.Service.Response.HTTP_USERNAME,
-                0, mServer.getHttpUsername());
+        sendMessageToClient(ServiceConnectionMessageTypes.Service.Response.HTTP_USERNAME);
     }
 
 
-    // TODO: wrong!
     protected void onClientRequestIsHttpAccessRestrictionEnabled()
     {
         int isRestrictionEnabled = 0;
@@ -569,7 +634,7 @@ public class WebSMSToolService extends Service implements SmsIOCallback
 
         sendMessageToClient(
                 ServiceConnectionMessageTypes.Service.Response.HTTP_ACCESS_RESCRICTION_ENABLED,
-                isRestrictionEnabled, null);
+                isRestrictionEnabled);
     }
 
 
@@ -611,7 +676,7 @@ public class WebSMSToolService extends Service implements SmsIOCallback
         mSmsSentCount++;
         sendMessageToClient(
                 ServiceConnectionMessageTypes.Service.Response.SMS_SENT,
-                mSmsSentCount, null);
+                mSmsSentCount);
     }
 
 
@@ -622,7 +687,7 @@ public class WebSMSToolService extends Service implements SmsIOCallback
         mSmsSentErroneousCount++;
         sendMessageToClient(
                 ServiceConnectionMessageTypes.Service.Response.SMS_SENT_ERRONEOUS,
-                mSmsSentErroneousCount, null);
+                mSmsSentErroneousCount);
     }
 
 
@@ -633,7 +698,7 @@ public class WebSMSToolService extends Service implements SmsIOCallback
         mSmsDeliveredCount++;
         sendMessageToClient(
                 ServiceConnectionMessageTypes.Service.Response.SMS_DELIVERED,
-                mSmsDeliveredCount, null);
+                mSmsDeliveredCount);
     }
 
 
@@ -644,6 +709,6 @@ public class WebSMSToolService extends Service implements SmsIOCallback
         mSmsReceivedCount++;
         sendMessageToClient(
                 ServiceConnectionMessageTypes.Service.Response.SMS_RECEIVED,
-                mSmsReceivedCount, null);
+                mSmsReceivedCount);
     }
 }

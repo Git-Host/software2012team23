@@ -102,7 +102,7 @@ public abstract class AbstractHttpRequestProcessor implements HttpRequestHandler
 
             FileInfo fileInfo = new FileInfo(file.trim(), contentType.trim());
             mUri2FileInfo.put(uri, fileInfo);
-            mLog.debug("read mapping uri <" + uri + "> ==> <" + fileInfo + ">");
+//            mLog.debug("read mapping uri <" + uri + "> ==> <" + fileInfo + ">");
 
             register(uri);
         }
@@ -110,7 +110,7 @@ public abstract class AbstractHttpRequestProcessor implements HttpRequestHandler
 
     protected void register(String uri) {
         if (mRegistry != null) {
-            mLog.debug("register for uri '" + uri + "'");
+//            mLog.debug("register for uri '" + uri + "'");
             mUriPattern = uri;
             mRegistry.register(mUriPattern, this);
         } else {

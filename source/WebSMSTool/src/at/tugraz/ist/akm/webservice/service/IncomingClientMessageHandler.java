@@ -43,7 +43,11 @@ class IncomingClientMessageHandler extends Handler
                 break;
 
             case ServiceConnectionMessageTypes.Client.Request.STOP_SERVICE:
-                mService.onClientRequstStopService();
+                mService.onClientRequestStopWEBService();
+                break;
+
+            case ServiceConnectionMessageTypes.Client.Request.START_WEB_SERVICE:
+                mService.onClientRequestStartWEBService();
                 break;
 
             case ServiceConnectionMessageTypes.Client.Request.CONNECTION_URL:
@@ -63,7 +67,8 @@ class IncomingClientMessageHandler extends Handler
                 break;
 
             case ServiceConnectionMessageTypes.Client.Response.SERVER_SETTINGS_GHANGED:
-                WebserverProtocolConfig newSettings = newServerSettingsFromBundle(msg.getData());
+                WebserverProtocolConfig newSettings = newServerSettingsFromBundle(msg
+                        .getData());
                 mService.onClientResponseServerSettingsChanged(newSettings);
                 break;
 
@@ -83,11 +88,13 @@ class IncomingClientMessageHandler extends Handler
                     + "] from client", e);
         }
     }
-    
-    private WebserverProtocolConfig newServerSettingsFromBundle(Bundle data) {
-        
+
+
+    private WebserverProtocolConfig newServerSettingsFromBundle(Bundle data)
+    {
+
         WebserverProtocolConfig newSettings = new WebserverProtocolConfig();
-        
+
         newSettings.isHttpsEnabled = data
                 .getBoolean(ServiceConnectionMessageTypes.Bundle.Key.BOOLEAN_ARG_SERVER_HTTPS);
         newSettings.isUserAuthEnabled = data
@@ -100,7 +107,7 @@ class IncomingClientMessageHandler extends Handler
                 .getString(ServiceConnectionMessageTypes.Bundle.Key.STRING_ARG_SERVER_USERNAME);
         newSettings.port = data
                 .getInt(ServiceConnectionMessageTypes.Bundle.Key.INT_ARG_SERVER_PORT);
-        
+
         return newSettings;
     }
 }

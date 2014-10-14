@@ -60,32 +60,35 @@ public class IncomingServiceMessageHandler extends Handler
                         .onWebServiceURLChanged(msg
                                 .getData()
                                 .getString(
-                                        ServiceConnectionMessageTypes.Bundle.Key.STRING_CONNECTION_URL));
+                                        ServiceConnectionMessageTypes.Bundle.Key.STRING_ARG_CONNECTION_URL));
                 break;
 
             case ServiceConnectionMessageTypes.Service.Response.REGISTERED_TO_SERVICE:
                 mClientFragment.onWebServiceClientRegistered();
                 break;
 
-            // TODO: wrong unpacking
             case ServiceConnectionMessageTypes.Service.Response.HTTP_PASSWORD:
                 mClientFragment
                         .onWebServiceHttpPassword(msg
                                 .getData()
                                 .getString(
-                                        ServiceConnectionMessageTypes.Bundle.Key.STRING_CONNECTION_URL));
+                                        ServiceConnectionMessageTypes.Bundle.Key.STRING_ARG_SERVER_PASSWORD));
                 break;
-            // TODO: wrong unpacking
+
             case ServiceConnectionMessageTypes.Service.Response.HTTP_USERNAME:
                 mClientFragment
                         .onWebServiceHttpUsername(msg
                                 .getData()
                                 .getString(
-                                        ServiceConnectionMessageTypes.Bundle.Key.STRING_CONNECTION_URL));
+                                        ServiceConnectionMessageTypes.Bundle.Key.STRING_ARG_SERVER_USERNAME));
                 break;
-            // TODO: wrong unpacking
+
             case ServiceConnectionMessageTypes.Service.Response.HTTP_ACCESS_RESCRICTION_ENABLED:
                 mClientFragment.onWebServiceHttpAccessRestriction(msg.arg1);
+                break;
+
+            case ServiceConnectionMessageTypes.Service.Response.NETWORK_NOT_AVAILABLE:
+                mClientFragment.onWebServiceNetworkNotConnected();
                 break;
 
             case ServiceConnectionMessageTypes.Service.Response.CURRENT_RUNNING_STATE:
