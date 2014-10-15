@@ -50,8 +50,7 @@ import at.tugraz.ist.akm.webservice.requestprocessor.interceptor.IRequestInterce
 
 public class SimpleWebServer implements SmsIOCallback
 {
-    private LogClient mLog = new LogClient(
-            SimpleWebServer.class.getName());
+    private LogClient mLog = new LogClient(SimpleWebServer.class.getName());
     private HttpRequestHandlerRegistry mRegistry = new HttpRequestHandlerRegistry();
     private BasicHttpContext mHttpContext = new BasicHttpContext();
     private Context mContext = null;
@@ -65,6 +64,7 @@ public class SimpleWebServer implements SmsIOCallback
     private boolean mIsServerRunning = false;
     private WakeLock mWakeLock = null;
     private SmsIOCallback mExternalSmsIoCallback = null;
+
 
     public synchronized void registerSmsIoCallback(SmsIOCallback callback)
     {
@@ -272,7 +272,6 @@ public class SimpleWebServer implements SmsIOCallback
     public void setNewServerConfiguration(WebserverProtocolConfig serverConfig)
     {
         mServerConfig = new WebserverProtocolConfig(serverConfig);
-
         SharedPreferencesProvider configProvider = new SharedPreferencesProvider(
                 mContext);
         mKeyStorePass = configProvider.getKeyStorePassword();

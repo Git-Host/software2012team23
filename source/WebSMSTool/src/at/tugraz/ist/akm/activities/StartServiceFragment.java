@@ -159,7 +159,7 @@ public class StartServiceFragment extends Fragment implements
         if (mIsUnbindingFromService == false && hasServiceMessenger == false)
         {
             getActivity().getApplicationContext().bindService(
-                    new Intent(getActivity(), WebSMSToolService.class), this,
+                   newServiceIntent(), this,
                     Context.BIND_AUTO_CREATE);
         } else
         {
@@ -246,17 +246,21 @@ public class StartServiceFragment extends Fragment implements
     }
 
 
+    private Intent newServiceIntent()
+    {
+        return new Intent(getActivity(), WebSMSToolService.class);
+    }
+
+
     private void startService()
     {
-        getActivity().getApplicationContext().startService(
-                new Intent(getActivity(), WebSMSToolService.class));
+        getActivity().getApplicationContext().startService(newServiceIntent());
     }
 
 
     private void stopService()
     {
-        getActivity().getApplicationContext().stopService(
-                new Intent(getActivity(), WebSMSToolService.class));
+        getActivity().getApplicationContext().stopService(newServiceIntent());
     }
 
 
@@ -528,7 +532,6 @@ public class StartServiceFragment extends Fragment implements
         config.port = preferences.getPort();
         config.protocolName = preferences.getProtocol();
         config.username = preferences.getUsername();
-
         return config;
     }
 

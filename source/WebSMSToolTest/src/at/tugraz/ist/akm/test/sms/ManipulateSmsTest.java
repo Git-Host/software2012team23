@@ -33,204 +33,262 @@ import at.tugraz.ist.akm.sms.TextMessage;
 import at.tugraz.ist.akm.test.base.WebSMSToolActivityTestcase;
 
 public class ManipulateSmsTest extends WebSMSToolActivityTestcase implements
-		SmsIOCallback {
+        SmsIOCallback
+{
 
-	public ManipulateSmsTest() {
-		super(ManipulateSmsTest.class.getSimpleName());
-	}
+    public ManipulateSmsTest()
+    {
+        super(ManipulateSmsTest.class.getSimpleName());
+    }
 
-	/**
-	 * Prove existence of expected content provider uris
-	 */
-	public void testGetSmsContentProviderTables() {
-		try {
-		    Cursor c = null;
-			SmsHelper.logCursor(c = mContentResolver.query(
-					SmsContentConstants.Uri.INBOX_URI, null, null, null, null));
-		    c.close();
-			SmsHelper.logCursor(c = mContentResolver.query(
-					SmsContentConstants.Uri.QUEUED_URI, null, null, null, null));
-			c.close();
-			SmsHelper.logCursor(c = mContentResolver.query(
-					SmsContentConstants.Uri.BASE_URI, null, null, null, null));
-			c.close();
-			SmsHelper.logCursor(c = mContentResolver.query(
-					SmsContentConstants.Uri.DRAFT_URI, null, null, null, null));
-			c.close();
-			SmsHelper.logCursor(c = mContentResolver.query(
-					SmsContentConstants.Uri.FAILED_URI, null, null, null, null));
-			c.close();
-			SmsHelper.logCursor(c = mContentResolver.query(
-					SmsContentConstants.Uri.OUTBOX_URI, null, null, null, null));
-			c.close();
-			SmsHelper.logCursor(c = mContentResolver.query(
-					SmsContentConstants.Uri.UNDELIVERED_URI, null, null, null,
-					null));
-			c.close();
-			SmsHelper.logCursor(c = mContentResolver.query(
-					SmsContentConstants.Uri.SENT_URI, null, null, null, null));
-			c.close();
-		} catch (Exception ex) {
-			ex.printStackTrace();
-			assertTrue(false);
-		}
-	}
 
-	public void testWriteSMSToOutbox() {
-		try {
-			TextMessage textMessage = SmsHelper.getDummyTextMessage();
-			SmsBoxWriter smsWriter = new SmsBoxWriter(mContentResolver);
-			smsWriter.writeOutboxTextMessage(textMessage);
-		} catch (Exception ex) {
-			ex.printStackTrace();
-			assertTrue(false);
-		}
+    /**
+     * Prove existence of expected content provider uris
+     */
+    public void testGetSmsContentProviderTables()
+    {
+        try
+        {
+            Cursor c = null;
+            SmsHelper.logCursor(c = mContentResolver.query(
+                    SmsContentConstants.Uri.INBOX_URI, null, null, null, null));
+            c.close();
+            SmsHelper
+                    .logCursor(c = mContentResolver.query(
+                            SmsContentConstants.Uri.QUEUED_URI, null, null,
+                            null, null));
+            c.close();
+            SmsHelper.logCursor(c = mContentResolver.query(
+                    SmsContentConstants.Uri.BASE_URI, null, null, null, null));
+            c.close();
+            SmsHelper.logCursor(c = mContentResolver.query(
+                    SmsContentConstants.Uri.DRAFT_URI, null, null, null, null));
+            c.close();
+            SmsHelper
+                    .logCursor(c = mContentResolver.query(
+                            SmsContentConstants.Uri.FAILED_URI, null, null,
+                            null, null));
+            c.close();
+            SmsHelper
+                    .logCursor(c = mContentResolver.query(
+                            SmsContentConstants.Uri.OUTBOX_URI, null, null,
+                            null, null));
+            c.close();
+            SmsHelper.logCursor(c = mContentResolver.query(
+                    SmsContentConstants.Uri.UNDELIVERED_URI, null, null, null,
+                    null));
+            c.close();
+            SmsHelper.logCursor(c = mContentResolver.query(
+                    SmsContentConstants.Uri.SENT_URI, null, null, null, null));
+            c.close();
+        }
+        catch (Exception ex)
+        {
+            ex.printStackTrace();
+            assertTrue(false);
+        }
+    }
 
-	}
 
-	public void testSendExtremLongSms() {
-		try {
-			SmsSender smsSink = new SmsSender(mContext);
-			SmsSentBroadcastReceiver sentReceiver = new SmsSentBroadcastReceiver(
-					this);
-			SmsSentBroadcastReceiver deliveredReceiver = new SmsSentBroadcastReceiver(
-					this);
+    public void testWriteSMSToOutbox()
+    {
+        try
+        {
+            TextMessage textMessage = SmsHelper.getDummyTextMessage();
+            SmsBoxWriter smsWriter = new SmsBoxWriter(mContentResolver);
+            smsWriter.writeOutboxTextMessage(textMessage);
+        }
+        catch (Exception ex)
+        {
+            ex.printStackTrace();
+            assertTrue(false);
+        }
 
-			mContext.registerReceiver(sentReceiver, new IntentFilter(
-					SmsSentBroadcastReceiver.ACTION_SMS_SENT));
-			mContext.registerReceiver(deliveredReceiver, new IntentFilter(
-					SmsSentBroadcastReceiver.ACTION_SMS_DELIVERED));
-			smsSink.sendTextMessage(SmsHelper.getDummyMultiTextMessage());
-			// wait until intent is (hopefully) broadcasted, else it won't
-			// trigger the desired callback
-			Thread.sleep(1000);
+    }
 
-			mContext.unregisterReceiver(sentReceiver);
-			mContext.unregisterReceiver(deliveredReceiver);
-		} catch (Exception ex) {
-			ex.printStackTrace();
-			assertTrue(false);
-		}
-	}
 
-	public void testReadInboxSms() {
-		try {
-			SmsBoxReader smsSource = new SmsBoxReader(mContentResolver);
-			TextMessageFilter filter = new TextMessageFilter();
-			filter.setBox(SmsContentConstants.Uri.INBOX_URI);
-			List<TextMessage> inbox = smsSource.getTextMessages(filter);
-			for (TextMessage m : inbox) {
-				SmsHelper.logTextMessage(m);
-			}
-		} catch (Exception ex) {
-			ex.printStackTrace();
-			assertTrue(false);
-		}
-	}
+    public void testSendExtremLongSms()
+    {
+        try
+        {
+            SmsSender smsSink = new SmsSender(mContext);
+            SmsSentBroadcastReceiver sentReceiver = new SmsSentBroadcastReceiver(
+                    this, smsSink);
+//            SmsSentBroadcastReceiver deliveredReceiver = new SmsSentBroadcastReceiver(
+//                    this, smsSink);
 
-	/**
-	 * (1) write message somewhere to content://sms/* (2) let messaging tool
-	 * auto generate ID and THREAD_ID (3) read the newly generated IDs (4) write
-	 * some other values to the text message
-	 */
-	public void testUpdateSms() {
-		try {
-			SmsBoxWriter writer = new SmsBoxWriter(mContentResolver);
-			TextMessage message = SmsHelper.getDummyTextMessage();
+            mContext.registerReceiver(sentReceiver, new IntentFilter(
+                    SmsSentBroadcastReceiver.ACTION_SMS_SENT));
+//            mContext.registerReceiver(deliveredReceiver, new IntentFilter(
+//                    SmsSentBroadcastReceiver.ACTION_SMS_DELIVERED));
+            smsSink.sendTextMessage(SmsHelper.getDummyMultiTextMessage());
+            // wait until intent is (hopefully) broadcasted, else it won't
+            // trigger the desired callback
+            Thread.sleep(1000);
 
-			// 1. and 2.
-			Uri directMessageUri = writer.writeOutboxTextMessage(message);
-			Cursor messageCursor = mContentResolver.query(directMessageUri,
-					null, null, null, null);
-			messageCursor.moveToNext();
+            mContext.unregisterReceiver(sentReceiver);
+//            mContext.unregisterReceiver(deliveredReceiver);
+        }
+        catch (Exception ex)
+        {
+            ex.printStackTrace();
+            assertTrue(false);
+        }
+    }
 
-			// 3.
-			message.setId(messageCursor.getString(messageCursor
-					.getColumnIndex(SmsContentConstants.Column.ID)));
-			message.setThreadId(messageCursor.getString(messageCursor
-					.getColumnIndex(SmsContentConstants.Column.THREAD_ID)));
-			messageCursor.close();
 
-			// 4.
-			message.setBody(message.getBody()
-					+ " - This message has been updated");
-			assertTrue(1 == writer.updateTextMessage(message));
+    public void testReadInboxSms()
+    {
+        try
+        {
+            SmsBoxReader smsSource = new SmsBoxReader(mContentResolver);
+            TextMessageFilter filter = new TextMessageFilter();
+            filter.setBox(SmsContentConstants.Uri.INBOX_URI);
+            List<TextMessage> inbox = smsSource.getTextMessages(filter);
+            for (TextMessage m : inbox)
+            {
+                SmsHelper.logTextMessage(m);
+            }
+        }
+        catch (Exception ex)
+        {
+            ex.printStackTrace();
+            assertTrue(false);
+        }
+    }
 
-			// prove correctness of update
-			messageCursor = mContentResolver.query(directMessageUri, null,
-					null, null, null);
-			messageCursor.moveToNext();
-			String messageBodyFromContentprovider = messageCursor
-					.getString(messageCursor
-							.getColumnIndex(SmsContentConstants.Column.BODY));
-			assertTrue(0 == messageBodyFromContentprovider.compareTo(message
-					.getBody()));
-			messageCursor.close();
-		} catch (Exception ex) {
-			ex.printStackTrace();
-			assertTrue(false);
-		}
-	}
 
-	public void testReadOutboxSms() {
-		try {
-			SmsBoxReader smsSource = new SmsBoxReader(mContentResolver);
-			TextMessageFilter filter = new TextMessageFilter();
-			filter.setBox(SmsContentConstants.Uri.OUTBOX_URI);
-			List<TextMessage> outbox = smsSource.getTextMessages(filter);
-			for (TextMessage m : outbox) {
-				SmsHelper.logTextMessage(m);
-			}
-		} catch (Exception ex) {
-			ex.printStackTrace();
-			assertTrue(false);
-		}
-	}
+    /**
+     * (1) write message somewhere to content://sms/* (2) let messaging tool
+     * auto generate ID and THREAD_ID (3) read the newly generated IDs (4) write
+     * some other values to the text message
+     */
+    public void testUpdateSms()
+    {
+        try
+        {
+            SmsBoxWriter writer = new SmsBoxWriter(mContentResolver);
+            TextMessage message = SmsHelper.getDummyTextMessage();
 
-	public void testReadThreadIdNoException() {
-		try {
-			SmsBoxReader smsSource = new SmsBoxReader(mContentResolver);
-			String address = "1357";
-			List<Integer> threadIDs = smsSource.getThreadIds(address);
+            // 1. and 2.
+            Uri directMessageUri = writer.writeOutboxTextMessage(message);
+            Cursor messageCursor = mContentResolver.query(directMessageUri,
+                    null, null, null, null);
+            messageCursor.moveToNext();
 
-			for (Integer id : threadIDs) {
-				logVerbose("fetched sms thread-ID: [" + id + "] for address ["
-						+ address + "]");
-			}
-		} catch (Exception ex) {
-			ex.printStackTrace();
-			assertTrue(false);
-		}
-	}
+            // 3.
+            message.setId(messageCursor.getString(messageCursor
+                    .getColumnIndex(SmsContentConstants.Column.ID)));
+            message.setThreadId(messageCursor.getString(messageCursor
+                    .getColumnIndex(SmsContentConstants.Column.THREAD_ID)));
+            messageCursor.close();
 
-	@Override
-	protected void setUp() throws Exception {
-		super.setUp();
-	}
+            // 4.
+            message.setBody(message.getBody()
+                    + " - This message has been updated");
+            assertTrue(1 == writer.updateTextMessage(message));
 
-	@Override
-	protected void tearDown() throws Exception {
-		super.tearDown();
-	}
+            // prove correctness of update
+            messageCursor = mContentResolver.query(directMessageUri, null,
+                    null, null, null);
+            messageCursor.moveToNext();
+            String messageBodyFromContentprovider = messageCursor
+                    .getString(messageCursor
+                            .getColumnIndex(SmsContentConstants.Column.BODY));
+            assertTrue(0 == messageBodyFromContentprovider.compareTo(message
+                    .getBody()));
+            messageCursor.close();
+        }
+        catch (Exception ex)
+        {
+            ex.printStackTrace();
+            assertTrue(false);
+        }
+    }
 
-	@Override
-	public void smsSentCallback(Context context, List<TextMessage> messages) {
-		logVerbose("sms sent (list size: " + messages.size() + " )");
-	}
 
-	@Override
-	public void smsDeliveredCallback(Context context, List<TextMessage> messages) {
-		logVerbose("sms delivered (list size: " + messages.size() + " )");
-	}
+    public void testReadOutboxSms()
+    {
+        try
+        {
+            SmsBoxReader smsSource = new SmsBoxReader(mContentResolver);
+            TextMessageFilter filter = new TextMessageFilter();
+            filter.setBox(SmsContentConstants.Uri.OUTBOX_URI);
+            List<TextMessage> outbox = smsSource.getTextMessages(filter);
+            for (TextMessage m : outbox)
+            {
+                SmsHelper.logTextMessage(m);
+            }
+        }
+        catch (Exception ex)
+        {
+            ex.printStackTrace();
+            assertTrue(false);
+        }
+    }
 
-	@Override
-	public void smsReceivedCallback(Context context, List<TextMessage> messages) {
-		logVerbose("sms received (list size: " + messages.size() + " )");
-	}
 
-	@Override
-	public void smsSentErrorCallback(Context context, List<TextMessage> messages) {
-		logVerbose("sms sent erroneous (list size: " + messages.size() + " )");
-	}
+    public void testReadThreadIdNoException()
+    {
+        try
+        {
+            SmsBoxReader smsSource = new SmsBoxReader(mContentResolver);
+            String address = "1357";
+            List<Integer> threadIDs = smsSource.getThreadIds(address);
+
+            for (Integer id : threadIDs)
+            {
+                logVerbose("fetched sms thread-ID: [" + id + "] for address ["
+                        + address + "]");
+            }
+        }
+        catch (Exception ex)
+        {
+            ex.printStackTrace();
+            assertTrue(false);
+        }
+    }
+
+
+    @Override
+    protected void setUp() throws Exception
+    {
+        super.setUp();
+    }
+
+
+    @Override
+    protected void tearDown() throws Exception
+    {
+        super.tearDown();
+    }
+
+
+    @Override
+    public void smsSentCallback(Context context, List<TextMessage> messages)
+    {
+        logVerbose("sms sent (list size: " + messages.size() + " )");
+    }
+
+
+    @Override
+    public void smsDeliveredCallback(Context context, List<TextMessage> messages)
+    {
+        logVerbose("sms delivered (list size: " + messages.size() + " )");
+    }
+
+
+    @Override
+    public void smsReceivedCallback(Context context, List<TextMessage> messages)
+    {
+        logVerbose("sms received (list size: " + messages.size() + " )");
+    }
+
+
+    @Override
+    public void smsSentErrorCallback(Context context, List<TextMessage> messages)
+    {
+        logVerbose("sms sent erroneous (list size: " + messages.size() + " )");
+    }
 
 }

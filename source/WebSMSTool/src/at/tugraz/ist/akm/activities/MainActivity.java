@@ -49,23 +49,18 @@ import at.tugraz.ist.akm.webservice.service.WebSMSToolService;
 
 public class MainActivity extends Activity
 {
-
-    public static final String SERVER_IP_ADDRESS_INTENT_KEY = "at.tugraz.ist.akm.SERVER_IP_ADDRESS_INTENT_KEY";
-    private static final String LAST_ACTIVE_NAVIGATION_DRAWER_ENTRY_KEY = "at.tugraz.ist.akm.LAST_ACTIVE_NAVIGATION_DRAWER_ITEM_KEY";
+    private static final String LAST_ACTIVE_NAVIGATION_DRAWER_BUNDLE_KEY = "at.tugraz.ist.akm.LAST_ACTIVE_NAVIGATION_DRAWER_ITEM_KEY";
 
     private int mCurrentNavigationDrawerEntry = 0;
-
     private LogClient mLog = new LogClient(this);
     private AndroidUILogSink mAndroidUiLogSink = null;
     final String mServiceName = WebSMSToolService.class.getName();
-
     private String[] mDrawerEntryTitles = null;
     private String[] mDrawerIcons = null;
     private String[] mDrawerFragments = null;
     private DrawerLayout mDrawerLayout = null;
     private ListView mDrawerList = null;
     private ActionBarDrawerToggle mDrawerToggle = null;
-
     private String mDefaultAppPackage = "at.tugraz.ist.akm";
     private String mDefaultSystemPackage = "android";
 
@@ -171,7 +166,7 @@ public class MainActivity extends Activity
         if (null != savedInstanceState)
         {
             mCurrentNavigationDrawerEntry = savedInstanceState
-                    .getInt(LAST_ACTIVE_NAVIGATION_DRAWER_ENTRY_KEY);
+                    .getInt(LAST_ACTIVE_NAVIGATION_DRAWER_BUNDLE_KEY);
         }
 
         setContentView(R.layout.navigation_drawer);
@@ -232,7 +227,7 @@ public class MainActivity extends Activity
     @Override
     protected void onSaveInstanceState(Bundle outState)
     {
-        outState.putInt(LAST_ACTIVE_NAVIGATION_DRAWER_ENTRY_KEY,
+        outState.putInt(LAST_ACTIVE_NAVIGATION_DRAWER_BUNDLE_KEY,
                 mCurrentNavigationDrawerEntry);
         super.onSaveInstanceState(outState);
     }

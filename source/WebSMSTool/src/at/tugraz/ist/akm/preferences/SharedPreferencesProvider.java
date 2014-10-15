@@ -141,7 +141,7 @@ public class SharedPreferencesProvider
 
     public boolean isHttpsEnabled()
     {
-        return getProtocol().compareTo(HTTP_PROTOCOL_NAME) == 0;
+        return getProtocol().compareTo(HTTPS_PROTOCOL_NAME) == 0;
     }
 
 

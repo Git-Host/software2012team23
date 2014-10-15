@@ -36,8 +36,8 @@ public class SmsBridge extends LogClient implements SmsIOCallback {
 	private SmsBoxReader mSmsBoxReader = null;
 	private SmsBoxWriter mSmsBoxWriter = null;
 
-	private SmsSentBroadcastReceiver mSmsSentNotifier = new SmsSentBroadcastReceiver(
-			this);
+	private SmsSentBroadcastReceiver mSmsSentNotifier = null;
+	
 	private SmsIOCallback mExternalSmsSentCallback = null;
 
 	public SmsBridge(Context context) {
@@ -45,6 +45,8 @@ public class SmsBridge extends LogClient implements SmsIOCallback {
 		mContext = context;
 		mContentResolver = mContext.getContentResolver();
 		mSmsSink = new SmsSender(mContext);
+		mSmsSentNotifier = new SmsSentBroadcastReceiver(
+	            this, mSmsSink);
 		mSmsBoxReader = new SmsBoxReader(mContentResolver);
 		mSmsBoxWriter = new SmsBoxWriter(mContentResolver);
 	}
@@ -76,8 +78,8 @@ public class SmsBridge extends LogClient implements SmsIOCallback {
 
 	public void start() {
 		registerSmsSentNotification();
-		registerSmsDeliveredNotification();
-		registerSmsReceivedNotification();
+//		registerSmsDeliveredNotification();
+//		registerSmsReceivedNotification();
 	}
 
 	public void stop() {
@@ -164,32 +166,21 @@ public class SmsBridge extends LogClient implements SmsIOCallback {
 				SmsSentBroadcastReceiver.ACTION_SMS_SENT));
 	}
 
-	private void registerSmsDeliveredNotification() {
-	    debug("registered new IntentFilter [ACTION_SMS_DELIVERED]");
-		mContext.registerReceiver(mSmsSentNotifier, new IntentFilter(
-				SmsSentBroadcastReceiver.ACTION_SMS_DELIVERED));
-	}
+//	private void registerSmsDeliveredNotification() {
+//	    debug("registered new IntentFilter [ACTION_SMS_DELIVERED]");
+//		mContext.registerReceiver(mSmsSentNotifier, new IntentFilter(
+//				SmsSentBroadcastReceiver.ACTION_SMS_DELIVERED));
+//	}
 
-	private void registerSmsReceivedNotification() {
-	    debug("registered new IntentFilter [ACTION_SMS_RECEIVED]");
-		mContext.registerReceiver(mSmsSentNotifier, new IntentFilter(
-				SmsSentBroadcastReceiver.ACTION_SMS_RECEIVED));
-	}
+//	private void registerSmsReceivedNotification() {
+//	    debug("registered new IntentFilter [ACTION_SMS_RECEIVED]");
+//		mContext.registerReceiver(mSmsSentNotifier, new IntentFilter(
+//				SmsSentBroadcastReceiver.ACTION_SMS_RECEIVED));
+//	}
 
 
-
-	/**
-	 * Is being called when the send state of a TextMessage is clear. If state
-	 * is OK, then store message to sent-box. On error place the TextMessage to
-	 * out-box (box for pending or not sent messages).
-	 * 
-	 * @param intent
-	 *            where to parse the TextMessage from
-	 * @return true if correctly sent else false
-	 */
 	private boolean storeMessageToCorrectBox(List<TextMessage> messages) {
 		boolean isSuccessfullySent = false;
-		//TextMessage sentMessage = parseToTextMessgae(intent);
 		
 		String verboseSentState = null;
 

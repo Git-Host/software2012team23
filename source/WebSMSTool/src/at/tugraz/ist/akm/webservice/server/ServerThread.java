@@ -148,9 +148,8 @@ public class ServerThread extends Thread
                             }
                             catch (SSLException iDon_tCare)
                             {
-                                ; // some browser send connection closed, some
-                                  // not
-                                  // ...
+                                // some browser send connection closed, some
+                                // not ...
                                 mLog.info("ignore SSL-connection closed by peer");
                             }
                             catch (ConnectionClosedException iDon_tCare)
