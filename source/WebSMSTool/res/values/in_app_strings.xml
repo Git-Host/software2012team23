@@ -23,14 +23,10 @@
   <string name="StartServiceFragment_network_tx_rx_delimiter">/</string>
   <string name="StartServiceFragment_network_tx_default_value">0</string>
   <string name="StartServiceFragment_network_rx_default_value">0</string>
-  <string name="StartServiceFragment_network_icon_description">Network</string>
-  <string name="StartServiceFragment_sms_icon_description">SMS</string>
   <string name="StartServiceFragment_sms_text">Sent/Received</string>
-  <string name="StartServiceFragment_access_protection_icon_description">Access protection</string>
   <string name="StartServiceFragment_access_protection_default_username_value"></string>
   <string name="StartServiceFragment_access_protection_username_text">User:&#160;</string>
   <string name="StartServiceFragment_access_protection_default_password_value"></string>
   <string name="StartServiceFragment_access_protection_password_text">Password:&#160;</string>
-  <string name="StartServiceFragment_host_adddress_icon_description">Host address</string>
   <string name="StartServiceFragment_host_address_default_value"></string>
 </resources>

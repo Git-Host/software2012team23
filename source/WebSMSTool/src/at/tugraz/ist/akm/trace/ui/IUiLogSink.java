@@ -14,15 +14,14 @@
  * limitations under the License.
  */
 
-package at.tugraz.ist.akm.trace;
+package at.tugraz.ist.akm.trace.ui;
 
-public class TraceSettings {
-	static final boolean ENABLE_TRACE = true;
-	
-	//static final boolean ENABLE_TRACE = (ApplicationInfo.FLAG_DEBUGGABLE == 1);
-	static final boolean ENABLE_TRACE_ERROR = true;
-	static final boolean ENABLE_TRACE_WARNING = true;
-	static final boolean ENABLE_TRACE_INFO = true;
-	static final boolean ENABLE_TRACE_DEBUG = true;
-	static final boolean ENABLE_TRACE_VERBOSE = true;
+import java.util.List;
+
+public interface IUiLogSink
+{
+    public void info(final UiEvent event);
+    public void info(final List<UiEvent> eventBuffer);
+    public void setLogSource(IUiLogSource logSource);
+
 }

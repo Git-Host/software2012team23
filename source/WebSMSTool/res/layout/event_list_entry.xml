@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:gravity="top|left"
+    android:orientation="horizontal"
+    android:textAppearance="?android:attr/textAppearanceSmall" >
+
+    <ImageView
+        android:id="@+id/event_list_icon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:contentDescription="@string/event_list_icon_alternative_text" />
+
+    <TextView
+        android:id="@+id/event_list_date"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@id/event_list_icon"
+        android:gravity="bottom"
+        android:lines="1"
+        android:textIsSelectable="false" />
+
+    <TextView
+        android:id="@+id/event_list_title"
+        android:layout_width="100dp"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@id/event_list_date"
+        android:layout_toRightOf="@id/event_list_date"
+        android:ellipsize="end"
+        android:gravity="center_vertical"
+        android:lines="1"
+        android:paddingLeft="10dp"
+        android:textIsSelectable="false" />
+
+    <TextView
+        android:id="@+id/event_list_description"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@id/event_list_title"
+        android:layout_toRightOf="@id/event_list_title"
+        android:ellipsize="end"
+        android:gravity="center_vertical"
+        android:lines="1"
+        android:paddingLeft="10dp"
+        android:textIsSelectable="false" />
+
+    <TextView
+        android:id="@+id/event_list_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignRight="@id/event_list_date"
+        android:layout_below="@id/event_list_date"
+        android:ellipsize="end"
+        android:lines="1"
+        android:paddingLeft="10dp"
+        android:textIsSelectable="false" />
+
+    <TextView
+        android:id="@+id/event_list_detail"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@id/event_list_time"
+        android:layout_centerInParent="true"
+        android:layout_toRightOf="@id/event_list_time"
+        android:lines="1"
+        android:paddingLeft="10dp"
+        android:textIsSelectable="false" />
+
+</RelativeLayout>

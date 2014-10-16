@@ -18,13 +18,13 @@ package at.tugraz.ist.akm.activities;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 
 import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentTransaction;
 import android.content.SharedPreferences;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Debug;
 import android.preference.PreferenceManager;
@@ -40,20 +40,20 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
 import at.tugraz.ist.akm.R;
-import at.tugraz.ist.akm.activities.trace.AndroidUILogSink;
 import at.tugraz.ist.akm.exceptional.UncaughtExceptionLogger;
 import at.tugraz.ist.akm.secureRandom.PRNGFixes;
 import at.tugraz.ist.akm.trace.LogClient;
-import at.tugraz.ist.akm.trace.TraceService;
+import at.tugraz.ist.akm.trace.ui.IUiLogSink;
+import at.tugraz.ist.akm.trace.ui.IUiLogSource;
+import at.tugraz.ist.akm.trace.ui.UiEvent;
 import at.tugraz.ist.akm.webservice.service.WebSMSToolService;
 
-public class MainActivity extends Activity
+public class MainActivity extends Activity implements IUiLogSource
 {
     private static final String LAST_ACTIVE_NAVIGATION_DRAWER_BUNDLE_KEY = "at.tugraz.ist.akm.LAST_ACTIVE_NAVIGATION_DRAWER_ITEM_KEY";
 
     private int mCurrentNavigationDrawerEntry = 0;
     private LogClient mLog = new LogClient(this);
-    private AndroidUILogSink mAndroidUiLogSink = null;
     final String mServiceName = WebSMSToolService.class.getName();
     private String[] mDrawerEntryTitles = null;
     private String[] mDrawerIcons = null;
@@ -63,6 +63,10 @@ public class MainActivity extends Activity
     private ActionBarDrawerToggle mDrawerToggle = null;
     private String mDefaultAppPackage = "at.tugraz.ist.akm";
     private String mDefaultSystemPackage = "android";
+
+    private LinkedList<UiEvent> mBufferedLogEvents = new LinkedList<UiEvent>();
+    private int mMaxBufferedLogs = 100;
+    private IUiLogSink mUiLogSink = null;
 
 
     public MainActivity()
@@ -109,8 +113,6 @@ public class MainActivity extends Activity
     {
         mLog.debug("activity goes to Hades");
         invalidateDrawerList();
-        mAndroidUiLogSink.onClose();
-        mAndroidUiLogSink = null;
         mLog = null;
         super.onDestroy();
     }
@@ -159,17 +161,16 @@ public class MainActivity extends Activity
     {
         super.onCreate(savedInstanceState);
 
-        mLog.debug(MainActivity.class.getSimpleName() + " onCreate");
+        mLog.debug(MainActivity.class.getSimpleName() + " on create");
 
         fixAndroidBugIssued6641();
 
         if (null != savedInstanceState)
         {
-            mCurrentNavigationDrawerEntry = savedInstanceState
-                    .getInt(LAST_ACTIVE_NAVIGATION_DRAWER_BUNDLE_KEY);
+            restoreCurrentNavigationDrawerEntry(savedInstanceState);
         }
 
-        setContentView(R.layout.navigation_drawer);
+        setContentView(R.layout.navigation_drawer_list);
         mDrawerFragments = getResources().getStringArray(
                 R.array.drawer_fragment_array);
         mDrawerEntryTitles = getResources().getStringArray(
@@ -200,13 +201,9 @@ public class MainActivity extends Activity
             }
         });
 
+        setUpDrawerToggle();
         fragmentTransaction(mDrawerFragments[mCurrentNavigationDrawerEntry]);
         mDrawerList.setItemChecked(mCurrentNavigationDrawerEntry, true);
-        setUpDrawerToggle();
-        // TODO: replace sink with a kind of buffered logging sink
-        mAndroidUiLogSink = new AndroidUILogSink(this);
-        TraceService.setSink(mAndroidUiLogSink);
-        mLog.debug("launched activity on device [" + Build.PRODUCT + "]");
     }
 
 
@@ -224,11 +221,24 @@ public class MainActivity extends Activity
     }
 
 
+    private void restoreCurrentNavigationDrawerEntry(Bundle savedInstanceState)
+    {
+        mCurrentNavigationDrawerEntry = savedInstanceState
+                .getInt(LAST_ACTIVE_NAVIGATION_DRAWER_BUNDLE_KEY);
+    }
+
+
+    private void storeCurrentNavigationDrawerEntry(Bundle aBundle)
+    {
+        aBundle.putInt(LAST_ACTIVE_NAVIGATION_DRAWER_BUNDLE_KEY,
+                mCurrentNavigationDrawerEntry);
+    }
+
+
     @Override
     protected void onSaveInstanceState(Bundle outState)
     {
-        outState.putInt(LAST_ACTIVE_NAVIGATION_DRAWER_BUNDLE_KEY,
-                mCurrentNavigationDrawerEntry);
+        storeCurrentNavigationDrawerEntry(outState);
         super.onSaveInstanceState(outState);
     }
 
@@ -237,13 +247,14 @@ public class MainActivity extends Activity
     {
         FragmentTransaction transaction = getFragmentManager()
                 .beginTransaction();
-
         Fragment newFragment = Fragment.instantiate(MainActivity.this,
                 fragmentTag);
-
+        if (newFragment instanceof EventLogFragment)
+        {
+            ((EventLogFragment) newFragment).setLogSource(this);
+        }
         transaction.replace(R.id.navigation_drawer_content_frame, newFragment,
                 fragmentTag);
-
         transaction.commit();
     }
 
@@ -349,5 +360,44 @@ public class MainActivity extends Activity
         prefs.edit()
                 .putBoolean(sharedPreferenceKey,
                         prefs.getBoolean(sharedPreferenceKey, false)).commit();
+    }
+
+
+    synchronized protected void onWebServiceLogEventReceived(UiEvent event)
+    {
+        mBufferedLogEvents.addFirst(event);
+        if (mBufferedLogEvents.size() > mMaxBufferedLogs)
+        {
+            mBufferedLogEvents.removeLast();
+        }
+
+        if (mUiLogSink != null)
+        {
+            mUiLogSink.info(event);
+        }
+    }
+
+
+    @Override
+    synchronized public void registerUiLogSink(IUiLogSink sink)
+    {
+        mUiLogSink = sink;
+        pushBufferedLogs();
+    }
+
+
+    @Override
+    synchronized public void unregisterUiLogSink()
+    {
+        mUiLogSink = null;
+    }
+
+
+    synchronized private void pushBufferedLogs()
+    {
+        if (mUiLogSink != null)
+        {
+            mUiLogSink.info(mBufferedLogEvents);
+        }
     }
 }

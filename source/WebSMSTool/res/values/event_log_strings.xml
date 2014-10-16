@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="event_list_icon_alternative_text"></string>
+    <string name="event_list_login_title">login</string>
+    <string name="event_list_login_success"> success</string>
+    <string name="event_list_login_failed">failed</string>
+    <string name="event_list_smssent_title">SMS Sent</string>
+    <string name="event_list_smsreceived_title">SMS Received</string>
+    <string name="event_list_service_title">service</string>
+    <string name="event_list_service_stopped">stopped</string>
+    <string name="event_list_service_started">started</string>
+    <string name="event_list_settingts_changed_title">settings</string>
+    <string name="event_list_settingts_changed">changed</string>
+
+</resources>

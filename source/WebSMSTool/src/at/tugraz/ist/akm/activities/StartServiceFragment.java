@@ -75,7 +75,7 @@ public class StartServiceFragment extends Fragment implements
             Bundle savedInstanceState)
     {
         mLog.debug("on create view");
-        View view = inflater.inflate(R.layout.main_fragment, container, false);
+        View view = inflater.inflate(R.layout.start_service_fragment, container, false);
         setUpMainFragmentUI(view);
         return view;
     }
@@ -121,7 +121,7 @@ public class StartServiceFragment extends Fragment implements
             mServiceMessenger = null;
         } else
         {
-            mLog.error("failed to UNbind because isUNbinding ["
+            mLog.debug("skipped to UNbinding because isUNbinding ["
                     + mIsUnbindingFromService + "] and hasServiceMessenger ["
                     + hasServiceMessenger + "]");
         }
