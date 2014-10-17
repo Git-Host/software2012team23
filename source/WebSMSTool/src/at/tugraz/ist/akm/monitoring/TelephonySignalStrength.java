@@ -47,6 +47,12 @@ public class TelephonySignalStrength
     }
 
 
+    public void onClose()
+    {
+        mContext = null;
+    }
+
+
     public void takeNewSignalStrength(SignalStrength signalStrength)
     {
         mSignalStrength = signalStrength;
@@ -108,7 +114,7 @@ public class TelephonySignalStrength
 
         if (mSignalStrength.isGsm())
         {
-            // If the connection is LTE the I really F****** DON'T care!
+            // If the connection is LTE the I don't care!
             // if ((mLteSignalStrength == -1) && (mLteRsrp == -1)
             // && (mLteRsrq == -1) && (mLteCqi == -1)) {
             level = getGsmLevel();

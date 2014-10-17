@@ -27,85 +27,116 @@ import android.os.BatteryManager;
 import android.util.Base64;
 import at.tugraz.ist.akm.R;
 
-public class BatteryStatus {
+public class BatteryStatus
+{
 
-	private int mBatteryLevel = 0;
-	private int mBatteryIconId = 0;
-	private boolean mIsCharging = false;
-	private boolean mIsFull = false;
-	private int mChargePlug = 0;
-	private boolean mISUsbCharge = false;
-	private boolean mIsAcCharge = false;
-	private Context mContext = null;
+    private int mBatteryLevel = 0;
+    private int mBatteryIconId = 0;
+    private boolean mIsCharging = false;
+    private boolean mIsFull = false;
+    private int mChargePlug = 0;
+    private boolean mISUsbCharge = false;
+    private boolean mIsAcCharge = false;
+    private Context mContext = null;
 
-	public BatteryStatus(Context context, Intent batteryStatus) {
-		mContext = context;
-		int extraStatus = batteryStatus.getIntExtra(
-				BatteryManager.EXTRA_STATUS, -1);
-		mIsCharging = (extraStatus == BatteryManager.BATTERY_STATUS_CHARGING || extraStatus == BatteryManager.BATTERY_STATUS_FULL);
 
-		mIsFull = (extraStatus == BatteryManager.BATTERY_STATUS_FULL);
+    public BatteryStatus(Context context, Intent batteryStatus)
+    {
+        mContext = context;
+        int extraStatus = batteryStatus.getIntExtra(
+                BatteryManager.EXTRA_STATUS, -1);
+        mIsCharging = (extraStatus == BatteryManager.BATTERY_STATUS_CHARGING || extraStatus == BatteryManager.BATTERY_STATUS_FULL);
 
-		mChargePlug = batteryStatus.getIntExtra(BatteryManager.EXTRA_PLUGGED,
-				-1);
-		mISUsbCharge = (mChargePlug == BatteryManager.BATTERY_PLUGGED_USB);
+        mIsFull = (extraStatus == BatteryManager.BATTERY_STATUS_FULL);
 
-		mIsAcCharge = (mChargePlug == BatteryManager.BATTERY_PLUGGED_AC);
+        mChargePlug = batteryStatus.getIntExtra(BatteryManager.EXTRA_PLUGGED,
+                -1);
+        mISUsbCharge = (mChargePlug == BatteryManager.BATTERY_PLUGGED_USB);
 
-		mBatteryIconId = batteryStatus.getIntExtra(
-				BatteryManager.EXTRA_ICON_SMALL, -1);
+        mIsAcCharge = (mChargePlug == BatteryManager.BATTERY_PLUGGED_AC);
 
-		mBatteryLevel = batteryStatus.getIntExtra(BatteryManager.EXTRA_LEVEL,
-				-1);
-	}
+        mBatteryIconId = batteryStatus.getIntExtra(
+                BatteryManager.EXTRA_ICON_SMALL, -1);
 
-	public int getBatteryLevel() {
-		return mBatteryLevel;
-	}
+        mBatteryLevel = batteryStatus.getIntExtra(BatteryManager.EXTRA_LEVEL,
+                -1);
+    }
 
-	public int getBatteryIconId() {
-		return mBatteryIconId;
-	}
 
-	public byte[] getBatteryIconBytes() {
+    public int getBatteryLevel()
+    {
+        return mBatteryLevel;
+    }
 
-		int batteryIconId = R.raw.battery_level0;
-		if (mBatteryLevel >= 80) {
-			batteryIconId = R.raw.battery_level4;
-		} else if (mBatteryLevel >= 60) {
-			batteryIconId = R.raw.battery_level3;
-		} else if (mBatteryLevel >= 40) {
-			batteryIconId = R.raw.battery_level2;
-		} else if (mBatteryLevel >= 20) {
-			batteryIconId = R.raw.battery_level1;
-		}
 
-		Bitmap bmp = BitmapFactory.decodeResource(mContext.getResources(), batteryIconId);
-		ByteArrayOutputStream os=new ByteArrayOutputStream();
-		bmp.compress(android.graphics.Bitmap.CompressFormat.PNG, 100,(OutputStream) os);
-		bmp = null;
-		byte[] byteArray = os.toByteArray();
-		
-		return Base64.encode(byteArray, Base64.DEFAULT);
-	}
+    public int getBatteryIconId()
+    {
+        return mBatteryIconId;
+    }
 
-	public boolean getIsCharging() {
-		return mIsCharging;
-	}
 
-	public boolean getIsFull() {
-		return mIsFull;
-	}
+    public byte[] getBatteryIconBytes()
+    {
 
-	public int getChargePlug() {
-		return mChargePlug;
-	}
+        int batteryIconId = R.raw.battery_level0;
+        if (mBatteryLevel >= 80)
+        {
+            batteryIconId = R.raw.battery_level4;
+        } else if (mBatteryLevel >= 60)
+        {
+            batteryIconId = R.raw.battery_level3;
+        } else if (mBatteryLevel >= 40)
+        {
+            batteryIconId = R.raw.battery_level2;
+        } else if (mBatteryLevel >= 20)
+        {
+            batteryIconId = R.raw.battery_level1;
+        }
 
-	public boolean getIsUsbCharge() {
-		return mISUsbCharge;
-	}
+        Bitmap bmp = BitmapFactory.decodeResource(mContext.getResources(),
+                batteryIconId);
+        ByteArrayOutputStream os = new ByteArrayOutputStream();
+        bmp.compress(android.graphics.Bitmap.CompressFormat.PNG, 100,
+                (OutputStream) os);
+        bmp = null;
+        byte[] byteArray = os.toByteArray();
 
-	public boolean getIsAcCharge() {
-		return mIsAcCharge;
-	}
+        return Base64.encode(byteArray, Base64.DEFAULT);
+    }
+
+
+    public boolean getIsCharging()
+    {
+        return mIsCharging;
+    }
+
+
+    public boolean getIsFull()
+    {
+        return mIsFull;
+    }
+
+
+    public int getChargePlug()
+    {
+        return mChargePlug;
+    }
+
+
+    public boolean getIsUsbCharge()
+    {
+        return mISUsbCharge;
+    }
+
+
+    public boolean getIsAcCharge()
+    {
+        return mIsAcCharge;
+    }
+
+
+    public void onClose()
+    {
+        mContext = null;
+    }
 }

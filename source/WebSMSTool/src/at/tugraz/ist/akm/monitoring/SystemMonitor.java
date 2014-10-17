@@ -56,6 +56,15 @@ public class SystemMonitor extends PhoneStateListener
     }
 
 
+    public void onClose()
+    {
+        mContext = null;
+        mTel = null;
+        mSingalStrength = null;
+        mLog = null;
+    }
+
+
     public BatteryStatus getBatteryStatus()
     {
         IntentFilter filter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
@@ -77,11 +86,25 @@ public class SystemMonitor extends PhoneStateListener
     }
 
 
+    public synchronized TelephonySignalStrength getTelephonySignalStrength()
+    {
+        if (mSingalStrength == null)
+        {
+            return null;
+        }
+
+        TelephonySignalStrength telSignalStrength = new TelephonySignalStrength(
+                mContext);
+        telSignalStrength.takeNewSignalStrength(mSingalStrength);
+        return telSignalStrength;
+    }
+
+
     @Override
     public synchronized void onSignalStrengthsChanged(
             SignalStrength signalStrength)
     {
-        mLog.info("signal strength changed ["+signalStrength+"]");
+        mLog.debug("signal strength changed [" + signalStrength + "]");
         super.onSignalStrengthsChanged(signalStrength);
         mSingalStrength = signalStrength;
     }

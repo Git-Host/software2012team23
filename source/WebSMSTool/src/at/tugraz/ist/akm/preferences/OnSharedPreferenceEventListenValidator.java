@@ -18,12 +18,14 @@ public class OnSharedPreferenceEventListenValidator implements
 
     private int mMinPortNumber = 1024;
     private int mMaxPortNumber = 65535;
-    private LogClient mLog = new LogClient(this);
+    private LogClient mLog = new LogClient(
+            OnSharedPreferenceEventListenValidator.class.getCanonicalName());
     private PreferenceFragment mFragment = null;
     private Context mContext = null;
 
 
-    public OnSharedPreferenceEventListenValidator(PreferenceFragment fragment, Context context)
+    public OnSharedPreferenceEventListenValidator(PreferenceFragment fragment,
+            Context context)
     {
         mFragment = fragment;
         mContext = context;
@@ -60,23 +62,7 @@ public class OnSharedPreferenceEventListenValidator implements
             changedPortNumber = trimPortNumber(changedPortNumber);
             Editor ed = sharedPreferences.edit();
             ed.putString(key, Integer.toString(changedPortNumber));
-            ed.apply();
-        } else if (key
-                .equals(resourceString(R.string.preferences_password_key))
-                || key.equals(resourceString(R.string.preferences_username_key)))
-        {
-            String password = sharedPreferences.getString(
-                    resourceString(R.string.preferences_password_key), "");
-            String username = sharedPreferences.getString(
-                    resourceString(R.string.preferences_username_key), "");
-            if (password.length() <= 0 || username.length() <= 0)
-            {
-                Editor ed = sharedPreferences.edit();
-                ed.putBoolean(
-                        resourceString(R.string.preferences_access_restriction_key),
-                        false);
-                ed.apply();
-            }
+            ed.commit();
         }
 
         updateSettingsOnPrefsView();
@@ -121,7 +107,7 @@ public class OnSharedPreferenceEventListenValidator implements
                 }
                 catch (Exception e)
                 {
-                    // i don't care
+                    mLog.error("shared preference key not found", e);
                 }
 
                 if (key.equals(resourceString(R.string.preferences_password_key)))
@@ -134,7 +120,7 @@ public class OnSharedPreferenceEventListenValidator implements
                 }
                 catch (Exception e)
                 {
-                    // i don't care
+                    mLog.error("shared preference set summary error", e);
                 }
             }
         }
@@ -170,7 +156,7 @@ public class OnSharedPreferenceEventListenValidator implements
                     false);
             checkBox.setChecked(false);
         }
-        spEdit.apply();
+        spEdit.commit();
     }
 
 
@@ -189,7 +175,6 @@ public class OnSharedPreferenceEventListenValidator implements
     {
         setPreferenceSummary(resourceString(R.string.preferences_username_key));
         setPreferenceSummary(resourceString(R.string.preferences_password_key));
-        // updateAccessRestrictionCheckboxDependingOnCredentials();
         setPreferenceSummary(resourceString(R.string.preferences_server_port_key));
     }
 
@@ -234,6 +219,14 @@ public class OnSharedPreferenceEventListenValidator implements
         }
 
         return false;
+    }
+
+
+    public void onClose()
+    {
+        mFragment = null;
+        mContext = null;
+        mLog = null;
     }
 
 }

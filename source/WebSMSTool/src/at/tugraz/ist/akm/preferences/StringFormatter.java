@@ -12,7 +12,8 @@ public class StringFormatter
     Context mContext = null;
 
 
-    protected StringFormatter()
+    @SuppressWarnings("unused")
+    private StringFormatter()
     {
     }
 
@@ -59,6 +60,9 @@ public class StringFormatter
                             R.string.preferences_security_renew_certificate_dialog_preference_no_certificate);
         }
         return summary;
-
+    }
+    
+    public void onClose() {
+        mContext = null;
     }
 }

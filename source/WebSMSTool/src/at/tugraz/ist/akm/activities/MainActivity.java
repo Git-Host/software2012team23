@@ -20,17 +20,15 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import android.app.ActionBar;
 import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentTransaction;
-import android.app.TaskStackBuilder;
-import android.content.Intent;
-import android.os.Build;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Debug;
+import android.os.Messenger;
+import android.preference.PreferenceManager;
 import android.support.v4.app.ActionBarDrawerToggle;
-import android.support.v4.app.NavUtils;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.view.Menu;
@@ -42,33 +40,27 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
 import at.tugraz.ist.akm.R;
-import at.tugraz.ist.akm.activities.trace.AndroidUILogSink;
 import at.tugraz.ist.akm.exceptional.UncaughtExceptionLogger;
 import at.tugraz.ist.akm.secureRandom.PRNGFixes;
 import at.tugraz.ist.akm.trace.LogClient;
-import at.tugraz.ist.akm.trace.TraceService;
-import at.tugraz.ist.akm.webservice.WebSMSToolService;
+import at.tugraz.ist.akm.webservice.service.WebSMSToolService;
 
 public class MainActivity extends Activity
 {
-
-    public static final String SERVER_IP_ADDRESS_INTENT_KEY = "at.tugraz.ist.akm.SERVER_IP_ADDRESS_INTENT_KEY";
-    private static final String LAST_ACTIVE_NAVIGATION_DRAWER_ENTRY_KEY = "at.tugraz.ist.akm.LAST_ACTIVE_NAVIGATION_DRAWER_ITEM_KEY";
+    private static final String LAST_ACTIVE_NAVIGATION_DRAWER_BUNDLE_KEY = "at.tugraz.ist.akm.LAST_ACTIVE_NAVIGATION_DRAWER_ITEM_KEY";
 
     private int mCurrentNavigationDrawerEntry = 0;
-
     private LogClient mLog = new LogClient(this);
     final String mServiceName = WebSMSToolService.class.getName();
-
     private String[] mDrawerEntryTitles = null;
     private String[] mDrawerIcons = null;
     private String[] mDrawerFragments = null;
     private DrawerLayout mDrawerLayout = null;
     private ListView mDrawerList = null;
     private ActionBarDrawerToggle mDrawerToggle = null;
-
     private String mDefaultAppPackage = "at.tugraz.ist.akm";
     private String mDefaultSystemPackage = "android";
+    private Fragment mCurrentFragment = null;
 
 
     public MainActivity()
@@ -114,6 +106,7 @@ public class MainActivity extends Activity
     protected void onDestroy()
     {
         mLog.debug("activity goes to Hades");
+        invalidateDrawerList();
         mLog = null;
         super.onDestroy();
     }
@@ -162,13 +155,16 @@ public class MainActivity extends Activity
     {
         super.onCreate(savedInstanceState);
 
+        mLog.debug(MainActivity.class.getSimpleName() + " on create");
+
+        fixAndroidBugIssued6641();
+
         if (null != savedInstanceState)
         {
-            mCurrentNavigationDrawerEntry = savedInstanceState
-                    .getInt(LAST_ACTIVE_NAVIGATION_DRAWER_ENTRY_KEY);
+            restoreCurrentNavigationDrawerEntry(savedInstanceState);
         }
 
-        setContentView(R.layout.navigation_drawer);
+        setContentView(R.layout.navigation_drawer_list);
         mDrawerFragments = getResources().getStringArray(
                 R.array.drawer_fragment_array);
         mDrawerEntryTitles = getResources().getStringArray(
@@ -199,20 +195,44 @@ public class MainActivity extends Activity
             }
         });
 
+        setUpDrawerToggle();
         fragmentTransaction(mDrawerFragments[mCurrentNavigationDrawerEntry]);
         mDrawerList.setItemChecked(mCurrentNavigationDrawerEntry, true);
-        setUpDrawerToggle();
-        // TODO: replace sink with a kind of buffered logging sink
-        TraceService.setSink(new AndroidUILogSink(this));
-        mLog.debug("launched activity on device [" + Build.PRODUCT + "]");
+    }
+
+
+    private void invalidateDrawerList()
+    {
+        mDrawerEntryTitles = null;
+        mDrawerFragments = null;
+        mDrawerLayout.setDrawerListener(null);
+        mDrawerLayout = null;
+        mDrawerIcons = null;
+        mDrawerList.setAdapter(null);
+        mDrawerList.setOnItemClickListener(null);
+        mDrawerList = null;
+        mDrawerToggle = null;
+    }
+
+
+    private void restoreCurrentNavigationDrawerEntry(Bundle savedInstanceState)
+    {
+        mCurrentNavigationDrawerEntry = savedInstanceState
+                .getInt(LAST_ACTIVE_NAVIGATION_DRAWER_BUNDLE_KEY);
+    }
+
+
+    private void storeCurrentNavigationDrawerEntry(Bundle aBundle)
+    {
+        aBundle.putInt(LAST_ACTIVE_NAVIGATION_DRAWER_BUNDLE_KEY,
+                mCurrentNavigationDrawerEntry);
     }
 
 
     @Override
     protected void onSaveInstanceState(Bundle outState)
     {
-        outState.putInt(LAST_ACTIVE_NAVIGATION_DRAWER_ENTRY_KEY,
-                mCurrentNavigationDrawerEntry);
+        storeCurrentNavigationDrawerEntry(outState);
         super.onSaveInstanceState(outState);
     }
 
@@ -221,13 +241,9 @@ public class MainActivity extends Activity
     {
         FragmentTransaction transaction = getFragmentManager()
                 .beginTransaction();
-
-        Fragment newFragment = Fragment.instantiate(MainActivity.this,
-                fragmentTag);
-
-        transaction.replace(R.id.navigation_drawer_content_frame, newFragment,
-                fragmentTag);
-
+        mCurrentFragment = Fragment.instantiate(MainActivity.this, fragmentTag);
+        transaction.replace(R.id.navigation_drawer_content_frame,
+                mCurrentFragment, fragmentTag);
         transaction.commit();
     }
 
@@ -251,10 +267,6 @@ public class MainActivity extends Activity
 
     private void setUpDrawerToggle()
     {
-        ActionBar actionBar = getActionBar();
-        actionBar.setDisplayHomeAsUpEnabled(true);
-        actionBar.setHomeButtonEnabled(true);
-
         mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout,
                 R.drawable.ic_navigation_drawer,
                 R.string.navigation_drawer_open,
@@ -288,39 +300,14 @@ public class MainActivity extends Activity
     @Override
     public boolean onOptionsItemSelected(MenuItem item)
     {
-        Intent i = null;
-        switch (item.getItemId())
+        if (mDrawerLayout.isDrawerOpen(GravityCompat.START))
         {
-        case android.R.id.home:
-            Intent upIntent = NavUtils.getParentActivityIntent(this);
-
-            if (upIntent == null)
-            {
-                upIntent = new Intent(getApplicationContext(),
-                        MainActivity.class);
-            }
-
-            mLog.debug("intent [" + upIntent + "]");
-            if (NavUtils.shouldUpRecreateTask(this, upIntent))
-            {
-                TaskStackBuilder.create(this)
-                        .addNextIntentWithParentStack(upIntent)
-                        .startActivities();
-            } else
-            {
-                NavUtils.navigateUpTo(this, upIntent);
-            }
-            return false;
-        default:
-            mLog.debug(
-                    new StringBuffer("unhandled actionbar intent [").append(
-                            Integer.toHexString(item.getItemId()) + "]")
-                            .toString(), null);
-            i = new Intent(this, MainActivity.class);
-            startActivity(i);
-            return false;
+            mDrawerLayout.closeDrawer(GravityCompat.START);
+        } else
+        {
+            mDrawerLayout.openDrawer(GravityCompat.START);
         }
-
+        return false;
     }
 
 
@@ -337,6 +324,41 @@ public class MainActivity extends Activity
         inflater.inflate(R.menu.default_actionbar, menu);
         getActionBar().setDisplayHomeAsUpEnabled(true);
         return true;
+    }
+
+
+    private void fixAndroidBugIssued6641()
+    {
+        // These lines are working around an android bug:
+        // https://code.google.com/p/android/issues/detail?id=6641
+        PreferenceManager.setDefaultValues(this, R.xml.preferences_list, false);
+        setDefaultBooleanPreferenceValue(R.string.preferences_access_restriction_key);
+        setDefaultBooleanPreferenceValue(R.string.preferences_protocol_checkbox_key);
+    }
+
+
+    private void setDefaultBooleanPreferenceValue(int resourceId)
+    {
+        String sharedPreferenceKey = getApplicationContext().getString(
+                resourceId);
+
+        SharedPreferences prefs = PreferenceManager
+                .getDefaultSharedPreferences(getApplicationContext());
+
+        prefs.edit()
+                .putBoolean(sharedPreferenceKey,
+                        prefs.getBoolean(sharedPreferenceKey, false)).commit();
+    }
+
+
+    public Messenger getStartServiceFragmentMessenger()
+    {
+        if (mCurrentFragment != null
+                && mCurrentFragment instanceof StartServiceFragment)
+        {
+            return ((StartServiceFragment) mCurrentFragment).getMessenger();
+        }
+        return null;
     }
 
 }

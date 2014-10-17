@@ -16,6 +16,7 @@
 
 package at.tugraz.ist.akm.webservice.requestprocessor;
 
+import java.io.Closeable;
 import java.io.IOException;
 
 import my.org.apache.http.HttpException;
@@ -30,14 +31,16 @@ import org.json.JSONObject;
 import android.content.Context;
 import at.tugraz.ist.akm.io.xml.XmlNode;
 import at.tugraz.ist.akm.trace.LogClient;
-import at.tugraz.ist.akm.webservice.WebServerConfig;
+import at.tugraz.ist.akm.webservice.WebServerConstants;
 
 public class EchoJsonRequestProcessor extends AbstractHttpRequestProcessor
+        implements Closeable
 {
-    private final LogClient mLog = new LogClient(this);
-    
-    public EchoJsonRequestProcessor(final Context context, final XmlNode config,
-            final HttpRequestHandlerRegistry registry)
+    private LogClient mLog = new LogClient(this);
+
+
+    public EchoJsonRequestProcessor(final Context context,
+            final XmlNode config, final HttpRequestHandlerRegistry registry)
     {
         super(context, config, registry);
     }
@@ -48,20 +51,24 @@ public class EchoJsonRequestProcessor extends AbstractHttpRequestProcessor
             HttpResponse httpResponse) throws HttpException, IOException
     {
         if (requestLine.getMethod().equals(
-                WebServerConfig.HTTP.REQUEST_TYPE_POST))
+                WebServerConstants.HTTP.REQUEST_TYPE_POST))
         {
             final JSONObject json;
             try
             {
                 json = new JSONObject(requestData);
-                mResponseDataAppender.appendHttpResponseData(httpResponse, json);
-            } catch (ParseException parseException)
+                mResponseDataAppender
+                        .appendHttpResponseData(httpResponse, json);
+            }
+            catch (ParseException parseException)
             {
                 parseException.printStackTrace();
-            } catch (JSONException jsonException)
+            }
+            catch (JSONException jsonException)
             {
                 jsonException.printStackTrace();
-            } finally
+            }
+            finally
             {
                 mLog.error("failed to parse json request");
             }
@@ -69,5 +76,13 @@ public class EchoJsonRequestProcessor extends AbstractHttpRequestProcessor
         {
             mLog.debug("ignoring request type: " + requestLine.getMethod());
         }
+    }
+
+
+    @Override
+    public void close()
+    {
+        mLog = null;
+        super.close();
     }
 }

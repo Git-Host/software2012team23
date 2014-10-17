@@ -76,7 +76,7 @@ public class PreferencesProviderTest extends AndroidTestCase implements
         String outUserName = "testUserName";
         mConfig.setUserName(outUserName);
 
-        String inUserName = mConfig.getUserName();
+        String inUserName = mConfig.getUsername();
         assertEquals(outUserName, inUserName);
     }
 
@@ -85,17 +85,17 @@ public class PreferencesProviderTest extends AndroidTestCase implements
     {
         String outPassword = "testPassword";
         mConfig.setPassword(outPassword);
-        String inPassword = mConfig.getPassWord();
+        String inPassword = mConfig.getPassword();
         assertEquals(outPassword, inPassword);
     }
 
 
     public void testGetSetting_serverPort()
     {
-        String outPort = "8080";
+        int outPort = 8080;
         mConfig.setPort(outPort);
 
-        String inPort = mConfig.getPort();
+        int inPort = mConfig.getPort();
         assertEquals(outPort, inPort);
     }
 
@@ -129,7 +129,7 @@ public class PreferencesProviderTest extends AndroidTestCase implements
         mConfig.setPassword("sepp");
         mConfig.setKeyStorePassword("oachkatzerlschwoaf");
         mConfig.setProtocol("https");
-        mConfig.setPort("8888");
+        mConfig.setPort(8888);
     }
 
 

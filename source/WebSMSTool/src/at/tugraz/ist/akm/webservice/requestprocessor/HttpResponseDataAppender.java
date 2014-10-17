@@ -26,7 +26,7 @@ import my.org.apache.http.entity.EntityTemplate;
 
 import org.json.JSONObject;
 
-import at.tugraz.ist.akm.webservice.WebServerConfig;
+import at.tugraz.ist.akm.webservice.WebServerConstants;
 
 public class HttpResponseDataAppender {
 
@@ -35,7 +35,7 @@ public class HttpResponseDataAppender {
 	public void appendHttpResponseData(HttpResponse httpResponse,
 			final JSONObject data) {
 		appendHttpResponseData(httpResponse,
-				WebServerConfig.HTTP.CONTENT_TYPE_JSON, data.toString());
+				WebServerConstants.HTTP.CONTENT_TYPE_JSON, data.toString());
 	}
 
 	public void appendHttpResponseData(HttpResponse httpResponse,
@@ -50,7 +50,7 @@ public class HttpResponseDataAppender {
 				writer.close();
 			}
 		}));
-		httpResponse.setHeader(WebServerConfig.HTTP.KEY_CONTENT_TYPE,
+		httpResponse.setHeader(WebServerConstants.HTTP.KEY_CONTENT_TYPE,
 				contentType);
 	}
 
@@ -65,7 +65,7 @@ public class HttpResponseDataAppender {
 		}));
 
 		httpResponse
-				.addHeader(WebServerConfig.HTTP.KEY_CONTENT_TYPE, mediaType);
+				.addHeader(WebServerConstants.HTTP.KEY_CONTENT_TYPE, mediaType);
 	}
 
 }

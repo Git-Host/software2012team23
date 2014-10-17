@@ -37,50 +37,70 @@ import at.tugraz.ist.akm.R;
 import at.tugraz.ist.akm.io.xml.XmlNode;
 import at.tugraz.ist.akm.io.xml.XmlReader;
 import at.tugraz.ist.akm.keystore.ApplicationKeyStore;
+import at.tugraz.ist.akm.networkInterface.WifiIpAddress;
 import at.tugraz.ist.akm.preferences.SharedPreferencesProvider;
+import at.tugraz.ist.akm.sms.ISmsIOCallback;
+import at.tugraz.ist.akm.sms.TextMessage;
 import at.tugraz.ist.akm.statusbar.FireNotification;
 import at.tugraz.ist.akm.trace.LogClient;
-import at.tugraz.ist.akm.webservice.WebServerConfig;
+import at.tugraz.ist.akm.webservice.WebServerConstants;
 import at.tugraz.ist.akm.webservice.requestprocessor.AbstractHttpRequestProcessor;
+import at.tugraz.ist.akm.webservice.requestprocessor.JsonAPIRequestProcessor;
 import at.tugraz.ist.akm.webservice.requestprocessor.interceptor.IRequestInterceptor;
 
-public class SimpleWebServer
+public class SimpleWebServer implements ISmsIOCallback
 {
-    private final static LogClient mLog = new LogClient(
-            SimpleWebServer.class.getName());
-
-    HttpRequestHandlerRegistry mRegistry = new HttpRequestHandlerRegistry();
+    private LogClient mLog = new LogClient(SimpleWebServer.class.getName());
+    private HttpRequestHandlerRegistry mRegistry = new HttpRequestHandlerRegistry();
     private BasicHttpContext mHttpContext = new BasicHttpContext();
-
-    private final Context mContext;
+    private Context mContext = null;
     private ServerThread mServerThread = null;
     private Vector<AbstractHttpRequestProcessor> mHandlerReferenceListing = new Vector<AbstractHttpRequestProcessor>();
-
-    private SharedPreferencesProvider mConfig = null;
     private InetAddress mSocketAddress = null;
     private ServerSocket mServerSocket = null;
-    private boolean mHttps;
-    private int mServerPort;
-    private String mKeyStorePass;
-
-    private SSLContext mSSLContext;
-
+    private String mKeyStorePass = null;
+    private WebserverProtocolConfig mServerConfig = null;
+    private SSLContext mSSLContext = null;
     private boolean mIsServerRunning = false;
-
     private WakeLock mWakeLock = null;
+    private ISmsIOCallback mExternalSmsIoCallback = null;
+    private IHttpAccessCallback mHttpAuthCallback = null;
 
 
-    public SimpleWebServer(Context context, String socketAddress)
+    public synchronized void registerSmsIoCallback(ISmsIOCallback callback)
+    {
+        mExternalSmsIoCallback = callback;
+    }
+
+
+    public synchronized void unregisterSMSIoCallback()
+    {
+        mExternalSmsIoCallback = null;
+    }
+
+
+    public SimpleWebServer(Context context,
+            WebserverProtocolConfig serverConfig, IHttpAccessCallback callback)
             throws Exception
     {
-        this.mContext = context;
+        mHttpAuthCallback = callback;
+        mContext = context;
         PowerManager pm = (PowerManager) mContext
                 .getSystemService(Context.POWER_SERVICE);
 
         mWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, this
                 .getClass().getName());
-        this.mSocketAddress = InetAddress.getByName(socketAddress);
-        openSettings();
+        WifiIpAddress wifiAddressReader = new WifiIpAddress(context);
+
+        mSocketAddress = InetAddress.getByName(wifiAddressReader
+                .readLocalIpAddress());
+        wifiAddressReader.onClose();
+        wifiAddressReader = null;
+
+        setNewServerConfiguration(serverConfig);
+
+        mLog.debug("building server for [" + mServerConfig.protocolName + "://"
+                + mSocketAddress + ":" + mServerConfig.port + "]");
         readRequestHandlers();
         readRequestInterceptors();
     }
@@ -94,27 +114,44 @@ public class SimpleWebServer
 
     private void readRequestHandlers()
     {
-        XmlReader reader = new XmlReader(mContext, WebServerConfig.RES.WEB_XML);
+        XmlReader reader = new XmlReader(mContext,
+                WebServerConstants.RES.WEB_XML);
         List<XmlNode> nodes = reader
-                .getNodes(WebServerConfig.XML.TAG_REQUEST_HANDLER);
+                .getNodes(WebServerConstants.XML.TAG_REQUEST_HANDLER);
         for (XmlNode node : nodes)
         {
             String className = node
-                    .getAttributeValue(WebServerConfig.XML.ATTRIBUTE_CLASS);
+                    .getAttributeValue(WebServerConstants.XML.ATTRIBUTE_CLASS);
 
             if (className == null)
             {
-                mLog.error("request handler <" + node.getName()
-                        + ">: no corresponding class to load found");
+                mLog.error("request handler [" + node.getName()
+                        + "] no corresponding class to load found");
                 continue;
             }
             try
             {
+
                 Class<?> clazz = Class.forName(className);
                 Constructor<?> constr = clazz.getConstructor(Context.class,
                         XmlNode.class, HttpRequestHandlerRegistry.class);
-                AbstractHttpRequestProcessor newHandler = (AbstractHttpRequestProcessor) constr
-                        .newInstance(mContext, node, mRegistry);
+
+                AbstractHttpRequestProcessor newHandler = null;
+
+                if (className.equals(JsonAPIRequestProcessor.class
+                        .getCanonicalName()))
+                {
+                    mLog.debug("registered to sms callback");
+                    JsonAPIRequestProcessor jsonRequesProcessor = (JsonAPIRequestProcessor) constr
+                            .newInstance(mContext, node, mRegistry);
+                    newHandler = jsonRequesProcessor;
+                    jsonRequesProcessor.registerSMSIoListener(this);
+                } else
+                {
+                    newHandler = (AbstractHttpRequestProcessor) constr
+                            .newInstance(mContext, node, mRegistry);
+                }
+
                 mHandlerReferenceListing.add(newHandler);
             }
             catch (Exception ex)
@@ -129,38 +166,41 @@ public class SimpleWebServer
 
     private void readRequestInterceptors()
     {
-        XmlReader reader = new XmlReader(mContext, WebServerConfig.RES.WEB_XML);
+        XmlReader reader = new XmlReader(mContext,
+                WebServerConstants.RES.WEB_XML);
         List<XmlNode> interceptorNodes = reader
-                .getNodes(WebServerConfig.XML.TAG_REQUEST_INTERCEPTORS);
+                .getNodes(WebServerConstants.XML.TAG_REQUEST_INTERCEPTORS);
         if (interceptorNodes.size() == 0)
         {
             mLog.warning("no request interceptors configured");
             return;
         }
         List<XmlNode> nodes = interceptorNodes.get(0).getChildNodes(
-                WebServerConfig.XML.TAG_INTERCEPTOR);
+                WebServerConstants.XML.TAG_INTERCEPTOR);
         for (XmlNode node : nodes)
         {
             String className = node
-                    .getAttributeValue(WebServerConfig.XML.ATTRIBUTE_CLASS);
+                    .getAttributeValue(WebServerConstants.XML.ATTRIBUTE_CLASS);
 
             if (className == null)
             {
-                mLog.error("request interceptor <" + node.getName()
-                        + ">: no corresponding class to load found");
+                mLog.error("request interceptor [" + node.getName()
+                        + "], no corresponding class to load");
                 continue;
             }
             try
             {
                 Class<?> clazz = Class.forName(className);
-                Constructor<?> constr = clazz.getConstructor(Context.class);
+                Constructor<?> constr = clazz.getConstructor(
+                        WebserverProtocolConfig.class, Context.class,
+                        IHttpAccessCallback.class);
                 IRequestInterceptor interceptor = (IRequestInterceptor) constr
-                        .newInstance(mContext);
+                        .newInstance(mServerConfig, mContext, mHttpAuthCallback);
                 setInterceptor(interceptor);
             }
             catch (Exception ex)
             {
-                mLog.error("Loading of class <" + className + "> failed", ex);
+                mLog.error("loading class [" + className + "] failed", ex);
                 stopServer();
             }
         }
@@ -180,41 +220,35 @@ public class SimpleWebServer
     public boolean isRunning()
     {
         return mIsServerRunning;
-        // return mServerThread != null;
     }
 
 
     public synchronized boolean startServer()
     {
-        openSettings();
         if (false == mWakeLock.isHeld())
         {
             mWakeLock.acquire();
         }
-
         if (this.isRunning())
         {
-            mLog.info("Web service is already running at port <"
-                    + mServerThread.getPort() + ">");
+            mLog.info("web service is already running at port ["
+                    + mServerThread.getPort() + "]");
             return true;
         }
 
-        readWebServerConfiguration();
-        String socketType = "https";
-
         try
         {
-            if (mHttps)
+            if (mServerConfig.isHttpsEnabled)
             {
                 initSSLContext();
                 final SSLServerSocketFactory sslServerSocketFactory = mSSLContext
                         .getServerSocketFactory();
                 mServerSocket = sslServerSocketFactory.createServerSocket(
-                        mServerPort, 0, mSocketAddress);
+                        mServerConfig.port, 0, mSocketAddress);
             } else
             {
-                mServerSocket = new ServerSocket(mServerPort, 0, mSocketAddress);
-                socketType = "http";
+                mServerSocket = new ServerSocket(mServerConfig.port, 0,
+                        mSocketAddress);
             }
             statusbarIndicateConnectionUrl();
             mServerSocket.setReuseAddress(true);
@@ -224,36 +258,28 @@ public class SimpleWebServer
                     mRegistry);
             mServerThread.setDaemon(true);
             mServerThread.start();
-            mLog.info("WebServer started on port: " + mServerPort);
+            mLog.info("server started at port [" + mServerConfig.port + "]");
 
             return true;
         }
         catch (IOException ioException)
         {
-            mLog.error("cannot bind <" + socketType + "> socket to <"
-                    + mSocketAddress + ":" + mServerPort + ">", ioException);
+            mLog.error("cannot bind [" + mServerConfig.protocolName
+                    + "] socket to [" + mSocketAddress + ":"
+                    + mServerConfig.port + "]", ioException);
             return false;
         }
 
     }
 
 
-    private void readWebServerConfiguration()
+    public void setNewServerConfiguration(WebserverProtocolConfig serverConfig)
     {
-        String protocol = mConfig.getProtocol();
-        if (protocol.compareTo("https") == 0)
-        {
-            mHttps = true;
-        } else
-        {
-            mHttps = false;
-        }
-
-        mServerPort = Integer.parseInt(mConfig.getPort());
-        mKeyStorePass = mConfig.getKeyStorePassword();
-
-        mLog.debug("server preferences protocol[" + protocol + "] port["
-                + mServerPort + "]");
+        mServerConfig = new WebserverProtocolConfig(serverConfig);
+        SharedPreferencesProvider configProvider = new SharedPreferencesProvider(
+                mContext);
+        mKeyStorePass = configProvider.getKeyStorePassword();
+        configProvider.close();
     }
 
 
@@ -279,7 +305,7 @@ public class SimpleWebServer
             }
             catch (IOException e)
             {
-                // don't care
+                mLog.error("error closing socket", e);
             }
             finally
             {
@@ -290,26 +316,7 @@ public class SimpleWebServer
         }
 
         closeRegistry();
-        closeSettings();
         mServerThread = null;
-
-    }
-
-
-    private void closeSettings()
-    {
-        if (mConfig != null)
-            ;
-        mConfig.close();
-        mConfig = null;
-    }
-
-
-    private void openSettings()
-    {
-        if (mConfig == null)
-            ;
-        mConfig = new SharedPreferencesProvider(mContext);
     }
 
 
@@ -317,8 +324,26 @@ public class SimpleWebServer
     {
         for (AbstractHttpRequestProcessor toBeCleanedUp : mHandlerReferenceListing)
         {
-            toBeCleanedUp.onClose();
+            toBeCleanedUp.close();
         }
+    }
+
+
+    public void onClose()
+    {
+        mRegistry = null;
+        mHttpContext = null;
+        mContext = null;
+        mHandlerReferenceListing = null;
+        mSocketAddress = null;
+        mServerSocket = null;
+        mKeyStorePass = null;
+        mServerConfig = null;
+        mSSLContext = null;
+        mWakeLock = null;
+        mExternalSmsIoCallback = null;
+        mHttpAuthCallback = null;
+        mLog = null;
     }
 
 
@@ -353,15 +378,15 @@ public class SimpleWebServer
     }
 
 
+    public synchronized String getServerAddress()
+    {
+        return mSocketAddress.getHostAddress();
+    }
+
+
     public synchronized int getServerPort()
     {
-        if (mServerThread != null && mServerThread.isRunning())
-        {
-            return mServerPort;
-        } else
-        {
-            return -1;
-        }
+        return mServerConfig.port;
     }
 
 
@@ -371,10 +396,10 @@ public class SimpleWebServer
         FireNotification.NotificationInfo info = new FireNotification.NotificationInfo();
         StringBuffer connectionUrl = new StringBuffer();
 
-        connectionUrl.append(mConfig.getProtocol() + "://");
+        connectionUrl.append(mServerConfig.protocolName + "://");
 
         info.text = connectionUrl.append(
-                mSocketAddress.getHostAddress() + ":" + mConfig.getPort())
+                mSocketAddress.getHostAddress() + ":" + mServerConfig.port)
                 .toString();
         info.title = "WebSMSTool";
         info.tickerText = "service running";
@@ -387,4 +412,96 @@ public class SimpleWebServer
         new FireNotification(mContext).cancelAll();
     }
 
+
+    @Override
+    public synchronized void smsSentCallback(Context context,
+            List<TextMessage> messages)
+    {
+        if (null != mExternalSmsIoCallback)
+        {
+            mExternalSmsIoCallback.smsSentCallback(context, messages);
+        }
+    }
+
+
+    @Override
+    public synchronized void smsSentErrorCallback(Context context,
+            List<TextMessage> messages)
+    {
+        if (null != mExternalSmsIoCallback)
+        {
+            mExternalSmsIoCallback.smsSentErrorCallback(context, messages);
+        }
+    }
+
+
+    @Override
+    public synchronized void smsDeliveredCallback(Context context,
+            List<TextMessage> messagea)
+    {
+        if (null != mExternalSmsIoCallback)
+        {
+            mExternalSmsIoCallback.smsDeliveredCallback(context, messagea);
+        }
+    }
+
+
+    @Override
+    public synchronized void smsReceivedCallback(Context context,
+            List<TextMessage> messages)
+    {
+        if (null != mExternalSmsIoCallback)
+        {
+            mExternalSmsIoCallback.smsReceivedCallback(context, messages);
+        }
+    }
+
+
+    public long getReceivedBytesCount()
+    {
+        if (mServerThread == null)
+        {
+            return 0;
+        }
+        return mServerThread.getReceivedBytesCount();
+    }
+
+
+    public long getSentBytesCount()
+    {
+        if (mServerThread == null)
+        {
+            return 0;
+        }
+        return mServerThread.getSentBytesCount();
+    }
+
+
+    public String getMaskedHttpPassword()
+    {
+        StringBuffer maskedSecret = new StringBuffer();
+        for (int i = 0; i < mServerConfig.password.length(); i++)
+        {
+            maskedSecret.append("*");
+        }
+        return maskedSecret.toString();
+    }
+
+
+    public String getHttpUsername()
+    {
+        return mServerConfig.username;
+    }
+
+
+    public boolean isHttpAccessRestrictionEnabled()
+    {
+        return (mServerConfig.isUserAuthEnabled);
+    }
+
+
+    public String getServerProtocol()
+    {
+        return mServerConfig.protocolName;
+    }
 }

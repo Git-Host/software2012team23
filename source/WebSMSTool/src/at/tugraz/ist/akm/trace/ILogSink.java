@@ -30,6 +30,10 @@ public interface ILogSink
 
     public void error(final String tag, final String message);
     
+    
     public void verbose(final String tag, final String message);
+    
+    
+    public void onClose();
 
 }

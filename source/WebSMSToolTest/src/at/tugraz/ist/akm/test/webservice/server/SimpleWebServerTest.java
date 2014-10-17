@@ -33,6 +33,7 @@ import at.tugraz.ist.akm.keystore.ApplicationKeyStore;
 import at.tugraz.ist.akm.preferences.SharedPreferencesProvider;
 import at.tugraz.ist.akm.test.base.WebSMSToolActivityTestcase;
 import at.tugraz.ist.akm.webservice.server.SimpleWebServer;
+import at.tugraz.ist.akm.webservice.server.WebserverProtocolConfig;
 
 public class SimpleWebServerTest extends WebSMSToolActivityTestcase
 {
@@ -40,6 +41,8 @@ public class SimpleWebServerTest extends WebSMSToolActivityTestcase
     private HttpClient mHttpClient = null;
     private static SimpleWebServer mWebserver = null;
     private static final String DEFAULT_ENCODING = "UTF8";
+
+    private WebserverProtocolConfig mServerConfig = new WebserverProtocolConfig();
 
 
     public SimpleWebServerTest()
@@ -50,7 +53,6 @@ public class SimpleWebServerTest extends WebSMSToolActivityTestcase
 
     private void startServer(final boolean useMockServer) throws Exception
     {
-        logDebug("start server");
         if (mWebserver != null)
         {
             if (mWebserver.isRunning())
@@ -60,8 +62,9 @@ public class SimpleWebServerTest extends WebSMSToolActivityTestcase
             mWebserver = null;
         }
 
-        mWebserver = useMockServer ? new MockSimpleWebServer(mContext)
-                : new SimpleWebServer(mContext, "0.0.0.0");
+        mWebserver = useMockServer ? new MockSimpleWebServer(mContext,
+                mServerConfig) : new SimpleWebServer(mContext, mServerConfig,
+                null);
 
         mHttpClient = new DefaultHttpClient();
 
@@ -86,26 +89,37 @@ public class SimpleWebServerTest extends WebSMSToolActivityTestcase
     protected void setUp() throws Exception
     {
         super.setUp();
-        SharedPreferencesProvider serverConfig = new SharedPreferencesProvider(mContext);
-        serverConfig.setProtocol("http");
-        serverConfig.setPort("8888");
-        serverConfig.close();
+        mServerConfig.isHttpsEnabled = false;
+        mServerConfig.isUserAuthEnabled = false;
+        mServerConfig.password = "sepp";
+        mServerConfig.port = 8888;
+        mServerConfig.protocolName = "http";
+        mServerConfig.username = "huaba";
     }
+
+
+    @Override
+    protected void tearDown() throws Exception
+    {
+        super.tearDown();
+    }
+
 
     public void testStartStopServer()
     {
 
         try
         {
-            mWebserver = new SimpleWebServer(mContext, "0.0.0.0");
+            mWebserver = new SimpleWebServer(mContext, mServerConfig, null);
             mWebserver.startServer();
 
             waitForServiceBeingStarted(20, 200);
             assertTrue(mWebserver.isRunning());
-        } catch (Exception ex)
+        }
+        catch (Exception ex)
         {
             ex.printStackTrace();
-            Assert.fail("failed to stat server");
+            Assert.fail("failed to start server");
         }
 
         try
@@ -113,7 +127,9 @@ public class SimpleWebServerTest extends WebSMSToolActivityTestcase
             mWebserver.stopServer();
             waitForServiceBeingStopped(20, 200);
             assertFalse(mWebserver.isRunning());
-        } catch (Exception ex)
+            mWebserver.onClose();
+        }
+        catch (Exception ex)
         {
             ex.printStackTrace();
             Assert.fail("failed to stop server");
@@ -130,7 +146,8 @@ public class SimpleWebServerTest extends WebSMSToolActivityTestcase
                 try
                 {
                     SimpleWebServerTest.class.wait(delayMs);
-                } catch (InterruptedException interruptedException)
+                }
+                catch (InterruptedException interruptedException)
                 {
                     interruptedException.printStackTrace();
                 }
@@ -149,7 +166,8 @@ public class SimpleWebServerTest extends WebSMSToolActivityTestcase
                 try
                 {
                     SimpleWebServerTest.class.wait(delayMs);
-                } catch (InterruptedException interruptedException)
+                }
+                catch (InterruptedException interruptedException)
                 {
                     interruptedException.printStackTrace();
                 }
@@ -165,7 +183,7 @@ public class SimpleWebServerTest extends WebSMSToolActivityTestcase
         {
             startServer(true);
             logDebug("testSimpleJsonRequest");
-            HttpPost httppost = new HttpPost("http://localhost:8888/api.html");
+            HttpPost httppost = newJsonHttpPost();
 
             JSONObject request = new JSONObject();
             request.put("method", "info");
@@ -173,6 +191,7 @@ public class SimpleWebServerTest extends WebSMSToolActivityTestcase
 
             HttpResponse httpresponse = mHttpClient.execute(httppost);
             stopServer();
+            mWebserver.onClose();
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             httpresponse.getEntity().writeTo(baos);
 
@@ -207,11 +226,33 @@ public class SimpleWebServerTest extends WebSMSToolActivityTestcase
             assertFalse(null == smsSentError);
             assertFalse(null == smsSentSuccess);
             assertFalse(null == requestStatus);
-        } catch (Exception ex)
+        }
+        catch (Exception ex)
         {
             ex.printStackTrace();
             Assert.fail(ex.getMessage());
         }
+    }
+
+
+    private HttpPost newHttpPost(String optPostfix)
+    {
+        String postUri = mWebserver.getServerProtocol() + "://"
+                + mWebserver.getServerAddress() + ":"
+                + mWebserver.getServerPort();
+        return new HttpPost(postUri + "/" + optPostfix);
+    }
+
+
+    private HttpPost newFileHttpPost()
+    {
+        return newHttpPost("");
+    }
+
+
+    private HttpPost newJsonHttpPost()
+    {
+        return newHttpPost("api.html");
     }
 
 
@@ -221,21 +262,25 @@ public class SimpleWebServerTest extends WebSMSToolActivityTestcase
         {
             startServer(true);
             logDebug("testSimpleFileRequest");
-            HttpPost httppost = new HttpPost("http://localhost:8888/");
+            HttpPost httppost = newFileHttpPost();
             httppost.setHeader("Accept", "application/text");
             httppost.setHeader("Content-type", "application/text");
 
             HttpResponse response = mHttpClient.execute(httppost);
             stopServer();
+            mWebserver.onClose();
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             response.getEntity().writeTo(baos);
 
-            Assert.assertEquals(
-                    new FileReader(mContext, "web/index.html").read(),
-                    new String(baos.toByteArray(), DEFAULT_ENCODING));
-
-        } catch (Exception ex)
+            FileReader reader = new FileReader(mContext, "web/index.html");
+            Assert.assertEquals(reader.read(), new String(baos.toByteArray(),
+                    DEFAULT_ENCODING));
+            reader.onClose();
+            reader = null;
+        }
+        catch (Exception ex)
         {
+            ex.printStackTrace();
             Assert.fail(ex.getMessage());
         }
     }
@@ -245,12 +290,19 @@ public class SimpleWebServerTest extends WebSMSToolActivityTestcase
     {
         logDebug("testStartSecureServer");
 
-        SharedPreferencesProvider serverConfig = new SharedPreferencesProvider(mContext);
-        serverConfig.setProtocol("https");
-        serverConfig.setPort("8888");
+        mServerConfig.isHttpsEnabled = true;
+        mServerConfig.isUserAuthEnabled = false;
+        mServerConfig.password = "asdf";
+        mServerConfig.port = 8888;
+        mServerConfig.protocolName = "https";
+        mServerConfig.username = "huaba";
+
+        SharedPreferencesProvider serverConfig = new SharedPreferencesProvider(
+                mContext);
         String keystorePassword = "foobar64";
         serverConfig.setKeyStorePassword(keystorePassword);
-        String keystoreFilePath = new String (mContext.getFilesDir().getPath().toString()
+        String keystoreFilePath = new String(mContext.getFilesDir().getPath()
+                .toString()
                 + "/"
                 + mContext.getResources().getString(
                         R.string.preferences_keystore_store_filename));
@@ -262,12 +314,15 @@ public class SimpleWebServerTest extends WebSMSToolActivityTestcase
         {
             startServer(true);
             Assert.assertTrue(mWebserver.isRunning());
-        } catch (Exception ex)
+        }
+        catch (Exception ex)
         {
-            Assert.assertTrue(false);
+            ex.printStackTrace();
+            Assert.fail(ex.getMessage());
         }
 
         stopServer();
         Assert.assertFalse(mWebserver.isRunning());
+        mWebserver.onClose();
     }
 }

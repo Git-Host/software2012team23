@@ -44,6 +44,7 @@ public class JsonFactory {
             return builder.build(object);
         }
         log.warning("no json builder available for object <" + object.getClass() + ">");
+        
         return null;
     }
 

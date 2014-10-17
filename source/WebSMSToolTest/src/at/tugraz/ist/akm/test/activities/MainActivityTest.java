@@ -31,13 +31,13 @@ import android.view.View;
 import android.widget.ToggleButton;
 import at.tugraz.ist.akm.R;
 import at.tugraz.ist.akm.activities.MainActivity;
-import at.tugraz.ist.akm.activities.StartServiceFragment;
+import at.tugraz.ist.akm.environment.AppEnvironment;
 import at.tugraz.ist.akm.keystore.ApplicationKeyStore;
 import at.tugraz.ist.akm.preferences.SharedPreferencesProvider;
 import at.tugraz.ist.akm.test.trace.ExceptionThrowingLogSink;
 import at.tugraz.ist.akm.trace.LogClient;
 import at.tugraz.ist.akm.trace.TraceService;
-import at.tugraz.ist.akm.webservice.WebSMSToolService;
+import at.tugraz.ist.akm.webservice.service.WebSMSToolService;
 
 import com.robotium.solo.Solo;
 
@@ -67,7 +67,6 @@ public class MainActivityTest extends
 
     public void test_StartStopButton() throws InterruptedException
     {
-
         SharedPreferencesProvider prefs = new SharedPreferencesProvider(
                 getActivity().getApplicationContext());
         ApplicationKeyStore appKeystore = new ApplicationKeyStore();
@@ -78,6 +77,7 @@ public class MainActivityTest extends
         appKeystore.close();
 
         Solo solo = new Solo(getInstrumentation(), getActivity());
+
         solo.assertCurrentActivity("Current activty is not MainActivity",
                 MainActivity.class);
         WifiManager wm = (WifiManager) mContext
@@ -88,21 +88,20 @@ public class MainActivityTest extends
         startStop.setActivated(false);
         stopWebService();
 
-        sleepdMs(800);
+        waitMs(800);
         assertFalse(startStop.isChecked());
 
         solo.clickOnView(startStop);
         waitForServiceBeingStarted();
 
-        StartServiceFragment fragment = new StartServiceFragment();
-        if (wm.isWifiEnabled() || fragment.isRunningOnEmulator())
+        if (wm.isWifiEnabled() || AppEnvironment.isRunningOnEmulator())
         {
-            sleepdMs(800);
+            waitMs(800);
             assertTrue(startStop.isChecked());
 
             solo.clickOnView(startStop);
             waitForServiceBeingStopped();
-            sleepdMs(800);
+            waitMs(800);
             assertFalse(startStop.isChecked());
             stopWebService();
         } else
@@ -159,22 +158,26 @@ public class MainActivityTest extends
     {
         switchOrientationForNavigationDrawerFragment(0);
     }
-    
+
+
     public void test_MessagesLog_portrait_landscape_portrait()
     {
         switchOrientationForNavigationDrawerFragment(1);
     }
-    
+
+
     public void test_Preferences_portrait_landscape_portrait()
     {
         switchOrientationForNavigationDrawerFragment(2);
     }
 
+
     public void test_About_portrait_landscape_portrait()
     {
         switchOrientationForNavigationDrawerFragment(3);
     }
-    
+
+
     public void switchOrientationForNavigationDrawerFragment(
             int navigationDrawerEntryIdx)
     {
@@ -313,46 +316,53 @@ public class MainActivityTest extends
 
     public void test_backStack_homeClicks_result_in_only_one_stack_etnry()
     {
-        Solo solo = new Solo(getInstrumentation(), getActivity());
+        try
+        {
+            Solo solo = new Solo(getInstrumentation(), getActivity());
 
-        String mainFragmentTag = getFragmentOfNavigationDrawerMenu(0);
+            String mainFragmentTag = getFragmentOfNavigationDrawerMenu(0);
 
-        solo.waitForFragmentByTag(mainFragmentTag);
+            solo.waitForFragmentByTag(mainFragmentTag);
 
-        dragToOpenNavigationMenu();
-        solo.clickOnView(findNavigationDrawerMenuView(0));
-        solo.waitForFragmentByTag(mainFragmentTag);
-        assertFragmentVisible(true, mainFragmentTag);
+            dragToOpenNavigationMenu();
+            solo.clickOnView(findNavigationDrawerMenuView(0));
+            solo.waitForFragmentByTag(mainFragmentTag);
+            assertFragmentVisible(true, mainFragmentTag);
 
-        dragToOpenNavigationMenu();
-        solo.clickOnView(findNavigationDrawerMenuView(0));
-        solo.waitForFragmentByTag(mainFragmentTag);
-        assertFragmentVisible(true, mainFragmentTag);
-        solo.sleep(1000);
+            dragToOpenNavigationMenu();
+            solo.clickOnView(findNavigationDrawerMenuView(0));
+            solo.waitForFragmentByTag(mainFragmentTag);
+            assertFragmentVisible(true, mainFragmentTag);
+            solo.sleep(1000);
 
-        dragToOpenNavigationMenu();
-        solo.clickOnView(findNavigationDrawerMenuView(0));
-        solo.waitForFragmentByTag(mainFragmentTag);
-        assertFragmentVisible(true, mainFragmentTag);
+            dragToOpenNavigationMenu();
+            solo.clickOnView(findNavigationDrawerMenuView(0));
+            solo.waitForFragmentByTag(mainFragmentTag);
+            assertFragmentVisible(true, mainFragmentTag);
 
-        solo.sendKey(KeyEvent.KEYCODE_BACK);
+            solo.sendKey(KeyEvent.KEYCODE_BACK);
+        }
+        catch (Throwable t)
+        {
+            t.printStackTrace();
+            assertTrue(false);
+        }
 
     }
 
 
-    private void sleepdMs(long msecs)
+    private void waitMs(long msecs)
     {
 
         synchronized (this)
         {
             try
             {
-
                 wait(msecs);
             }
             catch (InterruptedException e)
             {
-                // don't care
+                mLog.error("interrupted diring wait", e);
             }
         }
     }
@@ -372,6 +382,8 @@ public class MainActivityTest extends
     protected void tearDown() throws Exception
     {
         log(getName() + ".tearDown()");
+        Solo s = new Solo(getInstrumentation());
+        s.finishOpenedActivities();
         super.tearDown();
     }
 
@@ -409,8 +421,8 @@ public class MainActivityTest extends
         {
             ActivityManager.RunningServiceInfo runningServiceInfo = (ActivityManager.RunningServiceInfo) i
                     .next();
-            mLog.debug("found service ["
-                    + runningServiceInfo.service.getClassName() + "]");
+            // mLog.debug("found service ["
+            // + runningServiceInfo.service.getClassName() + "]");
             if (runningServiceInfo.service.getClassName().equals(
                     WebSMSToolService.class.getName()))
             {
@@ -423,20 +435,14 @@ public class MainActivityTest extends
 
     private void waitForServiceBeingStopped()
     {
-        int maxTries = 20, delay = 200;
+
+        int maxTries = 20;
         mLog.debug("waitForServiceBeingStopped");
-        try
+        waitMs(2000);
+        while (isWebServiceRunning() && (maxTries-- > 0))
         {
-            this.wait(2000);
-            while (isWebServiceRunning() && (maxTries-- > 0))
-            {
-                this.wait(delay);
-                mLog.debug("waiting ...");
-            }
-        }
-        catch (Exception ex)
-        {
-            // i don't care
+            waitMs(200);
+            mLog.debug("waiting ...");
         }
         mLog.debug("service has been stopped");
     }
@@ -446,18 +452,11 @@ public class MainActivityTest extends
     {
         int maxTries = 20, delay = 200;
         mLog.debug("waitForServiceBeingStarted");
-        try
+        waitMs(5000);
+        while ((!isWebServiceRunning()) && (maxTries-- > 0))
         {
-            this.wait(5000);
-            while ((!isWebServiceRunning()) && (maxTries-- > 0))
-            {
-                this.wait(delay);
-                mLog.debug("waiting ...");
-            }
-        }
-        catch (Exception ex)
-        {
-            // i don't care
+            waitMs(delay);
+            mLog.debug("waiting ...");
         }
         mLog.debug("service is running");
     }

@@ -37,7 +37,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.content.Context;
-import android.telephony.SignalStrength;
 import at.tugraz.ist.akm.content.SmsContentConstants;
 import at.tugraz.ist.akm.content.query.ContactFilter;
 import at.tugraz.ist.akm.content.query.TextMessageFilter;
@@ -47,16 +46,16 @@ import at.tugraz.ist.akm.monitoring.SystemMonitor;
 import at.tugraz.ist.akm.monitoring.TelephonySignalStrength;
 import at.tugraz.ist.akm.phonebook.contact.Contact;
 import at.tugraz.ist.akm.phonebook.contact.IContactModifiedCallback;
-import at.tugraz.ist.akm.sms.SmsIOCallback;
+import at.tugraz.ist.akm.sms.ISmsIOCallback;
 import at.tugraz.ist.akm.sms.TextMessage;
 import at.tugraz.ist.akm.texting.TextingAdapter;
 import at.tugraz.ist.akm.texting.TextingInterface;
 import at.tugraz.ist.akm.trace.LogClient;
-import at.tugraz.ist.akm.webservice.WebServerConfig;
+import at.tugraz.ist.akm.webservice.WebServerConstants;
 import at.tugraz.ist.akm.webservice.protocol.json.JsonFactory;
 
 public class JsonAPIRequestProcessor extends AbstractHttpRequestProcessor
-        implements SmsIOCallback, IContactModifiedCallback
+        implements ISmsIOCallback, IContactModifiedCallback
 {
     private final static String JSON_STATE_SUCCESS = "success";
     private final static String JSON_STATE_ERROR = "error";
@@ -81,7 +80,19 @@ public class JsonAPIRequestProcessor extends AbstractHttpRequestProcessor
     private volatile JSONArray mJsonContactList = null;
     private Object mJsonContactListLock = new Object();
 
-    private TelephonySignalStrength mTelephonySignal = null;
+    private ISmsIOCallback mExternalSMSIoCallback = null;
+
+
+    public synchronized void registerSMSIoListener(ISmsIOCallback smsListener)
+    {
+        mExternalSMSIoCallback = smsListener;
+    }
+
+
+    public synchronized void unregisterSMSIoListener()
+    {
+        mExternalSMSIoCallback = null;
+    }
 
 
     public JsonAPIRequestProcessor(final Context context, final XmlNode config,
@@ -94,7 +105,6 @@ public class JsonAPIRequestProcessor extends AbstractHttpRequestProcessor
         mJsonContactList = fetchContactsJsonArray();
         mLog.debug("preloading contacts [done]");
 
-        mTelephonySignal = new TelephonySignalStrength(mContext);
         mSystemMonitor = new SystemMonitor(context);
         mSMSThreadMessageCount = 20;
 
@@ -116,20 +126,20 @@ public class JsonAPIRequestProcessor extends AbstractHttpRequestProcessor
     {
 
         if (requestLine.getMethod().equals(
-                WebServerConfig.HTTP.REQUEST_TYPE_POST))
+                WebServerConstants.HTTP.REQUEST_TYPE_POST))
         {
             JSONObject json;
             try
             {
                 json = new JSONObject(requestData);
-                String method = json.getString(WebServerConfig.JSON.METHOD);
+                String method = json.getString(WebServerConstants.JSON.METHOD);
                 if (method != null && method.length() > 0)
                 {
                     JSONArray jsonParams = null;
-                    if (json.isNull(WebServerConfig.JSON.PARAMS) == false)
+                    if (json.isNull(WebServerConstants.JSON.PARAMS) == false)
                     {
                         jsonParams = json
-                                .getJSONArray(WebServerConfig.JSON.PARAMS);
+                                .getJSONArray(WebServerConstants.JSON.PARAMS);
                     }
                     JSONObject jsonResponse = processMethod(method, jsonParams);
                     mResponseDataAppender.appendHttpResponseData(httpResponse,
@@ -154,10 +164,19 @@ public class JsonAPIRequestProcessor extends AbstractHttpRequestProcessor
 
 
     @Override
-    public synchronized void onClose()
+    public synchronized void close()
     {
         mTextingAdapter.stop();
+        try
+        {
+            mTextingAdapter.close();
+        }
+        catch (IOException e)
+        {
+            mLog.debug("failed closing texting adapter", e);
+        }
         mSystemMonitor.stop();
+        mSystemMonitor.onClose();
 
         mJsonFactory = null;
         mTextingAdapter = null;
@@ -167,7 +186,12 @@ public class JsonAPIRequestProcessor extends AbstractHttpRequestProcessor
         mSMSReceivedList = null;
         mSMSSentErrorList = null;
 
-        super.onClose();
+        mJsonContactList = null;
+        mJsonContactListLock = null;
+
+        mExternalSMSIoCallback = null;
+
+        super.close();
     }
 
 
@@ -226,6 +250,11 @@ public class JsonAPIRequestProcessor extends AbstractHttpRequestProcessor
         {
             mLog.warning("A sms sent callback was delivered but textmessages list was empty");
         }
+
+        if (null != mExternalSMSIoCallback)
+        {
+            mExternalSMSIoCallback.smsSentCallback(context, messages);
+        }
     }
 
 
@@ -238,6 +267,11 @@ public class JsonAPIRequestProcessor extends AbstractHttpRequestProcessor
         {
             this.mSMSSentErrorList.add(message);
         }
+
+        if (null != mExternalSMSIoCallback)
+        {
+            mExternalSMSIoCallback.smsSentErrorCallback(context, messages);
+        }
     }
 
 
@@ -245,7 +279,10 @@ public class JsonAPIRequestProcessor extends AbstractHttpRequestProcessor
     public synchronized void smsDeliveredCallback(Context context,
             List<TextMessage> message)
     {
-        // not working so we do not bother about it
+        if (null != mExternalSMSIoCallback)
+        {
+            mExternalSMSIoCallback.smsDeliveredCallback(context, message);
+        }
     }
 
 
@@ -259,6 +296,11 @@ public class JsonAPIRequestProcessor extends AbstractHttpRequestProcessor
             mLog.debug("textmessage from " + message.getAddress()
                     + " received in api request handler.");
             this.mSMSReceivedList.add(message);
+        }
+
+        if (null != mExternalSMSIoCallback)
+        {
+            mExternalSMSIoCallback.smsReceivedCallback(context, messages);
         }
     }
 
@@ -654,18 +696,22 @@ public class JsonAPIRequestProcessor extends AbstractHttpRequestProcessor
             this.mSMSReceivedList.clear();
 
             mLog.debug("evaluate current telephone state");
-            BatteryStatus batteryStatus = this.mSystemMonitor.getBatteryStatus();
-            mTelephonySignal.takeNewSignalStrength(this.mSystemMonitor
-                    .getSignalStrength());
-            SignalStrength signalStrength = mTelephonySignal.currentSignalStrength();
-            
+            BatteryStatus batteryStatus = this.mSystemMonitor
+                    .getBatteryStatus();
+            TelephonySignalStrength telSignalStrength = this.mSystemMonitor
+                    .getTelephonySignalStrength();
+
             if (batteryStatus != null)
             {
-                result.put("battery", mJsonFactory.createJsonObject(batteryStatus));
+                result.put("battery",
+                        mJsonFactory.createJsonObject(batteryStatus));
+                batteryStatus.onClose();
             }
-            if (signalStrength != null)
+            if (telSignalStrength != null)
             {
-                result.put("signal", mJsonFactory.createJsonObject(signalStrength));
+                result.put("signal",
+                        mJsonFactory.createJsonObject(telSignalStrength));
+                telSignalStrength.onClose();
             }
 
             this.setSuccessState(result);

@@ -70,4 +70,9 @@ public class FireNotification
     {
         mNotificationManager.cancelAll();
     }
+    
+    public void onClose() {
+        mContext = null;
+        mNotificationManager = null;
+    }
 }

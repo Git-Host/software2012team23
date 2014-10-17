@@ -44,6 +44,7 @@ public class SystemMonitorTest extends WebSMSToolActivityTestcase
     public void tearDown()
     {
         mSystemMonitor.stop();
+        mSystemMonitor.onClose();
     }
 
 
@@ -55,6 +56,7 @@ public class SystemMonitorTest extends WebSMSToolActivityTestcase
             logBStats(bStats);
             assertTrue(bStats.getBatteryIconId() > 0);
             byte[] bytes = bStats.getBatteryIconBytes();
+            bStats.onClose();
             assertTrue(bytes.length > 0);
         }
         catch (Exception ex)

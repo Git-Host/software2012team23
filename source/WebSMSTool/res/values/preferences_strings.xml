@@ -28,6 +28,7 @@
   <string name="preferences_password_key">preferences_password_key</string>
   <string name="preferences_server">Server Settings</string>
   <string name="preferences_server_port">Port</string>
+  <string name="preferences_server_port_default_value">8888</string>
   <string name="preferences_server_port_key">preferences_server_port_key</string>
   
   <string name="preferences_protocol_ckeckbox">Protocol</string>

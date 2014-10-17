@@ -49,10 +49,12 @@ public class SharedPreferencesProvider
         if (mSettings != null)
             mSettings.closeDatabase();
         mSettings = null;
+        mApplicationContext = null;
+        mSharedPreferences = null;
     }
 
 
-    public String getUserName()
+    public String getUsername()
     {
         return mSharedPreferences.getString(
                 resourceIdString(R.string.preferences_username_key), "");
@@ -68,13 +70,31 @@ public class SharedPreferencesProvider
     }
 
 
+    public boolean isAccessRestrictionEnabled()
+    {
+        return mSharedPreferences.getBoolean(
+                resourceIdString(R.string.preferences_access_restriction_key),
+                false);
+    }
+
+
+    public void setAccessRestriction(boolean isEnabled)
+    {
+        Editor editor = mSharedPreferences.edit();
+        editor.putBoolean(
+                resourceIdString(R.string.preferences_access_restriction_key),
+                isEnabled);
+        editor.apply();
+    }
+
+
     private String resourceIdString(int resourceId)
     {
         return mApplicationContext.getString(resourceId);
     }
 
 
-    public String getPassWord()
+    public String getPassword()
     {
         return mSharedPreferences.getString(
                 resourceIdString(R.string.preferences_password_key), "");
@@ -90,18 +110,19 @@ public class SharedPreferencesProvider
     }
 
 
-    public String getPort()
+    public int getPort()
     {
-        return mSharedPreferences.getString(
-                resourceIdString(R.string.preferences_server_port_key), "-1");
+        return Integer.parseInt(mSharedPreferences.getString(
+                resourceIdString(R.string.preferences_server_port_key), "-1"));
     }
 
 
-    public void setPort(String port)
+    public void setPort(int port)
     {
         Editor editor = mSharedPreferences.edit();
         editor.putString(
-                resourceIdString(R.string.preferences_server_port_key), port);
+                resourceIdString(R.string.preferences_server_port_key),
+                Integer.toString(port));
         editor.apply();
     }
 
@@ -115,6 +136,12 @@ public class SharedPreferencesProvider
             return HTTPS_PROTOCOL_NAME;
         }
         return HTTP_PROTOCOL_NAME;
+    }
+
+
+    public boolean isHttpsEnabled()
+    {
+        return getProtocol().compareTo(HTTPS_PROTOCOL_NAME) == 0;
     }
 
 
@@ -150,4 +177,5 @@ public class SharedPreferencesProvider
         return mApplicationContext.getFilesDir().getPath().toString() + "/"
                 + KEYSTORE_FILE_NAME;
     }
+
 }

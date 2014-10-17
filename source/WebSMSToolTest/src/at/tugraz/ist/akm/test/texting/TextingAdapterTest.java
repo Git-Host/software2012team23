@@ -24,7 +24,7 @@ import at.tugraz.ist.akm.content.query.ContactFilter;
 import at.tugraz.ist.akm.content.query.TextMessageFilter;
 import at.tugraz.ist.akm.phonebook.contact.Contact;
 import at.tugraz.ist.akm.phonebook.contact.IContactModifiedCallback;
-import at.tugraz.ist.akm.sms.SmsIOCallback;
+import at.tugraz.ist.akm.sms.ISmsIOCallback;
 import at.tugraz.ist.akm.sms.TextMessage;
 import at.tugraz.ist.akm.test.base.WebSMSToolActivityTestcase;
 import at.tugraz.ist.akm.test.sms.SmsHelper;
@@ -32,7 +32,7 @@ import at.tugraz.ist.akm.texting.TextingAdapter;
 import at.tugraz.ist.akm.texting.TextingInterface;
 
 public class TextingAdapterTest extends WebSMSToolActivityTestcase implements
-        SmsIOCallback, IContactModifiedCallback
+        ISmsIOCallback, IContactModifiedCallback
 {
 
     private int mCountSent = 0;
@@ -63,6 +63,7 @@ public class TextingAdapterTest extends WebSMSToolActivityTestcase implements
         }
         assertTrue(mCountSent >= awaitedCallbacks);
         texting.stop();
+        texting.close();
     }
 
 
@@ -78,10 +79,11 @@ public class TextingAdapterTest extends WebSMSToolActivityTestcase implements
         Thread.sleep(1000);
         assertTrue(mCountSent > 0);
         texting.stop();
+        texting.close();
     }
 
 
-    public void testFetchContactsNoException()
+    public void testFetchContactsNoException() throws Exception
     {
         TextingInterface texting = new TextingAdapter(mContext, this, this);
         texting.start();
@@ -92,10 +94,11 @@ public class TextingAdapterTest extends WebSMSToolActivityTestcase implements
         assertTrue(contacts.size() == 1 | contacts.size() == 0);
 
         texting.stop();
+        texting.close();
     }
 
 
-    public void testFetchMessagesNoException()
+    public void testFetchMessagesNoException() throws Exception
     {
         TextingInterface texting = new TextingAdapter(mContext, this, this);
         texting.start();
@@ -104,6 +107,7 @@ public class TextingAdapterTest extends WebSMSToolActivityTestcase implements
         filter.setAddress("01906666");
         texting.fetchTextMessages(filter);
         texting.stop();
+        texting.close();
     }
 
 

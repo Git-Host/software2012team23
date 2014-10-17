@@ -27,7 +27,7 @@ import android.telephony.SmsManager;
 import at.tugraz.ist.akm.content.query.TextMessageFilter;
 import at.tugraz.ist.akm.trace.LogClient;
 
-public class SmsBridge extends LogClient implements SmsIOCallback {
+public class SmsBridge extends LogClient implements ISmsIOCallback {
 
 	private Context mContext = null;
 	private ContentResolver mContentResolver = null;
@@ -36,15 +36,17 @@ public class SmsBridge extends LogClient implements SmsIOCallback {
 	private SmsBoxReader mSmsBoxReader = null;
 	private SmsBoxWriter mSmsBoxWriter = null;
 
-	private SmsSentBroadcastReceiver mSmsSentNotifier = new SmsSentBroadcastReceiver(
-			this);
-	private SmsIOCallback mExternalSmsSentCallback = null;
+	private SmsSentBroadcastReceiver mSmsSentNotifier = null;
+	
+	private ISmsIOCallback mExternalSmsSentCallback = null;
 
 	public SmsBridge(Context context) {
 		super(SmsBridge.class.getName());
 		mContext = context;
 		mContentResolver = mContext.getContentResolver();
 		mSmsSink = new SmsSender(mContext);
+		mSmsSentNotifier = new SmsSentBroadcastReceiver(
+	            this, mSmsSink);
 		mSmsBoxReader = new SmsBoxReader(mContentResolver);
 		mSmsBoxWriter = new SmsBoxWriter(mContentResolver);
 	}
@@ -69,20 +71,29 @@ public class SmsBridge extends LogClient implements SmsIOCallback {
 		return mSmsBoxReader.getThreadIds(phoneNumber);
 	}
 
-	synchronized public void setSmsSentCallback(SmsIOCallback callback) {
+	synchronized public void setSmsSentCallback(ISmsIOCallback callback) {
 	    debug("registered new [SmsSentCallback] callback");
 		mExternalSmsSentCallback = callback;
 	}
 
 	public void start() {
 		registerSmsSentNotification();
-		registerSmsDeliveredNotification();
-		registerSmsReceivedNotification();
+//		registerSmsDeliveredNotification();
+//		registerSmsReceivedNotification();
 	}
 
 	public void stop() {
 		mContext.unregisterReceiver(mSmsSentNotifier);
 		mSmsSentNotifier = null;
+	}
+	
+	public void onClose() {
+	    mContext = null;
+	    mContentResolver = null;
+	    mSmsSink = null;
+	    mSmsBoxReader = null;
+	    mSmsBoxWriter = null;
+	    mExternalSmsSentCallback = null;
 	}
 
 	/**
@@ -155,32 +166,21 @@ public class SmsBridge extends LogClient implements SmsIOCallback {
 				SmsSentBroadcastReceiver.ACTION_SMS_SENT));
 	}
 
-	private void registerSmsDeliveredNotification() {
-	    debug("registered new IntentFilter [ACTION_SMS_DELIVERED]");
-		mContext.registerReceiver(mSmsSentNotifier, new IntentFilter(
-				SmsSentBroadcastReceiver.ACTION_SMS_DELIVERED));
-	}
+//	private void registerSmsDeliveredNotification() {
+//	    debug("registered new IntentFilter [ACTION_SMS_DELIVERED]");
+//		mContext.registerReceiver(mSmsSentNotifier, new IntentFilter(
+//				SmsSentBroadcastReceiver.ACTION_SMS_DELIVERED));
+//	}
 
-	private void registerSmsReceivedNotification() {
-	    debug("registered new IntentFilter [ACTION_SMS_RECEIVED]");
-		mContext.registerReceiver(mSmsSentNotifier, new IntentFilter(
-				SmsSentBroadcastReceiver.ACTION_SMS_RECEIVED));
-	}
+//	private void registerSmsReceivedNotification() {
+//	    debug("registered new IntentFilter [ACTION_SMS_RECEIVED]");
+//		mContext.registerReceiver(mSmsSentNotifier, new IntentFilter(
+//				SmsSentBroadcastReceiver.ACTION_SMS_RECEIVED));
+//	}
 
 
-
-	/**
-	 * Is being called when the send state of a TextMessage is clear. If state
-	 * is OK, then store message to sent-box. On error place the TextMessage to
-	 * out-box (box for pending or not sent messages).
-	 * 
-	 * @param intent
-	 *            where to parse the TextMessage from
-	 * @return true if correctly sent else false
-	 */
 	private boolean storeMessageToCorrectBox(List<TextMessage> messages) {
 		boolean isSuccessfullySent = false;
-		//TextMessage sentMessage = parseToTextMessgae(intent);
 		
 		String verboseSentState = null;
 

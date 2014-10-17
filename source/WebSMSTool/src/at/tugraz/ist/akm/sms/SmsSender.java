@@ -24,59 +24,100 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.telephony.SmsManager;
+import android.util.LongSparseArray;
 import at.tugraz.ist.akm.trace.LogClient;
 
-public class SmsSender extends LogClient {
+public class SmsSender extends LogClient implements SentSmsStorage
+{
 
-	private Context mContext = null;
-	protected ContentResolver mContentResolver = null;
-	private SmsManager mSmsManager = SmsManager.getDefault();
-	private int mIntentRequestCode = 1;
+    private LogClient mLog = new LogClient(SmsSender.class.getCanonicalName());
+    private Context mContext = null;
+    protected ContentResolver mContentResolver = null;
+    private SmsManager mSmsManager = SmsManager.getDefault();
+    private long mIntentRequestCode = 1;
+    private LongSparseArray<TextMessage> mSmsSentStorage = new LongSparseArray<TextMessage>();
 
-	public SmsSender(Context context) {
-		super(SmsSender.class.getName());
-		mContext = context;
-		mContentResolver = mContext.getContentResolver();
-	}
 
-	public int sendTextMessage(TextMessage message) {
-		List<String> parts = mSmsManager.divideMessage(message.getBody());
+    public SmsSender(Context context)
+    {
+        super(SmsSender.class.getName());
+        mContext = context;
+        mContentResolver = mContext.getContentResolver();
+    }
 
-		int partNum = 0;
-		for (String part : parts) {
-		    info("sending part [" + partNum++ + "] to [" + message.getAddress()
-					+ "] size in chars [" + part.length() + "] (" + part + ")");
-			PendingIntent sentPIntent = getSentPendingIntent(message, part);
-			mSmsManager.sendTextMessage(message.getAddress(), null, part,
-					sentPIntent, null);
-		}
-		return parts.size();
-	}
 
-	private PendingIntent getSentPendingIntent(TextMessage message, String part) {
-		return getSmsPendingIntent(message, part, SmsSentBroadcastReceiver.ACTION_SMS_SENT);
-	}
-	
-//	private PendingIntent getDeliveredPendingIntent(TextMessage message, String part) {
-//		return getSmsPendingIntent(message, part, SmsSentBroadcastReceiver.ACTION_SMS_DELIVERED);
-//	}
-	
-	private PendingIntent getSmsPendingIntent(TextMessage message, String part, String action) {
-		Intent textMessageIntent = new Intent(action);
-		textMessageIntent.putExtras(getSmsBundle(message, part));
-		PendingIntent sentPIntent = PendingIntent.getBroadcast(mContext,
-				mIntentRequestCode++, textMessageIntent, PendingIntent.FLAG_ONE_SHOT);
+    synchronized public int sendTextMessage(TextMessage message)
+    {
+        List<String> parts = mSmsManager.divideMessage(message.getBody());
 
-		return sentPIntent;
-	}
+        int partNum = 0;
+        for (String part : parts)
+        {
+            info("sending part [" + partNum++ + "] to [" + message.getAddress()
+                    + "] size in chars [" + part.length() + "] (" + part + ")");
+            PendingIntent sentPIntent = getSentPendingIntent(message, part);
+            mSmsManager.sendTextMessage(message.getAddress(), null, part,
+                    sentPIntent, null);
+        }
+        return parts.size();
+    }
 
-	private Bundle getSmsBundle(TextMessage message, String part) {
-		Bundle smsBundle = new Bundle();
-		TextMessage messageForIntent = new TextMessage(message);
-		messageForIntent.setBody(part);
-		smsBundle.putSerializable(
-				SmsSentBroadcastReceiver.EXTRA_BUNDLE_KEY_TEXTMESSAGE, messageForIntent);
-		return smsBundle;
-	}
 
+    private PendingIntent getSentPendingIntent(TextMessage message, String part)
+    {
+        return getSmsPendingIntent(message, part,
+                SmsSentBroadcastReceiver.ACTION_SMS_SENT);
+    }
+
+
+    private PendingIntent getSmsPendingIntent(TextMessage message, String part,
+            String action)
+    {
+        Intent textMessageIntent = new Intent(action);
+        mIntentRequestCode++;
+        textMessageIntent.putExtras(getSmsIdBundle(mIntentRequestCode, message,
+                part));
+        remember(mIntentRequestCode, message, part);
+        PendingIntent sentPIntent = PendingIntent.getBroadcast(mContext,
+                (int) mIntentRequestCode, textMessageIntent,
+                PendingIntent.FLAG_ONE_SHOT);
+
+        return sentPIntent;
+    }
+
+
+    private Bundle getSmsIdBundle(long sentId, TextMessage message, String part)
+    {
+        Bundle smsBundle = new Bundle();
+
+        smsBundle.putSerializable(
+                SmsSentBroadcastReceiver.EXTRA_BUNDLE_KEY_TEXTMESSAGE_ID,
+                sentId);
+        return smsBundle;
+    }
+
+
+    private void remember(long sentId, TextMessage message, String part)
+    {
+        TextMessage storageEntry = new TextMessage(message);
+        storageEntry.setBody(part);
+        mSmsSentStorage.put(sentId, storageEntry);
+    }
+
+
+    @Override
+    synchronized public TextMessage takeMessage(long sentId)
+    {
+        mLog.debug("take sms [" + sentId + "] from storage");
+        TextMessage entry = mSmsSentStorage.get(sentId);
+        if (entry != null)
+        {
+            mSmsSentStorage.remove(sentId);
+            mLog.debug("sms [" + sentId + "] found and removed");
+        } else
+        {
+            mLog.debug("sms [" + sentId + "] missing");
+        }
+        return entry;
+    }
 }

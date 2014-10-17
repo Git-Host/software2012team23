@@ -1,110 +1,74 @@
 package at.tugraz.ist.akm.activities;
 
-import java.math.BigInteger;
-import java.net.InetAddress;
-import java.net.NetworkInterface;
-import java.net.SocketException;
-import java.net.UnknownHostException;
-import java.util.Enumeration;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Locale;
-
-import org.apache.http.conn.util.InetAddressUtils;
-
-import android.app.Activity;
-import android.app.ActivityManager;
 import android.app.Fragment;
-import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
-import android.net.wifi.WifiManager;
-import android.os.Build;
+import android.content.ServiceConnection;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.os.Bundle;
+import android.os.IBinder;
+import android.os.Messenger;
 import android.text.format.Formatter;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 import at.tugraz.ist.akm.R;
 import at.tugraz.ist.akm.preferences.SharedPreferencesProvider;
 import at.tugraz.ist.akm.trace.LogClient;
-import at.tugraz.ist.akm.webservice.WebSMSToolService;
+import at.tugraz.ist.akm.webservice.server.WebserverProtocolConfig;
+import at.tugraz.ist.akm.webservice.service.WebSMSToolService;
+import at.tugraz.ist.akm.webservice.service.WebSMSToolService.ServiceRunningStates;
+import at.tugraz.ist.akm.webservice.service.interProcessMessges.ServiceMessageBuilder;
+import at.tugraz.ist.akm.webservice.service.interProcessMessges.VerboseMessageSubmitter;
 
 public class StartServiceFragment extends Fragment implements
-        View.OnClickListener
+        View.OnClickListener, ServiceConnection
 {
-    LogClient mLog = new LogClient(
+    private LogClient mLog = new LogClient(
             StartServiceFragment.class.getCanonicalName());
-
-    public static final String SERVER_IP_ADDRESS_INTENT_KEY = "at.tugraz.ist.akm.SERVER_IP_ADDRESS_INTENT_KEY";
-    private Intent mSmsServiceIntent = null;
-    final String mServiceName = WebSMSToolService.class.getName();
+    private LinearLayout mAccessRestrictionLayout = null;
     private ToggleButton mButton = null;
+    private ProgressBar mProgressBar = null;
     private TextView mInfoFieldView = null;
-    private SharedPreferencesProvider mApplicationConfig = null;
-    private ServiceStateListener mServiceListener = null;
-
-    private WifiManager mWifiManager = null;
-    private ConnectivityManager mConnectivityManager = null;
-
-    private String mLocalIp = null;
-
-    private static class ServiceStateListener extends BroadcastReceiver
-    {
-
-        private StartServiceFragment mCallback = null;
-
-
-        public ServiceStateListener(StartServiceFragment callback)
-        {
-            mCallback = callback;
-        }
-
-
-        @Override
-        public void onReceive(Context context, Intent intent)
-        {
-            String action = intent.getAction();
-            if (0 == action.compareTo(WebSMSToolService.SERVICE_STARTED))
-            {
-                mCallback.webServiceStarted();
-            } else if (0 == action
-                    .compareTo(WebSMSToolService.SERVICE_STARTED_BOGUS))
-            {
-                mCallback.webServiceStartFailed();
-            } else if (0 == action
-                    .compareTo(WebSMSToolService.SERVICE_STARTING))
-            {
-                mCallback.webServiceStarting();
-            } else if (0 == action.compareTo(WebSMSToolService.SERVICE_STOPPED))
-            {
-                mCallback.webServiceStopped();
-            } else if (0 == action
-                    .compareTo(WebSMSToolService.SERVICE_STOPPED_BOGUS))
-            {
-                mCallback.webServiceStopFailed();
-            } else if (0 == action
-                    .compareTo(WebSMSToolService.SERVICE_STOPPING))
-            {
-                mCallback.webServiceStopping();
-            } else if (0 == action
-                    .compareTo(WebSMSToolService.SERVICE_STOPPING))
-            {
-            }
-        }
-    }
+    private TextView mSmsSentView = null;
+    private TextView mSmsRecievedView = null;
+    private TextView mNetworkTxBytes = null;
+    private TextView mNetworkRxBytes = null;
+    private TextView mAccessRestrictionUsername = null;
+    private TextView mAccessRestrictionPassword = null;
+    private boolean mIsUnbindingFromService = false;
+    private boolean mIsRegisteredToService = false;
+    private Messenger mServiceMessenger = null;
+    private String mClientName = "MgmtClient";
+    private String mServiceName = "service";
+    private VerboseMessageSubmitter mMessageSender = new VerboseMessageSubmitter(
+            null, mClientName, mServiceName);
+    private ServiceDirectorIncomingServiceMessageHandler mIncomingServiceMessageHandler = new ServiceDirectorIncomingServiceMessageHandler(
+            this);
+    private Messenger mClientMessenger = new Messenger(
+            mIncomingServiceMessageHandler);
+    private ServiceRunningStates mServiceRunningState = ServiceRunningStates.BEFORE_SINGULARITY;
 
 
     public StartServiceFragment()
     {
-        mLog.debug("constructing " + getClass().getSimpleName() + " "
-                + (Object) this);
-        mServiceListener = new ServiceStateListener(this);
+        mLog.debug("constructing " + getClass().getSimpleName());
+    }
+
+
+    @Override
+    public void onCreate(Bundle savedInstanceState)
+    {
+        super.onCreate(savedInstanceState);
+        mLog.debug("on create");
     }
 
 
@@ -112,55 +76,74 @@ public class StartServiceFragment extends Fragment implements
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState)
     {
-        // View view = super.onCreateView(inflater, container,
-        // savedInstanceState);
-        View view = inflater.inflate(R.layout.main_fragment, container, false);
-
-        mLog.debug("on create view " + (Object) this);
-        setUpApplicationConfig();
-        setUpUiReferences(view);
+        mLog.debug("on create view");
+        View view = inflater.inflate(R.layout.start_service_fragment,
+                container, false);
+        setUpMainFragmentUI(view);
         return view;
+    }
+
+
+    @Override
+    public void onDestroyView()
+    {
+        mLog.debug("on destroy view");
+        invalidateMainFragmentUI();
+        super.onDestroyView();
     }
 
 
     @Override
     public void onDestroy()
     {
-        mLog.debug("fragment goes to hades " + (Object) this);
-        mSmsServiceIntent = null;
-        mLog = null;
+        mLog.debug("on destroy");
         mButton = null;
         mInfoFieldView = null;
-        mApplicationConfig.close();
-        mApplicationConfig = null;
-        mServiceListener = null;
-        mWifiManager = null;
-        mConnectivityManager = null;
-        mLocalIp = null;
+        mIncomingServiceMessageHandler.onClose();
+        mIncomingServiceMessageHandler = null;
         super.onDestroy();
     }
 
 
-    private void unregisterServiceStateChangeReceiver()
+    @Override
+    public void onDetach()
     {
-        getActivity().unregisterReceiver(mServiceListener);
+        mLog.debug("on detach");
+        mLog = null;
+        super.onDetach();
     }
 
 
-    private void registerServiceStateChangeReceiver()
+    private void unbindFromService()
     {
-        getActivity().registerReceiver(mServiceListener,
-                new IntentFilter(WebSMSToolService.SERVICE_STARTING));
-        getActivity().registerReceiver(mServiceListener,
-                new IntentFilter(WebSMSToolService.SERVICE_STARTED));
-        getActivity().registerReceiver(mServiceListener,
-                new IntentFilter(WebSMSToolService.SERVICE_STARTED_BOGUS));
-        getActivity().registerReceiver(mServiceListener,
-                new IntentFilter(WebSMSToolService.SERVICE_STOPPING));
-        getActivity().registerReceiver(mServiceListener,
-                new IntentFilter(WebSMSToolService.SERVICE_STOPPED));
-        getActivity().registerReceiver(mServiceListener,
-                new IntentFilter(WebSMSToolService.SERVICE_STOPPED_BOGUS));
+        boolean hasServiceMessenger = mServiceMessenger != null;
+        if (mIsUnbindingFromService == false && hasServiceMessenger)
+        {
+            askWebServiceForClientUnregistrationAsync();
+            getActivity().getApplicationContext().unbindService(this);
+            mServiceMessenger = null;
+        } else
+        {
+            mLog.debug("skipped to UNbinding because isUNbinding ["
+                    + mIsUnbindingFromService + "] and hasServiceMessenger ["
+                    + hasServiceMessenger + "]");
+        }
+    }
+
+
+    private void bindToService()
+    {
+        boolean hasServiceMessenger = mServiceMessenger != null;
+        if (mIsUnbindingFromService == false && hasServiceMessenger == false)
+        {
+            getActivity().getApplicationContext().bindService(
+                    newServiceIntent(), this, Context.BIND_AUTO_CREATE);
+        } else
+        {
+            mLog.error("failed to bind because isUNbinding ["
+                    + mIsUnbindingFromService + "] and hasServiceMessenger ["
+                    + hasServiceMessenger + "]");
+        }
     }
 
 
@@ -168,14 +151,13 @@ public class StartServiceFragment extends Fragment implements
     public void onStart()
     {
         super.onStart();
-        mLog.debug("brought fragment to front " + (Object) this);
+        mLog.debug("on start");
     }
 
 
     public void onStop()
     {
-        tearDownMainFragmentUI();
-        mLog.debug("fragment no longer visible " + (Object) this);
+        mLog.debug("on stop");
         super.onStop();
     }
 
@@ -184,115 +166,118 @@ public class StartServiceFragment extends Fragment implements
     public void onResume()
     {
         super.onResume();
-        mLog.debug("user returned to fragment  - updating local ip address for "
-                + (Object) this);
-        if (isServiceRunning(mServiceName))
-        {
-            mButton.setChecked(true);
-            updateLocalIp();
-            displayConnectionUrl();
-        } else
-        {
-            mInfoFieldView.setText("");
-            mButton.setChecked(false);
-        }
-        registerServiceStateChangeReceiver();
+        mLog.debug("on resume");
+        setServiceDisabledUI();
+        bindToService();
+    }
+
+
+    protected Messenger getMessenger()
+    {
+        return mClientMessenger;
     }
 
 
     @Override
     public void onPause()
     {
-        mLog.debug("fragment goes to background " + (Object) this);
-        unregisterServiceStateChangeReceiver();
-        super.onStop();
+        mLog.debug("on pause");
+        unbindFromService();
+        super.onPause();
     }
 
 
-    private void setUpApplicationConfig()
-    {
-        mApplicationConfig = new SharedPreferencesProvider(getActivity()
-                .getApplicationContext());
-        mSmsServiceIntent = new Intent(getActivity(), WebSMSToolService.class);
-
-        mWifiManager = (WifiManager) getActivity().getSystemService(
-                Context.WIFI_SERVICE);
-        mConnectivityManager = (ConnectivityManager) getActivity()
-                .getSystemService(Context.CONNECTIVITY_SERVICE);
-    }
-
-
-    private void setUpUiReferences(View view)
+    private void setUpMainFragmentUI(View view)
     {
         mButton = (ToggleButton) view.findViewById(R.id.start_stop_server);
         mInfoFieldView = (TextView) view.findViewById(R.id.adress_data_field);
-
-        mButton.setChecked(false);
-        if (isServiceRunning(mServiceName))
-        {
-            mButton.setChecked(true);
-        }
-
         mButton.setOnClickListener(this);
 
-        updateLocalIp();
+        mProgressBar = (ProgressBar) view
+                .findViewById(R.id.start_stop_server_progress_bar);
+
+        mSmsRecievedView = (TextView) view
+                .findViewById(R.id.main_fragment_sms_recieved);
+        mSmsSentView = (TextView) view
+                .findViewById(R.id.main_fragment_sms_sent);
+
+        mNetworkRxBytes = (TextView) view
+                .findViewById(R.id.main_fragment_total_bytes_recieved);
+        mNetworkTxBytes = (TextView) view
+                .findViewById(R.id.main_fragment_total_bytes_sent);
+
+        mAccessRestrictionUsername = (TextView) view
+                .findViewById(R.id.main_fragment_http_access_username);
+        mAccessRestrictionPassword = (TextView) view
+                .findViewById(R.id.main_fragment_http_access_password);
+        mAccessRestrictionLayout = (LinearLayout) view
+                .findViewById(R.id.main_fragment_access_restriction_info);
+
     }
 
 
-    private void tearDownMainFragmentUI()
+    private void invalidateMainFragmentUI()
     {
         mButton.setOnClickListener(null);
+        mButton = null;
+        mInfoFieldView = null;
+        mProgressBar = null;
+        mSmsRecievedView = null;
+        mSmsSentView = null;
+        mNetworkRxBytes = null;
+        mNetworkTxBytes = null;
+        mAccessRestrictionUsername = null;
+        mAccessRestrictionPassword = null;
+        mAccessRestrictionLayout = null;
+        mMessageSender = null;
     }
 
 
     @Override
     public void onClick(View view)
     {
-        if (!isServiceRunning(mServiceName))
+        mLog.debug("on click isRegisteredToService [" + mIsRegisteredToService
+                + "]");
+        if (!isServiceRunning())
         {
-            if (updateLocalIp() || isRunningOnEmulator())
-            {
-                mLog.info("starting web service with address " + mLocalIp);
-                displayStartingService();
-                view.getContext().startService(mSmsServiceIntent);
-            } else
-            {
-                displayNoWifiConnected();
-                String message = "will not start service without wifi connection";
-                mLog.warning(message);
-                mLog.verbose(message);
-                mButton.setChecked(false);
-            }
+            mLog.info("webservice not running -> starting");
+            displayStartingService();
+            startService();
+            sendWebServiceServerConfigChangedAsync();
+            askWebServiceForServerStartAsync();
         } else
         {
-            displayStoppingService();
-            view.getContext().stopService(mSmsServiceIntent);
+            mLog.debug("webservice service seems running -> stopping");
+            askWebServiceForServerStopAsync();
+            stopService();
         }
     }
 
 
-    private boolean isServiceRunning(String serviceName)
+    private Intent newServiceIntent()
     {
-        int serviceMaxCount = 75;
-        ActivityManager activityManager = (ActivityManager) getActivity()
-                .getSystemService(Activity.ACTIVITY_SERVICE);
-        List<ActivityManager.RunningServiceInfo> runningServices = activityManager
-                .getRunningServices(serviceMaxCount);
-        Iterator<ActivityManager.RunningServiceInfo> service = runningServices
-                .iterator();
-        mLog.debug("found [" + runningServices.size() + "] running services ");
-        while (service.hasNext())
-        {
-            ActivityManager.RunningServiceInfo serviceInfo = (ActivityManager.RunningServiceInfo) service
-                    .next();
-            if (serviceInfo.service.getClassName().equals(serviceName))
-            {
-                mLog.debug("back service is actually running [" + serviceName
-                        + "]");
-                return true;
-            }
-        }
-        return false;
+        return new Intent(getActivity(), WebSMSToolService.class);
+    }
+
+
+    private void startService()
+    {
+        getActivity().getApplicationContext().startService(newServiceIntent());
+    }
+
+
+    private void stopService()
+    {
+        getActivity().getApplicationContext().stopService(newServiceIntent());
+    }
+
+
+    private boolean isServiceRunning()
+    {
+        mLog.debug("service is in runningstate ["
+                + mServiceRunningState.equals(ServiceRunningStates.RUNNING)
+                + "] state [" + mServiceRunningState + "]");
+        return (mServiceRunningState.equals(ServiceRunningStates.RUNNING));
     }
 
 
@@ -302,161 +287,331 @@ public class StartServiceFragment extends Fragment implements
     }
 
 
-    private void displayConnectionUrl()
-    {
-        String wifiIp = mLocalIp;
-        mLog.debug("Actual IP: " + wifiIp);
-        mInfoFieldView.setText(mApplicationConfig.getProtocol() + "://"
-                + wifiIp + ":" + mApplicationConfig.getPort());
-    }
-
-
-    private void displayStoppingService()
-    {
-        mInfoFieldView.setText("stopping service...");
-    }
-
-
     private void displayStartingService()
     {
         mInfoFieldView.setText("starting service...");
     }
 
 
-    private boolean updateLocalIp()
+    private void setRunningState(ServiceRunningStates newState)
     {
-        mLocalIp = readLocalIpAddress();
-        mSmsServiceIntent.putExtra(SERVER_IP_ADDRESS_INTENT_KEY, mLocalIp);
-        return mWifiManager.isWifiEnabled();
+        mLog.debug("client mirrored running state changed ["
+                + mServiceRunningState + "] -> [" + newState + "]");
+        mServiceRunningState = newState;
+        mInfoFieldView.setText("service started");
+
     }
 
 
-    private String readLocalIpAddress()
+    protected void onWebServiceRunningStateBeforeSingularity()
     {
-        String ip4Address = "0.0.0.0";
-
-        NetworkInfo mobileNetInfo = mConnectivityManager
-                .getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
-
-        if (mWifiManager.isWifiEnabled())
-        {
-            ip4Address = readWifiIP4Address();
-        } else if (isRunningOnEmulator() && mobileNetInfo != null
-                && mobileNetInfo.isConnected())
-        {
-            try
-            {
-                ip4Address = readIP4AddressOfEmulator();
-            }
-            catch (SocketException e)
-            {
-            } // don't care
-        }
-        return ip4Address;
+        setRunningState(ServiceRunningStates.BEFORE_SINGULARITY);
+        mInfoFieldView
+                .setText(getString(R.string.StartServiceFragment_service_before_first_start));
     }
 
 
-    @SuppressWarnings("deprecation")
-    private String readWifiIP4Address()
+    protected void onWebServiceRunning()
     {
-        String ip4Address = "0.0.0.0";
-        byte[] ipAddress = BigInteger.valueOf(
-                mWifiManager.getConnectionInfo().getIpAddress()).toByteArray();
-        try
-        {
-            InetAddress address = InetAddress.getByAddress(ipAddress);
-            String concreteAddressString = address.getHostAddress()
-                    .toUpperCase(Locale.getDefault());
-            if (InetAddressUtils.isIPv4Address(concreteAddressString))
-            {
-                // do not replace formatter by InetAddress here since this
-                // returns "1.0.0.127" instead of "127.0.0.1"
-                ip4Address = Formatter.formatIpAddress(mWifiManager
-                        .getConnectionInfo().getIpAddress());
-            }
-        }
-        catch (UnknownHostException e)
-        {
-            return ip4Address;
-        }
-        return ip4Address;
-    }
-
-
-    private String readIP4AddressOfEmulator() throws SocketException
-    {
-        String inet4Address = "0.0.0.0";
-
-        for (Enumeration<NetworkInterface> iter = NetworkInterface
-                .getNetworkInterfaces(); iter.hasMoreElements();)
-        {
-            NetworkInterface nic = iter.nextElement();
-
-            if (nic.getName().startsWith("eth"))
-            {
-                Enumeration<InetAddress> addresses = nic.getInetAddresses();
-                addresses.nextElement(); // skip first
-                if (addresses.hasMoreElements())
-                {
-                    InetAddress address = addresses.nextElement();
-
-                    String concreteAddressString = address.getHostAddress()
-                            .toUpperCase(Locale.getDefault());
-                    if (InetAddressUtils.isIPv4Address(concreteAddressString))
-                    {
-                        inet4Address = concreteAddressString;
-                    }
-                }
-            }
-        }
-        return inet4Address;
-    }
-
-
-    public final boolean isRunningOnEmulator()
-    {
-        return ("google_sdk".equals(Build.PRODUCT) || "sdk_x86"
-                .equals(Build.PRODUCT));
-    }
-
-
-    public void webServiceStarted()
-    {
-        displayConnectionUrl();
         mButton.setChecked(true);
-        mLog.verbose("service started");
+        mProgressBar.setIndeterminate(false);
+        setServiceEnabledUI();
+        if (mServiceRunningState == ServiceRunningStates.RUNNING)
+        {
+            return;
+        }
+        setRunningState(ServiceRunningStates.RUNNING);
+        askWebServiceForRepublishStatesAsync();
     }
 
 
-    public void webServiceStartFailed()
+    protected void onWebServiceURLChanged(String newUrl)
     {
-        mLog.verbose("service started erroneous - please stop it manually before starting again");
+        mLog.debug("url changed [" + newUrl + "]");
+        mInfoFieldView.setText(newUrl);
     }
 
 
-    public void webServiceStarting()
+    protected void onWebServiceStartErroneous()
     {
-        displayStartingService();
+        setRunningState(ServiceRunningStates.STARTED_ERRONEOUS);
+        mInfoFieldView
+                .setText(getString(R.string.StartServiceFragment_service_started_erroneous));
     }
 
 
-    public void webServiceStopFailed()
+    protected void onWebServiceStarting()
     {
-        mLog.verbose("service stopped erroneous - please stop it manually");
+        mProgressBar.setVisibility(View.VISIBLE);
+        setRunningState(ServiceRunningStates.STARTING);
+        mProgressBar.setIndeterminate(true);
+        mInfoFieldView
+                .setText(getString(R.string.StartServiceFragment_service_starting));
     }
 
 
-    public void webServiceStopped()
+    protected void onWebServiceStoppedErroneous()
     {
-        mInfoFieldView.setText("");
+        setRunningState(ServiceRunningStates.STOPPED_ERRONEOUS);
+        mInfoFieldView
+                .setText(getString(R.string.StartServiceFragment_service_stopped_erroneous));
+    }
+
+
+    protected void onWebServiceStopped()
+    {
+        setRunningState(ServiceRunningStates.STOPPED);
+        mProgressBar.setIndeterminate(false);
+        mInfoFieldView
+                .setText(getString(R.string.StartServiceFragment_service_stopped));
         mButton.setChecked(false);
-        mLog.verbose("service stopped");
+        setServiceDisabledUI();
     }
 
 
-    public void webServiceStopping()
+    protected void onWebServiceStopping()
     {
-        displayStoppingService();
-        mLog.verbose("shut down service");
+        setRunningState(ServiceRunningStates.STOPPING);
+        mProgressBar.setIndeterminate(true);
+        mInfoFieldView
+                .setText(getString(R.string.StartServiceFragment_service_stopping));
+    }
+
+
+    protected void onWebServiceClientRegistered()
+    {
+        mLog.debug("client registered to service");
+        mIsRegisteredToService = true;
+        askWebServiceForRepublishStatesAsync();
+    }
+
+
+    @Override
+    public void onServiceConnected(ComponentName name, IBinder service)
+    {
+        String serviceComponentNameSuffix = WebSMSToolService.class
+                .getSimpleName();
+        String inServiceName = name.flattenToShortString();
+        if (inServiceName.endsWith(serviceComponentNameSuffix))
+        {
+            mLog.debug("bound to service [" + serviceComponentNameSuffix + "]");
+            mServiceMessenger = new Messenger(service);
+            mMessageSender = new VerboseMessageSubmitter(mServiceMessenger,
+                    mClientName, mServiceName);
+            askWebServiceForClientRegistrationAsync();
+        } else
+        {
+            mLog.error("failed binding fragment to service[" + inServiceName
+                    + "] expected [*" + serviceComponentNameSuffix + "]");
+        }
+    }
+
+
+    @Override
+    public void onServiceDisconnected(ComponentName name)
+    {
+        String inServiceName = name.flattenToShortString();
+        String serviceComponentNameSuffix = WebSMSToolService.class
+                .getSimpleName();
+        if (inServiceName.endsWith(serviceComponentNameSuffix))
+        {
+            mLog.debug("unbound from service [" + serviceComponentNameSuffix
+                    + "]");
+            mServiceMessenger = null;
+            mIsUnbindingFromService = false;
+        } else
+        {
+            mLog.error("failed unbinding fragment to service[" + inServiceName
+                    + "] expected [*" + serviceComponentNameSuffix + "]");
+        }
+
+    }
+
+
+    private void askWebServiceForClientUnregistrationAsync()
+    {
+        mMessageSender.submit(ServiceMessageBuilder
+                .newManagementClientUnregistrationMessage());
+    }
+
+
+    private void askWebServiceForClientRegistrationAsync()
+    {
+        mMessageSender.submit(ServiceMessageBuilder
+                .newManagementClientRegistrationMessage(mClientMessenger));
+    }
+
+
+    private void askWebServiceForRepublishStatesAsync()
+    {
+        mMessageSender
+                .submit(ServiceMessageBuilder.newRepublishStatesMessage());
+    }
+
+
+    private void sendWebServiceServerConfigChangedAsync()
+    {
+        WebserverProtocolConfig config = newWebserverConfig();
+        mMessageSender.submit(ServiceMessageBuilder
+                .newServiceConfigurationChanged(config));
+    }
+
+
+    private void askWebServiceForServerStartAsync()
+    {
+        WebserverProtocolConfig config = newWebserverConfig();
+        mMessageSender.submit(ServiceMessageBuilder
+                .newStartServiceMessage(config));
+    }
+
+
+    private void askWebServiceForServerStopAsync()
+    {
+        mMessageSender.submit(ServiceMessageBuilder.newStopServiceMessage());
+    }
+
+
+    private WebserverProtocolConfig newWebserverConfig()
+    {
+        WebserverProtocolConfig config = new WebserverProtocolConfig();
+        SharedPreferencesProvider preferences = new SharedPreferencesProvider(
+                getActivity().getApplicationContext());
+
+        config.isHttpsEnabled = preferences.isHttpsEnabled();
+        config.isUserAuthEnabled = preferences.isAccessRestrictionEnabled();
+        config.password = preferences.getPassword();
+        config.port = preferences.getPort();
+        config.protocolName = preferences.getProtocol();
+        config.username = preferences.getUsername();
+        return config;
+    }
+
+
+    public void setServiceDisabledUI()
+    {
+        ImageView icActionbarLauncher = (ImageView) getView().findViewById(
+                R.id.main_fragment_ic_service);
+        icActionbarLauncher
+                .setImageBitmap(convertToGrayScaleImage(BitmapFactory
+                        .decodeResource(getResources(), R.drawable.ic_launcher)));
+
+        LinearLayout statsLayout = (LinearLayout) getView().findViewById(
+                R.id.main_fragment_statistics_linear_layout);
+        statsLayout.setAlpha((float) 0.5);
+    }
+
+
+    public void setServiceEnabledUI()
+    {
+        ImageView icActionbarLauncher = (ImageView) getView().findViewById(
+                R.id.main_fragment_ic_service);
+        icActionbarLauncher.setImageBitmap(BitmapFactory.decodeResource(
+                getResources(), R.drawable.ic_launcher));
+
+        LinearLayout statsLayout = (LinearLayout) getView().findViewById(
+                R.id.main_fragment_statistics_linear_layout);
+        statsLayout.setAlpha(1);
+    }
+
+
+    public static Bitmap convertToGrayScaleImage(Bitmap src)
+    {
+        double redGrayscale = 0.3, greenGrayscale = 0.6, blueGrayscale = 0.3;
+
+        Bitmap grayScaleBitmap = Bitmap.createBitmap(src.getWidth(),
+                src.getHeight(), src.getConfig());
+
+        for (int x = 0; x < src.getWidth(); ++x)
+        {
+            int pxAlpha, pxRed, pxGreen, pxBlue;
+            for (int y = 0; y < src.getHeight(); ++y)
+            {
+                int px = src.getPixel(x, y);
+
+                pxAlpha = Color.alpha(px);
+                pxRed = Color.red(px);
+                pxGreen = Color.green(px);
+                pxBlue = Color.blue(px);
+
+                pxRed = (int) (redGrayscale * pxRed + greenGrayscale * pxGreen + blueGrayscale
+                        * pxBlue);
+                pxGreen = pxRed;
+                pxBlue = pxRed;
+
+                grayScaleBitmap.setPixel(x, y,
+                        Color.argb(pxAlpha, pxRed, pxGreen, pxBlue));
+            }
+        }
+
+        return grayScaleBitmap;
+    }
+
+
+    protected void onWebServiceSmsSent(int smsSentCount)
+    {
+        mSmsSentView.setText(Integer.toString(smsSentCount));
+    }
+
+
+    protected void onWebServiceSmsDelivered(int smsDeliveredCount)
+    {
+    }
+
+
+    protected void onWebServiceSmsSentErroneous(int smsSentCount)
+    {
+    }
+
+
+    protected void onWebServiceSmsReceived(int smsReceivedCount)
+    {
+        mSmsRecievedView.setText(Integer.toString(smsReceivedCount));
+    }
+
+
+    protected void onWebServiceNetworkNotConnected()
+    {
+        displayNoWifiConnected();
+        String message = "failed starting service without wifi connection or if not in ap mode";
+        mLog.warning(message);
+        mLog.error(message);
+    }
+
+
+    protected void onWebServiceTxBytesUpdate(int newTxBytesStatus)
+    {
+        mNetworkTxBytes.setText(Formatter.formatFileSize(getActivity(),
+                newTxBytesStatus));
+    }
+
+
+    protected void onWebServiceRxBytesUpdate(int newRxBytesStatus)
+    {
+        mNetworkRxBytes.setText(Formatter.formatFileSize(getActivity(),
+                newRxBytesStatus));
+    }
+
+
+    protected void onWebServiceHttpPassword(String maskedPassword)
+    {
+        mAccessRestrictionPassword.setText(maskedPassword);
+    }
+
+
+    protected void onWebServiceHttpUsername(String username)
+    {
+        mAccessRestrictionUsername.setText(username);
+    }
+
+
+    protected void onWebServiceHttpAccessRestriction(int isEnabled)
+    {
+        if (0 == isEnabled)
+        {
+            mAccessRestrictionLayout.setAlpha(1 / 2);
+        } else
+        {
+            mAccessRestrictionLayout.setAlpha(1);
+        }
     }
 }

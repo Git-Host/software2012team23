@@ -33,7 +33,7 @@ import android.test.InstrumentationTestCase;
 import at.tugraz.ist.akm.io.FileReader;
 import at.tugraz.ist.akm.io.xml.XmlNode;
 import at.tugraz.ist.akm.io.xml.XmlReader;
-import at.tugraz.ist.akm.webservice.WebServerConfig;
+import at.tugraz.ist.akm.webservice.WebServerConstants;
 import at.tugraz.ist.akm.webservice.requestprocessor.FileRequestProcessor;
 
 public class FileRequestHandlerTest extends InstrumentationTestCase {
@@ -61,7 +61,7 @@ public class FileRequestHandlerTest extends InstrumentationTestCase {
 
         String xmlConfig = buildConfig();
         XmlReader reader = new XmlReader(xmlConfig);
-        List<XmlNode> nodesList = reader.getNodes(WebServerConfig.XML.TAG_REQUEST_HANDLER);
+        List<XmlNode> nodesList = reader.getNodes(WebServerConstants.XML.TAG_REQUEST_HANDLER);
 
         Assert.assertNotNull(nodesList);
         Assert.assertEquals(1, nodesList.size());
@@ -89,9 +89,12 @@ public class FileRequestHandlerTest extends InstrumentationTestCase {
             httpResponse.getEntity().writeTo(baos);
 
 
+            FileReader reader = new FileReader(getInstrumentation().getContext(), DATA_FILE);
             Assert.assertEquals(
-                    new FileReader(getInstrumentation().getContext(), DATA_FILE).read(),
+                    reader.read(),
                     new String(baos.toByteArray(), DEFAULT_ENCODING));
+            reader.onClose();
+            reader = null;
 
         } catch (HttpException httpException) {
             Assert.fail("Exception => " + httpException.getMessage());

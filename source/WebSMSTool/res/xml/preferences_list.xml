@@ -25,7 +25,7 @@
     </PreferenceCategory>
     <PreferenceCategory android:title="@string/preferences_server" >
         <EditTextPreference
-            android:defaultValue="8888"
+            android:defaultValue="@string/preferences_server_port_default_value"
             android:icon="@drawable/ic_action_hardware_computer"
             android:inputType="number"
             android:key="@string/preferences_server_port_key"
