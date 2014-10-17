@@ -26,13 +26,13 @@ public class MockSimpleWebServer extends SimpleWebServer
     public MockSimpleWebServer(Context context, WebserverProtocolConfig config)
             throws Exception
     {
-        super(context, config);
+        super(context, config, null);
     }
 
 
     private MockSimpleWebServer(Context context) throws Exception
     {
-        super(null, null);
+        super(null, null, null);
     }
 
 

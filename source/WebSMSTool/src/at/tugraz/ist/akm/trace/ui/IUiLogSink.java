@@ -21,7 +21,7 @@ import java.util.List;
 public interface IUiLogSink
 {
     public void info(final UiEvent event);
-    public void info(final List<UiEvent> eventBuffer);
-    public void setLogSource(IUiLogSource logSource);
 
+
+    public void info(List<UiEvent> eventList);
 }

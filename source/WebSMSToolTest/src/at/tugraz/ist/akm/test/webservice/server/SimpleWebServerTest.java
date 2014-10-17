@@ -63,7 +63,8 @@ public class SimpleWebServerTest extends WebSMSToolActivityTestcase
         }
 
         mWebserver = useMockServer ? new MockSimpleWebServer(mContext,
-                mServerConfig) : new SimpleWebServer(mContext, mServerConfig);
+                mServerConfig) : new SimpleWebServer(mContext, mServerConfig,
+                null);
 
         mHttpClient = new DefaultHttpClient();
 
@@ -109,7 +110,7 @@ public class SimpleWebServerTest extends WebSMSToolActivityTestcase
 
         try
         {
-            mWebserver = new SimpleWebServer(mContext, mServerConfig);
+            mWebserver = new SimpleWebServer(mContext, mServerConfig, null);
             mWebserver.startServer();
 
             waitForServiceBeingStarted(20, 200);

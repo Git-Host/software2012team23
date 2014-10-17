@@ -16,6 +16,8 @@
 
 package at.tugraz.ist.akm.webservice.service;
 
+import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 import android.app.Service;
@@ -26,29 +28,44 @@ import android.content.IntentFilter;
 import android.content.res.Configuration;
 import android.net.NetworkInfo;
 import android.net.wifi.WifiManager;
-import android.os.Bundle;
 import android.os.IBinder;
-import android.os.Message;
 import android.os.Messenger;
-import android.os.RemoteException;
 import at.tugraz.ist.akm.environment.AppEnvironment;
 import at.tugraz.ist.akm.networkInterface.WifiIpAddress;
 import at.tugraz.ist.akm.secureRandom.PRNGFixes;
-import at.tugraz.ist.akm.sms.SmsIOCallback;
+import at.tugraz.ist.akm.sms.ISmsIOCallback;
 import at.tugraz.ist.akm.sms.TextMessage;
 import at.tugraz.ist.akm.trace.LogClient;
+import at.tugraz.ist.akm.trace.ui.LoginEvent;
+import at.tugraz.ist.akm.trace.ui.MessageEvent;
+import at.tugraz.ist.akm.trace.ui.ResourceStringLoader;
+import at.tugraz.ist.akm.trace.ui.ServiceEvent;
+import at.tugraz.ist.akm.trace.ui.SettingsChangedEvent;
+import at.tugraz.ist.akm.trace.ui.UiEvent;
+import at.tugraz.ist.akm.webservice.server.IHttpAccessCallback;
 import at.tugraz.ist.akm.webservice.server.SimpleWebServer;
 import at.tugraz.ist.akm.webservice.server.WebserverProtocolConfig;
+import at.tugraz.ist.akm.webservice.service.interProcessMessges.ClientMessageBuilder;
+import at.tugraz.ist.akm.webservice.service.interProcessMessges.VerboseMessageSubmitter;
 
-public class WebSMSToolService extends Service implements SmsIOCallback
+public class WebSMSToolService extends Service implements ISmsIOCallback,
+        IHttpAccessCallback
 {
     private LogClient mLog = new LogClient(this);
     private SimpleWebServer mServer = null;
     private WebserverProtocolConfig mServerConfig = null;
-    private static BroadcastReceiver mIntentReceiver = null;
-    private Messenger mClientMessenger = null;
+    private BroadcastReceiver mIntentReceiver = null;
+    private Messenger mManagementClientMessenger = null;
+    private Messenger mEventClientMessenger = null;
+    private String mEventClientName = "EventClient";
+    private String mManagementClientName = "MgmtClient";
+    private String mServiceName = "service";
     private Messenger mServiceMessenger = new Messenger(
             new IncomingClientMessageHandler(this));
+    private VerboseMessageSubmitter mManagementClientTransmitter = new VerboseMessageSubmitter(
+            null, mServiceName, mManagementClientName);
+    private VerboseMessageSubmitter mEventClientTransmitter = new VerboseMessageSubmitter(
+            null, mServiceName, mEventClientName);
     private ServiceRunningStates mServiceRunningState = ServiceRunningStates.BEFORE_SINGULARITY;
     private WifiIpAddress mWifiState = null;
     private int mSmsSentCount = 0;
@@ -56,6 +73,9 @@ public class WebSMSToolService extends Service implements SmsIOCallback
     private int mSmsSentErroneousCount = 0;
     private int mSmsDeliveredCount = 0;
     private NetworkTrafficPropagationTimer mNetworkStatsPropagationTimer = null;
+    private LinkedList<UiEvent> mBufferedLogEvents = new LinkedList<UiEvent>();
+    private int mMaxBufferedLogs = 100;
+    private ResourceStringLoader mStringLoader = null;
 
     public enum ServiceRunningStates {
         STOPPED, STARTING, STARTED_ERRONEOUS, RUNNING, STOPPING, STOPPED_ERRONEOUS, BEFORE_SINGULARITY;
@@ -124,26 +144,43 @@ public class WebSMSToolService extends Service implements SmsIOCallback
     }
 
 
-    protected void onClientRequestRegister(Messenger clientMessenger)
+    protected void onEventClientRequestRegisterForEvents(
+            Messenger clientMessenger)
     {
         if (clientMessenger != null)
         {
-            mLog.debug("on clientmessenger UNregister");
+            mLog.debug("on clientmessenger register for events");
+            mEventClientMessenger = clientMessenger;
+            mEventClientTransmitter = new VerboseMessageSubmitter(
+                    mEventClientMessenger, mServiceName, mEventClientName);
+            mEventClientTransmitter.submit(ClientMessageBuilder
+                    .newRegisteredToServiceEventsMessage());
+            sendEventMessageBufferToEventClient();
         } else
         {
-            mLog.debug("on clientmessenger register");
+            mLog.debug("on clientmessenger UNregister from events");
         }
+    }
 
-        mClientMessenger = clientMessenger;
 
-        if (mClientMessenger != null)
+    protected void onManagementClientRequestRegisterForManagement(
+            Messenger clientMessenger)
+    {
+        if (clientMessenger != null)
         {
-            sendMessageToClient(ServiceConnectionMessageTypes.Service.Response.REGISTERED_TO_SERVICE);
+            mLog.debug("on clientmessenger register for management");
+            mManagementClientMessenger = clientMessenger;
+            mManagementClientTransmitter = new VerboseMessageSubmitter(
+                    mManagementClientMessenger, mServiceName,
+                    mManagementClientName);
+            mManagementClientTransmitter.submit(ClientMessageBuilder
+                    .newRegisteredToServiceManagementMessage());
             mNetworkStatsPropagationTimer = new NetworkTrafficPropagationTimer(
                     60 * 60, 10, this);
             mNetworkStatsPropagationTimer.start();
         } else
         {
+            mLog.debug("on clientmessenger UNregister from management");
             mNetworkStatsPropagationTimer.cancel();
             mNetworkStatsPropagationTimer = null;
         }
@@ -161,6 +198,7 @@ public class WebSMSToolService extends Service implements SmsIOCallback
     {
         super.onCreate();
         mLog.debug("on create");
+        mStringLoader = new ResourceStringLoader(getApplicationContext());
     }
 
 
@@ -206,7 +244,7 @@ public class WebSMSToolService extends Service implements SmsIOCallback
 
                 try
                 {
-                    mServer = new SimpleWebServer(this, mServerConfig);
+                    mServer = new SimpleWebServer(this, mServerConfig, this);
                     mServer.registerSmsIoCallback(this);
                     // getApplicationContext().removeStickyBroadcast(
                     // mServiceStartedStickyIntend);
@@ -265,7 +303,11 @@ public class WebSMSToolService extends Service implements SmsIOCallback
         mServer = null;
         mServerConfig = null;
         mIntentReceiver = null;
-        mClientMessenger = null;
+        mManagementClientMessenger = null;
+        mManagementClientTransmitter = null;
+        mEventClientMessenger = null;
+        mEventClientTransmitter = null;
+        mStringLoader = null;
         super.onDestroy();
     }
 
@@ -319,7 +361,13 @@ public class WebSMSToolService extends Service implements SmsIOCallback
     private void setRunningState(ServiceRunningStates newState)
     {
         mServiceRunningState = newState;
-        onClientRequestCurrentRunningState();
+        onManagementClientRequestCurrentRunningState();
+
+        if (mServiceRunningState == ServiceRunningStates.RUNNING
+                || mServiceRunningState == ServiceRunningStates.STOPPED)
+        {
+            onWebServiceLogEventReceived(newUiEvent(mServiceRunningState));
+        }
     }
 
 
@@ -453,75 +501,27 @@ public class WebSMSToolService extends Service implements SmsIOCallback
     }
 
 
-    protected void onClientRequestCurrentRunningState()
+    protected void onManagementClientRequestCurrentRunningState()
     {
-        sendMessageToClient(
-                ServiceConnectionMessageTypes.Service.Response.CURRENT_RUNNING_STATE,
-                translateRunningStateToInt(getRunningState()));
+        mManagementClientTransmitter.submit(ClientMessageBuilder
+                .newCurrentRunningStateMessage(getRunningState()));
     }
 
 
-    private void sendMessageToClient(int what)
+    private void sendEventMessageToEventClient(UiEvent event)
     {
-        sendMessageToClient(what, 0);
+        mEventClientTransmitter.submit(ClientMessageBuilder
+                .newServiceEventMessage(event));
     }
 
 
-    private void sendMessageToClient(int what, int arg1)
+    private synchronized void sendEventMessageBufferToEventClient()
     {
-
-        String messageName = ServiceConnectionMessageTypes.getMessageName(what);
-        String messageValue = ServiceConnectionMessageTypes
-                .getMessageName(arg1);
-        if (messageValue == null)
+        if (mBufferedLogEvents.size() > 0)
         {
-            messageValue = Integer.toString(arg1);
-        }
-
-        if (mClientMessenger != null)
-        {
-            try
-            {
-                Message message = Message.obtain(null, what, arg1, 0);
-                appendDataToMessage(message, what);
-                mClientMessenger.send(message);
-            }
-            catch (RemoteException e)
-            {
-                mLog.error("failed sending to client [" + messageName + "]", e);
-            }
-        } else
-        {
-            mLog.debug("failed sending [" + messageName + "=" + messageValue
-                    + " to not registered client");
-        }
-    }
-
-
-    private void appendDataToMessage(Message message, int messageId)
-    {
-        Bundle bundle = new Bundle();
-        switch (messageId)
-        {
-        case ServiceConnectionMessageTypes.Service.Response.CONNECTION_URL:
-            bundle.putString(
-                    ServiceConnectionMessageTypes.Bundle.Key.STRING_ARG_CONNECTION_URL,
-                    formatConnectionUrl());
-            message.setData(bundle);
-            break;
-
-        case ServiceConnectionMessageTypes.Service.Response.HTTP_PASSWORD:
-            bundle.putString(
-                    ServiceConnectionMessageTypes.Bundle.Key.STRING_ARG_SERVER_PASSWORD,
-                    mServer.getMaskedHttpPassword());
-            message.setData(bundle);
-            break;
-        case ServiceConnectionMessageTypes.Service.Response.HTTP_USERNAME:
-            bundle.putString(
-                    ServiceConnectionMessageTypes.Bundle.Key.STRING_ARG_SERVER_USERNAME,
-                    mServer.getHttpUsername());
-            message.setData(bundle);
-            break;
+            mEventClientTransmitter.submit(ClientMessageBuilder
+                    .newServiceEventMessage(new ArrayList<UiEvent>(
+                            mBufferedLogEvents)));
         }
     }
 
@@ -536,24 +536,22 @@ public class WebSMSToolService extends Service implements SmsIOCallback
     }
 
 
-    protected void onClientRequestConnectionUrl()
+    protected void onManagementClientRequestConnectionUrl()
     {
-        sendMessageToClient(ServiceConnectionMessageTypes.Service.Response.CONNECTION_URL);
+        mManagementClientTransmitter.submit(ClientMessageBuilder
+                .newConnectionUrlMessage(formatConnectionUrl()));
     }
 
 
-    protected void onClientRequestRepublishStates()
+    protected void onManagementClientRequestRepublishStates()
     {
         try
         {
-            sendMessageToClient(
-                    ServiceConnectionMessageTypes.Service.Response.CURRENT_RUNNING_STATE,
-                    translateRunningStateToInt(getRunningState()));
-
-            onClientRequestConnectionUrl();
-            onClientRequestHttpPassword();
-            onClientRequestHttpUsername();
-            onClientRequestIsHttpAccessRestrictionEnabled();
+            onManagementClientRequestCurrentRunningState();
+            onManagementClientRequestConnectionUrl();
+            onManagementClientRequestHttpPassword();
+            onManagementClientRequestHttpUsername();
+            onManagementClientRequestIsHttpAccessRestrictionEnabled();
         }
         catch (NullPointerException npe)
         {
@@ -564,11 +562,12 @@ public class WebSMSToolService extends Service implements SmsIOCallback
 
     protected void onWirelessNetworkNotAvailable()
     {
-        sendMessageToClient(ServiceConnectionMessageTypes.Service.Response.NETWORK_NOT_AVAILABLE);
+        mManagementClientTransmitter.submit(ClientMessageBuilder
+                .newNetworkNotAvailableMessage());
     }
 
 
-    protected void onClientRequestStopWEBService()
+    protected void onManagementClientRequestStopWEBService()
     {
         if (getRunningState() == ServiceRunningStates.RUNNING)
         {
@@ -581,23 +580,21 @@ public class WebSMSToolService extends Service implements SmsIOCallback
     }
 
 
-    protected void onClientRequestSentBytesCount(int txBytes)
+    protected void onManagementClientRequestSentBytesCount(int txBytes)
     {
-        sendMessageToClient(
-                ServiceConnectionMessageTypes.Service.Response.NETWORK_TRAFFIC_TX_BYTES,
-                txBytes);
+        mManagementClientTransmitter.submit(ClientMessageBuilder
+                .newSentBytesCountMessage(txBytes));
     }
 
 
-    protected void onClientRequestReceivedBytesCount(int rxBytes)
+    protected void onManagementClientRequestReceivedBytesCount(int rxBytes)
     {
-        sendMessageToClient(
-                ServiceConnectionMessageTypes.Service.Response.NETWORK_TRAFFIC_RX_BYTES,
-                rxBytes);
+        mManagementClientTransmitter.submit(ClientMessageBuilder
+                .newReceivedBytesCountMessage(rxBytes));
     }
 
 
-    protected void onClientRequestStartWEBService()
+    protected void onManagementClientRequestStartWEBService()
     {
         if (getRunningState() == ServiceRunningStates.BEFORE_SINGULARITY
                 || getRunningState() == ServiceRunningStates.STOPPED)
@@ -611,61 +608,33 @@ public class WebSMSToolService extends Service implements SmsIOCallback
     }
 
 
-    protected void onClientRequestHttpPassword()
+    protected void onManagementClientRequestHttpPassword()
     {
-        sendMessageToClient(ServiceConnectionMessageTypes.Service.Response.HTTP_PASSWORD);
+        mManagementClientTransmitter.submit(ClientMessageBuilder
+                .newHttpPasswordMessage(mServer.getMaskedHttpPassword()));
     }
 
 
-    protected void onClientRequestHttpUsername()
+    protected void onManagementClientRequestHttpUsername()
     {
-        sendMessageToClient(ServiceConnectionMessageTypes.Service.Response.HTTP_USERNAME);
+        mManagementClientTransmitter.submit(ClientMessageBuilder
+                .newHttpUsernameMessage(mServer.getHttpUsername()));
     }
 
 
-    protected void onClientRequestIsHttpAccessRestrictionEnabled()
+    protected void onManagementClientRequestIsHttpAccessRestrictionEnabled()
     {
-        int isRestrictionEnabled = 0;
-
-        if (mServer.isHttpAccessRestrictionEnabled())
-        {
-            isRestrictionEnabled = 1;
-        }
-
-        sendMessageToClient(
-                ServiceConnectionMessageTypes.Service.Response.HTTP_ACCESS_RESCRICTION_ENABLED,
-                isRestrictionEnabled);
+        mManagementClientTransmitter.submit(ClientMessageBuilder
+                .newHttpAccessRestrictionMessage(mServer
+                        .isHttpAccessRestrictionEnabled()));
     }
 
 
-    protected void onClientResponseServerSettingsChanged(
+    protected void onManagementClientResponseServerSettingsChanged(
             WebserverProtocolConfig newConfig)
     {
         mServerConfig = newConfig;
-    }
-
-
-    private int translateRunningStateToInt(ServiceRunningStates state)
-    {
-        switch (state)
-        {
-        case BEFORE_SINGULARITY:
-            return ServiceConnectionMessageTypes.Service.Response.RUNNING_STATE_BEFORE_SINGULARITY;
-        case STARTED_ERRONEOUS:
-            return ServiceConnectionMessageTypes.Service.Response.RUNNING_STATE_STARTED_ERRONEOUS;
-        case RUNNING:
-            return ServiceConnectionMessageTypes.Service.Response.RUNNING_STATE_RUNNING;
-        case STARTING:
-            return ServiceConnectionMessageTypes.Service.Response.RUNNING_STATE_STARTING;
-        case STOPPED:
-            return ServiceConnectionMessageTypes.Service.Response.RUNNING_STATE_STOPPED;
-        case STOPPED_ERRONEOUS:
-            return ServiceConnectionMessageTypes.Service.Response.RUNNING_STATE_STOPPED_ERRONEOUS;
-        case STOPPING:
-            return ServiceConnectionMessageTypes.Service.Response.RUNNING_STATE_STOPPING;
-        default:
-            return -1;
-        }
+        onWebServiceLogEventReceived(newUiEvent(newConfig));
     }
 
 
@@ -673,10 +642,13 @@ public class WebSMSToolService extends Service implements SmsIOCallback
     public synchronized void smsSentCallback(Context context,
             List<TextMessage> messages)
     {
-        mSmsSentCount++;
-        sendMessageToClient(
-                ServiceConnectionMessageTypes.Service.Response.SMS_SENT,
-                mSmsSentCount);
+        mManagementClientTransmitter.submit(ClientMessageBuilder
+                .newSmsSentMessage(mSmsSentCount++));
+
+        for (TextMessage message : messages)
+        {
+            onWebServiceLogEventReceived(newUiEvent(message, false));
+        }
     }
 
 
@@ -684,10 +656,8 @@ public class WebSMSToolService extends Service implements SmsIOCallback
     public synchronized void smsSentErrorCallback(Context context,
             List<TextMessage> messages)
     {
-        mSmsSentErroneousCount++;
-        sendMessageToClient(
-                ServiceConnectionMessageTypes.Service.Response.SMS_SENT_ERRONEOUS,
-                mSmsSentErroneousCount);
+        mManagementClientTransmitter.submit(ClientMessageBuilder
+                .newSmsSentErroneousMessage(mSmsSentErroneousCount++));
     }
 
 
@@ -695,20 +665,80 @@ public class WebSMSToolService extends Service implements SmsIOCallback
     public synchronized void smsDeliveredCallback(Context context,
             List<TextMessage> messagea)
     {
-        mSmsDeliveredCount++;
-        sendMessageToClient(
-                ServiceConnectionMessageTypes.Service.Response.SMS_DELIVERED,
-                mSmsDeliveredCount);
+        mManagementClientTransmitter.submit(ClientMessageBuilder
+                .newSmsDeliveredMessage(mSmsDeliveredCount++));
     }
 
 
     @Override
-    public synchronized void smsReceivedCallback(Context context,
+    synchronized public void smsReceivedCallback(Context context,
             List<TextMessage> messages)
     {
-        mSmsReceivedCount++;
-        sendMessageToClient(
-                ServiceConnectionMessageTypes.Service.Response.SMS_RECEIVED,
-                mSmsReceivedCount);
+        mManagementClientTransmitter.submit(ClientMessageBuilder
+                .newSmsReceivedMessage(mSmsReceivedCount++));
+        for (TextMessage message : messages)
+        {
+            onWebServiceLogEventReceived(newUiEvent(message, true));
+        }
+    }
+
+
+    private synchronized void onWebServiceLogEventReceived(UiEvent event)
+    {
+        mBufferedLogEvents.addFirst(event);
+        if (mBufferedLogEvents.size() > mMaxBufferedLogs)
+        {
+            mBufferedLogEvents.removeLast();
+        }
+        sendEventMessageToEventClient(event);
+    }
+
+
+    private UiEvent newUiEvent(TextMessage textMessage,
+            boolean isIncomingMessage)
+    {
+        MessageEvent event = new MessageEvent(isIncomingMessage);
+        return event.load(mStringLoader, textMessage);
+    }
+
+
+    private UiEvent newUiEvent(WebserverProtocolConfig config)
+    {
+        SettingsChangedEvent event = new SettingsChangedEvent();
+        return event.load(mStringLoader);
+    }
+
+
+    private UiEvent newUiEvent(ServiceRunningStates runningState)
+    {
+        ServiceEvent event = null;
+        if (runningState == ServiceRunningStates.STOPPED)
+        {
+            event = new ServiceEvent(false);
+            return event.load(mStringLoader);
+        } else if (runningState == ServiceRunningStates.RUNNING)
+        {
+            event = new ServiceEvent(true);
+            return event.load(mStringLoader);
+        }
+        mLog.error("failed bulding service event for that state ["
+                + runningState + "]");
+        return null;
+    }
+
+
+    @Override
+    public void onLogFailed()
+    {
+        LoginEvent event = new LoginEvent(false);
+        onWebServiceLogEventReceived(event.load(mStringLoader));
+    }
+
+
+    @Override
+    public void onLoginSuccess()
+    {
+        LoginEvent event = new LoginEvent(true);
+        onWebServiceLogEventReceived(event.load(mStringLoader));
     }
 }

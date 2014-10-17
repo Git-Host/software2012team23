@@ -5,6 +5,7 @@ import android.os.Handler;
 import android.os.Message;
 import at.tugraz.ist.akm.trace.LogClient;
 import at.tugraz.ist.akm.webservice.server.WebserverProtocolConfig;
+import at.tugraz.ist.akm.webservice.service.interProcessMessges.ServiceConnectionMessageTypes;
 
 class IncomingClientMessageHandler extends Handler
 {
@@ -30,46 +31,54 @@ class IncomingClientMessageHandler extends Handler
                     + "]");
             switch (msg.what)
             {
-            case ServiceConnectionMessageTypes.Client.Request.REGISTER_TO_SERVICE:
-                mService.onClientRequestRegister(msg.replyTo);
+            case ServiceConnectionMessageTypes.Client.Request.REGISTER_FOR_SERVICE_MANAGEMENT:
+                mService.onManagementClientRequestRegisterForManagement(msg.replyTo);
                 break;
 
-            case ServiceConnectionMessageTypes.Client.Request.UNREGISTER_TO_SERVICE:
-                mService.onClientRequestRegister(null);
+            case ServiceConnectionMessageTypes.Client.Request.UNREGISTER_FROM_SERVICE_MANAGEMENT:
+                mService.onManagementClientRequestRegisterForManagement(null);
+                break;
+
+            case ServiceConnectionMessageTypes.Client.Request.REGISTER_FOR_SERVICE_EVENTS:
+                mService.onEventClientRequestRegisterForEvents(msg.replyTo);
+                break;
+                
+            case ServiceConnectionMessageTypes.Client.Request.UNREGISTER_FROM_SERVICE_EVENTS:
+                mService.onEventClientRequestRegisterForEvents(null);
                 break;
 
             case ServiceConnectionMessageTypes.Client.Request.CURRENT_RUNNING_STATE:
-                mService.onClientRequestCurrentRunningState();
+                mService.onManagementClientRequestCurrentRunningState();
                 break;
 
             case ServiceConnectionMessageTypes.Client.Request.STOP_SERVICE:
-                mService.onClientRequestStopWEBService();
+                mService.onManagementClientRequestStopWEBService();
                 break;
 
             case ServiceConnectionMessageTypes.Client.Request.START_WEB_SERVICE:
-                mService.onClientRequestStartWEBService();
+                mService.onManagementClientRequestStartWEBService();
                 break;
 
             case ServiceConnectionMessageTypes.Client.Request.CONNECTION_URL:
-                mService.onClientRequestConnectionUrl();
+                mService.onManagementClientRequestConnectionUrl();
                 break;
 
             case ServiceConnectionMessageTypes.Client.Request.REPUBLISH_STATES:
-                mService.onClientRequestRepublishStates();
+                mService.onManagementClientRequestRepublishStates();
                 break;
 
             case ServiceConnectionMessageTypes.Client.Request.HTTP_PASSWORD:
-                mService.onClientRequestHttpPassword();
+                mService.onManagementClientRequestHttpPassword();
                 break;
 
             case ServiceConnectionMessageTypes.Client.Request.HTTP_USERNAME:
-                mService.onClientRequestHttpUsername();
+                mService.onManagementClientRequestHttpUsername();
                 break;
 
             case ServiceConnectionMessageTypes.Client.Response.SERVER_SETTINGS_GHANGED:
                 WebserverProtocolConfig newSettings = newServerSettingsFromBundle(msg
                         .getData());
-                mService.onClientResponseServerSettingsChanged(newSettings);
+                mService.onManagementClientResponseServerSettingsChanged(newSettings);
                 break;
 
             default:

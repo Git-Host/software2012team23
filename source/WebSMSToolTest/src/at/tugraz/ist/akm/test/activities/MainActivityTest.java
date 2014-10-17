@@ -233,7 +233,6 @@ public class MainActivityTest extends
         assertFragmentVisible(false, otherFragmentTag);
     }
 
-
     private void assertFragmentVisible(boolean visible, String viewTag)
     {
         Solo solo = new Solo(getInstrumentation(), getActivity());

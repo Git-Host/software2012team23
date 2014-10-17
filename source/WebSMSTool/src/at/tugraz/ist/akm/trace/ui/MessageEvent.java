@@ -22,7 +22,6 @@ import at.tugraz.ist.akm.sms.TextMessage;
 public class MessageEvent extends UiEvent
 {
     private boolean mIsIncomingMessage = true;
-    private String mDetails = null;
 
 
     @SuppressWarnings("unused")
@@ -52,18 +51,5 @@ public class MessageEvent extends UiEvent
         setDescription(message.getAddress());
         setDetail(message.getBody());
         return super.load(loader);
-    }
-
-
-    @Override
-    public String getDetail()
-    {
-        return mDetails;
-    }
-
-
-    private void setDetail(String details)
-    {
-        mDetails = new String(details);
     }
 }

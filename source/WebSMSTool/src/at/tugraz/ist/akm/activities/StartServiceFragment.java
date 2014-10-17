@@ -10,9 +10,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.os.Message;
 import android.os.Messenger;
-import android.os.RemoteException;
 import android.text.format.Formatter;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -26,16 +24,16 @@ import at.tugraz.ist.akm.R;
 import at.tugraz.ist.akm.preferences.SharedPreferencesProvider;
 import at.tugraz.ist.akm.trace.LogClient;
 import at.tugraz.ist.akm.webservice.server.WebserverProtocolConfig;
-import at.tugraz.ist.akm.webservice.service.ServiceConnectionMessageTypes;
 import at.tugraz.ist.akm.webservice.service.WebSMSToolService;
 import at.tugraz.ist.akm.webservice.service.WebSMSToolService.ServiceRunningStates;
+import at.tugraz.ist.akm.webservice.service.interProcessMessges.ServiceMessageBuilder;
+import at.tugraz.ist.akm.webservice.service.interProcessMessges.VerboseMessageSubmitter;
 
 public class StartServiceFragment extends Fragment implements
         View.OnClickListener, ServiceConnection
 {
     private LogClient mLog = new LogClient(
             StartServiceFragment.class.getCanonicalName());
-    final String mServiceName = WebSMSToolService.class.getName();
     private LinearLayout mAccessRestrictionLayout = null;
     private ToggleButton mButton = null;
     private ProgressBar mProgressBar = null;
@@ -49,7 +47,11 @@ public class StartServiceFragment extends Fragment implements
     private boolean mIsUnbindingFromService = false;
     private boolean mIsRegisteredToService = false;
     private Messenger mServiceMessenger = null;
-    private IncomingServiceMessageHandler mIncomingServiceMessageHandler = new IncomingServiceMessageHandler(
+    private String mClientName = "MgmtClient";
+    private String mServiceName = "service";
+    private VerboseMessageSubmitter mMessageSender = new VerboseMessageSubmitter(
+            null, mClientName, mServiceName);
+    private ServiceDirectorIncomingServiceMessageHandler mIncomingServiceMessageHandler = new ServiceDirectorIncomingServiceMessageHandler(
             this);
     private Messenger mClientMessenger = new Messenger(
             mIncomingServiceMessageHandler);
@@ -75,7 +77,8 @@ public class StartServiceFragment extends Fragment implements
             Bundle savedInstanceState)
     {
         mLog.debug("on create view");
-        View view = inflater.inflate(R.layout.start_service_fragment, container, false);
+        View view = inflater.inflate(R.layout.start_service_fragment,
+                container, false);
         setUpMainFragmentUI(view);
         return view;
     }
@@ -84,7 +87,7 @@ public class StartServiceFragment extends Fragment implements
     @Override
     public void onDestroyView()
     {
-        mLog.debug("on destry view");
+        mLog.debug("on destroy view");
         invalidateMainFragmentUI();
         super.onDestroyView();
     }
@@ -128,6 +131,22 @@ public class StartServiceFragment extends Fragment implements
     }
 
 
+    private void bindToService()
+    {
+        boolean hasServiceMessenger = mServiceMessenger != null;
+        if (mIsUnbindingFromService == false && hasServiceMessenger == false)
+        {
+            getActivity().getApplicationContext().bindService(
+                    newServiceIntent(), this, Context.BIND_AUTO_CREATE);
+        } else
+        {
+            mLog.error("failed to bind because isUNbinding ["
+                    + mIsUnbindingFromService + "] and hasServiceMessenger ["
+                    + hasServiceMessenger + "]");
+        }
+    }
+
+
     @Override
     public void onStart()
     {
@@ -153,20 +172,9 @@ public class StartServiceFragment extends Fragment implements
     }
 
 
-    private void bindToService()
+    protected Messenger getMessenger()
     {
-        boolean hasServiceMessenger = mServiceMessenger != null;
-        if (mIsUnbindingFromService == false && hasServiceMessenger == false)
-        {
-            getActivity().getApplicationContext().bindService(
-                   newServiceIntent(), this,
-                    Context.BIND_AUTO_CREATE);
-        } else
-        {
-            mLog.error("failed to bind because isUNbinding ["
-                    + mIsUnbindingFromService + "] and hasServiceMessenger ["
-                    + hasServiceMessenger + "]");
-        }
+        return mClientMessenger;
     }
 
 
@@ -221,6 +229,7 @@ public class StartServiceFragment extends Fragment implements
         mAccessRestrictionUsername = null;
         mAccessRestrictionPassword = null;
         mAccessRestrictionLayout = null;
+        mMessageSender = null;
     }
 
 
@@ -233,7 +242,6 @@ public class StartServiceFragment extends Fragment implements
         {
             mLog.info("webservice not running -> starting");
             displayStartingService();
-            mProgressBar.setIndeterminate(true);
             startService();
             sendWebServiceServerConfigChangedAsync();
             askWebServiceForServerStartAsync();
@@ -336,6 +344,7 @@ public class StartServiceFragment extends Fragment implements
     {
         mProgressBar.setVisibility(View.VISIBLE);
         setRunningState(ServiceRunningStates.STARTING);
+        mProgressBar.setIndeterminate(true);
         mInfoFieldView
                 .setText(getString(R.string.StartServiceFragment_service_starting));
     }
@@ -352,6 +361,7 @@ public class StartServiceFragment extends Fragment implements
     protected void onWebServiceStopped()
     {
         setRunningState(ServiceRunningStates.STOPPED);
+        mProgressBar.setIndeterminate(false);
         mInfoFieldView
                 .setText(getString(R.string.StartServiceFragment_service_stopped));
         mButton.setChecked(false);
@@ -362,6 +372,7 @@ public class StartServiceFragment extends Fragment implements
     protected void onWebServiceStopping()
     {
         setRunningState(ServiceRunningStates.STOPPING);
+        mProgressBar.setIndeterminate(true);
         mInfoFieldView
                 .setText(getString(R.string.StartServiceFragment_service_stopping));
     }
@@ -385,6 +396,8 @@ public class StartServiceFragment extends Fragment implements
         {
             mLog.debug("bound to service [" + serviceComponentNameSuffix + "]");
             mServiceMessenger = new Messenger(service);
+            mMessageSender = new VerboseMessageSubmitter(mServiceMessenger,
+                    mClientName, mServiceName);
             askWebServiceForClientRegistrationAsync();
         } else
         {
@@ -417,106 +430,44 @@ public class StartServiceFragment extends Fragment implements
 
     private void askWebServiceForClientUnregistrationAsync()
     {
-        sendMessageToService(ServiceConnectionMessageTypes.Client.Request.UNREGISTER_TO_SERVICE);
-        mIsRegisteredToService = false;
+        mMessageSender.submit(ServiceMessageBuilder
+                .newManagementClientUnregistrationMessage());
     }
 
 
     private void askWebServiceForClientRegistrationAsync()
     {
-        sendMessageToService(ServiceConnectionMessageTypes.Client.Request.REGISTER_TO_SERVICE);
+        mMessageSender.submit(ServiceMessageBuilder
+                .newManagementClientRegistrationMessage(mClientMessenger));
     }
 
 
     private void askWebServiceForRepublishStatesAsync()
     {
-        sendMessageToService(ServiceConnectionMessageTypes.Client.Request.REPUBLISH_STATES);
+        mMessageSender
+                .submit(ServiceMessageBuilder.newRepublishStatesMessage());
     }
 
 
     private void sendWebServiceServerConfigChangedAsync()
     {
-        sendMessageToService(ServiceConnectionMessageTypes.Client.Response.SERVER_SETTINGS_GHANGED);
+        WebserverProtocolConfig config = newWebserverConfig();
+        mMessageSender.submit(ServiceMessageBuilder
+                .newServiceConfigurationChanged(config));
     }
 
 
     private void askWebServiceForServerStartAsync()
     {
-        sendMessageToService(ServiceConnectionMessageTypes.Client.Request.START_WEB_SERVICE);
+        WebserverProtocolConfig config = newWebserverConfig();
+        mMessageSender.submit(ServiceMessageBuilder
+                .newStartServiceMessage(config));
     }
 
 
     private void askWebServiceForServerStopAsync()
     {
-        sendMessageToService(ServiceConnectionMessageTypes.Client.Request.STOP_SERVICE);
-    }
-
-
-    private void sendMessageToService(int messageId)
-    {
-        String messageName = ServiceConnectionMessageTypes
-                .getMessageName(messageId);
-
-        mLog.debug("client sending [" + messageName + "] to service");
-        if (mServiceMessenger != null)
-        {
-            try
-            {
-                Message messengerMessage = Message.obtain(null, messageId);
-                appendDataToMessage(messengerMessage, messageId);
-                mServiceMessenger.send(messengerMessage);
-            }
-            catch (RemoteException e)
-            {
-                mLog.error("failed sending [" + messageName + "] to service", e);
-            }
-        } else
-        {
-            mLog.error("failed sending [" + messageName
-                    + "], service not available");
-        }
-    }
-
-
-    private void appendDataToMessage(Message message, int messageId)
-    {
-        switch (messageId)
-        {
-        case ServiceConnectionMessageTypes.Client.Request.REGISTER_TO_SERVICE:
-            message.replyTo = mClientMessenger;
-            break;
-        case ServiceConnectionMessageTypes.Client.Request.START_WEB_SERVICE:
-        case ServiceConnectionMessageTypes.Client.Response.SERVER_SETTINGS_GHANGED:
-            WebserverProtocolConfig config = newWebserverConfig();
-            Bundle objBundleParameter = new Bundle();
-            putServerconfigToBundle(objBundleParameter, config);
-            message.setData(objBundleParameter);
-            break;
-        }
-    }
-
-
-    private void putServerconfigToBundle(Bundle aBundle,
-            WebserverProtocolConfig configToStore)
-    {
-        aBundle.putBoolean(
-                ServiceConnectionMessageTypes.Bundle.Key.BOOLEAN_ARG_SERVER_HTTPS,
-                configToStore.isHttpsEnabled);
-        aBundle.putBoolean(
-                ServiceConnectionMessageTypes.Bundle.Key.BOOLEAN_ARG_SERVER_USER_AUTH,
-                configToStore.isUserAuthEnabled);
-        aBundle.putString(
-                ServiceConnectionMessageTypes.Bundle.Key.STRING_ARG_SERVER_PASSWORD,
-                configToStore.password);
-        aBundle.putString(
-                ServiceConnectionMessageTypes.Bundle.Key.STRING_ARG_SERVER_PROTOCOL,
-                configToStore.protocolName);
-        aBundle.putString(
-                ServiceConnectionMessageTypes.Bundle.Key.STRING_ARG_SERVER_USERNAME,
-                configToStore.username);
-        aBundle.putInt(
-                ServiceConnectionMessageTypes.Bundle.Key.INT_ARG_SERVER_PORT,
-                configToStore.port);
+        mMessageSender.submit(ServiceMessageBuilder.newStopServiceMessage());
     }
 
 

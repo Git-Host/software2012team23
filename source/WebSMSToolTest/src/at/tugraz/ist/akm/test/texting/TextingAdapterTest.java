@@ -24,7 +24,7 @@ import at.tugraz.ist.akm.content.query.ContactFilter;
 import at.tugraz.ist.akm.content.query.TextMessageFilter;
 import at.tugraz.ist.akm.phonebook.contact.Contact;
 import at.tugraz.ist.akm.phonebook.contact.IContactModifiedCallback;
-import at.tugraz.ist.akm.sms.SmsIOCallback;
+import at.tugraz.ist.akm.sms.ISmsIOCallback;
 import at.tugraz.ist.akm.sms.TextMessage;
 import at.tugraz.ist.akm.test.base.WebSMSToolActivityTestcase;
 import at.tugraz.ist.akm.test.sms.SmsHelper;
@@ -32,7 +32,7 @@ import at.tugraz.ist.akm.texting.TextingAdapter;
 import at.tugraz.ist.akm.texting.TextingInterface;
 
 public class TextingAdapterTest extends WebSMSToolActivityTestcase implements
-        SmsIOCallback, IContactModifiedCallback
+        ISmsIOCallback, IContactModifiedCallback
 {
 
     private int mCountSent = 0;

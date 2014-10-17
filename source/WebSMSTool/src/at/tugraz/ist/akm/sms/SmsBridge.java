@@ -27,7 +27,7 @@ import android.telephony.SmsManager;
 import at.tugraz.ist.akm.content.query.TextMessageFilter;
 import at.tugraz.ist.akm.trace.LogClient;
 
-public class SmsBridge extends LogClient implements SmsIOCallback {
+public class SmsBridge extends LogClient implements ISmsIOCallback {
 
 	private Context mContext = null;
 	private ContentResolver mContentResolver = null;
@@ -38,7 +38,7 @@ public class SmsBridge extends LogClient implements SmsIOCallback {
 
 	private SmsSentBroadcastReceiver mSmsSentNotifier = null;
 	
-	private SmsIOCallback mExternalSmsSentCallback = null;
+	private ISmsIOCallback mExternalSmsSentCallback = null;
 
 	public SmsBridge(Context context) {
 		super(SmsBridge.class.getName());
@@ -71,7 +71,7 @@ public class SmsBridge extends LogClient implements SmsIOCallback {
 		return mSmsBoxReader.getThreadIds(phoneNumber);
 	}
 
-	synchronized public void setSmsSentCallback(SmsIOCallback callback) {
+	synchronized public void setSmsSentCallback(ISmsIOCallback callback) {
 	    debug("registered new [SmsSentCallback] callback");
 		mExternalSmsSentCallback = callback;
 	}

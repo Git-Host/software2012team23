@@ -26,14 +26,14 @@ import at.tugraz.ist.akm.content.SmsContentConstants;
 import at.tugraz.ist.akm.content.query.TextMessageFilter;
 import at.tugraz.ist.akm.sms.SmsBoxReader;
 import at.tugraz.ist.akm.sms.SmsBoxWriter;
-import at.tugraz.ist.akm.sms.SmsIOCallback;
+import at.tugraz.ist.akm.sms.ISmsIOCallback;
 import at.tugraz.ist.akm.sms.SmsSender;
 import at.tugraz.ist.akm.sms.SmsSentBroadcastReceiver;
 import at.tugraz.ist.akm.sms.TextMessage;
 import at.tugraz.ist.akm.test.base.WebSMSToolActivityTestcase;
 
 public class ManipulateSmsTest extends WebSMSToolActivityTestcase implements
-        SmsIOCallback
+        ISmsIOCallback
 {
 
     public ManipulateSmsTest()

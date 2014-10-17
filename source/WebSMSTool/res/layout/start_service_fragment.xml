@@ -61,8 +61,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:gravity="center"
                 android:drawableLeft="@drawable/ic_action_hardware_computer"
+                android:gravity="center"
                 android:text="@string/StartServiceFragment_host_address_default_value"
                 android:textAppearance="?android:attr/textAppearanceMedium" />
         </LinearLayout>
@@ -80,9 +80,9 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:drawableLeft="@drawable/ic_action_device_access_accounts"
+                android:gravity="center"
                 android:text="@string/StartServiceFragment_access_protection_username_text"
-                android:textAppearance="?android:attr/textAppearanceMedium" 
-                android:gravity="center"/>
+                android:textAppearance="?android:attr/textAppearanceMedium" />
 
             <TextView
                 android:id="@+id/main_fragment_http_access_username"
@@ -130,8 +130,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:gravity="center"
                 android:drawableLeft="@drawable/ic_action_messages"
+                android:gravity="center"
                 android:text="@string/StartServiceFragment_sms_text"
                 android:textAppearance="?android:attr/textAppearanceMedium" />
 
@@ -144,8 +144,8 @@
                 android:id="@+id/main_fragment_sms_sent"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:gravity="center"
                 android:layout_gravity="center"
+                android:gravity="center"
                 android:text="@string/StartServiceFragment_sms_tx_default_value"
                 android:textAppearance="?android:attr/textAppearanceMedium" />
 
@@ -177,8 +177,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:gravity="center"
                 android:drawableLeft="@drawable/ic_action_device_access_network_wifi"
+                android:gravity="center"
                 android:text="@string/StartServiceFragment_network_text"
                 android:textAppearance="?android:attr/textAppearanceMedium" />
 

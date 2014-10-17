@@ -20,14 +20,30 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import android.os.Parcel;
+import android.os.Parcelable;
 import at.tugraz.ist.akm.R;
 
-public class UiEvent
+public class UiEvent implements Parcelable
 {
     private Date mDate = null;
     private int mDrawableResourceId = 0;
     private String mTitle = null;
     private String mDescription = null;
+    private String mDetail = null;
+
+    public static final Parcelable.Creator<UiEvent> CREATOR = new Parcelable.Creator<UiEvent>() {
+        public UiEvent createFromParcel(Parcel in)
+        {
+            return new UiEvent(in);
+        }
+
+
+        public UiEvent[] newArray(int size)
+        {
+            return new UiEvent[size];
+        }
+    };
 
 
     UiEvent()
@@ -40,6 +56,12 @@ public class UiEvent
     protected void setTitle(String title)
     {
         mTitle = new String(title);
+    }
+
+
+    protected void setDetail(String detail)
+    {
+        mDetail = new String(detail);
     }
 
 
@@ -90,12 +112,41 @@ public class UiEvent
 
     public String getDetail()
     {
-        return null;
+        return mDetail;
     }
 
 
-    public UiEvent load(ResourceStringLoader loader)
+    protected UiEvent load(ResourceStringLoader loader)
     {
         return this;
+    }
+
+
+    @Override
+    public int describeContents()
+    {
+        return 0;
+    }
+
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags)
+    {
+        dest.writeLong(mDate.getTime());
+        dest.writeInt(mDrawableResourceId);
+        dest.writeString(mTitle);
+        dest.writeString(mDescription);
+        dest.writeString(mDetail);
+    }
+
+
+    private UiEvent(Parcel in)
+    {
+        mDate = new Date(in.readLong());
+        mDrawableResourceId = in.readInt();
+        mTitle = in.readString();
+        mDescription = in.readString();
+        mDetail = in.readString();
+
     }
 }

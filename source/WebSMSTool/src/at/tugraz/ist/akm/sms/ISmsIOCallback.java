@@ -20,7 +20,7 @@ import java.util.List;
 
 import android.content.Context;
 
-public interface SmsIOCallback {
+public interface ISmsIOCallback {
 
 	public void smsSentCallback(Context context, List<TextMessage> messages);
 	

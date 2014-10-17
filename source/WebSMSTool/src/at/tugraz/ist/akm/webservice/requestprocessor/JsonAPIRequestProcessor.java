@@ -46,7 +46,7 @@ import at.tugraz.ist.akm.monitoring.SystemMonitor;
 import at.tugraz.ist.akm.monitoring.TelephonySignalStrength;
 import at.tugraz.ist.akm.phonebook.contact.Contact;
 import at.tugraz.ist.akm.phonebook.contact.IContactModifiedCallback;
-import at.tugraz.ist.akm.sms.SmsIOCallback;
+import at.tugraz.ist.akm.sms.ISmsIOCallback;
 import at.tugraz.ist.akm.sms.TextMessage;
 import at.tugraz.ist.akm.texting.TextingAdapter;
 import at.tugraz.ist.akm.texting.TextingInterface;
@@ -55,7 +55,7 @@ import at.tugraz.ist.akm.webservice.WebServerConstants;
 import at.tugraz.ist.akm.webservice.protocol.json.JsonFactory;
 
 public class JsonAPIRequestProcessor extends AbstractHttpRequestProcessor
-        implements SmsIOCallback, IContactModifiedCallback
+        implements ISmsIOCallback, IContactModifiedCallback
 {
     private final static String JSON_STATE_SUCCESS = "success";
     private final static String JSON_STATE_ERROR = "error";
@@ -80,10 +80,10 @@ public class JsonAPIRequestProcessor extends AbstractHttpRequestProcessor
     private volatile JSONArray mJsonContactList = null;
     private Object mJsonContactListLock = new Object();
 
-    private SmsIOCallback mExternalSMSIoCallback = null;
+    private ISmsIOCallback mExternalSMSIoCallback = null;
 
 
-    public synchronized void registerSMSIoListener(SmsIOCallback smsListener)
+    public synchronized void registerSMSIoListener(ISmsIOCallback smsListener)
     {
         mExternalSMSIoCallback = smsListener;
     }

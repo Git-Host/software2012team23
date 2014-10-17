@@ -26,7 +26,6 @@ public class ResourceStringLoader implements Closeable
 {
     Context mContext = null;
 
-
     @SuppressWarnings("unused")
     private ResourceStringLoader()
     {

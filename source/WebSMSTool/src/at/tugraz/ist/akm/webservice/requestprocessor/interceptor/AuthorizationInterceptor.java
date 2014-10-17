@@ -26,6 +26,7 @@ import android.util.Base64;
 import at.tugraz.ist.akm.io.FileReader;
 import at.tugraz.ist.akm.trace.LogClient;
 import at.tugraz.ist.akm.webservice.WebServerConstants;
+import at.tugraz.ist.akm.webservice.server.IHttpAccessCallback;
 import at.tugraz.ist.akm.webservice.server.WebserverProtocolConfig;
 
 public class AuthorizationInterceptor extends AbstractRequestInterceptor
@@ -35,15 +36,30 @@ public class AuthorizationInterceptor extends AbstractRequestInterceptor
 
 
     public AuthorizationInterceptor(WebserverProtocolConfig config,
-            Context context)
+            Context context, IHttpAccessCallback authCallback)
     {
-        super(config, context);
+        super(config, context, authCallback);
     }
 
 
     @Override
     public void onClose()
     {
+    }
+
+
+    private void tryCallback(boolean authSucceeded)
+    {
+        if (mAuthCallback != null)
+        {
+            if (authSucceeded)
+            {
+                mAuthCallback.onLoginSuccess();
+            } else
+            {
+                mAuthCallback.onLogFailed();
+            }
+        }
     }
 
 
@@ -57,6 +73,8 @@ public class AuthorizationInterceptor extends AbstractRequestInterceptor
         if (mServerConfig.isUserAuthEnabled == false)
         {
             httpResponse.setStatusCode(WebServerConstants.HTTP.HTTP_CODE_OK);
+
+            tryCallback(true);
             return true;
         }
 
@@ -100,6 +118,7 @@ public class AuthorizationInterceptor extends AbstractRequestInterceptor
             filereader = null;
         }
 
+        tryCallback(authSuccess);
         return authSuccess;
     }
 

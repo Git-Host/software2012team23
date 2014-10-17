@@ -22,8 +22,14 @@ import java.util.List;
 
 import android.app.Activity;
 import android.app.Fragment;
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.Intent;
+import android.content.ServiceConnection;
 import android.content.res.Configuration;
 import android.os.Bundle;
+import android.os.IBinder;
+import android.os.Messenger;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -32,10 +38,13 @@ import android.widget.SimpleAdapter;
 import at.tugraz.ist.akm.R;
 import at.tugraz.ist.akm.trace.LogClient;
 import at.tugraz.ist.akm.trace.ui.IUiLogSink;
-import at.tugraz.ist.akm.trace.ui.IUiLogSource;
 import at.tugraz.ist.akm.trace.ui.UiEvent;
+import at.tugraz.ist.akm.webservice.service.WebSMSToolService;
+import at.tugraz.ist.akm.webservice.service.interProcessMessges.ServiceMessageBuilder;
+import at.tugraz.ist.akm.webservice.service.interProcessMessges.VerboseMessageSubmitter;
 
-public class EventLogFragment extends Fragment implements IUiLogSink
+public class EventLogFragment extends Fragment implements IUiLogSink,
+        ServiceConnection
 {
     private static final String EVENT_MESSAGE_ICON_KEY = "EVENT_MESSAGE_ICON_KEY";
     private static final String EVENT_MESSAGE_DATE_KEY = "EVENT_MESSAGE_DATE_KEY";
@@ -49,7 +58,17 @@ public class EventLogFragment extends Fragment implements IUiLogSink
     private ListView mListView = null;
     private LinkedList<HashMap<String, String>> mEventLogListData = new LinkedList<HashMap<String, String>>();
     private SimpleAdapter mListViewAdapter = null;
-    private IUiLogSource mLogSource = null;
+    private boolean mIsUnbindingFromService = false;
+
+    private String mClientName = "EventClient";
+    private String mServiceName = "service";
+    private Messenger mServiceMessenger = null;
+    private VerboseMessageSubmitter mMessageSender = new VerboseMessageSubmitter(
+            null, mClientName, mServiceName);
+    private EventClientIncomingServiceMessageHandler mIncomingServiceMessageHandler = new EventClientIncomingServiceMessageHandler(
+            this);
+    private Messenger mClientMessenger = new Messenger(
+            mIncomingServiceMessageHandler);
 
 
     @Override
@@ -133,10 +152,7 @@ public class EventLogFragment extends Fragment implements IUiLogSink
     public void onPause()
     {
         mLog.debug("on pause");
-        if (mLogSource != null)
-        {
-            mLogSource.unregisterUiLogSink();
-        }
+        unbindFromService();
         tearDownUi();
         super.onPause();
     }
@@ -147,10 +163,7 @@ public class EventLogFragment extends Fragment implements IUiLogSink
     {
         super.onResume();
         mLog.debug("on resume");
-        if (mLogSource != null)
-        {
-            mLogSource.registerUiLogSink(this);
-        }
+        bindToService();
     }
 
 
@@ -173,28 +186,20 @@ public class EventLogFragment extends Fragment implements IUiLogSink
     @Override
     public void info(UiEvent event)
     {
-
         mEventLogListData.addFirst(newLogFields(event));
         mListViewAdapter.notifyDataSetChanged();
     }
 
 
     @Override
-    public void info(List<UiEvent> eventBuffer)
+    public void info(List<UiEvent> eventList)
     {
-        for (UiEvent event : eventBuffer)
+        for (UiEvent event : eventList)
         {
             mEventLogListData.addFirst(newLogFields(event));
         }
         mListViewAdapter.notifyDataSetChanged();
     }
-
-
-    @Override
-    public void setLogSource(IUiLogSource logSource)
-    {
-        mLogSource = logSource;
-    };
 
 
     private HashMap<String, String> newLogFields(UiEvent event)
@@ -209,4 +214,118 @@ public class EventLogFragment extends Fragment implements IUiLogSink
         logFields.put(EVENT_MESSAGE_DETAIL_KEY, event.getDetail());
         return logFields;
     }
+
+
+    protected void onWebServiceEvent(UiEvent event)
+    {
+        info(event);
+    }
+
+
+    protected void onWebServiceEvent(List<UiEvent> eventList)
+    {
+        info(eventList);
+    }
+
+
+    protected void onWebServiceClientRegistered()
+    {
+        mLog.debug("log client registered to service");
+    }
+
+
+    private void unbindFromService()
+    {
+        boolean hasServiceMessenger = mServiceMessenger != null;
+        if (mIsUnbindingFromService == false && hasServiceMessenger)
+        {
+            askWebServiceForClientUnregistrationAsync();
+            getActivity().getApplicationContext().unbindService(this);
+            mServiceMessenger = null;
+        } else
+        {
+            mLog.debug("skipped to UNbinding because isUNbinding ["
+                    + mIsUnbindingFromService + "] and hasServiceMessenger ["
+                    + hasServiceMessenger + "]");
+        }
+    }
+
+
+    private void bindToService()
+    {
+        boolean hasServiceMessenger = mServiceMessenger != null;
+        if (mIsUnbindingFromService == false && hasServiceMessenger == false)
+        {
+            getActivity().getApplicationContext().bindService(
+                    newServiceIntent(), this, Context.BIND_AUTO_CREATE);
+        } else
+        {
+            mLog.error("failed to bind because isUNbinding ["
+                    + mIsUnbindingFromService + "] and hasServiceMessenger ["
+                    + hasServiceMessenger + "]");
+        }
+    }
+
+
+    @Override
+    public void onServiceConnected(ComponentName name, IBinder service)
+    {
+        String serviceComponentNameSuffix = WebSMSToolService.class
+                .getSimpleName();
+        String inServiceName = name.flattenToShortString();
+        if (inServiceName.endsWith(serviceComponentNameSuffix))
+        {
+            mLog.debug("bound to service [" + serviceComponentNameSuffix + "]");
+            mServiceMessenger = new Messenger(service);
+            mMessageSender = new VerboseMessageSubmitter(mServiceMessenger,
+                    mClientName, mServiceName);
+            askWebServiceForClientRegistrationAsync();
+        } else
+        {
+            mLog.error("failed binding fragment to service[" + inServiceName
+                    + "] expected [*" + serviceComponentNameSuffix + "]");
+        }
+    }
+
+
+    @Override
+    public void onServiceDisconnected(ComponentName name)
+    {
+        String inServiceName = name.flattenToShortString();
+        String serviceComponentNameSuffix = WebSMSToolService.class
+                .getSimpleName();
+        if (inServiceName.endsWith(serviceComponentNameSuffix))
+        {
+            mLog.debug("unbound from service [" + serviceComponentNameSuffix
+                    + "]");
+            mServiceMessenger = null;
+            mIsUnbindingFromService = false;
+        } else
+        {
+            mLog.error("failed unbinding fragment to service[" + inServiceName
+                    + "] expected [*" + serviceComponentNameSuffix + "]");
+        }
+
+    }
+
+
+    private void askWebServiceForClientUnregistrationAsync()
+    {
+        mMessageSender.submit(ServiceMessageBuilder
+                .newEventClientUnregistrationMessage());
+    }
+
+
+    private void askWebServiceForClientRegistrationAsync()
+    {
+        mMessageSender.submit(ServiceMessageBuilder
+                .newEventClientRegistrationMessage(mClientMessenger));
+    }
+
+
+    private Intent newServiceIntent()
+    {
+        return new Intent(getActivity(), WebSMSToolService.class);
+    }
+
 }

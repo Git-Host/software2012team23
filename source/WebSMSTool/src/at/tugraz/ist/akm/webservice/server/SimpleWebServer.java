@@ -39,7 +39,7 @@ import at.tugraz.ist.akm.io.xml.XmlReader;
 import at.tugraz.ist.akm.keystore.ApplicationKeyStore;
 import at.tugraz.ist.akm.networkInterface.WifiIpAddress;
 import at.tugraz.ist.akm.preferences.SharedPreferencesProvider;
-import at.tugraz.ist.akm.sms.SmsIOCallback;
+import at.tugraz.ist.akm.sms.ISmsIOCallback;
 import at.tugraz.ist.akm.sms.TextMessage;
 import at.tugraz.ist.akm.statusbar.FireNotification;
 import at.tugraz.ist.akm.trace.LogClient;
@@ -48,7 +48,7 @@ import at.tugraz.ist.akm.webservice.requestprocessor.AbstractHttpRequestProcesso
 import at.tugraz.ist.akm.webservice.requestprocessor.JsonAPIRequestProcessor;
 import at.tugraz.ist.akm.webservice.requestprocessor.interceptor.IRequestInterceptor;
 
-public class SimpleWebServer implements SmsIOCallback
+public class SimpleWebServer implements ISmsIOCallback
 {
     private LogClient mLog = new LogClient(SimpleWebServer.class.getName());
     private HttpRequestHandlerRegistry mRegistry = new HttpRequestHandlerRegistry();
@@ -63,10 +63,11 @@ public class SimpleWebServer implements SmsIOCallback
     private SSLContext mSSLContext = null;
     private boolean mIsServerRunning = false;
     private WakeLock mWakeLock = null;
-    private SmsIOCallback mExternalSmsIoCallback = null;
+    private ISmsIOCallback mExternalSmsIoCallback = null;
+    private IHttpAccessCallback mHttpAuthCallback = null;
 
 
-    public synchronized void registerSmsIoCallback(SmsIOCallback callback)
+    public synchronized void registerSmsIoCallback(ISmsIOCallback callback)
     {
         mExternalSmsIoCallback = callback;
     }
@@ -78,9 +79,11 @@ public class SimpleWebServer implements SmsIOCallback
     }
 
 
-    public SimpleWebServer(Context context, WebserverProtocolConfig serverConfig)
+    public SimpleWebServer(Context context,
+            WebserverProtocolConfig serverConfig, IHttpAccessCallback callback)
             throws Exception
     {
+        mHttpAuthCallback = callback;
         mContext = context;
         PowerManager pm = (PowerManager) mContext
                 .getSystemService(Context.POWER_SERVICE);
@@ -122,8 +125,8 @@ public class SimpleWebServer implements SmsIOCallback
 
             if (className == null)
             {
-                mLog.error("request handler <" + node.getName()
-                        + ">: no corresponding class to load found");
+                mLog.error("request handler [" + node.getName()
+                        + "] no corresponding class to load found");
                 continue;
             }
             try
@@ -189,9 +192,10 @@ public class SimpleWebServer implements SmsIOCallback
             {
                 Class<?> clazz = Class.forName(className);
                 Constructor<?> constr = clazz.getConstructor(
-                        WebserverProtocolConfig.class, Context.class);
+                        WebserverProtocolConfig.class, Context.class,
+                        IHttpAccessCallback.class);
                 IRequestInterceptor interceptor = (IRequestInterceptor) constr
-                        .newInstance(mServerConfig, mContext);
+                        .newInstance(mServerConfig, mContext, mHttpAuthCallback);
                 setInterceptor(interceptor);
             }
             catch (Exception ex)
@@ -338,6 +342,7 @@ public class SimpleWebServer implements SmsIOCallback
         mSSLContext = null;
         mWakeLock = null;
         mExternalSmsIoCallback = null;
+        mHttpAuthCallback = null;
         mLog = null;
     }
 

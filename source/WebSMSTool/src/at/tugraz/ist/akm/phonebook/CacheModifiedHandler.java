@@ -37,11 +37,11 @@ public class CacheModifiedHandler extends Handler
 
     public Message newCacheModifiedMessage()
     {
-        Bundle parcel = new Bundle();
-        parcel.putString(CacheModified.KEY, CacheModified.VALUE);
+        Bundle bundle = new Bundle();
+        bundle.putString(CacheModified.KEY, CacheModified.VALUE);
 
         Message message = new Message();
-        message.setData(parcel);
+        message.setData(bundle);
         return message;
     }
 

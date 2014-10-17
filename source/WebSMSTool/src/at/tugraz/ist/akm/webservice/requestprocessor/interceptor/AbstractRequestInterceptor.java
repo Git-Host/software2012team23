@@ -22,26 +22,35 @@ import my.org.apache.http.HttpRequest;
 import my.org.apache.http.HttpResponse;
 import android.content.Context;
 import at.tugraz.ist.akm.webservice.requestprocessor.HttpResponseDataAppender;
+import at.tugraz.ist.akm.webservice.server.IHttpAccessCallback;
 import at.tugraz.ist.akm.webservice.server.WebserverProtocolConfig;
 
-public abstract class AbstractRequestInterceptor implements IRequestInterceptor, Closeable 
+public abstract class AbstractRequestInterceptor implements
+        IRequestInterceptor, Closeable
 {
     protected HttpResponseDataAppender responseDataAppender = new HttpResponseDataAppender();
     protected WebserverProtocolConfig mServerConfig;
     protected Context mContext;
+    protected IHttpAccessCallback mAuthCallback = null;
+
 
     public AbstractRequestInterceptor(WebserverProtocolConfig config,
-            Context context)
+            Context context, IHttpAccessCallback authCallback)
     {
         mServerConfig = config;
         mContext = context;
+        mAuthCallback = authCallback;
     }
 
 
     @Override
-    public abstract boolean process(HttpRequest httpRequest, String requestData, HttpResponse httpResponse);
+    public abstract boolean process(HttpRequest httpRequest,
+            String requestData, HttpResponse httpResponse);
+
+
     @Override
-    public void close() {
+    public void close()
+    {
         mServerConfig = null;
         mContext = null;
         responseDataAppender = null;

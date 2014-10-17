@@ -18,7 +18,6 @@ package at.tugraz.ist.akm.activities;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 
 import android.app.Activity;
@@ -27,6 +26,7 @@ import android.app.FragmentTransaction;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Debug;
+import android.os.Messenger;
 import android.preference.PreferenceManager;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.view.GravityCompat;
@@ -43,12 +43,9 @@ import at.tugraz.ist.akm.R;
 import at.tugraz.ist.akm.exceptional.UncaughtExceptionLogger;
 import at.tugraz.ist.akm.secureRandom.PRNGFixes;
 import at.tugraz.ist.akm.trace.LogClient;
-import at.tugraz.ist.akm.trace.ui.IUiLogSink;
-import at.tugraz.ist.akm.trace.ui.IUiLogSource;
-import at.tugraz.ist.akm.trace.ui.UiEvent;
 import at.tugraz.ist.akm.webservice.service.WebSMSToolService;
 
-public class MainActivity extends Activity implements IUiLogSource
+public class MainActivity extends Activity
 {
     private static final String LAST_ACTIVE_NAVIGATION_DRAWER_BUNDLE_KEY = "at.tugraz.ist.akm.LAST_ACTIVE_NAVIGATION_DRAWER_ITEM_KEY";
 
@@ -63,10 +60,7 @@ public class MainActivity extends Activity implements IUiLogSource
     private ActionBarDrawerToggle mDrawerToggle = null;
     private String mDefaultAppPackage = "at.tugraz.ist.akm";
     private String mDefaultSystemPackage = "android";
-
-    private LinkedList<UiEvent> mBufferedLogEvents = new LinkedList<UiEvent>();
-    private int mMaxBufferedLogs = 100;
-    private IUiLogSink mUiLogSink = null;
+    private Fragment mCurrentFragment = null;
 
 
     public MainActivity()
@@ -247,14 +241,9 @@ public class MainActivity extends Activity implements IUiLogSource
     {
         FragmentTransaction transaction = getFragmentManager()
                 .beginTransaction();
-        Fragment newFragment = Fragment.instantiate(MainActivity.this,
-                fragmentTag);
-        if (newFragment instanceof EventLogFragment)
-        {
-            ((EventLogFragment) newFragment).setLogSource(this);
-        }
-        transaction.replace(R.id.navigation_drawer_content_frame, newFragment,
-                fragmentTag);
+        mCurrentFragment = Fragment.instantiate(MainActivity.this, fragmentTag);
+        transaction.replace(R.id.navigation_drawer_content_frame,
+                mCurrentFragment, fragmentTag);
         transaction.commit();
     }
 
@@ -342,7 +331,6 @@ public class MainActivity extends Activity implements IUiLogSource
     {
         // These lines are working around an android bug:
         // https://code.google.com/p/android/issues/detail?id=6641
-
         PreferenceManager.setDefaultValues(this, R.xml.preferences_list, false);
         setDefaultBooleanPreferenceValue(R.string.preferences_access_restriction_key);
         setDefaultBooleanPreferenceValue(R.string.preferences_protocol_checkbox_key);
@@ -363,41 +351,14 @@ public class MainActivity extends Activity implements IUiLogSource
     }
 
 
-    synchronized protected void onWebServiceLogEventReceived(UiEvent event)
+    public Messenger getStartServiceFragmentMessenger()
     {
-        mBufferedLogEvents.addFirst(event);
-        if (mBufferedLogEvents.size() > mMaxBufferedLogs)
+        if (mCurrentFragment != null
+                && mCurrentFragment instanceof StartServiceFragment)
         {
-            mBufferedLogEvents.removeLast();
+            return ((StartServiceFragment) mCurrentFragment).getMessenger();
         }
-
-        if (mUiLogSink != null)
-        {
-            mUiLogSink.info(event);
-        }
+        return null;
     }
 
-
-    @Override
-    synchronized public void registerUiLogSink(IUiLogSink sink)
-    {
-        mUiLogSink = sink;
-        pushBufferedLogs();
-    }
-
-
-    @Override
-    synchronized public void unregisterUiLogSink()
-    {
-        mUiLogSink = null;
-    }
-
-
-    synchronized private void pushBufferedLogs()
-    {
-        if (mUiLogSink != null)
-        {
-            mUiLogSink.info(mBufferedLogEvents);
-        }
-    }
 }

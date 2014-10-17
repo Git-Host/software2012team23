@@ -39,11 +39,11 @@ public class SmsSentBroadcastReceiver extends BroadcastReceiver
     public static final String EXTRA_BUNDLE_KEY_TEXTMESSAGE_ID = "at.tugraz.ist.akm.sms.EXTRA_BUNDLE_KEY_TEXTMESSAGE_ID";
 //    private static final String EXTRA_BUNDLE_KEY_PDU = "pdus";
     private LogClient mLog = new LogClient(this);
-    private SmsIOCallback mCallback = null;
+    private ISmsIOCallback mCallback = null;
     private SentSmsStorage mSentStorage = null;
 
 
-    public SmsSentBroadcastReceiver(SmsIOCallback callback,
+    public SmsSentBroadcastReceiver(ISmsIOCallback callback,
             SentSmsStorage storage)
     {
         mCallback = callback;

@@ -38,7 +38,7 @@ public class NetworkTrafficPropagationTimer extends CountDownTimer
                 || (mLastTxBytesPropagated + mPropagationBytesDelta) < currentTxByteStatus)
         {
             mLastTxBytesPropagated = currentTxByteStatus;
-            mCallback.onClientRequestSentBytesCount(mLastTxBytesPropagated);
+            mCallback.onManagementClientRequestSentBytesCount(mLastTxBytesPropagated);
         }
 
         int currentRxByteStatus = (int) (mCallback.getReceivedBytesCount());
@@ -46,7 +46,7 @@ public class NetworkTrafficPropagationTimer extends CountDownTimer
                 || (mLastRxBytesPropagated + mPropagationBytesDelta) < currentRxByteStatus)
         {
             mLastRxBytesPropagated = currentRxByteStatus;
-            mCallback.onClientRequestReceivedBytesCount(mLastRxBytesPropagated);
+            mCallback.onManagementClientRequestReceivedBytesCount(mLastRxBytesPropagated);
         }
     }
 

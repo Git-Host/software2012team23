@@ -25,7 +25,7 @@ import at.tugraz.ist.akm.phonebook.PhonebookBridge;
 import at.tugraz.ist.akm.phonebook.contact.Contact;
 import at.tugraz.ist.akm.phonebook.contact.IContactModifiedCallback;
 import at.tugraz.ist.akm.sms.SmsBridge;
-import at.tugraz.ist.akm.sms.SmsIOCallback;
+import at.tugraz.ist.akm.sms.ISmsIOCallback;
 import at.tugraz.ist.akm.sms.TextMessage;
 import at.tugraz.ist.akm.texting.reports.VolatileIncomingReport;
 import at.tugraz.ist.akm.texting.reports.VolatileOutgoingReport;
@@ -33,13 +33,13 @@ import at.tugraz.ist.akm.texting.reports.VolatilePhonebookReport;
 import at.tugraz.ist.akm.trace.LogClient;
 
 public class TextingAdapter extends LogClient implements TextingInterface,
-        SmsIOCallback, IContactModifiedCallback
+        ISmsIOCallback, IContactModifiedCallback
 {
     private Context mContext = null;
     private SmsBridge mSmsBridge = null;
     private PhonebookBridge mPhoneBook = null;
 
-    private SmsIOCallback mExternalTextMessageCallback = null;
+    private ISmsIOCallback mExternalTextMessageCallback = null;
     private IContactModifiedCallback mExternalPhonebookModifiedCallback = null;
 
     private VolatileOutgoingReport mOutgoingStatistics = new VolatileOutgoingReport();
@@ -47,7 +47,7 @@ public class TextingAdapter extends LogClient implements TextingInterface,
     private VolatilePhonebookReport mPhonebookStatistics = new VolatilePhonebookReport();
 
 
-    public TextingAdapter(Context context, SmsIOCallback smsIOCallback,
+    public TextingAdapter(Context context, ISmsIOCallback smsIOCallback,
             IContactModifiedCallback contactModifiedCallback)
     {
         super(TextingAdapter.class.getName());
