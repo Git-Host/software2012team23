@@ -3,20 +3,20 @@
 
     <string-array name="drawer_string_array">
         <item>Service</item>
-        <item>Messages</item>
         <item>Settings</item>
+        <item>Log</item>
         <item>About</item>
     </string-array>
     <string-array name="drawer_fragment_array">
         <item>at.tugraz.ist.akm.activities.StartServiceFragment</item>
-        <item>at.tugraz.ist.akm.activities.EventLogFragment</item>
         <item>at.tugraz.ist.akm.activities.preferences.PrefsFragment</item>
+        <item>at.tugraz.ist.akm.activities.EventLogFragment</item>
         <item>at.tugraz.ist.akm.activities.AboutFragment</item>
     </string-array>
     <string-array name="drawer_icon_array">
         <item>ic_action_hardware_computer</item>
-        <item>ic_action_content_read</item>
         <item>ic_action_action_settings</item>
+        <item>ic_action_content_read</item>
         <item>ic_action_action_about</item>
     </string-array>
 

@@ -2,8 +2,10 @@ package at.tugraz.ist.akm.preferences;
 
 import android.content.Context;
 import android.content.DialogInterface;
+import android.os.Parcelable;
 import android.preference.DialogPreference;
 import android.util.AttributeSet;
+import android.view.View;
 import at.tugraz.ist.akm.keystore.ApplicationKeyStore;
 import at.tugraz.ist.akm.trace.LogClient;
 
@@ -21,15 +23,42 @@ public class RenewCertificateDialogPreference extends DialogPreference
     {
         super(context, attrs);
         mContext = context;
-        mStrings = new StringFormatter(mContext);
+        tryLoadFormatter();
+        mLog.debug("dialog costructed");
     }
 
 
     @Override
-    protected void onAttachedToActivity()
+    protected View onCreateDialogView()
     {
-        super.onAttachedToActivity();
-        setSummary(mStrings.certificateDialogSummary());
+        mLog.debug("on create dialog view");
+        tryLoadFormatter();
+        return super.onCreateDialogView();
+    }
+
+
+    @Override
+    protected void onRestoreInstanceState(Parcelable state)
+    {
+        mLog.debug("on restore instance state");
+        tryLoadFormatter();
+        super.onRestoreInstanceState(state);
+    }
+
+
+    @Override
+    public void onActivityDestroy()
+    {
+        tryCloseFormatter();
+        super.onActivityDestroy();
+    }
+
+
+    @Override
+    public void onDismiss(DialogInterface dialog)
+    {
+        tryCloseFormatter();
+        super.onDismiss(dialog);
     }
 
 
@@ -45,7 +74,6 @@ public class RenewCertificateDialogPreference extends DialogPreference
         {
         }
         setSummary(mStrings.certificateDialogSummary());
-        close();
     }
 
 
@@ -78,9 +106,17 @@ public class RenewCertificateDialogPreference extends DialogPreference
     }
 
 
-    private void close()
+    private void tryLoadFormatter()
     {
-        mContext = null;
+        if (mContext != null && mStrings == null)
+        {
+            mStrings = new StringFormatter(mContext);
+        }
+    }
+
+
+    private void tryCloseFormatter()
+    {
         if (mStrings != null)
         {
             try
@@ -90,10 +126,11 @@ public class RenewCertificateDialogPreference extends DialogPreference
             }
             catch (Throwable e)
             {
-                mLog.error("failed closing string formatter");
+                if (mLog != null)
+                {
+                    mLog.error("failed closing string formatter");
+                }
             }
         }
-        mLog = null;
     }
-
 }
