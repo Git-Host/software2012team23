@@ -1,5 +1,7 @@
 package at.tugraz.ist.akm.activities;
 
+import java.io.Closeable;
+import java.io.IOException;
 import java.util.ArrayList;
 
 import android.os.Bundle;
@@ -9,7 +11,8 @@ import at.tugraz.ist.akm.trace.LogClient;
 import at.tugraz.ist.akm.trace.ui.UiEvent;
 import at.tugraz.ist.akm.webservice.service.interProcessMessges.ServiceConnectionMessageTypes;
 
-public class EventClientIncomingServiceMessageHandler extends Handler
+public class EventClientIncomingServiceMessageHandler extends Handler implements
+        Closeable
 {
     LogClient mLog = new LogClient(
             EventClientIncomingServiceMessageHandler.class.getCanonicalName());
@@ -22,7 +25,8 @@ public class EventClientIncomingServiceMessageHandler extends Handler
     }
 
 
-    public void onClose()
+    @Override
+    public void close() throws IOException
     {
         mClientFragment = null;
     }

@@ -16,6 +16,7 @@
 
 package at.tugraz.ist.akm.test.activities;
 
+import java.io.IOException;
 import java.security.cert.X509Certificate;
 
 import android.test.ActivityInstrumentationTestCase2;
@@ -157,7 +158,14 @@ public class PreferencesActivityTest extends
                 getActivity().getApplicationContext());
 
         assertEquals(65535, prefsProvider.getPort());
-        prefsProvider.close();
+        try
+        {
+            prefsProvider.close();
+        }
+        catch (Throwable e)
+        {
+            mLog.error("failed closing preferences provider");
+        }
     }
 
 
@@ -176,7 +184,14 @@ public class PreferencesActivityTest extends
                 getActivity().getApplicationContext());
 
         assertEquals(1024, prefsProvider.getPort());
-        prefsProvider.close();
+        try
+        {
+            prefsProvider.close();
+        }
+        catch (Throwable e)
+        {
+            mLog.error("failed closing preferences provider");
+        }
     }
 
 
@@ -187,7 +202,7 @@ public class PreferencesActivityTest extends
     }
 
 
-    public void test_protocolEnabled()
+    public void test_protocolEnabled() throws IOException
     {
         Solo preferencesSolo = new Solo(getInstrumentation(), getActivity());
 
@@ -199,13 +214,15 @@ public class PreferencesActivityTest extends
         preferencesSolo.clickOnCheckBox(1);
         preferencesSolo.finishOpenedActivities();
 
-        assertEquals("https", new SharedPreferencesProvider(getActivity()
-                .getApplicationContext()).getProtocol());
+        SharedPreferencesProvider provider = new SharedPreferencesProvider(
+                getActivity().getApplicationContext());
 
+        assertEquals("https", provider.getProtocol());
+        provider.close();
     }
 
 
-    public void test_protocolDisabled()
+    public void test_protocolDisabled() throws IOException
     {
         Solo preferencesSolo = new Solo(getInstrumentation(), getActivity());
 
@@ -216,10 +233,11 @@ public class PreferencesActivityTest extends
 
         preferencesSolo.clickOnCheckBox(1);
         preferencesSolo.finishOpenedActivities();
-        
-        assertEquals("http", new SharedPreferencesProvider(getActivity()
-                .getApplicationContext()).getProtocol());
 
+        SharedPreferencesProvider provider = new SharedPreferencesProvider(
+                getActivity().getApplicationContext());
+        assertEquals("http", provider.getProtocol());
+        provider.close();
     }
 
 
@@ -230,7 +248,8 @@ public class PreferencesActivityTest extends
         ApplicationKeyStore keyStore = new ApplicationKeyStore();
         keyStore.loadKeystore(ApplicationKeyStoreTest
                 .getDefaultKeystorePassword(), ApplicationKeyStoreTest
-                .getKeystoreFilePath(getActivity().getApplicationContext(), mLog));
+                .getKeystoreFilePath(getActivity().getApplicationContext(),
+                        mLog));
 
         X509Certificate certBefore = keyStore.getX509Certficate();
 
@@ -246,7 +265,14 @@ public class PreferencesActivityTest extends
         preferencesSolo.finishOpenedActivities();
 
         X509Certificate certAfter = keyStore.getX509Certficate();
-        keyStore.close();
+        try
+        {
+            keyStore.close();
+        }
+        catch (Throwable e)
+        {
+            mLog.error("failed closing application keystore");
+        }
 
         assertNotSame(certBefore, certAfter);
     }

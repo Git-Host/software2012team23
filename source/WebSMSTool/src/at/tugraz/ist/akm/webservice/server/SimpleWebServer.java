@@ -16,6 +16,7 @@
 
 package at.tugraz.ist.akm.webservice.server;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.net.InetAddress;
@@ -48,7 +49,7 @@ import at.tugraz.ist.akm.webservice.requestprocessor.AbstractHttpRequestProcesso
 import at.tugraz.ist.akm.webservice.requestprocessor.JsonAPIRequestProcessor;
 import at.tugraz.ist.akm.webservice.requestprocessor.interceptor.IRequestInterceptor;
 
-public class SimpleWebServer implements ISmsIOCallback
+public class SimpleWebServer implements ISmsIOCallback, Closeable
 {
     private LogClient mLog = new LogClient(SimpleWebServer.class.getName());
     private HttpRequestHandlerRegistry mRegistry = new HttpRequestHandlerRegistry();
@@ -94,7 +95,7 @@ public class SimpleWebServer implements ISmsIOCallback
 
         mSocketAddress = InetAddress.getByName(wifiAddressReader
                 .readLocalIpAddress());
-        wifiAddressReader.onClose();
+        wifiAddressReader.close();
         wifiAddressReader = null;
 
         setNewServerConfiguration(serverConfig);
@@ -279,7 +280,14 @@ public class SimpleWebServer implements ISmsIOCallback
         SharedPreferencesProvider configProvider = new SharedPreferencesProvider(
                 mContext);
         mKeyStorePass = configProvider.getKeyStorePassword();
-        configProvider.close();
+        try
+        {
+            configProvider.close();
+        }
+        catch (Throwable e)
+        {
+            mLog.error("failed closing config provider");
+        }
     }
 
 
@@ -324,12 +332,20 @@ public class SimpleWebServer implements ISmsIOCallback
     {
         for (AbstractHttpRequestProcessor toBeCleanedUp : mHandlerReferenceListing)
         {
-            toBeCleanedUp.close();
+            try
+            {
+                toBeCleanedUp.close();
+            }
+            catch (Throwable e)
+            {
+                mLog.error("failed closing request processor");
+            }
         }
     }
 
 
-    public void onClose()
+    @Override
+    public void close() throws IOException
     {
         mRegistry = null;
         mHttpContext = null;
@@ -373,7 +389,14 @@ public class SimpleWebServer implements ISmsIOCallback
         }
         finally
         {
-            appKeystore.close();
+            try
+            {
+                appKeystore.close();
+            }
+            catch (Throwable e)
+            {
+                mLog.error("failed closing application keystore");
+            }
         }
     }
 
@@ -404,12 +427,29 @@ public class SimpleWebServer implements ISmsIOCallback
         info.title = "WebSMSTool";
         info.tickerText = "service running";
         notificator.fireStickyInfos(info);
+        try
+        {
+            notificator.close();
+        }
+        catch (Throwable e)
+        {
+            mLog.error("failed closing status bar notificator");
+        }
     }
 
 
     private void statusbarClearConnectionUrl()
     {
-        new FireNotification(mContext).cancelAll();
+        FireNotification notificator = new FireNotification(mContext);
+        notificator.cancelAll();
+        try
+        {
+            notificator.close();
+        }
+        catch (Throwable e)
+        {
+            mLog.error("failed closing status bar notificator");
+        }
     }
 
 

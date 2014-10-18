@@ -17,6 +17,8 @@
 package at.tugraz.ist.akm.monitoring;
 
 import java.io.ByteArrayOutputStream;
+import java.io.Closeable;
+import java.io.IOException;
 import java.io.OutputStream;
 
 import android.content.Context;
@@ -26,7 +28,7 @@ import android.telephony.SignalStrength;
 import android.util.Base64;
 import at.tugraz.ist.akm.R;
 
-public class TelephonySignalStrength
+public class TelephonySignalStrength implements Closeable
 {
 
     public static final int SIGNAL_STRENGTH_NONE_OR_UNKNOWN = 0;
@@ -47,7 +49,8 @@ public class TelephonySignalStrength
     }
 
 
-    public void onClose()
+    @Override
+    public void close() throws IOException
     {
         mContext = null;
     }

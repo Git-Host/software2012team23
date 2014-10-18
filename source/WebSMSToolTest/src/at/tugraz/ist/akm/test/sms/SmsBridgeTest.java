@@ -48,7 +48,7 @@ public class SmsBridgeTest extends WebSMSToolActivityTestcase {
 			smsBridge.sendTextMessage(SmsHelper.getDummyTextMessage());
 			Thread.sleep(1000);
 			smsBridge.stop();
-			smsBridge.onClose();
+			smsBridge.close();
 		}
 		catch (Exception ex) {
 			ex.printStackTrace();
@@ -70,7 +70,7 @@ public class SmsBridgeTest extends WebSMSToolActivityTestcase {
 				SmsHelper.logTextMessage(message);
 			}
 			smsBridge.stop();
-			smsBridge.onClose();
+			smsBridge.close();
 		} catch (Exception ex) {
 			ex.printStackTrace();
 			assertTrue(false);
@@ -88,7 +88,7 @@ public class SmsBridgeTest extends WebSMSToolActivityTestcase {
 				SmsHelper.logTextMessage(message);
 			}
 			smsBridge.stop();
-			smsBridge.onClose();
+			smsBridge.close();
 		} catch (Exception ex) {
 			ex.printStackTrace();
 			assertTrue(false);

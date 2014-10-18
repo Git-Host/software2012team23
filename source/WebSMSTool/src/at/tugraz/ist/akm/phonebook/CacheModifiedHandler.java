@@ -1,11 +1,14 @@
 package at.tugraz.ist.akm.phonebook;
 
+import java.io.Closeable;
+import java.io.IOException;
+
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import at.tugraz.ist.akm.trace.LogClient;
 
-public class CacheModifiedHandler extends Handler
+public class CacheModifiedHandler extends Handler implements Closeable
 {
     private static class CacheModified
     {
@@ -30,10 +33,14 @@ public class CacheModifiedHandler extends Handler
         mPhonebook = phonebook;
     }
 
-    public void onClose() {
+
+    @Override
+    public void close() throws IOException
+    {
         mPhonebook = null;
         mLog = null;
     }
+
 
     public Message newCacheModifiedMessage()
     {

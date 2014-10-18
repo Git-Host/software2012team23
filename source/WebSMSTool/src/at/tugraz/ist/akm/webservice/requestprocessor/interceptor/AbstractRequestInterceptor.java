@@ -16,7 +16,7 @@
 
 package at.tugraz.ist.akm.webservice.requestprocessor.interceptor;
 
-import java.io.Closeable;
+import java.io.IOException;
 
 import my.org.apache.http.HttpRequest;
 import my.org.apache.http.HttpResponse;
@@ -25,8 +25,7 @@ import at.tugraz.ist.akm.webservice.requestprocessor.HttpResponseDataAppender;
 import at.tugraz.ist.akm.webservice.server.IHttpAccessCallback;
 import at.tugraz.ist.akm.webservice.server.WebserverProtocolConfig;
 
-public abstract class AbstractRequestInterceptor implements
-        IRequestInterceptor, Closeable
+public abstract class AbstractRequestInterceptor implements IRequestInterceptor
 {
     protected HttpResponseDataAppender responseDataAppender = new HttpResponseDataAppender();
     protected WebserverProtocolConfig mServerConfig;
@@ -49,7 +48,7 @@ public abstract class AbstractRequestInterceptor implements
 
 
     @Override
-    public void close()
+    public void close() throws IOException
     {
         mServerConfig = null;
         mContext = null;

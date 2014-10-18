@@ -16,6 +16,8 @@
 
 package at.tugraz.ist.akm.activities.trace;
 
+import java.io.IOException;
+
 import android.app.Activity;
 import android.widget.TextView;
 import at.tugraz.ist.akm.R;
@@ -72,7 +74,7 @@ public class AndroidUILogSink implements ILogSink
     }
     
     @Override
-    public void onClose()
+    public void close() throws IOException
     {
         mActivity = null;
         mLogView = null;        

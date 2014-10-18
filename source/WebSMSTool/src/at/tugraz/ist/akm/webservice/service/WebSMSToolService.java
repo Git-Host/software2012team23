@@ -292,8 +292,15 @@ public class WebSMSToolService extends Service implements ISmsIOCallback,
         mLog.debug("on destroy");
         if (mWifiState != null)
         {
-            mWifiState.onClose();
-            mWifiState = null;
+            try
+            {
+                mWifiState.close();
+                mWifiState = null;
+            }
+            catch (Throwable e)
+            {
+                mLog.error("failed closing wifi resource");
+            }
         }
         if (mNetworkStatsPropagationTimer != null)
         {
@@ -405,7 +412,7 @@ public class WebSMSToolService extends Service implements ISmsIOCallback,
                 }
                 setRunningState(ServiceRunningStates.STOPPED);
                 mServer.unregisterSMSIoCallback();
-                mServer.onClose();
+                mServer.close();
             }
             catch (Exception ex)
             {

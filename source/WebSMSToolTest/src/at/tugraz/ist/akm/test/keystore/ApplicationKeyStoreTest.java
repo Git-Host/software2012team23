@@ -12,7 +12,8 @@ public class ApplicationKeyStoreTest extends AndroidTestCase
 {
 
     private LogClient mLog = new LogClient(this);
-    
+
+
     @Override
     protected void setUp() throws Exception
     {
@@ -22,15 +23,15 @@ public class ApplicationKeyStoreTest extends AndroidTestCase
 
     public void test_loadMissingKeystore()
     {
-        mLog.debug("remove keystore");        
+        mLog.debug("remove keystore");
         ApplicationKeyStore appKeystore = new ApplicationKeyStore();
         appKeystore.deleteKeystore(getKeystoreFilePath(mContext, mLog));
-        
+
         mLog.debug("load missing keystore");
         assertTrue(appKeystore.loadKeystore(getDefaultKeystorePassword(),
                 getKeystoreFilePath(mContext, mLog)));
         assertTrue(appKeystore.getKeystoreManagers().length > 0);
-        appKeystore.close();
+        tryCloseAppKeystore(appKeystore);
     }
 
 
@@ -39,18 +40,19 @@ public class ApplicationKeyStoreTest extends AndroidTestCase
         mLog.debug("remove keystore");
         ApplicationKeyStore appKeystore = new ApplicationKeyStore();
         appKeystore.deleteKeystore(getKeystoreFilePath(mContext, mLog));
-        
+
         mLog.debug("load missing keystore");
         assertTrue(appKeystore.loadKeystore(getDefaultKeystorePassword(),
                 getKeystoreFilePath(mContext, mLog)));
         assertTrue(appKeystore.getKeystoreManagers().length == 1);
-        appKeystore.close();
+        tryCloseAppKeystore(appKeystore);
 
         mLog.debug("load available keystore");
         appKeystore = new ApplicationKeyStore();
         assertTrue(appKeystore.loadKeystore(getDefaultKeystorePassword(),
                 getKeystoreFilePath(mContext, mLog)));
         assertTrue(appKeystore.getKeystoreManagers().length == 1);
+        tryCloseAppKeystore(appKeystore);
     }
 
 
@@ -59,35 +61,37 @@ public class ApplicationKeyStoreTest extends AndroidTestCase
         mLog.debug("remove keystore");
         ApplicationKeyStore appKeystore = new ApplicationKeyStore();
         appKeystore.deleteKeystore(getKeystoreFilePath(mContext, mLog));
-        
+
         mLog.debug("crate new keystore");
         assertTrue(appKeystore.loadKeystore(getDefaultKeystorePassword(),
                 getKeystoreFilePath(mContext, mLog)));
         assertTrue(appKeystore.getKeystoreManagers().length > 0);
-        appKeystore.close();
-        
+        tryCloseAppKeystore(appKeystore);
+
         mLog.debug("load available keystore using wrong password");
         appKeystore = new ApplicationKeyStore();
         assertTrue(appKeystore.loadKeystore(getNewRandomKeystorePassword(),
                 getKeystoreFilePath(mContext, mLog)));
         assertTrue(appKeystore.getKeystoreManagers().length > 0);
-        appKeystore.close();
+        tryCloseAppKeystore(appKeystore);
     }
+
 
     public void test_getCertificateSerial()
     {
         ApplicationKeyStore appKeystore = new ApplicationKeyStore();
-        
+
         assertTrue(appKeystore.loadKeystore(getDefaultKeystorePassword(),
                 getKeystoreFilePath(mContext, mLog)));
         assertTrue(appKeystore.getKeystoreManagers().length > 0);
         assertTrue(appKeystore.getX509Certficate() != null);
-        appKeystore.close();
+        tryCloseAppKeystore(appKeystore);
     }
+
 
     public static String getKeystoreFilePath(Context context, LogClient log)
     {
-        
+
         String filePath = context.getFilesDir().getPath().toString()
                 + "/"
                 + context.getResources().getString(
@@ -103,8 +107,24 @@ public class ApplicationKeyStoreTest extends AndroidTestCase
     }
 
 
+    private void tryCloseAppKeystore(ApplicationKeyStore keystore)
+    {
+        try
+        {
+            keystore.close();
+        }
+        catch (Throwable e)
+        {
+            mLog.error("failed closing application keystore");
+        }
+    }
+
+
     private String getNewRandomKeystorePassword()
     {
-        return new ApplicationKeyStore().newRandomPassword();
+        ApplicationKeyStore store = new ApplicationKeyStore();
+        String newRandom = store.newRandomPassword();
+        tryCloseAppKeystore(store);
+        return newRandom;
     }
 }

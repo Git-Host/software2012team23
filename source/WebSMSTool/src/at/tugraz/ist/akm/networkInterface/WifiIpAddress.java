@@ -1,5 +1,7 @@
 package at.tugraz.ist.akm.networkInterface;
 
+import java.io.Closeable;
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.math.BigInteger;
@@ -20,7 +22,7 @@ import android.text.format.Formatter;
 import at.tugraz.ist.akm.environment.AppEnvironment;
 import at.tugraz.ist.akm.trace.LogClient;
 
-public class WifiIpAddress
+public class WifiIpAddress implements Closeable
 {
     private LogClient mLog = new LogClient(
             WifiIpAddress.class.getCanonicalName());
@@ -198,7 +200,8 @@ public class WifiIpAddress
     }
 
 
-    public void onClose()
+    @Override
+    public void close() throws IOException
     {
         mWifiManager = null;
         mLog = null;

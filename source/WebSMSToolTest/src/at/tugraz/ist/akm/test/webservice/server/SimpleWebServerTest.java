@@ -127,7 +127,7 @@ public class SimpleWebServerTest extends WebSMSToolActivityTestcase
             mWebserver.stopServer();
             waitForServiceBeingStopped(20, 200);
             assertFalse(mWebserver.isRunning());
-            mWebserver.onClose();
+            mWebserver.close();
         }
         catch (Exception ex)
         {
@@ -191,7 +191,7 @@ public class SimpleWebServerTest extends WebSMSToolActivityTestcase
 
             HttpResponse httpresponse = mHttpClient.execute(httppost);
             stopServer();
-            mWebserver.onClose();
+            mWebserver.close();
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             httpresponse.getEntity().writeTo(baos);
 
@@ -268,14 +268,14 @@ public class SimpleWebServerTest extends WebSMSToolActivityTestcase
 
             HttpResponse response = mHttpClient.execute(httppost);
             stopServer();
-            mWebserver.onClose();
+            mWebserver.close();
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             response.getEntity().writeTo(baos);
 
             FileReader reader = new FileReader(mContext, "web/index.html");
             Assert.assertEquals(reader.read(), new String(baos.toByteArray(),
                     DEFAULT_ENCODING));
-            reader.onClose();
+            reader.close();
             reader = null;
         }
         catch (Exception ex)
@@ -307,8 +307,25 @@ public class SimpleWebServerTest extends WebSMSToolActivityTestcase
                 + mContext.getResources().getString(
                         R.string.preferences_keystore_store_filename));
 
+        try
+        {
+            serverConfig.close();
+        }
+        catch (Throwable e)
+        {
+            logError("failed closing server config");
+        }
+
         ApplicationKeyStore appKeystore = new ApplicationKeyStore();
         appKeystore.loadKeystore(keystorePassword, keystoreFilePath);
+        try
+        {
+            appKeystore.close();
+        }
+        catch (Throwable e)
+        {
+            logError("failed closing application keystore");
+        }
 
         try
         {
@@ -323,6 +340,13 @@ public class SimpleWebServerTest extends WebSMSToolActivityTestcase
 
         stopServer();
         Assert.assertFalse(mWebserver.isRunning());
-        mWebserver.onClose();
+        try
+        {
+            mWebserver.close();
+        }
+        catch (Throwable e)
+        {
+            logError("failed closing webserver", e);
+        }
     }
 }

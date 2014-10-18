@@ -16,10 +16,12 @@
 
 package at.tugraz.ist.akm.webservice.requestprocessor.interceptor;
 
+import java.io.Closeable;
+
 import my.org.apache.http.HttpRequest;
 import my.org.apache.http.HttpResponse;
 
-public interface IRequestInterceptor {
+public interface IRequestInterceptor extends Closeable {
     /**
      * !!!DO NOT retrieve the entity from the given httpRequest. <br/>
      * The desired data is provided by the parameter <code>requestData</code>
@@ -30,5 +32,4 @@ public interface IRequestInterceptor {
      * @return
      */
     public boolean process(HttpRequest httpRequest, String requestData, HttpResponse httpResponse);
-    public void onClose();
 }

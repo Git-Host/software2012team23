@@ -42,8 +42,8 @@ public class EventFragmentTest extends
         ActivityInstrumentationTestCase2<MainActivity>
 {
 
-    LogClient mLog = new LogClient(EventFragmentTest.class.getCanonicalName());
-
+    private LogClient mLog = new LogClient(EventFragmentTest.class.getCanonicalName());
+    private long mMessageWaitDelayMs = 200;
 
     public EventFragmentTest()
     {
@@ -154,7 +154,7 @@ public class EventFragmentTest extends
         ResourceStringLoader stringLoader = new ResourceStringLoader(
                 getActivity().getApplicationContext());
         final MessageEvent messageEvent1 = new MessageEvent(true);
-        waitMsecs(1000);
+        waitMsecs(mMessageWaitDelayMs);
         final MessageEvent messageEvent2 = new MessageEvent(false);
         messageEvent1.load(stringLoader, message1);
         messageEvent2.load(stringLoader, message2);
@@ -176,7 +176,7 @@ public class EventFragmentTest extends
             }
         });
 
-        waitMsecs(500);
+        waitMsecs(mMessageWaitDelayMs);
         Solo solo = new Solo(getInstrumentation(), getActivity());
 
         assertEquals(true, solo.getCurrentActivity().getResources()
@@ -209,7 +209,7 @@ public class EventFragmentTest extends
             }
         });
 
-        waitMsecs(500);
+        waitMsecs(mMessageWaitDelayMs);
         Solo solo = new Solo(getInstrumentation(), getActivity());
 
         assertEquals(true, solo.getCurrentActivity().getResources()
@@ -267,7 +267,7 @@ public class EventFragmentTest extends
         ResourceStringLoader stringLoader = new ResourceStringLoader(
                 getActivity().getApplicationContext());
         final LoginEvent event1 = new LoginEvent(true);
-        waitMsecs(1000);
+        waitMsecs(mMessageWaitDelayMs);
         final LoginEvent event2 = new LoginEvent(false);
         event1.load(stringLoader);
         event2.load(stringLoader);
@@ -293,7 +293,7 @@ public class EventFragmentTest extends
                 getActivity().getApplicationContext());
 
         final ServiceEvent event1 = new ServiceEvent(true);
-        waitMsecs(1000);
+        waitMsecs(mMessageWaitDelayMs);
         final ServiceEvent event2 = new ServiceEvent(false);
         event1.load(stringLoader);
         event2.load(stringLoader);
@@ -317,7 +317,7 @@ public class EventFragmentTest extends
                 getActivity().getApplicationContext());
 
         final SettingsChangedEvent event1 = new SettingsChangedEvent();
-        waitMsecs(1000);
+        waitMsecs(mMessageWaitDelayMs);
         final SettingsChangedEvent event2 = new SettingsChangedEvent();
         event1.load(stringLoader);
         event2.load(stringLoader);

@@ -45,7 +45,7 @@ public class RenewCertificateDialogPreference extends DialogPreference
         {
         }
         setSummary(mStrings.certificateDialogSummary());
-        onClose();
+        close();
     }
 
 
@@ -58,19 +58,40 @@ public class RenewCertificateDialogPreference extends DialogPreference
         String newPassword = appKeyStore.newRandomPassword();
         appKeyStore.loadKeystore(newPassword,
                 preferencesProvider.getKeyStoreFilePath());
-        appKeyStore.close();
+        try
+        {
+            appKeyStore.close();
+        }
+        catch (Throwable e)
+        {
+            mLog.error("failed closing application keystore");
+        }
         preferencesProvider.setKeyStorePassword(newPassword);
-        preferencesProvider.close();
+        try
+        {
+            preferencesProvider.close();
+        }
+        catch (Throwable e)
+        {
+            mLog.error("failed closing preferences provider");
+        }
     }
 
 
-    private void onClose()
+    private void close()
     {
         mContext = null;
         if (mStrings != null)
         {
-            mStrings.onClose();
-            mStrings = null;
+            try
+            {
+                mStrings.close();
+                mStrings = null;
+            }
+            catch (Throwable e)
+            {
+                mLog.error("failed closing string formatter");
+            }
         }
         mLog = null;
     }

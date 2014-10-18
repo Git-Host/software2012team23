@@ -36,81 +36,111 @@ import org.xml.sax.SAXException;
 import android.content.Context;
 import at.tugraz.ist.akm.trace.LogClient;
 
-public class XmlReader {
+public class XmlReader
+{
     private Document mDom = null;
     private final static String mInputCharset = "UTF8";
     private LogClient mLog = new LogClient(this);
+
 
     /**
      * 
      * @param data
      */
-    public XmlReader(final String data) {
+    public XmlReader(final String data)
+    {
         try
         {
             read(new ByteArrayInputStream(data.getBytes(mInputCharset)));
-        } catch (UnsupportedEncodingException e)
+        }
+        catch (UnsupportedEncodingException e)
         {
             mLog.debug("unsupported encoding: " + e.getMessage());
         }
     }
+
 
     /**
      * 
      * @param context
      * @param filePath
      */
-    public XmlReader(final Context context, final String filePath) {
+    public XmlReader(final Context context, final String filePath)
+    {
         InputStream is = null;
-        try {
+        try
+        {
             is = context.getAssets().open(filePath);
             read(is);
-        } catch (IOException ioException) {
+        }
+        catch (IOException ioException)
+        {
             ioException.printStackTrace();
-        } finally {
-            if (is != null) {
-                try {
+        }
+        finally
+        {
+            if (is != null)
+            {
+                try
+                {
                     is.close();
-                } catch (IOException ioException) {
+                }
+                catch (IOException ioException)
+                {
                     ioException.printStackTrace();
                 }
             }
         }
     }
 
+
     /**
      * 
      * @param is
      */
-    private void read(final InputStream is) {
-        try {
-            DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+    private void read(final InputStream is)
+    {
+        try
+        {
+            DocumentBuilder builder = DocumentBuilderFactory.newInstance()
+                    .newDocumentBuilder();
             mDom = builder.parse(is);
-        } catch (IOException ioException) {
+        }
+        catch (IOException ioException)
+        {
             ioException.printStackTrace();
-        } catch (ParserConfigurationException parserConfigException) {
+        }
+        catch (ParserConfigurationException parserConfigException)
+        {
             parserConfigException.printStackTrace();
-        } catch (SAXException saxException) {
+        }
+        catch (SAXException saxException)
+        {
             saxException.printStackTrace();
         }
     }
+
 
     /**
      * 
      * @param name
      * @return
      */
-    public List<XmlNode> getNodes(String name) {
+    public List<XmlNode> getNodes(String name)
+    {
         List<XmlNode> nodes = new ArrayList<XmlNode>();
-        if(mDom == null) {
+        if (mDom == null)
+        {
             return nodes;
         }
         Element root = mDom.getDocumentElement();
 
         NodeList childNodes = root.getChildNodes();
-        for (int i = 0; i < childNodes.getLength(); i++) {
+        for (int i = 0; i < childNodes.getLength(); i++)
+        {
             Node node = childNodes.item(i);
-            if (node.getNodeName().equals(name)) {
+            if (node.getNodeName().equals(name))
+            {
                 nodes.add(new XmlNode(node));
             }
         }

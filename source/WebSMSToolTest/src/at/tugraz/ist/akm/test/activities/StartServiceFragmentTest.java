@@ -26,7 +26,7 @@ public class StartServiceFragmentTest extends
             StartServiceFragmentTest.class.getCanonicalName());
     private Messenger mClientMessenger = null;
     private MockServer mServer = new MockServer();
-    private long mWaitForMessengerDealayMs = 100;
+    private long mWaitForMessengerDealayMs = 200;
 
     private static class MockServer
     {

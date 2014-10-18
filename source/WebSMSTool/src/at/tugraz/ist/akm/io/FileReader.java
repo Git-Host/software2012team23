@@ -17,13 +17,14 @@
 package at.tugraz.ist.akm.io;
 
 import java.io.BufferedReader;
+import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
 import android.content.Context;
 
-public class FileReader
+public class FileReader implements Closeable
 {
     private Context mContext;
     private String mFilePath;
@@ -86,7 +87,8 @@ public class FileReader
     }
 
 
-    public void onClose()
+    @Override
+    public void close() throws IOException
     {
         mContext = null;
         mFilePath = null;

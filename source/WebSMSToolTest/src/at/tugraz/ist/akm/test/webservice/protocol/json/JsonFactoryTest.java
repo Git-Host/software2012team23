@@ -237,16 +237,4 @@ public class JsonFactoryTest extends TestCase
         textMessage.setRead(read);
         return textMessage;
     }
-
-
-    public void test_buildJsonTelephonySignalStrengthFromTelephonySignalStrength()
-    {
-        assertFalse(true);
-    }
-
-
-    public void test_buildJsonBatteryStatusFromBatteryStatus()
-    {
-        assertTrue(false);
-    }
 }

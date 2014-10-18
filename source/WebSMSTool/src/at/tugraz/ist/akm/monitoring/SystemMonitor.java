@@ -16,6 +16,9 @@
 
 package at.tugraz.ist.akm.monitoring;
 
+import java.io.Closeable;
+import java.io.IOException;
+
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -24,7 +27,7 @@ import android.telephony.SignalStrength;
 import android.telephony.TelephonyManager;
 import at.tugraz.ist.akm.trace.LogClient;
 
-public class SystemMonitor extends PhoneStateListener
+public class SystemMonitor extends PhoneStateListener implements Closeable
 {
 
     private Context mContext = null;
@@ -56,7 +59,8 @@ public class SystemMonitor extends PhoneStateListener
     }
 
 
-    public void onClose()
+    @Override
+    public void close() throws IOException
     {
         mContext = null;
         mTel = null;

@@ -16,6 +16,9 @@
 
 package at.tugraz.ist.akm.preferences;
 
+import java.io.Closeable;
+import java.io.IOException;
+
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
@@ -23,7 +26,7 @@ import android.preference.PreferenceManager;
 import at.tugraz.ist.akm.R;
 import at.tugraz.ist.akm.providers.PrivateApplicationContentProvider;
 
-public class SharedPreferencesProvider
+public class SharedPreferencesProvider implements Closeable
 {
     private SharedPreferences mSharedPreferences = null;
     private PrivateApplicationContentProvider mSettings = null;
@@ -44,7 +47,8 @@ public class SharedPreferencesProvider
     }
 
 
-    public void close()
+    @Override
+    public void close() throws IOException
     {
         if (mSettings != null)
             mSettings.closeDatabase();

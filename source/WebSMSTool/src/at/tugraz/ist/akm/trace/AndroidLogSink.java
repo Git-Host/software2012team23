@@ -16,6 +16,8 @@
 
 package at.tugraz.ist.akm.trace;
 
+import java.io.IOException;
+
 public class AndroidLogSink implements ILogSink
 {
 
@@ -52,9 +54,10 @@ public class AndroidLogSink implements ILogSink
     {
         android.util.Log.v(tag, message);
     }
-    
+
+
     @Override
-    public void onClose()
+    public void close() throws IOException
     {
     }
 }

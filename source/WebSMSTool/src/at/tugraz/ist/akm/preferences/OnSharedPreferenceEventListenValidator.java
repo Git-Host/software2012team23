@@ -1,5 +1,8 @@
 package at.tugraz.ist.akm.preferences;
 
+import java.io.Closeable;
+import java.io.IOException;
+
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
@@ -13,7 +16,7 @@ import at.tugraz.ist.akm.R;
 import at.tugraz.ist.akm.trace.LogClient;
 
 public class OnSharedPreferenceEventListenValidator implements
-        OnSharedPreferenceChangeListener, OnPreferenceClickListener
+        OnSharedPreferenceChangeListener, OnPreferenceClickListener, Closeable
 {
 
     private int mMinPortNumber = 1024;
@@ -222,7 +225,8 @@ public class OnSharedPreferenceEventListenValidator implements
     }
 
 
-    public void onClose()
+    @Override
+    public void close() throws IOException
     {
         mFragment = null;
         mContext = null;

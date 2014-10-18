@@ -16,6 +16,8 @@
 
 package at.tugraz.ist.akm.phonebook;
 
+import java.io.Closeable;
+import java.io.IOException;
 import java.util.List;
 
 import android.content.ContentResolver;
@@ -33,7 +35,7 @@ import at.tugraz.ist.akm.phonebook.contact.IContactReader;
 import at.tugraz.ist.akm.trace.LogClient;
 
 public class PhonebookBridge implements IContactModifiedCallback,
-        IContactReader
+        IContactReader, Closeable
 {
 
     private Context mContext = null;
@@ -50,6 +52,7 @@ public class PhonebookBridge implements IContactModifiedCallback,
     private CacheModifiedHandler mCacheModifiedHandler = null;
 
     static private class ContactContentObserver extends ContentObserver
+            implements Closeable
     {
 
         private IContactModifiedCallback mCallback = null;
@@ -80,7 +83,8 @@ public class PhonebookBridge implements IContactModifiedCallback,
         }
 
 
-        public void onClose()
+        @Override
+        public void close() throws IOException
         {
             mCallback = null;
         }
@@ -117,8 +121,15 @@ public class PhonebookBridge implements IContactModifiedCallback,
 
     public void stop()
     {
-        mLog.debug("closing cache ...");
-        mCacheModifiedHandler.onClose();
+        mLog.debug("closing cache");
+        try
+        {
+            mCacheModifiedHandler.close();
+        }
+        catch (Throwable e)
+        {
+            mLog.error("failed closing cache modidified handler");
+        }
         mCachedContactReader.finish();
         mCachedContactReader.unregisterCacheModifiedHandler();
         mExternalContactModifiedCallback = null;
@@ -126,7 +137,8 @@ public class PhonebookBridge implements IContactModifiedCallback,
     }
 
 
-    public void onClose()
+    @Override
+    public void close() throws IOException
     {
         mContext = null;
         mContentResolver = null;
@@ -194,8 +206,16 @@ public class PhonebookBridge implements IContactModifiedCallback,
     {
         mContactContentCursor
                 .unregisterContentObserver(mContactContentObserver);
-        mContactContentObserver.onClose();
-        mContactContentObserver = null;
+        try
+        {
+            mContactContentObserver.close();
+            mContactContentObserver = null;
+        }
+        catch (Throwable e)
+        {
+            mLog.error("failed to closes content oberver");
+        }
         mContactContentCursor.close();
     }
+
 }

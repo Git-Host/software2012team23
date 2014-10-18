@@ -17,6 +17,8 @@
 package at.tugraz.ist.akm.monitoring;
 
 import java.io.ByteArrayOutputStream;
+import java.io.Closeable;
+import java.io.IOException;
 import java.io.OutputStream;
 
 import android.content.Context;
@@ -27,7 +29,7 @@ import android.os.BatteryManager;
 import android.util.Base64;
 import at.tugraz.ist.akm.R;
 
-public class BatteryStatus
+public class BatteryStatus implements Closeable
 {
 
     private int mBatteryLevel = 0;
@@ -135,7 +137,8 @@ public class BatteryStatus
     }
 
 
-    public void onClose()
+    @Override
+    public void close() throws IOException
     {
         mContext = null;
     }

@@ -99,8 +99,15 @@ public class StartServiceFragment extends Fragment implements
         mLog.debug("on destroy");
         mButton = null;
         mInfoFieldView = null;
-        mIncomingServiceMessageHandler.onClose();
-        mIncomingServiceMessageHandler = null;
+        try
+        {
+            mIncomingServiceMessageHandler.close();
+            mIncomingServiceMessageHandler = null;
+        }
+        catch (Throwable e)
+        {
+            mLog.error("failed closing service message handler");
+        }
         super.onDestroy();
     }
 
@@ -483,6 +490,15 @@ public class StartServiceFragment extends Fragment implements
         config.port = preferences.getPort();
         config.protocolName = preferences.getProtocol();
         config.username = preferences.getUsername();
+
+        try
+        {
+            preferences.close();
+        }
+        catch (Throwable e)
+        {
+            mLog.error("failed closing preferences provider");
+        }
         return config;
     }
 

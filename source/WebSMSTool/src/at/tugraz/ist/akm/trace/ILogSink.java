@@ -16,7 +16,9 @@
 
 package at.tugraz.ist.akm.trace;
 
-public interface ILogSink
+import java.io.Closeable;
+
+public interface ILogSink extends Closeable
 {
 
     public void warning(final String tag, final String message);
@@ -29,11 +31,8 @@ public interface ILogSink
 
 
     public void error(final String tag, final String message);
-    
-    
+
+
     public void verbose(final String tag, final String message);
-    
-    
-    public void onClose();
 
 }

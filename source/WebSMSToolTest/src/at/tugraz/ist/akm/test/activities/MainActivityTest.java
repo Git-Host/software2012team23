@@ -74,7 +74,23 @@ public class MainActivityTest extends
         appKeystore.deleteKeystore(prefs.getKeyStoreFilePath());
         appKeystore.loadKeystore(prefs.getKeyStorePassword(),
                 prefs.getKeyStoreFilePath());
-        appKeystore.close();
+        try
+        {
+            prefs.close();
+        }
+        catch (Throwable e)
+        {
+            mLog.error("failed closing preferences provider");
+        }
+        
+        try
+        {
+            appKeystore.close();
+        }
+        catch (Throwable e)
+        {
+            mLog.error("failed closing application keystore");
+        }
 
         Solo solo = new Solo(getInstrumentation(), getActivity());
 

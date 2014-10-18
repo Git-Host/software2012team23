@@ -51,14 +51,14 @@ public class FileRequestProcessor extends AbstractHttpRequestProcessor {
 
         FileReader reader = new FileReader(mContext, fileInfo.mFile);
         final String data = reader.read();
-        reader.onClose();
+        reader.close();
         reader = null;
         
         mResponseDataAppender.appendHttpResponseData(httpResponse, fileInfo.mContentType, data);
     }
     
     @Override
-    public void close()
+    public void close() throws IOException
     {
         super.close();
         mLog = null;

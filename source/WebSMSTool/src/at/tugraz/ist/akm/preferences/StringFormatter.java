@@ -1,15 +1,20 @@
 package at.tugraz.ist.akm.preferences;
 
+import java.io.Closeable;
+import java.io.IOException;
 import java.security.cert.X509Certificate;
 
 import android.content.Context;
 import at.tugraz.ist.akm.R;
 import at.tugraz.ist.akm.keystore.ApplicationKeyStore;
+import at.tugraz.ist.akm.trace.LogClient;
 
-public class StringFormatter
+public class StringFormatter implements Closeable
 {
 
-    Context mContext = null;
+    private Context mContext = null;
+    private LogClient mLog = new LogClient(
+            StringFormatter.class.getCanonicalName());
 
 
     @SuppressWarnings("unused")
@@ -22,7 +27,8 @@ public class StringFormatter
     {
         mContext = context;
     }
-    
+
+
     public String certificateDialogSummary()
     {
         String summary = null;
@@ -32,10 +38,24 @@ public class StringFormatter
 
         appKeyStore.loadKeystore(preferencesProvider.getKeyStorePassword(),
                 preferencesProvider.getKeyStoreFilePath());
-        preferencesProvider.close();
+        try
+        {
+            preferencesProvider.close();
+        }
+        catch (Throwable e)
+        {
+            mLog.error("failed closing preferences provider");
+        }
         preferencesProvider = null;
         X509Certificate cert = appKeyStore.getX509Certficate();
-        appKeyStore.close();
+        try
+        {
+            appKeyStore.close();
+        }
+        catch (Throwable e)
+        {
+            mLog.error("failed closing application keystore");
+        }
 
         if (cert != null)
         {
@@ -51,7 +71,14 @@ public class StringFormatter
                             .getString(
                                     R.string.OnSharedPreferenceEventListenValidator_expires)
                     + " " + cert.getNotAfter();
-            appKeyStore.close();
+            try
+            {
+                appKeyStore.close();
+            }
+            catch (Throwable e)
+            {
+                mLog.error("failed closing application keystore");
+            }
         } else
         {
             summary = mContext
@@ -61,8 +88,12 @@ public class StringFormatter
         }
         return summary;
     }
-    
-    public void onClose() {
+
+
+    @Override
+    public void close() throws IOException
+    {
         mContext = null;
+        mLog = null;
     }
 }

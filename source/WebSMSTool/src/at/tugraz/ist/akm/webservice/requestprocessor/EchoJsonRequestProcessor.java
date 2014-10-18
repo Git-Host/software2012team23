@@ -80,7 +80,7 @@ public class EchoJsonRequestProcessor extends AbstractHttpRequestProcessor
 
 
     @Override
-    public void close()
+    public void close() throws IOException
     {
         mLog = null;
         super.close();

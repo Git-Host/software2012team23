@@ -16,6 +16,7 @@
 
 package at.tugraz.ist.akm.webservice.requestprocessor.interceptor;
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 
 import my.org.apache.http.Header;
@@ -41,10 +42,10 @@ public class AuthorizationInterceptor extends AbstractRequestInterceptor
         super(config, context, authCallback);
     }
 
-
     @Override
-    public void onClose()
+    public void close() throws IOException
     {
+        super.close();
     }
 
 
@@ -114,7 +115,13 @@ public class AuthorizationInterceptor extends AbstractRequestInterceptor
             responseDataAppender.appendHttpResponseData(httpResponse,
                     WebServerConstants.HTTP.CONTENTY_TYPE_TEXT_HTML,
                     filereader.read());
-            filereader.onClose();
+            try
+            {
+                filereader.close();
+            }
+            catch (Throwable e)
+            {
+            }
             filereader = null;
         }
 

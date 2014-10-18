@@ -1,8 +1,10 @@
 package at.tugraz.ist.akm.keystore;
 
 import java.io.ByteArrayInputStream;
+import java.io.Closeable;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigInteger;
@@ -35,7 +37,7 @@ import android.annotation.SuppressLint;
 import at.tugraz.ist.akm.trace.LogClient;
 
 @SuppressWarnings("deprecation")
-public class ApplicationKeyStore
+public class ApplicationKeyStore implements Closeable
 {
     private LogClient mLog = new LogClient(this);
 
@@ -135,8 +137,7 @@ public class ApplicationKeyStore
         }
         catch (IOException g)
         {
-            mLog.debug(
-                    "failed to load keystore (file missing or wrong password) create new store");
+            mLog.debug("failed to load keystore (file missing or wrong password) create new store");
             try
             {
                 wipeAndLoadNewKeystore(password, filePath);
@@ -184,8 +185,7 @@ public class ApplicationKeyStore
 
         mInKeyStore = KeyStore.getInstance(KeyStore.getDefaultType());
         mInKeyStoreStream = new FileInputStream(filePath);
-        mInKeyStore.
-        load(mInKeyStoreStream, password.toCharArray());
+        mInKeyStore.load(mInKeyStoreStream, password.toCharArray());
         mKeyFactory.init(mInKeyStore, password.toCharArray());
         mLog.debug("keystore loaded with password [*****] and filepath ["
                 + filePath + "]");
@@ -195,7 +195,8 @@ public class ApplicationKeyStore
     }
 
 
-    public void close()
+    @Override
+    public void close() throws IOException
     {
         if (mInKeyStoreStream != null)
         {
@@ -310,9 +311,9 @@ public class ApplicationKeyStore
         keyStore.setEntry(CertificateDefaultAttributes.ALIAS_NAME,
                 privateKeyEntry, protectionParameter);
 
-        java.io.FileOutputStream fos = null;
+        FileOutputStream fos = null;
         mLog.debug("writing to store [" + filePath + "] ...");
-        fos = new java.io.FileOutputStream(filePath);
+        fos = new FileOutputStream(filePath);
         keyStore.store(fos, keystorePassword);
         fos.close();
     }

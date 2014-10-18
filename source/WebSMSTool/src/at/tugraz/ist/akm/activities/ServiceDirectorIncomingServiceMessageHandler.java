@@ -16,25 +16,32 @@
 
 package at.tugraz.ist.akm.activities;
 
+import java.io.Closeable;
+import java.io.IOException;
+
 import android.os.Handler;
 import android.os.Message;
 import at.tugraz.ist.akm.trace.LogClient;
 import at.tugraz.ist.akm.webservice.service.interProcessMessges.ServiceConnectionMessageTypes;
 
 public class ServiceDirectorIncomingServiceMessageHandler extends Handler
+        implements Closeable
 {
     LogClient mLog = new LogClient(
-            ServiceDirectorIncomingServiceMessageHandler.class.getCanonicalName());
+            ServiceDirectorIncomingServiceMessageHandler.class
+                    .getCanonicalName());
     StartServiceFragment mClientFragment = null;
 
 
-    public ServiceDirectorIncomingServiceMessageHandler(StartServiceFragment client)
+    public ServiceDirectorIncomingServiceMessageHandler(
+            StartServiceFragment client)
     {
         mClientFragment = client;
     }
 
 
-    public void onClose()
+    @Override
+    public void close() throws IOException
     {
         mClientFragment = null;
     }
@@ -53,11 +60,11 @@ public class ServiceDirectorIncomingServiceMessageHandler extends Handler
 
             case ServiceConnectionMessageTypes.Service.Response.SERVICE_EVENT:
 
-//                UiEvent event = msg
-//                        .getData()
-//                        .getParcelable(
-//                                ServiceConnectionMessageTypes.Bundle.Key.PARCELABLE_UI_EVENT);
-//                mClientFragment.onWebServiceEvent(event);
+                // UiEvent event = msg
+                // .getData()
+                // .getParcelable(
+                // ServiceConnectionMessageTypes.Bundle.Key.PARCELABLE_UI_EVENT);
+                // mClientFragment.onWebServiceEvent(event);
                 break;
 
             case ServiceConnectionMessageTypes.Service.Response.SMS_DELIVERED:

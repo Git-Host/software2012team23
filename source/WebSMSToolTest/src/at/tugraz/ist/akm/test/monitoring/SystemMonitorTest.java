@@ -19,11 +19,15 @@ package at.tugraz.ist.akm.test.monitoring;
 import at.tugraz.ist.akm.monitoring.BatteryStatus;
 import at.tugraz.ist.akm.monitoring.SystemMonitor;
 import at.tugraz.ist.akm.test.base.WebSMSToolActivityTestcase;
+import at.tugraz.ist.akm.trace.LogClient;
 
 public class SystemMonitorTest extends WebSMSToolActivityTestcase
 {
+    private LogClient mLog = new LogClient(
+            SystemMonitorTest.class.getCanonicalName());
 
     private SystemMonitor mSystemMonitor = null;
+
 
     public SystemMonitorTest()
     {
@@ -44,7 +48,14 @@ public class SystemMonitorTest extends WebSMSToolActivityTestcase
     public void tearDown()
     {
         mSystemMonitor.stop();
-        mSystemMonitor.onClose();
+        try
+        {
+            mSystemMonitor.close();
+        }
+        catch (Throwable e)
+        {
+            mLog.error("failed closing app monitor");
+        }
     }
 
 
@@ -56,7 +67,7 @@ public class SystemMonitorTest extends WebSMSToolActivityTestcase
             logBStats(bStats);
             assertTrue(bStats.getBatteryIconId() > 0);
             byte[] bytes = bStats.getBatteryIconBytes();
-            bStats.onClose();
+            bStats.close();
             assertTrue(bytes.length > 0);
         }
         catch (Exception ex)

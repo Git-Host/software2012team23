@@ -189,9 +189,7 @@ public class ServerThread extends Thread
         }
         catch (IOException exp)
         {
-            mLog.warning(
-                    "Could not close server socket on stopping server thread",
-                    exp);
+            mLog.warning("failed closing server socket", exp);
         }
     }
 

@@ -16,6 +16,7 @@
 
 package at.tugraz.ist.akm.texting;
 
+import java.io.IOException;
 import java.util.List;
 
 import android.content.Context;
@@ -35,6 +36,8 @@ import at.tugraz.ist.akm.trace.LogClient;
 public class TextingAdapter extends LogClient implements TextingInterface,
         ISmsIOCallback, IContactModifiedCallback
 {
+    private LogClient mLog = new LogClient(
+            TextingAdapter.class.getCanonicalName());
     private Context mContext = null;
     private SmsBridge mSmsBridge = null;
     private PhonebookBridge mPhoneBook = null;
@@ -80,12 +83,27 @@ public class TextingAdapter extends LogClient implements TextingInterface,
 
 
     @Override
-    public void close()
+    public void close() throws IOException
     {
-        mPhoneBook.onClose();
-        mPhoneBook = null;
-        mSmsBridge.onClose();
-        mSmsBridge = null;
+        try
+        {
+            mPhoneBook.close();
+            mPhoneBook = null;
+        }
+        catch (Throwable e)
+        {
+            mLog.error("failed closing phonebook bridge");
+        }
+
+        try
+        {
+            mSmsBridge.close();
+            mSmsBridge = null;
+        }
+        catch (Throwable e)
+        {
+            mLog.error("failed closing sms bridge");
+        }
 
         mContext = null;
 
@@ -95,6 +113,7 @@ public class TextingAdapter extends LogClient implements TextingInterface,
         mOutgoingStatistics = null;
         mIncomingStatistics = null;
         mPhonebookStatistics = null;
+        mLog = null;
     }
 
 
