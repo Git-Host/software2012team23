@@ -125,9 +125,6 @@ public abstract class AbstractHttpRequestProcessor implements
 
             FileInfo fileInfo = new FileInfo(file.trim(), contentType.trim());
             mUri2FileInfo.put(uri, fileInfo);
-            // mLog.debug("read mapping uri <" + uri + "> ==> <" + fileInfo +
-            // ">");
-
             register(uri);
         }
     }
@@ -137,7 +134,6 @@ public abstract class AbstractHttpRequestProcessor implements
     {
         if (mRegistry != null)
         {
-            // mLog.debug("register for uri '" + uri + "'");
             mUriPattern = uri;
             mRegistry.register(mUriPattern, this);
         } else
@@ -152,7 +148,6 @@ public abstract class AbstractHttpRequestProcessor implements
     public void handle(HttpRequest httpRequest, HttpResponse httpResponse,
             HttpContext httpContext) throws HttpException, IOException
     {
-
         String requestData = null;
 
         if (httpRequest instanceof BasicHttpEntityEnclosingRequest)
@@ -166,18 +161,19 @@ public abstract class AbstractHttpRequestProcessor implements
         }
         for (IRequestInterceptor interceptor : mRequestInterceptorList)
         {
-            if (!interceptor.process(httpRequest, requestData, httpResponse))
+            if (!interceptor.process(httpRequest, requestData, httpResponse, httpContext))
             {
                 return;
             }
         }
-        handleRequest(httpRequest.getRequestLine(), requestData, httpResponse);
+        handleRequest(httpRequest.getRequestLine(), requestData, httpResponse,
+                httpContext);
     }
 
 
     public abstract void handleRequest(RequestLine requestLine,
-            String requestData, HttpResponse httpResponse)
-            throws HttpException, IOException;
+            String requestData, HttpResponse httpResponse,
+            HttpContext httpContext) throws HttpException, IOException;
 
 
     @Override

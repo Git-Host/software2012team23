@@ -47,6 +47,7 @@ public class MainActivityTest extends
     private Intent mSmsServiceIntent = null;
     private Context mContext = null;
 
+    private long mActivityResettleWaitMs = 100;
     private LogClient mLog = null;
 
 
@@ -104,7 +105,7 @@ public class MainActivityTest extends
         startStop.setActivated(false);
         stopWebService();
 
-        waitMs(800);
+        waitMs(mActivityResettleWaitMs);
         assertFalse(startStop.isChecked());
 
         solo.clickOnView(startStop);
@@ -112,12 +113,12 @@ public class MainActivityTest extends
 
         if (wm.isWifiEnabled() || AppEnvironment.isRunningOnEmulator())
         {
-            waitMs(800);
+            waitMs(mActivityResettleWaitMs);
             assertTrue(startStop.isChecked());
 
             solo.clickOnView(startStop);
             waitForServiceBeingStopped();
-            waitMs(800);
+            waitMs(mActivityResettleWaitMs);
             assertFalse(startStop.isChecked());
             stopWebService();
         } else
@@ -454,10 +455,10 @@ public class MainActivityTest extends
 
         int maxTries = 20;
         mLog.debug("waitForServiceBeingStopped");
-        waitMs(2000);
+        waitMs(mActivityResettleWaitMs * 2);
         while (isWebServiceRunning() && (maxTries-- > 0))
         {
-            waitMs(200);
+            waitMs(mActivityResettleWaitMs);
             mLog.debug("waiting ...");
         }
         mLog.debug("service has been stopped");
@@ -466,12 +467,12 @@ public class MainActivityTest extends
 
     private void waitForServiceBeingStarted()
     {
-        int maxTries = 20, delay = 200;
+        int maxTries = 20;
         mLog.debug("waitForServiceBeingStarted");
-        waitMs(5000);
+        waitMs(mActivityResettleWaitMs * 5);
         while ((!isWebServiceRunning()) && (maxTries-- > 0))
         {
-            waitMs(delay);
+            waitMs(mActivityResettleWaitMs);
             mLog.debug("waiting ...");
         }
         mLog.debug("service is running");

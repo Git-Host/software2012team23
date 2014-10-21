@@ -6,6 +6,7 @@ import java.io.IOException;
 import my.org.apache.http.HttpException;
 import my.org.apache.http.HttpResponse;
 import my.org.apache.http.RequestLine;
+import my.org.apache.http.protocol.HttpContext;
 import my.org.apache.http.protocol.HttpRequestHandlerRegistry;
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -29,8 +30,17 @@ public class FaviconLoadRequestProcessor extends AbstractHttpRequestProcessor
 
 
     @Override
+    public void close() throws IOException
+    {
+        mLog = null;
+        super.close();
+    }
+
+
+    @Override
     public void handleRequest(RequestLine requestLine, String requestData,
-            HttpResponse httpResponse) throws HttpException, IOException
+            HttpResponse httpResponse, HttpContext httpContext)
+            throws HttpException, IOException
     {
         try
         {
@@ -51,13 +61,5 @@ public class FaviconLoadRequestProcessor extends AbstractHttpRequestProcessor
         {
             mLog.error("what a terrible failure", ex);
         }
-    }
-
-
-    @Override
-    public void close() throws IOException
-    {
-        mLog = null;
-        super.close();
     }
 }

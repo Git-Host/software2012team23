@@ -21,30 +21,38 @@ import java.io.IOException;
 import my.org.apache.http.HttpException;
 import my.org.apache.http.HttpResponse;
 import my.org.apache.http.RequestLine;
+import my.org.apache.http.protocol.HttpContext;
 import my.org.apache.http.protocol.HttpRequestHandlerRegistry;
 import android.content.Context;
 import at.tugraz.ist.akm.io.FileReader;
 import at.tugraz.ist.akm.io.xml.XmlNode;
 import at.tugraz.ist.akm.trace.LogClient;
 
-public class FileRequestProcessor extends AbstractHttpRequestProcessor {
+public class FileRequestProcessor extends AbstractHttpRequestProcessor
+{
 
-	private LogClient mLog = new LogClient(this);
-	
+    private LogClient mLog = new LogClient(this);
+
+
     public FileRequestProcessor(final Context context, final XmlNode config,
-            final HttpRequestHandlerRegistry registry) {
+            final HttpRequestHandlerRegistry registry)
+    {
         super(context, config, registry);
 
     }
 
+
     @Override
-    public void handleRequest(RequestLine requestLine, String requestData, HttpResponse httpResponse)
-            throws HttpException, IOException {
+    public void handleRequest(RequestLine requestLine, String requestData,
+            HttpResponse httpResponse, HttpContext httpContext)
+            throws HttpException, IOException
+    {
         mLog.debug("handle request <" + requestLine.getUri() + ">");
 
         String uri = requestLine.getUri();
         final FileInfo fileInfo = mUri2FileInfo.get(uri);
-        if (fileInfo == null) {
+        if (fileInfo == null)
+        {
             mLog.info("no mapping found for uri <" + uri + ">");
             return;
         }
@@ -53,10 +61,12 @@ public class FileRequestProcessor extends AbstractHttpRequestProcessor {
         final String data = reader.read();
         reader.close();
         reader = null;
-        
-        mResponseDataAppender.appendHttpResponseData(httpResponse, fileInfo.mContentType, data);
+
+        mResponseDataAppender.appendHttpResponseData(httpResponse,
+                fileInfo.mContentType, data);
     }
-    
+
+
     @Override
     public void close() throws IOException
     {

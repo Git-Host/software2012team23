@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package at.tugraz.ist.akm.test.webservice.handler;
+package at.tugraz.ist.akm.test.webservice.requestprocessor;
 
 import java.io.IOException;
 
@@ -22,6 +22,7 @@ import my.org.apache.http.HttpException;
 import my.org.apache.http.HttpResponse;
 import my.org.apache.http.ParseException;
 import my.org.apache.http.RequestLine;
+import my.org.apache.http.protocol.HttpContext;
 import my.org.apache.http.protocol.HttpRequestHandlerRegistry;
 
 import org.json.JSONException;
@@ -32,24 +33,39 @@ import at.tugraz.ist.akm.io.xml.XmlNode;
 import at.tugraz.ist.akm.webservice.WebServerConstants;
 import at.tugraz.ist.akm.webservice.requestprocessor.JsonAPIRequestProcessor;
 
-public class EchoJsonRequestHandler extends JsonAPIRequestProcessor {
+// TODO: unused class?
+public class TestableJsonAPIRequestProcessor extends JsonAPIRequestProcessor
+{
 
-    public EchoJsonRequestHandler(final Context context, final XmlNode config,
-            final HttpRequestHandlerRegistry registry) throws Throwable {
+    public TestableJsonAPIRequestProcessor(final Context context,
+            final XmlNode config, final HttpRequestHandlerRegistry registry)
+            throws Throwable
+    {
         super(context, config, registry);
     }
 
+
     @Override
-    public void handleRequest(RequestLine requestLine, String requestData, HttpResponse httpResponse)
-            throws HttpException, IOException {
-        if (requestLine.getMethod().equals(WebServerConstants.HTTP.REQUEST_TYPE_POST)) {
+    public void handleRequest(RequestLine requestLine, String requestData,
+            HttpResponse httpResponse, HttpContext httpContext)
+            throws HttpException, IOException
+    {
+        if (requestLine.getMethod().equals(
+                WebServerConstants.HTTP.REQUEST_TYPE_POST))
+        {
             final JSONObject json;
-            try {
+            try
+            {
                 json = new JSONObject(requestData);
-                mResponseDataAppender.appendHttpResponseData(httpResponse, json);
-            } catch (ParseException parseException) {
+                mResponseDataAppender
+                        .appendHttpResponseData(httpResponse, json);
+            }
+            catch (ParseException parseException)
+            {
                 parseException.printStackTrace();
-            } catch (JSONException jsonException) {
+            }
+            catch (JSONException jsonException)
+            {
                 jsonException.printStackTrace();
             }
         }

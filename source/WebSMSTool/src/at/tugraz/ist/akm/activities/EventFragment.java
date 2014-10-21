@@ -19,6 +19,7 @@ package at.tugraz.ist.akm.activities;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.ListIterator;
 
 import android.app.Activity;
 import android.app.Fragment;
@@ -43,7 +44,7 @@ import at.tugraz.ist.akm.webservice.service.WebSMSToolService;
 import at.tugraz.ist.akm.webservice.service.interProcessMessges.ServiceMessageBuilder;
 import at.tugraz.ist.akm.webservice.service.interProcessMessges.VerboseMessageSubmitter;
 
-public class EventLogFragment extends Fragment implements IUiLogSink,
+public class EventFragment extends Fragment implements IUiLogSink,
         ServiceConnection
 {
     private static final String EVENT_MESSAGE_ICON_KEY = "EVENT_MESSAGE_ICON_KEY";
@@ -54,7 +55,7 @@ public class EventLogFragment extends Fragment implements IUiLogSink,
     private static final String EVENT_MESSAGE_DETAIL_KEY = "EVENT_MESSAGE_DETAIL_KEY";
 
     private LogClient mLog = new LogClient(
-            EventLogFragment.class.getCanonicalName());
+            EventFragment.class.getCanonicalName());
     private ListView mListView = null;
     private LinkedList<HashMap<String, String>> mEventLogListData = new LinkedList<HashMap<String, String>>();
     private SimpleAdapter mListViewAdapter = null;
@@ -187,18 +188,36 @@ public class EventLogFragment extends Fragment implements IUiLogSink,
     public void info(UiEvent event)
     {
         mEventLogListData.addFirst(newLogFields(event));
-        mListViewAdapter.notifyDataSetChanged();
+        notifyListAdapterDataSetChanged();
     }
 
 
     @Override
     public void info(List<UiEvent> eventList)
     {
-        for (UiEvent event : eventList)
+        ListIterator<UiEvent> pointer = eventList
+                .listIterator(eventList.size());
+
+        while (pointer.hasPrevious())
         {
-            mEventLogListData.addFirst(newLogFields(event));
+            mEventLogListData.addFirst(newLogFields(pointer.previous()));
+        }
+        notifyListAdapterDataSetChanged();
+    }
+
+
+    private void notifyListAdapterDataSetChanged()
+    {
+        mLog.debug("----- data set changed");
+
+        for (HashMap<String, String> logEntry : mEventLogListData)
+        {
+            mLog.debug("t: " + logEntry.get(EVENT_MESSAGE_TIME_KEY)
+                    + "] title:[" + logEntry.get(EVENT_MESSAGE_TITLE_KEY) + "]");
         }
         mListViewAdapter.notifyDataSetChanged();
+
+        mLog.debug("----- data set changed");
     }
 
 

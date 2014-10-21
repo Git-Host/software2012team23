@@ -246,9 +246,6 @@ public class WebSMSToolService extends Service implements ISmsIOCallback,
                 {
                     mServer = new SimpleWebServer(this, mServerConfig, this);
                     mServer.registerSmsIoCallback(this);
-                    // getApplicationContext().removeStickyBroadcast(
-                    // mServiceStartedStickyIntend);
-
                     mServer.startServer();
 
                     if (mServer.isRunning())
@@ -641,7 +638,11 @@ public class WebSMSToolService extends Service implements ISmsIOCallback,
             WebserverProtocolConfig newConfig)
     {
         mServerConfig = newConfig;
-        onWebServiceLogEventReceived(newUiEvent(newConfig));
+        if (getRunningState() == ServiceRunningStates.RUNNING)
+        {
+            mLog.warning("not implemented: restart needed");
+            onWebServiceLogEventReceived(newUiEvent(newConfig));
+        }
     }
 
 

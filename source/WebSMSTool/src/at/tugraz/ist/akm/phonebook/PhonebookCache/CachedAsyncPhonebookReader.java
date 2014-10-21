@@ -150,7 +150,7 @@ public class CachedAsyncPhonebookReader extends Thread implements
 
         default:
             mLog.warning("ignoring unacceptable state");
-            sleepSilent(mThreadInfo.breathingPauseMs);
+            waitMs(mThreadInfo.breathingPauseMs);
             break;
         }
         mStateMachine.transit();
@@ -176,7 +176,7 @@ public class CachedAsyncPhonebookReader extends Thread implements
     }
 
 
-    private void sleepSilent(long sleepMs)
+    private void waitMs(long sleepMs)
     {
         try
         {

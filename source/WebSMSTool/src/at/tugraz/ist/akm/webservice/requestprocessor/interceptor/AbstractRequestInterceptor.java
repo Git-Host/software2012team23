@@ -20,6 +20,7 @@ import java.io.IOException;
 
 import my.org.apache.http.HttpRequest;
 import my.org.apache.http.HttpResponse;
+import my.org.apache.http.protocol.HttpContext;
 import android.content.Context;
 import at.tugraz.ist.akm.webservice.requestprocessor.HttpResponseDataAppender;
 import at.tugraz.ist.akm.webservice.server.IHttpAccessCallback;
@@ -44,7 +45,7 @@ public abstract class AbstractRequestInterceptor implements IRequestInterceptor
 
     @Override
     public abstract boolean process(HttpRequest httpRequest,
-            String requestData, HttpResponse httpResponse);
+            String requestData, HttpResponse httpResponse, HttpContext httpContext);
 
 
     @Override
