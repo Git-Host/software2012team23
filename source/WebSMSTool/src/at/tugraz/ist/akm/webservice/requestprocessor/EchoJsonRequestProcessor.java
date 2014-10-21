@@ -23,6 +23,7 @@ import my.org.apache.http.HttpException;
 import my.org.apache.http.HttpResponse;
 import my.org.apache.http.ParseException;
 import my.org.apache.http.RequestLine;
+import my.org.apache.http.protocol.HttpContext;
 import my.org.apache.http.protocol.HttpRequestHandlerRegistry;
 
 import org.json.JSONException;
@@ -48,7 +49,7 @@ public class EchoJsonRequestProcessor extends AbstractHttpRequestProcessor
 
     @Override
     public void handleRequest(RequestLine requestLine, String requestData,
-            HttpResponse httpResponse) throws HttpException, IOException
+            HttpResponse httpResponse, HttpContext httpContext) throws HttpException, IOException
     {
         if (requestLine.getMethod().equals(
                 WebServerConstants.HTTP.REQUEST_TYPE_POST))

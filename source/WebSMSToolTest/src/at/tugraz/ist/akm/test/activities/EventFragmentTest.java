@@ -17,16 +17,21 @@
 package at.tugraz.ist.akm.test.activities;
 
 import java.io.IOException;
+import java.util.Date;
+import java.util.LinkedList;
 
 import android.app.Fragment;
 import android.graphics.Point;
 import android.test.ActivityInstrumentationTestCase2;
 import android.view.View;
+import android.widget.ListView;
+import android.widget.TextView;
 import at.tugraz.ist.akm.R;
-import at.tugraz.ist.akm.activities.EventLogFragment;
+import at.tugraz.ist.akm.activities.EventFragment;
 import at.tugraz.ist.akm.activities.MainActivity;
 import at.tugraz.ist.akm.sms.TextMessage;
 import at.tugraz.ist.akm.test.trace.ExceptionThrowingLogSink;
+import at.tugraz.ist.akm.test.trace.ui.TestableUiEvent;
 import at.tugraz.ist.akm.trace.LogClient;
 import at.tugraz.ist.akm.trace.TraceService;
 import at.tugraz.ist.akm.trace.ui.LoginEvent;
@@ -138,7 +143,7 @@ public class EventFragmentTest extends
 
     public void test_send_MessageEvent_to_EventLogFragment()
     {
-        final EventLogFragment fragment = (EventLogFragment) bring_fragment_on_top_using_NavigationDrawer(1);
+        final EventFragment fragment = (EventFragment) bring_fragment_on_top_using_NavigationDrawer(2);
         assertNotNull(fragment);
 
         String m1Address = "0123888836", m1Body = "text asdf text";
@@ -154,7 +159,7 @@ public class EventFragmentTest extends
         ResourceStringLoader stringLoader = new ResourceStringLoader(
                 getActivity().getApplicationContext());
         final MessageEvent messageEvent1 = new MessageEvent(true);
-        waitMsecs(1000);
+        waitMsecs(100);
         final MessageEvent messageEvent2 = new MessageEvent(false);
         messageEvent1.load(stringLoader, message1);
         messageEvent2.load(stringLoader, message2);
@@ -176,7 +181,7 @@ public class EventFragmentTest extends
             }
         });
 
-        waitMsecs(500);
+        waitMsecs(100);
         Solo solo = new Solo(getInstrumentation(), getActivity());
 
         assertEquals(true, solo.getCurrentActivity().getResources()
@@ -198,7 +203,7 @@ public class EventFragmentTest extends
 
 
     private void send2simpleEventsToEventLogFragment(final UiEvent event1,
-            final UiEvent event2, final EventLogFragment logFragment)
+            final UiEvent event2, final EventFragment logFragment)
     {
         getActivity().runOnUiThread(new Runnable() {
             @Override
@@ -209,7 +214,7 @@ public class EventFragmentTest extends
             }
         });
 
-        waitMsecs(500);
+        waitMsecs(100);
         Solo solo = new Solo(getInstrumentation(), getActivity());
 
         assertEquals(true, solo.getCurrentActivity().getResources()
@@ -261,13 +266,13 @@ public class EventFragmentTest extends
 
     public void test_send_LoginEvent_to_EventLogFragment()
     {
-        final EventLogFragment fragment = (EventLogFragment) bring_fragment_on_top_using_NavigationDrawer(1);
+        final EventFragment fragment = (EventFragment) bring_fragment_on_top_using_NavigationDrawer(2);
         assertNotNull(fragment);
 
         ResourceStringLoader stringLoader = new ResourceStringLoader(
                 getActivity().getApplicationContext());
         final LoginEvent event1 = new LoginEvent(true);
-        waitMsecs(1000);
+        waitMsecs(100);
         final LoginEvent event2 = new LoginEvent(false);
         event1.load(stringLoader);
         event2.load(stringLoader);
@@ -284,16 +289,131 @@ public class EventFragmentTest extends
     }
 
 
+    private void generateAdditionalEventLogs(LinkedList<UiEvent> eventBuffer,
+            int eventsCount)
+    {
+        Date startDate = new Date();
+        for (int count = 0; count < eventsCount; count++)
+        {
+            TestableUiEvent e = new TestableUiEvent(new Date(
+                    startDate.getTime() + (1000 * count)));
+
+            e.mTestTitle = "title[" + count + "]";
+            e.mTestDescription = "desc[" + count + "]";
+            e.mTestDetail = "detail[" + count + "]";
+            eventBuffer.addFirst(e);
+        }
+    }
+
+
+    public void test_send_ServiceEvent_list_and_check_chronological_insert_sort()
+    {
+        final EventFragment fragment = (EventFragment) bring_fragment_on_top_using_NavigationDrawer(2);
+        assertNotNull(fragment);
+
+        int eventsCount = 10;
+        final LinkedList<UiEvent> eventBuffer = new LinkedList<UiEvent>();
+        generateAdditionalEventLogs(eventBuffer, eventsCount);
+
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run()
+            {
+                fragment.info(eventBuffer);
+            }
+        });
+
+        waitMsecs(100);
+
+        ListView listView = (ListView) getActivity().findViewById(
+                R.id.event_list_list);
+        assertTrue(listView.getChildCount() == eventsCount);
+
+        for (int count = 0; count < eventsCount; count++)
+        {
+            TextView time = (TextView) listView.getChildAt(count).findViewById(
+                    R.id.event_list_time);
+            String formattedTime = time.getText().toString();
+            String bufferedFormattedTime = eventBuffer.get(count).getTime();
+            assertEquals(bufferedFormattedTime, formattedTime);
+        }
+    }
+
+
+    public void test_send_ServiceEvent_list_plus_single_event_and_check_chronological_insert_sort()
+    {
+        final EventFragment fragment = (EventFragment) bring_fragment_on_top_using_NavigationDrawer(2);
+        assertNotNull(fragment);
+
+        int eventsCount = 5;
+        final LinkedList<UiEvent> eventBuffer = new LinkedList<UiEvent>();
+        generateAdditionalEventLogs(eventBuffer, eventsCount);
+
+        // single event
+        waitMsecs(100);
+        Date currentTime = new Date();
+        TestableUiEvent event = new TestableUiEvent(currentTime);
+
+        event.mTestTitle = "title[xx]";
+        event.mTestDescription = "desc[xx]";
+        event.mTestDetail = "detail[xx]";
+        eventBuffer.addFirst(event);
+
+        waitMsecs(100);
+        generateAdditionalEventLogs(eventBuffer, eventsCount);
+
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run()
+            {
+                fragment.info(eventBuffer);
+            }
+        });
+
+        waitMsecs(100);
+
+        ListView listView = (ListView) getActivity().findViewById(
+                R.id.event_list_list);
+        assertEquals(listView.getChildCount(),
+                (eventsCount + 1 + eventsCount));
+
+        for (int count = 0; count < eventsCount; count++)
+        {
+            TextView time = (TextView) listView.getChildAt(count).findViewById(
+                    R.id.event_list_time);
+            String formattedTime = time.getText().toString();
+            String bufferedFormattedTime = eventBuffer.get(count).getTime();
+            assertEquals(bufferedFormattedTime, formattedTime);
+        }
+
+        // check single event
+        TextView timeView = (TextView) listView.getChildAt(eventsCount + 1)
+                .findViewById(R.id.event_list_time);
+        String fTime = timeView.getText().toString();
+        String bufferedTime = eventBuffer.get(eventsCount + 1).getTime();
+        assertEquals(bufferedTime, fTime);
+
+        for (int count = (eventsCount + 1); count < (eventsCount + 1 + eventsCount); count++)
+        {
+            TextView time = (TextView) listView.getChildAt(count).findViewById(
+                    R.id.event_list_time);
+            String formattedTime = time.getText().toString();
+            String bufferedFormattedTime = eventBuffer.get(count).getTime();
+            assertEquals(bufferedFormattedTime, formattedTime);
+        }
+    }
+
+
     public void test_send_ServiceEvent_to_EventLogFragment()
     {
-        final EventLogFragment fragment = (EventLogFragment) bring_fragment_on_top_using_NavigationDrawer(1);
+        final EventFragment fragment = (EventFragment) bring_fragment_on_top_using_NavigationDrawer(2);
         assertNotNull(fragment);
 
         ResourceStringLoader stringLoader = new ResourceStringLoader(
                 getActivity().getApplicationContext());
 
         final ServiceEvent event1 = new ServiceEvent(true);
-        waitMsecs(1000);
+        waitMsecs(100);
         final ServiceEvent event2 = new ServiceEvent(false);
         event1.load(stringLoader);
         event2.load(stringLoader);
@@ -310,14 +430,14 @@ public class EventFragmentTest extends
 
     public void test_send_SettingsChangedEvent_to_EventLogFragment()
     {
-        final EventLogFragment fragment = (EventLogFragment) bring_fragment_on_top_using_NavigationDrawer(1);
+        final EventFragment fragment = (EventFragment) bring_fragment_on_top_using_NavigationDrawer(2);
         assertNotNull(fragment);
 
         ResourceStringLoader stringLoader = new ResourceStringLoader(
                 getActivity().getApplicationContext());
 
         final SettingsChangedEvent event1 = new SettingsChangedEvent();
-        waitMsecs(1000);
+        waitMsecs(100);
         final SettingsChangedEvent event2 = new SettingsChangedEvent();
         event1.load(stringLoader);
         event2.load(stringLoader);

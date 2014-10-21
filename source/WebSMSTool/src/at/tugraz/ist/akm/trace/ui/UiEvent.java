@@ -46,7 +46,7 @@ public class UiEvent implements Parcelable
     };
 
 
-    UiEvent()
+    public UiEvent()
     {
         mDate = new Date();
         mDrawableResourceId = R.drawable.ic_action_action_about;

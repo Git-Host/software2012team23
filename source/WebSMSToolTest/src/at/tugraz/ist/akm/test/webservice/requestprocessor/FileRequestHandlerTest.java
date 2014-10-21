@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package at.tugraz.ist.akm.test.webservice.handler;
+package at.tugraz.ist.akm.test.webservice.requestprocessor;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

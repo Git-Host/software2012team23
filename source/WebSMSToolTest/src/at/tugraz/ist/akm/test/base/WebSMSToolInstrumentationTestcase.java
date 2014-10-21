@@ -23,68 +23,91 @@ import at.tugraz.ist.akm.test.trace.ExceptionThrowingLogSink;
 import at.tugraz.ist.akm.trace.LogClient;
 import at.tugraz.ist.akm.trace.TraceService;
 
-public class WebSMSToolInstrumentationTestcase extends InstrumentationTestCase {
+public class WebSMSToolInstrumentationTestcase extends InstrumentationTestCase
+{
 
     protected Context mContext = null;
     protected ContentResolver mContentResolver = null;
-	private LogClient mLog = null;
-	private String mLogTag = null;
+    private LogClient mLog = null;
+    private String mLogTag = null;
 
-	public WebSMSToolInstrumentationTestcase(String logTag) {
-		TraceService.setSink(new ExceptionThrowingLogSink());
-		mLogTag = new String(logTag);
-	}
 
-	@Override
-	protected void setUp() throws Exception {
-		super.setUp();
-		mLog = new LogClient(mLogTag);
-		logVerbose(getName() + ".setUp()");
+    public WebSMSToolInstrumentationTestcase(String logTag)
+    {
+        TraceService.setSink(new ExceptionThrowingLogSink());
+        mLogTag = new String(logTag);
+    }
 
-		mContext = getInstrumentation().getTargetContext();
-		mContentResolver = mContext.getContentResolver();
-		assertTrue(mContentResolver != null);
-	}
 
-	@Override
-	protected void tearDown() throws Exception {
-		logVerbose(getName() + ".tearDown()");
-	    mContext = null;
-	    mContentResolver = null;
-	    mLog = null;
-		super.tearDown();
-	}
+    @Override
+    protected void setUp() throws Exception
+    {
+        super.setUp();
+        mLog = new LogClient(mLogTag);
+        logVerbose(getName() + ".setUp()");
 
-	protected void logDebug(final String message, Throwable throwable) {
-		mLog.debug(message, throwable);
-	}
-	
-	protected void logDebug(final String message) {
-		mLog.debug(message);
-	}
-	
-	protected void logError(final String message, Throwable throwable) {
-		mLog.error(message, throwable);
-	}
-	
-	protected void logError(final String message) {
-		mLog.error(message);
-	}
-	
-	protected void logInfo(final String message, Throwable throwable) {
-		mLog.info(message, throwable);
-	}
-	
-	protected void logInfo(final String message) {
-		mLog.info(message);
-	}
-	
-	protected void logVerbose(final String message, Throwable throwable) {
-		mLog.info(message, throwable);
-	}
-	
-	protected void logVerbose(final String message) {
-		mLog.info(message);
-	}
+        mContext = getInstrumentation().getTargetContext();
+        mContentResolver = mContext.getContentResolver();
+        assertTrue(mContentResolver != null);
+    }
+
+
+    @Override
+    protected void tearDown() throws Exception
+    {
+        logVerbose(getName() + ".tearDown()");
+        mContext = null;
+        mContentResolver = null;
+        mLog = null;
+        super.tearDown();
+    }
+
+
+    protected void logDebug(final String message, Throwable throwable)
+    {
+        mLog.debug(message, throwable);
+    }
+
+
+    protected void logDebug(final String message)
+    {
+        mLog.debug(message);
+    }
+
+
+    protected void logError(final String message, Throwable throwable)
+    {
+        mLog.error(message, throwable);
+    }
+
+
+    protected void logError(final String message)
+    {
+        mLog.error(message);
+    }
+
+
+    protected void logInfo(final String message, Throwable throwable)
+    {
+        mLog.info(message, throwable);
+    }
+
+
+    protected void logInfo(final String message)
+    {
+        mLog.info(message);
+    }
+
+
+    protected void logVerbose(final String message, Throwable throwable)
+    {
+        mLog.info(message, throwable);
+    }
+
+
+    protected void logVerbose(final String message)
+    {
+        mLog.info(message);
+    }
 
 }

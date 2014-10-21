@@ -30,6 +30,7 @@ import my.org.apache.http.HttpException;
 import my.org.apache.http.HttpResponse;
 import my.org.apache.http.ParseException;
 import my.org.apache.http.RequestLine;
+import my.org.apache.http.protocol.HttpContext;
 import my.org.apache.http.protocol.HttpRequestHandlerRegistry;
 
 import org.json.JSONArray;
@@ -121,8 +122,8 @@ public class JsonAPIRequestProcessor extends AbstractHttpRequestProcessor
 
     @Override
     public synchronized void handleRequest(RequestLine requestLine,
-            String requestData, HttpResponse httpResponse)
-            throws HttpException, IOException
+            String requestData, HttpResponse httpResponse,
+            HttpContext httpContext) throws HttpException, IOException
     {
 
         if (requestLine.getMethod().equals(

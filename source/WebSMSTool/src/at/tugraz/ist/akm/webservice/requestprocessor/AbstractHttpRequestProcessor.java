@@ -38,9 +38,11 @@ import at.tugraz.ist.akm.trace.LogClient;
 import at.tugraz.ist.akm.webservice.WebServerConstants;
 import at.tugraz.ist.akm.webservice.requestprocessor.interceptor.IRequestInterceptor;
 
-public abstract class AbstractHttpRequestProcessor implements HttpRequestHandler, Closeable
+public abstract class AbstractHttpRequestProcessor implements
+        HttpRequestHandler, Closeable
 {
-    private LogClient mLog = new LogClient(AbstractHttpRequestProcessor.class.getCanonicalName());
+    private LogClient mLog = new LogClient(
+            AbstractHttpRequestProcessor.class.getCanonicalName());
     protected Context mContext;
     protected XmlNode mConfig;
     protected HttpRequestHandlerRegistry mRegistry;
@@ -49,52 +51,73 @@ public abstract class AbstractHttpRequestProcessor implements HttpRequestHandler
     protected HashMap<String, FileInfo> mUri2FileInfo = new HashMap<String, AbstractHttpRequestProcessor.FileInfo>();
     private String mUriPattern = null;
 
-    public static class FileInfo {
+    public static class FileInfo
+    {
         String mContentType;
         String mFile;
 
-        public FileInfo(String file,String contentType) {
+
+        public FileInfo(String file, String contentType)
+        {
             mFile = file;
             mContentType = contentType;
         }
 
+
         @Override
-        public String toString() {
-            return new StringBuffer().append("dataFile '").append(mFile).append("' contentType '")
-                    .append(mContentType).append("'").toString();
+        public String toString()
+        {
+            return new StringBuffer().append("dataFile '").append(mFile)
+                    .append("' contentType '").append(mContentType).append("'")
+                    .toString();
         }
     }
 
-    public AbstractHttpRequestProcessor(final Context context, final XmlNode config,
-            final HttpRequestHandlerRegistry registry) {
+
+    public AbstractHttpRequestProcessor(final Context context,
+            final XmlNode config, final HttpRequestHandlerRegistry registry)
+    {
         mContext = context;
         mConfig = config;
         mRegistry = registry;
         assignUriMappingToRegistry();
     }
 
-    public void addRequestInterceptor(IRequestInterceptor interceptor) {
+
+    public void addRequestInterceptor(IRequestInterceptor interceptor)
+    {
         mRequestInterceptorList.add(interceptor);
     }
 
-    private void assignUriMappingToRegistry() {
-        if (mConfig == null) {
+
+    private void assignUriMappingToRegistry()
+    {
+        if (mConfig == null)
+        {
             return;
         }
-        List<XmlNode> childNodes = mConfig.getChildNodes(WebServerConstants.XML.TAG_REQUEST);
-        for (XmlNode node : childNodes) {
-            String uri = node.getAttributeValue(WebServerConstants.XML.ATTRIBUTE_URI_PATTERN);
-            if (uri == null || uri.trim().length() == 0) {
+        List<XmlNode> childNodes = mConfig
+                .getChildNodes(WebServerConstants.XML.TAG_REQUEST);
+        for (XmlNode node : childNodes)
+        {
+            String uri = node
+                    .getAttributeValue(WebServerConstants.XML.ATTRIBUTE_URI_PATTERN);
+            if (uri == null || uri.trim().length() == 0)
+            {
                 mLog.error("no uri configured, ignore this request configuration");
                 continue;
             }
-            String contentType = node.getAttributeValue(WebServerConstants.XML.ATTRIBUTE_CONTENT_TYPE);
-            if (contentType == null || contentType.trim().length() == 0) {
+            String contentType = node
+                    .getAttributeValue(WebServerConstants.XML.ATTRIBUTE_CONTENT_TYPE);
+            if (contentType == null || contentType.trim().length() == 0)
+            {
                 mLog.error("no content type configured for uri <" + uri + ">");
                 continue;
             }
-            String file = node.getAttributeValue(WebServerConstants.XML.ATTRIBUTE_DATA_FILE);
-            if (file == null || file.trim().length() == 0) {
+            String file = node
+                    .getAttributeValue(WebServerConstants.XML.ATTRIBUTE_DATA_FILE);
+            if (file == null || file.trim().length() == 0)
+            {
                 mLog.error("no data file configured for uri <" + uri + ">");
                 continue;
             }
@@ -102,66 +125,82 @@ public abstract class AbstractHttpRequestProcessor implements HttpRequestHandler
 
             FileInfo fileInfo = new FileInfo(file.trim(), contentType.trim());
             mUri2FileInfo.put(uri, fileInfo);
-//            mLog.debug("read mapping uri <" + uri + "> ==> <" + fileInfo + ">");
 
             register(uri);
         }
     }
 
-    protected void register(String uri) {
-        if (mRegistry != null) {
-//            mLog.debug("register for uri '" + uri + "'");
+
+    protected void register(String uri)
+    {
+        if (mRegistry != null)
+        {
             mUriPattern = uri;
             mRegistry.register(mUriPattern, this);
-        } else {
-            mLog.error("cannot register uri '" + uri + "' => no registry provided!");
+        } else
+        {
+            mLog.error("cannot register uri '" + uri
+                    + "' => no registry provided!");
         }
     }
 
-    @Override
-    public void handle(HttpRequest httpRequest, HttpResponse httpResponse, HttpContext httpContext)
-            throws HttpException, IOException {
 
+    @Override
+    public void handle(HttpRequest httpRequest, HttpResponse httpResponse,
+            HttpContext httpContext) throws HttpException, IOException
+    {
         String requestData = null;
 
-        if (httpRequest instanceof BasicHttpEntityEnclosingRequest) {
-            HttpEntity entitiy = ((BasicHttpEntityEnclosingRequest)httpRequest).getEntity();
-            if (entitiy != null) {
+        if (httpRequest instanceof BasicHttpEntityEnclosingRequest)
+        {
+            HttpEntity entitiy = ((BasicHttpEntityEnclosingRequest) httpRequest)
+                    .getEntity();
+            if (entitiy != null)
+            {
                 requestData = EntityUtils.toString(entitiy);
             }
         }
-        for (IRequestInterceptor interceptor : mRequestInterceptorList) {
-            if (!interceptor.process(httpRequest, requestData, httpResponse)) {
+        for (IRequestInterceptor interceptor : mRequestInterceptorList)
+        {
+            if (!interceptor.process(httpRequest, requestData, httpResponse, httpContext))
+            {
                 return;
             }
         }
-        handleRequest(httpRequest.getRequestLine(), requestData, httpResponse);
+        handleRequest(httpRequest.getRequestLine(), requestData, httpResponse,
+                httpContext);
     }
 
-    public abstract void handleRequest(RequestLine requestLine, String requestData,
-            HttpResponse httpResponse) throws HttpException, IOException;
+
+    public abstract void handleRequest(RequestLine requestLine,
+            String requestData, HttpResponse httpResponse,
+            HttpContext httpContext) throws HttpException, IOException;
+
 
     @Override
-    public void close() {
-        if (mRegistry != null) {
+    public void close()
+    {
+        if (mRegistry != null)
+        {
             mLog.debug("close request handler for URI [" + mUriPattern + "]");
             mRegistry.unregister(mUriPattern);
             mRegistry = null;
         }
-        for ( IRequestInterceptor interceptor : mRequestInterceptorList ) {
+        for (IRequestInterceptor interceptor : mRequestInterceptorList)
+        {
             interceptor.onClose();
         }
         mRequestInterceptorList.clear();
         mRequestInterceptorList = null;
-        
+
         mContext = null;
         mConfig = null;
-        
+
         mResponseDataAppender = null;
         mUri2FileInfo.clear();
         mUri2FileInfo = null;
-        
+
         mUriPattern = null;
-        mLog = null; 
+        mLog = null;
     }
 }

@@ -40,10 +40,12 @@ public class TelephonySignalStrength
     private int mSignalIconId = 0;
     private Context mContext = null;
 
+
     public TelephonySignalStrength(Context context)
     {
         mContext = context;
     }
+
 
     public void onClose()
     {

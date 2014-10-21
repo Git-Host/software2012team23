@@ -21,6 +21,7 @@ import java.io.UnsupportedEncodingException;
 import my.org.apache.http.Header;
 import my.org.apache.http.HttpRequest;
 import my.org.apache.http.HttpResponse;
+import my.org.apache.http.protocol.HttpContext;
 import android.content.Context;
 import android.util.Base64;
 import at.tugraz.ist.akm.io.FileReader;
@@ -31,8 +32,9 @@ import at.tugraz.ist.akm.webservice.server.WebserverProtocolConfig;
 
 public class AuthorizationInterceptor extends AbstractRequestInterceptor
 {
-    protected final LogClient mLog = new LogClient(this);
+    private final LogClient mLog = new LogClient(this);
     private final static String mDefaultEncoding = "UTF8";
+    private HttpClientBackLog mBackLog = new HttpClientBackLog();
 
 
     public AuthorizationInterceptor(WebserverProtocolConfig config,
@@ -63,18 +65,53 @@ public class AuthorizationInterceptor extends AbstractRequestInterceptor
     }
 
 
+    // private String toMyString(Header[] headers)
+    // {
+    // StringBuilder sb = new StringBuilder();
+    //
+    // int hidx = 0;
+    // sb.append("{");
+    // for (Header h : headers)
+    // {
+    //
+    // sb.append("h" + (hidx++) + "[" + h.getName() + "]->["
+    // + h.getValue() + "]");
+    //
+    // int heidx = 0;
+    // for (HeaderElement he : h.getElements())
+    // {
+    //
+    // for (int i = 0; i < he.getParameterCount(); i++)
+    // {
+    // sb.append("he" + (heidx++) + "("
+    // + he.getParameter(i).getName() + ")->("
+    // + he.getParameter(i).getValue() + ")");
+    // }
+    // }
+    // }
+    // sb.append("}");
+    // return sb.toString();
+    // }
+
     @Override
     public boolean process(HttpRequest httpRequest, String requestData,
-            HttpResponse httpResponse)
+            HttpResponse httpResponse, HttpContext httpContext)
     {
+
         Header header = httpRequest
                 .getFirstHeader(WebServerConstants.HTTP.HEADER_AUTHENTICATION);
+
+        boolean isPseudoAuthExpired = mBackLog.isAuthExpired(httpContext);
+        mBackLog.memorizeClient(httpContext);
 
         if (mServerConfig.isUserAuthEnabled == false)
         {
             httpResponse.setStatusCode(WebServerConstants.HTTP.HTTP_CODE_OK);
 
-            tryCallback(true);
+            if (isPseudoAuthExpired)
+            {
+                tryCallback(true);
+            }
             return true;
         }
 
@@ -118,7 +155,16 @@ public class AuthorizationInterceptor extends AbstractRequestInterceptor
             filereader = null;
         }
 
-        tryCallback(authSuccess);
+        if (authSuccess)
+        {
+            if (isPseudoAuthExpired)
+            {
+                tryCallback(true);
+            }
+        } else
+        {
+            tryCallback(false);
+        }
         return authSuccess;
     }
 

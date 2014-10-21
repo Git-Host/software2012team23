@@ -13,10 +13,10 @@ public class EventClientIncomingServiceMessageHandler extends Handler
 {
     LogClient mLog = new LogClient(
             EventClientIncomingServiceMessageHandler.class.getCanonicalName());
-    EventLogFragment mClientFragment = null;
+    EventFragment mClientFragment = null;
 
 
-    public EventClientIncomingServiceMessageHandler(EventLogFragment client)
+    public EventClientIncomingServiceMessageHandler(EventFragment client)
     {
         mClientFragment = client;
     }
