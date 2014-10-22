@@ -44,6 +44,7 @@ public class AuthorizationInterceptor extends AbstractRequestInterceptor
         super(config, context, authCallback);
     }
 
+
     @Override
     public void close() throws IOException
     {

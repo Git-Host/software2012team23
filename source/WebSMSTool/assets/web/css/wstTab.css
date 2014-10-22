@@ -13,80 +13,78 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- 
 #tabs {
-    font-size: 90%;
+	font-size: 90%;
 }
 
 #tabs ul {
-    background: none repeat scroll 0 0 #1E4695;
-    float: left;
-    margin-bottom: 0;
-    margin-right: 10px;
-    padding-left: 0;
-    padding-top: 4px;   
-    padding-right:8px;
-    border-top-left-radius: 10px;
-    border-top-right-radius: 10px;  
+	background: none repeat scroll 0 0 #1E4695;
+	float: left;
+	margin-bottom: 0;
+	margin-right: 10px;
+	padding-left: 0;
+	padding-top: 4px;
+	padding-right: 8px;
+	border-top-left-radius: 10px;
+	border-top-right-radius: 10px;
 }
 
 #tabs li {
-    margin-left: 8px;
-    list-style: none;
-    border-radius: 5px 5px 0px 0px;
+	margin-left: 8px;
+	list-style: none;
+	border-radius: 5px 5px 0px 0px;
 }
 
 * html #tabs li {
-    display: inline; /* ie6 double float margin bug */
+	display: inline; /* ie6 double float margin bug */
 }
 
 #tabs li,#tabs li a {
-    float: left;
+	float: left;
 }
 
 #tabs ul li a {
-    text-decoration: none;
-    padding: 8px;
-    color: white;
-    font-weight: bold;
+	text-decoration: none;
+	padding: 8px;
+	color: white;
+	font-weight: bold;
 }
 
 #tabs ul li.active {
-    background-color: white;
+	background-color: white;
 }
 
 #tabs ul li.active a {
-    color: #333333;
+	color: #333333;
 }
 
 #tabs ul li:hover {
-  background-color: rgb(255,255,200);
+	background-color: rgb(255, 255, 200);
 }
 
 #tabs ul li a:hover {
-    color:black;
+	color: black;
 }
 
 #tabs div.contact_tab {
-    background: white;
-    clear: both;
-    /*padding: 20px;*/
-    padding-top: 5px;
-    padding-bottom: 5px;    
-    margin-right:10px;
-    border-top-right-radius: 10px;
-    border-bottom: 1px solid black;
-    border-left: 1px solid black;
-    border-right: 1px solid black;  
+	background: white;
+	clear: both;
+	/*padding: 20px;*/
+	padding-top: 5px;
+	padding-bottom: 5px;
+	margin-right: 10px;
+	border-top-right-radius: 10px;
+	border-bottom: 1px solid black;
+	border-left: 1px solid black;
+	border-right: 1px solid black;
 }
 
 #tabs div.contact_tab h3 {
-    text-transform: uppercase;
-    margin-bottom: 10px;
-    letter-spacing: 1px;
+	text-transform: uppercase;
+	margin-bottom: 10px;
+	letter-spacing: 1px;
 }
 
 #tabs div.contact_tab p {
-    line-height: 150%;
+	line-height: 150%;
 }
-

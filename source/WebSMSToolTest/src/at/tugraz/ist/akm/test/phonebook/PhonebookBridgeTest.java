@@ -20,38 +20,50 @@ import at.tugraz.ist.akm.phonebook.PhonebookBridge;
 import at.tugraz.ist.akm.test.base.WebSMSToolActivityTestcase;
 import at.tugraz.ist.akm.test.testdata.PhonebookTestsHelper;
 
-public class PhonebookBridgeTest extends WebSMSToolActivityTestcase {
+public class PhonebookBridgeTest extends WebSMSToolActivityTestcase
+{
 
-	public PhonebookBridgeTest() {
-		super(PhonebookBridgeTest.class.getSimpleName());
-	}
+    public PhonebookBridgeTest()
+    {
+        super(PhonebookBridgeTest.class.getSimpleName());
+    }
 
-	public void testPhonebookBridgeContactChangedCallback() throws Throwable {
-		try {
-			PhonebookBridge phonebook = new PhonebookBridge(mContext);
-			phonebook.start();
-			String[] mrFoo = { "Foo", "Bar", "01906666" };
-			Thread.sleep(1000);
-			PhonebookTestsHelper.storeContact(mrFoo, mContentResolver);
-			Thread.sleep(1000);
-			PhonebookTestsHelper.deleteContact(mrFoo[2], mrFoo[0] + " " + mrFoo[1], mContentResolver);
-			Thread.sleep(1000);
-			phonebook.stop();
-			phonebook.close();
-		} catch (Exception ex) {
-			ex.printStackTrace();
-			assertTrue(false);
-		}
-	}
 
-	@Override
-	protected void setUp() throws Exception {
-		super.setUp();
-	}
+    public void testPhonebookBridgeContactChangedCallback() throws Throwable
+    {
+        try
+        {
+            PhonebookBridge phonebook = new PhonebookBridge(mContext);
+            phonebook.start();
+            String[] mrFoo = { "Foo", "Bar", "01906666" };
+            Thread.sleep(1000);
+            PhonebookTestsHelper.storeContact(mrFoo, mContentResolver);
+            Thread.sleep(1000);
+            PhonebookTestsHelper.deleteContact(mrFoo[2], mrFoo[0] + " "
+                    + mrFoo[1], mContentResolver);
+            Thread.sleep(1000);
+            phonebook.stop();
+            phonebook.close();
+        }
+        catch (Exception ex)
+        {
+            ex.printStackTrace();
+            assertTrue(false);
+        }
+    }
 
-	@Override
-	protected void tearDown() throws Exception {
-		super.tearDown();
-	}
+
+    @Override
+    protected void setUp() throws Exception
+    {
+        super.setUp();
+    }
+
+
+    @Override
+    protected void tearDown() throws Exception
+    {
+        super.tearDown();
+    }
 
 }

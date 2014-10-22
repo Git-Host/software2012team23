@@ -49,12 +49,15 @@ public class JsonBatteryStatusBuilder implements IJsonBuilder
         JSONObject json = new JSONObject();
         try
         {
-            json.put(BatteryLevelValueNames.BATTERY_LEVEL, status.getBatteryLevel());
-            json.put(BatteryLevelValueNames.BATTERY_LEVEL_ICON,
-                    new String(status.getBatteryIconBytes(), mDefaultEncoding));
+            json.put(BatteryLevelValueNames.BATTERY_LEVEL,
+                    status.getBatteryLevel());
+            json.put(BatteryLevelValueNames.BATTERY_LEVEL_ICON, new String(
+                    status.getBatteryIconBytes(), mDefaultEncoding));
             json.put(BatteryLevelValueNames.IS_CHARGING, status.getIsCharging());
-            json.put(BatteryLevelValueNames.IS_AC_CHARGE, status.getIsAcCharge());
-            json.put(BatteryLevelValueNames.IS_USB_CHARGE, status.getIsUsbCharge());
+            json.put(BatteryLevelValueNames.IS_AC_CHARGE,
+                    status.getIsAcCharge());
+            json.put(BatteryLevelValueNames.IS_USB_CHARGE,
+                    status.getIsUsbCharge());
             json.put(BatteryLevelValueNames.IS_FULL, status.getIsFull());
         }
         catch (JSONException jsonException)

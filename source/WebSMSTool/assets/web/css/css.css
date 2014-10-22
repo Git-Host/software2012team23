@@ -13,202 +13,195 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- 
 h1,h2,h3,h4,h5,h6 {
-    margin: 0px;
-    font-weight: bold;
+	margin: 0px;
+	font-weight: bold;
 }
 
 p {
-    font-size: 10px;
-    margin: 0px;
+	font-size: 10px;
+	margin: 0px;
 }
 
 body {
-    background-color: #E5E5E5;
-    /*box-shadow: 3px 3px 5px 6px #CCCCCC;*/
-    font-family: Helvetica, Arial, sans-serif;
-    margin: 10px auto;
-    /*text-shadow: 3px 3px 5px rgb(91,121,182);*/
-    width: 970px;
-    
-    background-image: linear-gradient(bottom, rgb(255,255,255) 16%, rgb(91,121,182) 65%, rgb(34,93,165) 96%);
-    background-image: -o-linear-gradient(bottom, rgb(255,255,255) 16%, rgb(91,121,182) 65%, rgb(34,93,165) 96%);
-    background-image: -moz-linear-gradient(bottom, rgb(255,255,255) 16%, rgb(91,121,182) 65%, rgb(34,93,165) 96%);
-    background-image: -webkit-linear-gradient(bottom, rgb(255,255,255) 16%, rgb(91,121,182) 65%, rgb(34,93,165) 96%);
-    background-image: -ms-linear-gradient(bottom, rgb(255,255,255) 16%, rgb(91,121,182) 65%, rgb(34,93,165) 96%);
-
-    background-image: -webkit-gradient(
-        linear,
-        left bottom,
-        left top,
-        color-stop(0.16, rgb(255,255,255)),
-        color-stop(0.65, rgb(91,121,182)),
-        color-stop(0.96, rgb(34,93,165))
-    );
-
-    
-    
+	background-color: #E5E5E5;
+	/*box-shadow: 3px 3px 5px 6px #CCCCCC;*/
+	font-family: Helvetica, Arial, sans-serif;
+	margin: 10px auto;
+	/*text-shadow: 3px 3px 5px rgb(91,121,182);*/
+	width: 970px;
+	background-image: linear-gradient(bottom, rgb(255, 255, 255) 16%,
+		rgb(91, 121, 182) 65%, rgb(34, 93, 165) 96%);
+	background-image: -o-linear-gradient(bottom, rgb(255, 255, 255) 16%,
+		rgb(91, 121, 182) 65%, rgb(34, 93, 165) 96%);
+	background-image: -moz-linear-gradient(bottom, rgb(255, 255, 255) 16%,
+		rgb(91, 121, 182) 65%, rgb(34, 93, 165) 96%);
+	background-image: -webkit-linear-gradient(bottom, rgb(255, 255, 255) 16%,
+		rgb(91, 121, 182) 65%, rgb(34, 93, 165) 96%);
+	background-image: -ms-linear-gradient(bottom, rgb(255, 255, 255) 16%,
+		rgb(91, 121, 182) 65%, rgb(34, 93, 165) 96%);
+	background-image: -webkit-gradient(linear, left bottom, left top, color-stop(0.16, rgb(255
+		, 255, 255)), color-stop(0.65, rgb(91, 121, 182)),
+		color-stop(0.96, rgb(34, 93, 165)));
 }
 
 #content_wrapper {
-    border: 2px solid #1E4695;
-    border-radius: 5px;
-    /*box-shadow: 2px 2px 2px 2px white;*/
+	border: 2px solid #1E4695;
+	border-radius: 5px;
+	/*box-shadow: 2px 2px 2px 2px white;*/
 }
 
 header {
-    height: 100px;
-    padding: 5px;
-    color:white;
+	height: 100px;
+	padding: 5px;
+	color: white;
 }
 
 header h1 {
-    margin-top: 15px;
+	margin-top: 15px;
 }
 
 footer {
-    text-align: center;
+	text-align: center;
 }
 
 .logo {
-    float: left;
-    margin-right: 10px;
+	float: left;
+	margin-right: 10px;
 }
 
 .status {
-    text-align: right;
-    padding-right: 10px;
-    border-bottom: 2px solid #1E4695;
+	text-align: right;
+	padding-right: 10px;
+	border-bottom: 2px solid #1E4695;
 }
 
 .status img {
-    height: 25px;
+	height: 25px;
 }
 
 .main {
-    /*border: 1px solid black;*/
+	/*border: 1px solid black;*/
 }
 
 #left_column {
-    width: 270px;
-    /*border-right: 1px solid black;*/
-    float: left;
-    height: 800px;
+	width: 270px;
+	/*border-right: 1px solid black;*/
+	float: left;
+	height: 800px;
 }
 
 #left_column .list {
-    max-height: 789px;
-    border-bottom-left-radius: 10px;    
-    border-bottom-right-radius: 10px;   
+	max-height: 789px;
+	border-bottom-left-radius: 10px;
+	border-bottom-right-radius: 10px;
 }
 
 .list {
-    margin: 0px 5px;
-    overflow: auto;
-    padding: 5px 2px 5px 2px;
-    border: 2px solid #1E4695;
-    color: white;
-    background-color: #225DA5;  
+	margin: 0px 5px;
+	overflow: auto;
+	padding: 5px 2px 5px 2px;
+	border: 2px solid #1E4695;
+	color: white;
+	background-color: #225DA5;
 }
 
 #left_column h3 {
-    border-top-left-radius: 10px;   
-    border-top-right-radius: 10px;  
-    color: white;
-    margin: 15px 5px 0px 5px;
-    overflow: auto;
-    padding: 5px 2px 2px 5px;
-    background-color: #1E4695;
-    line-height: 30px;
+	border-top-left-radius: 10px;
+	border-top-right-radius: 10px;
+	color: white;
+	margin: 15px 5px 0px 5px;
+	overflow: auto;
+	padding: 5px 2px 2px 5px;
+	background-color: #1E4695;
+	line-height: 30px;
 }
 
 #left_column .list .list_entry {
-    padding: 3px 2px 4px 3px;
-    border: 1px solid #1E4695;
-    min-height: 50px;
-    cursor: pointer;
+	padding: 3px 2px 4px 3px;
+	border: 1px solid #1E4695;
+	min-height: 50px;
+	cursor: pointer;
 }
 
 .list .list_entry {
-    margin-top: 2px;
-    border: 1px solid #1E4695;
-    padding: 3px 0px 0px 3px;
-    box-shadow: 0px 0px 1px 0px black;
-    min-height: 50px;
-    border-radius: 7px;
+	margin-top: 2px;
+	border: 1px solid #1E4695;
+	padding: 3px 0px 0px 3px;
+	box-shadow: 0px 0px 1px 0px black;
+	min-height: 50px;
+	border-radius: 7px;
 }
 
-.list_entry:hover{
-    background-color: rgb(255,255,200);
-    box-shadow: inset 0px 0px 5px black;
-    color:black;
+.list_entry:hover {
+	background-color: rgb(255, 255, 200);
+	box-shadow: inset 0px 0px 5px black;
+	color: black;
 }
 
 .contact_entry img {
-    margin-right: 6px;
-    float: left;
-    border-radius: 5px;
-    box-shadow: 2px 2px 5px 0px rgba(0,0,0,0.9), inset 0px 0px 5px rgba(0,0,0,0.5);
+	margin-right: 6px;
+	float: left;
+	border-radius: 5px;
+	box-shadow: 2px 2px 5px 0px rgba(0, 0, 0, 0.9), inset 0px 0px 5px
+		rgba(0, 0, 0, 0.5);
 }
 
 .sms_thread {
-    border-radius: 10px;
+	border-radius: 10px;
 }
 
-
 #right_column {
-    float: right;
-    width: 690px;
+	float: right;
+	width: 690px;
 }
 
 #right_column .list {
-    max-height: 450px;
+	max-height: 450px;
 }
 
 input {
-    border: 2px solid #999;
+	border: 2px solid #999;
 }
 
 input:focus {
-    border: 2px solid #6C6;
+	border: 2px solid #6C6;
 }
 
 input:invalid {
-    border: 2px solid #F00;
+	border: 2px solid #F00;
 }
 
 .content {
-    margin: 10px;
+	margin: 10px;
 }
 
-
 button {
-   border-top: 1px solid #275EA5;
-   background-color: #275EA5;
-   padding: 5px;
-   border-radius: 8px;
-   box-shadow: rgba(0,0,0,1) 0 1px 0;
-   text-shadow: rgba(0,0,0,.4) 0 1px 0;
-   color: white;
-   font-size: 12px;
-   text-decoration: none;
-   vertical-align: middle;
-   width: 100px;
+	border-top: 1px solid #275EA5;
+	background-color: #275EA5;
+	padding: 5px;
+	border-radius: 8px;
+	box-shadow: rgba(0, 0, 0, 1) 0 1px 0;
+	text-shadow: rgba(0, 0, 0, .4) 0 1px 0;
+	color: white;
+	font-size: 12px;
+	text-decoration: none;
+	vertical-align: middle;
+	width: 100px;
 }
 
 button:hover {
-   border-top-color: #1E4695;
-   background: #1E4695;
-   color: #ccc;
+	border-top-color: #1E4695;
+	background: #1E4695;
+	color: #ccc;
 }
 
 button:active {
-   border-top-color: #1E4695;
-   background: #1E4695;
+	border-top-color: #1E4695;
+	background: #1E4695;
 }
 
-.contact_tab_close{
-    float: right;
-    margin-right: 10px;
+.contact_tab_close {
+	float: right;
+	margin-right: 10px;
 }

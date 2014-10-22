@@ -20,14 +20,18 @@ import java.util.List;
 
 import android.content.Context;
 
-public interface ISmsIOCallback {
+public interface ISmsIOCallback
+{
 
-	public void smsSentCallback(Context context, List<TextMessage> messages);
-	
-	public void smsSentErrorCallback(Context context, List<TextMessage> messages);
+    public void smsSentCallback(Context context, List<TextMessage> messages);
 
-	public void smsDeliveredCallback(Context context, List<TextMessage> messagea);
-	
-	public void smsReceivedCallback(Context context, List<TextMessage> messages);
+
+    public void smsSentErrorCallback(Context context, List<TextMessage> messages);
+
+
+    public void smsDeliveredCallback(Context context, List<TextMessage> messagea);
+
+
+    public void smsReceivedCallback(Context context, List<TextMessage> messages);
 
 }

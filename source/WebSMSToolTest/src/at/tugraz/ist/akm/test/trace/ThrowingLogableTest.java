@@ -41,7 +41,8 @@ public class ThrowingLogableTest extends TestCase
         try
         {
             mLog.debug("testLogDebug");
-        } catch (Exception ex)
+        }
+        catch (Exception ex)
         {
             assertTrue(false);
         }
@@ -53,29 +54,35 @@ public class ThrowingLogableTest extends TestCase
         try
         {
             mLog.debug("testLogDebug_nullException", null);
-        } catch (Exception ex)
+        }
+        catch (Exception ex)
         {
             assertTrue(false);
         }
     }
 
+
     public void testLogDebug_exception()
     {
         try
         {
-            mLog.debug("testLogDebug_exception", new Throwable("test exception"));
-        } catch (Exception ex)
+            mLog.debug("testLogDebug_exception",
+                    new Throwable("test exception"));
+        }
+        catch (Exception ex)
         {
             assertTrue(false);
         }
     }
-    
+
+
     public void testLogError()
     {
         try
         {
             mLog.error("testLogError: If you read this message don't panik - it's just a test!");
-        } catch (Throwable throwable)
+        }
+        catch (Throwable throwable)
         {
             // ok
             ILogSink oldSink = TraceService.getSink();
@@ -95,7 +102,8 @@ public class ThrowingLogableTest extends TestCase
             mLog.error(
                     "testLogErrorE: If you read this message don't panik - it's just a test!",
                     null);
-        } catch (Throwable throwable)
+        }
+        catch (Throwable throwable)
         {
             // ok
             ILogSink oldSink = TraceService.getSink();
@@ -106,8 +114,8 @@ public class ThrowingLogableTest extends TestCase
         }
         assertTrue(false);
     }
-    
-    
+
+
     public void testLogError_eception()
     {
         try
@@ -115,7 +123,8 @@ public class ThrowingLogableTest extends TestCase
             mLog.error(
                     "testLogErrorE: If you read this message don't panik - it's just a test!",
                     new Throwable("test exception"));
-        } catch (Throwable throwable)
+        }
+        catch (Throwable throwable)
         {
             // ok
             ILogSink oldSink = TraceService.getSink();
@@ -133,7 +142,8 @@ public class ThrowingLogableTest extends TestCase
         try
         {
             mLog.info("testLogInfo");
-        } catch (Exception ex)
+        }
+        catch (Exception ex)
         {
             assertTrue(false);
         }
@@ -145,17 +155,21 @@ public class ThrowingLogableTest extends TestCase
         try
         {
             mLog.info("testLogInfo_nullException", null);
-        } catch (Exception ex)
+        }
+        catch (Exception ex)
         {
             assertTrue(false);
         }
     }
+
+
     public void testLogInfo_exception()
     {
         try
         {
             mLog.info("testLogInfo_exception", new Throwable("test exception"));
-        } catch (Exception ex)
+        }
+        catch (Exception ex)
         {
             assertTrue(false);
         }
@@ -167,7 +181,8 @@ public class ThrowingLogableTest extends TestCase
         try
         {
             mLog.warning("testLogWarn");
-        } catch (Exception ex)
+        }
+        catch (Exception ex)
         {
             assertTrue(false);
         }
@@ -179,18 +194,22 @@ public class ThrowingLogableTest extends TestCase
         try
         {
             mLog.warning("testLogWarn_nullException", null);
-        } catch (Exception ex)
+        }
+        catch (Exception ex)
         {
             assertTrue(false);
         }
     }
-    
+
+
     public void testLogWarn_exception()
     {
         try
         {
-            mLog.warning("testLogWarn_exception", new Throwable("test exception"));
-        } catch (Exception ex)
+            mLog.warning("testLogWarn_exception", new Throwable(
+                    "test exception"));
+        }
+        catch (Exception ex)
         {
             assertTrue(false);
         }

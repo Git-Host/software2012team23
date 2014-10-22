@@ -26,6 +26,7 @@ public class ResourceStringLoader implements Closeable
 {
     Context mContext = null;
 
+
     @SuppressWarnings("unused")
     private ResourceStringLoader()
     {
@@ -79,7 +80,8 @@ public class ResourceStringLoader implements Closeable
     {
         return loadResourceString(R.string.event_list_settingts_changed_title);
     }
-    
+
+
     public String getSettingsChanged()
     {
         return loadResourceString(R.string.event_list_settingts_changed);

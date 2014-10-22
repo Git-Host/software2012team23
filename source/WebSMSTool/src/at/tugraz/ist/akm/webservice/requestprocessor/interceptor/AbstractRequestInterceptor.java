@@ -45,7 +45,8 @@ public abstract class AbstractRequestInterceptor implements IRequestInterceptor
 
     @Override
     public abstract boolean process(HttpRequest httpRequest,
-            String requestData, HttpResponse httpResponse, HttpContext httpContext);
+            String requestData, HttpResponse httpResponse,
+            HttpContext httpContext);
 
 
     @Override

@@ -16,8 +16,8 @@
 
 package at.tugraz.ist.akm.phonebook.contact;
 
-public interface IContactModifiedCallback {
-
-	public void contactModifiedCallback();
+public interface IContactModifiedCallback
+{
+    public void contactModifiedCallback();
 
 }

@@ -350,6 +350,7 @@ public class MainActivity extends Activity
                         prefs.getBoolean(sharedPreferenceKey, false)).commit();
     }
 
+
     public Messenger getStartServiceFragmentMessenger()
     {
         if (mCurrentFragment != null

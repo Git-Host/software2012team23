@@ -36,70 +36,87 @@ import at.tugraz.ist.akm.io.xml.XmlReader;
 import at.tugraz.ist.akm.webservice.WebServerConstants;
 import at.tugraz.ist.akm.webservice.requestprocessor.FileRequestProcessor;
 
-public class FileRequestHandlerTest extends InstrumentationTestCase {
+public class FileRequestHandlerTest extends InstrumentationTestCase
+{
     private final static String URI = "/xyz";
     private final static String DATA_FILE = "web/index.html";
     private final static String CONTENT_TYPE = "text/html";
-    private final static String DEFAULT_ENCODING="UTF8";
+    private final static String DEFAULT_ENCODING = "UTF8";
 
     private HttpRequestHandlerRegistry registry = null;
     private FileRequestProcessor testInstance = null;
 
-    private String buildConfig() {
+
+    private String buildConfig()
+    {
         StringBuffer sb = new StringBuffer();
         sb.append("<config>");
         sb.append("<requestHandler>");
-        sb.append("<request uriPattern=\"").append(URI).append("\" contentType=\"");
-        sb.append(CONTENT_TYPE).append("\" dataFile=\"").append(DATA_FILE).append("\"/>");
+        sb.append("<request uriPattern=\"").append(URI)
+                .append("\" contentType=\"");
+        sb.append(CONTENT_TYPE).append("\" dataFile=\"").append(DATA_FILE)
+                .append("\"/>");
         sb.append("</requestHandler>");
         sb.append("</config>");
         return sb.toString();
     }
 
-    protected void setUp() throws Exception {
+
+    protected void setUp() throws Exception
+    {
         registry = new HttpRequestHandlerRegistry();
 
         String xmlConfig = buildConfig();
         XmlReader reader = new XmlReader(xmlConfig);
-        List<XmlNode> nodesList = reader.getNodes(WebServerConstants.XML.TAG_REQUEST_HANDLER);
+        List<XmlNode> nodesList = reader
+                .getNodes(WebServerConstants.XML.TAG_REQUEST_HANDLER);
 
         Assert.assertNotNull(nodesList);
         Assert.assertEquals(1, nodesList.size());
 
-        testInstance = new FileRequestProcessor(getInstrumentation().getContext(), nodesList.get(0),
-                registry);
+        testInstance = new FileRequestProcessor(getInstrumentation()
+                .getContext(), nodesList.get(0), registry);
     }
 
-    public void testRegisterUri() {
+
+    public void testRegisterUri()
+    {
         Assert.assertEquals(testInstance, registry.lookup(URI));
     }
 
-    public void testHandle() {
-        HttpRequest httpRequest = new BasicHttpEntityEnclosingRequest("none", URI);
-        HttpResponse httpResponse = new BasicHttpResponse(new BasicStatusLine(new ProtocolVersion(
-                "HTTP", 1, 1), 200, ""));
 
-        try {
+    public void testHandle()
+    {
+        HttpRequest httpRequest = new BasicHttpEntityEnclosingRequest("none",
+                URI);
+        HttpResponse httpResponse = new BasicHttpResponse(new BasicStatusLine(
+                new ProtocolVersion("HTTP", 1, 1), 200, ""));
+
+        try
+        {
             testInstance.handle(httpRequest, httpResponse, null);
-            
 
-            Assert.assertEquals(200, httpResponse.getStatusLine().getStatusCode());
+            Assert.assertEquals(200, httpResponse.getStatusLine()
+                    .getStatusCode());
             Assert.assertNotNull(httpResponse.getEntity());
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             httpResponse.getEntity().writeTo(baos);
 
-
-            FileReader reader = new FileReader(getInstrumentation().getContext(), DATA_FILE);
-            Assert.assertEquals(
-                    reader.read(),
-                    new String(baos.toByteArray(), DEFAULT_ENCODING));
+            FileReader reader = new FileReader(getInstrumentation()
+                    .getContext(), DATA_FILE);
+            Assert.assertEquals(reader.read(), new String(baos.toByteArray(),
+                    DEFAULT_ENCODING));
             reader.close();
             reader = null;
 
-        } catch (HttpException httpException) {
+        }
+        catch (HttpException httpException)
+        {
             Assert.fail("Exception => " + httpException.getMessage());
             httpException.printStackTrace();
-        } catch (IOException ioException) {
+        }
+        catch (IOException ioException)
+        {
             Assert.fail("Exception => " + ioException.getMessage());
             ioException.printStackTrace();
         }

@@ -1,3 +1,19 @@
+/*
+ * Copyright 2012 software2012team23
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package at.tugraz.ist.akm.phonebook.PhonebookCache;
 
 import java.util.List;
@@ -168,7 +184,8 @@ public class PhonebookCacheDB extends SQLiteOpenHelper
             }
             catch (JSONException e)
             {
-                new LogClient(this).error("json-> string: unhandled json exception ", e);
+                new LogClient(this).error(
+                        "json-> string: unhandled json exception ", e);
             }
             jNumbers.put(jNumber);
         }
@@ -253,27 +270,32 @@ public class PhonebookCacheDB extends SQLiteOpenHelper
 
         try
         {
-            String jStringNumbers = cursor.getString(cursor
-                    .getColumnIndex(Database.CacheTable.Domain.PHONENUMBERS)).toString();
-            
+            String jStringNumbers = cursor
+                    .getString(
+                            cursor.getColumnIndex(Database.CacheTable.Domain.PHONENUMBERS))
+                    .toString();
+
             JSONArray jNumbers = new JSONArray(jStringNumbers);
 
             Vector<Number> numbers = null;
 
             if (jNumbers.length() > 0)
                 numbers = new Vector<Number>();
-            
+
             for (int idx = 0; idx < jNumbers.length(); idx++)
             {
                 JSONObject jNumber = jNumbers.getJSONObject(idx);
-                Number n = new Number(jNumber.getString(Gson.PhoneNumber.Domain.NUMBER), jNumber.getInt(Gson.PhoneNumber.Domain.TYPE));
+                Number n = new Number(
+                        jNumber.getString(Gson.PhoneNumber.Domain.NUMBER),
+                        jNumber.getInt(Gson.PhoneNumber.Domain.TYPE));
                 numbers.add(n);
             }
             c.setPhoneNumbers(numbers);
         }
         catch (JSONException e)
         {
-            new LogClient(this).error("string->json: unhandled json excepton", e);
+            new LogClient(this).error("string->json: unhandled json excepton",
+                    e);
         }
 
         return c;

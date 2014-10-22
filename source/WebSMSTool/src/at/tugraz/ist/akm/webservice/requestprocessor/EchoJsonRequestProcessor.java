@@ -49,7 +49,8 @@ public class EchoJsonRequestProcessor extends AbstractHttpRequestProcessor
 
     @Override
     public void handleRequest(RequestLine requestLine, String requestData,
-            HttpResponse httpResponse, HttpContext httpContext) throws HttpException, IOException
+            HttpResponse httpResponse, HttpContext httpContext)
+            throws HttpException, IOException
     {
         if (requestLine.getMethod().equals(
                 WebServerConstants.HTTP.REQUEST_TYPE_POST))

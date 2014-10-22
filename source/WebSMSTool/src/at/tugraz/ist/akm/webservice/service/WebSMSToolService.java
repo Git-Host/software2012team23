@@ -231,10 +231,13 @@ public class WebSMSToolService extends Service implements ISmsIOCallback,
     {
         synchronized (this)
         {
+            mLog.debug("running on emulator ["
+                    + AppEnvironment.isRunningOnEmulator()
+                    + "] running on device ["
+                    + (!AppEnvironment.isRunningOnEmulator()) + "]");
             mWifiState = new WifiIpAddress(getApplicationContext());
-            if ((AppEnvironment.isRunningOnEmulator() == false)
-                    && (mWifiState.isWifiEnabled() == false || mWifiState
-                            .isWifiAPEnabled() == false))
+            if (AppEnvironment.isRunningOnEmulator() == false
+                    && mWifiState.isWifiEnabled() == false)
             {
                 onWirelessNetworkNotAvailable();
             } else if ((getRunningState() == ServiceRunningStates.BEFORE_SINGULARITY || getRunningState() == ServiceRunningStates.STOPPED))

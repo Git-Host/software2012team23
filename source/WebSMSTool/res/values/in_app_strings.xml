@@ -1,32 +1,43 @@
 <?xml version="1.0" encoding="utf-8"?>
-
+<!--
+  Copyright 2012 software2012team23
+ 
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+ 
+     http://www.apache.org/licenses/LICENSE-2.0
+ 
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
 <resources>
-    
-  <string name="OnSharedPreferenceEventListenValidator_serial_number_abbrev">SN</string>
-  <string name="OnSharedPreferenceEventListenValidator_expires">Expires</string>
-  
-  <string name="OnSharedPreferenceEventListenValidator_default_port">8888</string>
-  
-  <string name="StartServiceFragment_service_icon_image_description"></string>
-    
-  <string name="StartServiceFragment_service_before_first_start"></string>
-  <string name="StartServiceFragment_service_stopped"></string>
-  <string name="StartServiceFragment_service_stopping">stopping service &#8230;</string>
-  <string name="StartServiceFragment_service_stopped_erroneous">error: stop service manually</string>
-  <string name="StartServiceFragment_service_starting">starting service &#8230;</string>
-  <string name="StartServiceFragment_service_started_erroneous">error: stop service manually and try again</string>
 
-  <string name="StartServiceFragment_sms_tx_rx_delimiter">/</string>
-  <string name="StartServiceFragment_sms_tx_default_value">0</string>
-  <string name="StartServiceFragment_sms_rx_default_value">0</string>
-  <string name="StartServiceFragment_network_text">Sent/Received</string>
-  <string name="StartServiceFragment_network_tx_rx_delimiter">/</string>
-  <string name="StartServiceFragment_network_tx_default_value">0</string>
-  <string name="StartServiceFragment_network_rx_default_value">0</string>
-  <string name="StartServiceFragment_sms_text">Sent/Received</string>
-  <string name="StartServiceFragment_access_protection_default_username_value"></string>
-  <string name="StartServiceFragment_access_protection_username_text">User:&#160;</string>
-  <string name="StartServiceFragment_access_protection_default_password_value"></string>
-  <string name="StartServiceFragment_access_protection_password_text">Password:&#160;</string>
-  <string name="StartServiceFragment_host_address_default_value"></string>
+    <string name="OnSharedPreferenceEventListenValidator_serial_number_abbrev">SN</string>
+    <string name="OnSharedPreferenceEventListenValidator_expires">Expires</string>
+    <string name="OnSharedPreferenceEventListenValidator_default_port">8888</string>
+    <string name="StartServiceFragment_service_icon_image_description"></string>
+    <string name="StartServiceFragment_service_before_first_start"></string>
+    <string name="StartServiceFragment_service_stopped"></string>
+    <string name="StartServiceFragment_service_stopping">stopping service &#8230;</string>
+    <string name="StartServiceFragment_service_stopped_erroneous">error: stop service manually</string>
+    <string name="StartServiceFragment_service_starting">starting service &#8230;</string>
+    <string name="StartServiceFragment_service_started_erroneous">error: stop service manually and try again</string>
+    <string name="StartServiceFragment_sms_tx_rx_delimiter">/</string>
+    <string name="StartServiceFragment_sms_tx_default_value">0</string>
+    <string name="StartServiceFragment_sms_rx_default_value">0</string>
+    <string name="StartServiceFragment_network_text">Sent/Received</string>
+    <string name="StartServiceFragment_network_tx_rx_delimiter">/</string>
+    <string name="StartServiceFragment_network_tx_default_value">0</string>
+    <string name="StartServiceFragment_network_rx_default_value">0</string>
+    <string name="StartServiceFragment_sms_text">Sent/Received</string>
+    <string name="StartServiceFragment_access_protection_default_username_value"></string>
+    <string name="StartServiceFragment_access_protection_username_text">User:&#160;</string>
+    <string name="StartServiceFragment_access_protection_default_password_value"></string>
+    <string name="StartServiceFragment_access_protection_password_text">Password:&#160;</string>
+    <string name="StartServiceFragment_host_address_default_value"></string>
+
 </resources>

@@ -27,9 +27,11 @@ import at.tugraz.ist.akm.phonebook.contact.Contact;
 import at.tugraz.ist.akm.sms.TextMessage;
 import at.tugraz.ist.akm.trace.LogClient;
 
-public class JsonTextMessageBuilder implements IJsonBuilder {
+public class JsonTextMessageBuilder implements IJsonBuilder
+{
 
-    public class TextMessageValueNames {
+    public class TextMessageValueNames
+    {
         public static final String ID = "id";
         public static final String THREAD_ID = "thread_id";
         public static final String ADDRESS = "address";
@@ -38,30 +40,38 @@ public class JsonTextMessageBuilder implements IJsonBuilder {
         public static final String PERSON = "person";
         public static final String STATUS = "status";
         public static final String SEEN = "seen";
-        
+
     }
-    
-	@Override
-	public JSONObject build(Object data) {
-    	LogClient log = new LogClient(this);
-		TextMessage message = (TextMessage) data;
-		
+
+
+    @Override
+    public JSONObject build(Object data)
+    {
+        LogClient log = new LogClient(this);
+        TextMessage message = (TextMessage) data;
+
         JSONObject json = new JSONObject();
-        try {
-			json.put(TextMessageValueNames.ID, message.getId());
-			json.put(TextMessageValueNames.THREAD_ID, message.getThreadId());
-        	json.put(TextMessageValueNames.ADDRESS, Contact.Number.cleanNumber(message.getAddress()));
-			json.put(TextMessageValueNames.BODY, message.getBody());
-			
-			SimpleDateFormat df = new SimpleDateFormat("d.M.y HH:mm:ss", Locale.getDefault());
-			json.put(TextMessageValueNames.DATE, df.format(new Date(Long.parseLong(message.getDate()))));
-			
-			json.put(TextMessageValueNames.PERSON, message.getPerson());
-			json.put(TextMessageValueNames.STATUS, message.getStatus());
-			json.put(TextMessageValueNames.SEEN, message.getSeen());
-		} catch (JSONException jsonException) {
-			log.error("Could not create jsonTextMessage Object", jsonException);
-		}
-		return json;
-	}
+        try
+        {
+            json.put(TextMessageValueNames.ID, message.getId());
+            json.put(TextMessageValueNames.THREAD_ID, message.getThreadId());
+            json.put(TextMessageValueNames.ADDRESS,
+                    Contact.Number.cleanNumber(message.getAddress()));
+            json.put(TextMessageValueNames.BODY, message.getBody());
+
+            SimpleDateFormat df = new SimpleDateFormat("d.M.y HH:mm:ss",
+                    Locale.getDefault());
+            json.put(TextMessageValueNames.DATE,
+                    df.format(new Date(Long.parseLong(message.getDate()))));
+
+            json.put(TextMessageValueNames.PERSON, message.getPerson());
+            json.put(TextMessageValueNames.STATUS, message.getStatus());
+            json.put(TextMessageValueNames.SEEN, message.getSeen());
+        }
+        catch (JSONException jsonException)
+        {
+            log.error("Could not create jsonTextMessage Object", jsonException);
+        }
+        return json;
+    }
 }

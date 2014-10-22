@@ -83,7 +83,7 @@ public class MainActivityTest extends
         {
             mLog.error("failed closing preferences provider");
         }
-        
+
         try
         {
             appKeystore.close();

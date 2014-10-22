@@ -37,7 +37,7 @@ public class SmsSentBroadcastReceiver extends BroadcastReceiver
     // "android.provider.Telephony.SMS_RECEIVED";
     public static final String EXTRA_BUNDLE_KEY_TEXTMESSAGE = "at.tugraz.ist.akm.sms.EXTRA_BUNDLE_TEXTMESSAGE_KEY";
     public static final String EXTRA_BUNDLE_KEY_TEXTMESSAGE_ID = "at.tugraz.ist.akm.sms.EXTRA_BUNDLE_KEY_TEXTMESSAGE_ID";
-//    private static final String EXTRA_BUNDLE_KEY_PDU = "pdus";
+    // private static final String EXTRA_BUNDLE_KEY_PDU = "pdus";
     private LogClient mLog = new LogClient(this);
     private ISmsIOCallback mCallback = null;
     private SentSmsStorage mSentStorage = null;
@@ -109,41 +109,39 @@ public class SmsSentBroadcastReceiver extends BroadcastReceiver
         return null;
     }
 
+    // private List<TextMessage> extractSmsListFromIntentPdu(Intent intent)
+    // {
+    // Bundle bundle = intent.getExtras();
+    //
+    // ArrayList<TextMessage> messages = new ArrayList<TextMessage>();
+    // if (bundle != null)
+    // {
+    // Object[] pdus = (Object[]) bundle
+    // .getSerializable(EXTRA_BUNDLE_KEY_PDU);
+    //
+    // if (pdus != null)
+    // {
+    // for (int idx = 0; idx < pdus.length; ++idx)
+    // {
+    // SmsMessage sms = SmsMessage
+    // .createFromPdu((byte[]) pdus[idx]);
+    // messages.add(parseToTextMessage(sms));
+    // }
+    // } else
+    // {
+    // mLog.info("bundle contains no pdu(s)");
+    // }
+    // }
+    // return messages;
+    // }
 
-//    private List<TextMessage> extractSmsListFromIntentPdu(Intent intent)
-//    {
-//        Bundle bundle = intent.getExtras();
-//
-//        ArrayList<TextMessage> messages = new ArrayList<TextMessage>();
-//        if (bundle != null)
-//        {
-//            Object[] pdus = (Object[]) bundle
-//                    .getSerializable(EXTRA_BUNDLE_KEY_PDU);
-//
-//            if (pdus != null)
-//            {
-//                for (int idx = 0; idx < pdus.length; ++idx)
-//                {
-//                    SmsMessage sms = SmsMessage
-//                            .createFromPdu((byte[]) pdus[idx]);
-//                    messages.add(parseToTextMessage(sms));
-//                }
-//            } else
-//            {
-//                mLog.info("bundle contains no pdu(s)");
-//            }
-//        }
-//        return messages;
-//    }
-
-
-//    private TextMessage parseToTextMessage(SmsMessage sms)
-//    {
-//        TextMessage textMessage = new TextMessage();
-//        textMessage.setDate(Long.toString(new Date().getTime()));
-//        textMessage.setAddress(sms.getOriginatingAddress());
-//        textMessage.setBody(sms.getMessageBody());
-//        return textMessage;
-//    }
+    // private TextMessage parseToTextMessage(SmsMessage sms)
+    // {
+    // TextMessage textMessage = new TextMessage();
+    // textMessage.setDate(Long.toString(new Date().getTime()));
+    // textMessage.setAddress(sms.getOriginatingAddress());
+    // textMessage.setBody(sms.getMessageBody());
+    // return textMessage;
+    // }
 
 };

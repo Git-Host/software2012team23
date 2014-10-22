@@ -27,100 +27,127 @@ import at.tugraz.ist.akm.content.query.TextMessageFilter;
 import at.tugraz.ist.akm.content.query.TextMessageQueryBuilder;
 import at.tugraz.ist.akm.trace.LogClient;
 
-public class SmsBoxReader {
+public class SmsBoxReader
+{
 
-	private ContentResolver mContentResolver = null;
-	private LogClient mLog = new LogClient(this);
+    private ContentResolver mContentResolver = null;
+    private LogClient mLog = new LogClient(this);
 
-	public SmsBoxReader(ContentResolver contentResolver) {
-		mContentResolver = contentResolver;
-	}
 
-	public List<TextMessage> getTextMessages(TextMessageFilter filter)
-			throws NullPointerException {
-		return getSms(filter);
-	}
+    public SmsBoxReader(ContentResolver contentResolver)
+    {
+        mContentResolver = contentResolver;
+    }
 
-	public List<Integer> getThreadIds(final String phoneNumber) {
-	    android.net.Uri select = SmsContentConstants.Uri.BASE_URI;
-		String[] as = { SmsContentConstants.Column.THREAD_ID };
-		String where = SmsContentConstants.Column.ADDRESS
-				+ " = ? ) GROUP BY ( thread_id ";
-		String[] like = { phoneNumber };
-		String sortBy = SmsContentConstants.Column.DATE + " ASC";
-		Cursor threadIDs = mContentResolver.query(select, as, where, like,
-				sortBy);
 
-		List<Integer> threadIdList = new ArrayList<Integer>();
-		if (threadIDs != null) {
-			while (threadIDs.moveToNext()) {
-				threadIdList.add(Integer.parseInt(threadIDs.getString(threadIDs
-						.getColumnIndex(SmsContentConstants.Column.THREAD_ID))));
-			}
-			threadIDs.close();
-		}
+    public List<TextMessage> getTextMessages(TextMessageFilter filter)
+            throws NullPointerException
+    {
+        return getSms(filter);
+    }
 
-		return threadIdList;
-	}
 
-	/**
-	 * Reads text messages (a.k.a. SMS) from uri
-	 * 
-	 * @param smsBoxUri
-	 *            sms box uri, @see SmsContent.Uri
-	 * 
-	 * @return list of text messages
-	 */
-	private List<TextMessage> getSms(TextMessageFilter filter)
-			throws NullPointerException {
-		List<TextMessage> messages = new ArrayList<TextMessage>();
-		TextMessageQueryBuilder qBuild = new TextMessageQueryBuilder(filter);
-		ContentProviderQueryParameters qp = qBuild.getQueryArgs();
+    public List<Integer> getThreadIds(final String phoneNumber)
+    {
+        android.net.Uri select = SmsContentConstants.Uri.BASE_URI;
+        String[] as = { SmsContentConstants.Column.THREAD_ID };
+        String where = SmsContentConstants.Column.ADDRESS
+                + " = ? ) GROUP BY ( thread_id ";
+        String[] like = { phoneNumber };
+        String sortBy = SmsContentConstants.Column.DATE + " ASC";
+        Cursor threadIDs = mContentResolver.query(select, as, where, like,
+                sortBy);
 
-		if (qp.uri == null) {
-			throw new NullPointerException("<null> is no valid URI");
-		}
-		Cursor inbox = mContentResolver.query(qp.uri, qp.as, qp.where, qp.like,
-				qp.sortBy);
+        List<Integer> threadIdList = new ArrayList<Integer>();
+        if (threadIDs != null)
+        {
+            while (threadIDs.moveToNext())
+            {
+                threadIdList
+                        .add(Integer.parseInt(threadIDs.getString(threadIDs
+                                .getColumnIndex(SmsContentConstants.Column.THREAD_ID))));
+            }
+            threadIDs.close();
+        }
 
-		if (inbox != null) {
-			while (inbox.moveToNext()) {
-				messages.add(parseToTextMessge(inbox));
-			}
-			inbox.close();
-			
-		}
+        return threadIdList;
+    }
 
-		log("read [" + messages.size() + "] messages from [" + filter.getBox()
-				+ "]");
-		return messages;
-	}
 
-	private TextMessage parseToTextMessge(Cursor sms) {
-		TextMessage message = new TextMessage();
-		message.setAddress(sms.getString(sms
-				.getColumnIndex(SmsContentConstants.Column.ADDRESS)));
-		message.setBody(sms.getString(sms.getColumnIndex(SmsContentConstants.Column.BODY)));
-		message.setDate(sms.getString(sms.getColumnIndex(SmsContentConstants.Column.DATE)));
-		message.setId(sms.getString(sms.getColumnIndex(SmsContentConstants.Column.ID)));
-		message.setLocked(sms.getString(sms.getColumnIndex(SmsContentConstants.Column.LOCKED)));
-		message.setPerson(sms.getString(sms.getColumnIndex(SmsContentConstants.Column.PERSON)));
-		message.setProtocol(sms.getString(sms
-				.getColumnIndex(SmsContentConstants.Column.PROTOCOL)));
-		message.setRead(sms.getString(sms.getColumnIndex(SmsContentConstants.Column.READ)));
-		message.setSeen(sms.getString(sms.getColumnIndex(SmsContentConstants.Column.SEEN)));
-		message.setServiceCenter(sms.getString(sms
-				.getColumnIndex(SmsContentConstants.Column.SERVICE_CENTER)));
-		message.setStatus(sms.getString(sms.getColumnIndex(SmsContentConstants.Column.STATUS)));
-		message.setThreadId(sms.getString(sms
-				.getColumnIndex(SmsContentConstants.Column.THREAD_ID)));
-		message.setType(sms.getString(sms
-				.getColumnIndex(SmsContentConstants.Column.MESSAGE_TYPE)));
-		return message;
-	}
+    /**
+     * Reads text messages (a.k.a. SMS) from uri
+     * 
+     * @param smsBoxUri
+     *            sms box uri, @see SmsContent.Uri
+     * 
+     * @return list of text messages
+     */
+    private List<TextMessage> getSms(TextMessageFilter filter)
+            throws NullPointerException
+    {
+        List<TextMessage> messages = new ArrayList<TextMessage>();
+        TextMessageQueryBuilder qBuild = new TextMessageQueryBuilder(filter);
+        ContentProviderQueryParameters qp = qBuild.getQueryArgs();
 
-	private void log(final String message) {
-		mLog.info(message);
-	}
+        if (qp.uri == null)
+        {
+            throw new NullPointerException("<null> is no valid URI");
+        }
+        Cursor inbox = mContentResolver.query(qp.uri, qp.as, qp.where, qp.like,
+                qp.sortBy);
+
+        if (inbox != null)
+        {
+            while (inbox.moveToNext())
+            {
+                messages.add(parseToTextMessge(inbox));
+            }
+            inbox.close();
+
+        }
+
+        log("read [" + messages.size() + "] messages from [" + filter.getBox()
+                + "]");
+        return messages;
+    }
+
+
+    private TextMessage parseToTextMessge(Cursor sms)
+    {
+        TextMessage message = new TextMessage();
+        message.setAddress(sms.getString(sms
+                .getColumnIndex(SmsContentConstants.Column.ADDRESS)));
+        message.setBody(sms.getString(sms
+                .getColumnIndex(SmsContentConstants.Column.BODY)));
+        message.setDate(sms.getString(sms
+                .getColumnIndex(SmsContentConstants.Column.DATE)));
+        message.setId(sms.getString(sms
+                .getColumnIndex(SmsContentConstants.Column.ID)));
+        message.setLocked(sms.getString(sms
+                .getColumnIndex(SmsContentConstants.Column.LOCKED)));
+        message.setPerson(sms.getString(sms
+                .getColumnIndex(SmsContentConstants.Column.PERSON)));
+        message.setProtocol(sms.getString(sms
+                .getColumnIndex(SmsContentConstants.Column.PROTOCOL)));
+        message.setRead(sms.getString(sms
+                .getColumnIndex(SmsContentConstants.Column.READ)));
+        message.setSeen(sms.getString(sms
+                .getColumnIndex(SmsContentConstants.Column.SEEN)));
+        message.setServiceCenter(sms.getString(sms
+                .getColumnIndex(SmsContentConstants.Column.SERVICE_CENTER)));
+        message.setStatus(sms.getString(sms
+                .getColumnIndex(SmsContentConstants.Column.STATUS)));
+        message.setThreadId(sms.getString(sms
+                .getColumnIndex(SmsContentConstants.Column.THREAD_ID)));
+        message.setType(sms.getString(sms
+                .getColumnIndex(SmsContentConstants.Column.MESSAGE_TYPE)));
+        return message;
+    }
+
+
+    private void log(final String message)
+    {
+        mLog.info(message);
+    }
 
 }

@@ -39,7 +39,8 @@ public class LogClient
         if (lastDotIndex <= 0)
         {
             lastDotIndex = 0;
-        } else {
+        } else
+        {
             lastDotIndex++;
         }
         return classWithPackagePrefix.substring(lastDotIndex,

@@ -27,28 +27,40 @@ import at.tugraz.ist.akm.phonebook.contact.Contact;
 import at.tugraz.ist.akm.sms.TextMessage;
 import at.tugraz.ist.akm.trace.LogClient;
 
-public class JsonFactory {
+public class JsonFactory
+{
     private LogClient log = new LogClient(JsonFactory.class.getName());
     private HashMap<Class<?>, IJsonBuilder> mJsonObjectBuilders = new HashMap<Class<?>, IJsonBuilder>();
 
-    public JsonFactory() {
+
+    public JsonFactory()
+    {
         mJsonObjectBuilders.put(Contact.class, new JsonContactBuilder());
-        mJsonObjectBuilders.put(TextMessage.class, new JsonTextMessageBuilder());
-        mJsonObjectBuilders.put(TelephonySignalStrength.class, new JsonTelephonySignalStrengthBuilder());
-        mJsonObjectBuilders.put(BatteryStatus.class, new JsonBatteryStatusBuilder());
+        mJsonObjectBuilders
+                .put(TextMessage.class, new JsonTextMessageBuilder());
+        mJsonObjectBuilders.put(TelephonySignalStrength.class,
+                new JsonTelephonySignalStrengthBuilder());
+        mJsonObjectBuilders.put(BatteryStatus.class,
+                new JsonBatteryStatusBuilder());
     }
 
-    public JSONObject createJsonObject(Object object) {
+
+    public JSONObject createJsonObject(Object object)
+    {
         IJsonBuilder builder = mJsonObjectBuilders.get(object.getClass());
-        if (builder != null) {
+        if (builder != null)
+        {
             return builder.build(object);
         }
-        log.warning("no json builder available for object <" + object.getClass() + ">");
-        
+        log.warning("no json builder available for object <"
+                + object.getClass() + ">");
+
         return null;
     }
 
-    public JSONObject createJsonObjectFromList(List<?> dataList) {
+
+    public JSONObject createJsonObjectFromList(List<?> dataList)
+    {
         return null;
     }
 }

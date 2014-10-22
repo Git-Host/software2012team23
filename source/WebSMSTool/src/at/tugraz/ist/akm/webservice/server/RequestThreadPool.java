@@ -43,12 +43,14 @@ public class RequestThreadPool
     }
 
 
-    private ThreadFactory newNamedThreadFactory() {
-        return new ThreadFactory(){
+    private ThreadFactory newNamedThreadFactory()
+    {
+        return new ThreadFactory() {
             @Override
             public Thread newThread(Runnable r)
             {
-                return new Thread(r, "HTTPRequestWorkerThread[" + ThreadIdx++ + "]");
+                return new Thread(r, "HTTPRequestWorkerThread[" + ThreadIdx++
+                        + "]");
             }
         };
     }

@@ -39,7 +39,9 @@ public class JsonContactBuilder implements IJsonBuilder
         public static final String ID = "id";
         public static final String IMAGE_BASE64 = "image";
         public static final String PHONE_NUMBERS = "phone_numbers";
-        public class NumbersValueNames {
+
+        public class NumbersValueNames
+        {
             public static final String NUMBER = "number";
             public static final String CLEAN_NUMBER = "clean_number";
             public static final String TYPE = "type";
@@ -63,7 +65,8 @@ public class JsonContactBuilder implements IJsonBuilder
             if (imageBytes != null)
             {
                 byte[] imageEncoded = Base64.encode(imageBytes, Base64.DEFAULT);
-                json.put(ContactValueNames.IMAGE_BASE64, new String(imageEncoded, mDefaultEncoding));
+                json.put(ContactValueNames.IMAGE_BASE64, new String(
+                        imageEncoded, mDefaultEncoding));
             }
 
             json.put(ContactValueNames.PHONE_NUMBERS,
@@ -94,9 +97,12 @@ public class JsonContactBuilder implements IJsonBuilder
         for (Contact.Number number : phoneNumbers)
         {
             JSONObject jsonNumber = new JSONObject();
-            jsonNumber.put(ContactValueNames.NumbersValueNames.NUMBER, number.getNumber());
-            jsonNumber.put(ContactValueNames.NumbersValueNames.TYPE, Integer.toString(number.getType()));
-            jsonNumber.put(ContactValueNames.NumbersValueNames.CLEAN_NUMBER, number.getNumber());
+            jsonNumber.put(ContactValueNames.NumbersValueNames.NUMBER,
+                    number.getNumber());
+            jsonNumber.put(ContactValueNames.NumbersValueNames.TYPE,
+                    Integer.toString(number.getType()));
+            jsonNumber.put(ContactValueNames.NumbersValueNames.CLEAN_NUMBER,
+                    number.getNumber());
             jsonNumberList.put(jsonNumber);
         }
 

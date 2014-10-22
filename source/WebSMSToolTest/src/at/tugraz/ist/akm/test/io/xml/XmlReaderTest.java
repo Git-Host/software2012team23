@@ -23,9 +23,11 @@ import junit.framework.TestCase;
 import at.tugraz.ist.akm.io.xml.XmlNode;
 import at.tugraz.ist.akm.io.xml.XmlReader;
 
-public class XmlReaderTest extends TestCase {
+public class XmlReaderTest extends TestCase
+{
 
-    public void test() {
+    public void test()
+    {
         String xmlData = "<config><requestHandler pattern=\"/\" dataFile=\"index.html\" class=\"myClass\"/></config>";
 
         XmlReader reader = new XmlReader(xmlData);
@@ -34,7 +36,8 @@ public class XmlReaderTest extends TestCase {
         Assert.assertEquals(1, nodes.size());
 
         Assert.assertEquals("/", nodes.get(0).getAttributeValue("pattern"));
-        Assert.assertEquals("index.html", nodes.get(0).getAttributeValue("dataFile"));
+        Assert.assertEquals("index.html",
+                nodes.get(0).getAttributeValue("dataFile"));
         Assert.assertEquals("myClass", nodes.get(0).getAttributeValue("class"));
     }
 }

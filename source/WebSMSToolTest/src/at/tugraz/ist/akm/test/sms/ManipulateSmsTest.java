@@ -114,20 +114,21 @@ public class ManipulateSmsTest extends WebSMSToolActivityTestcase implements
             SmsSender smsSink = new SmsSender(mContext);
             SmsSentBroadcastReceiver sentReceiver = new SmsSentBroadcastReceiver(
                     this, smsSink);
-//            SmsSentBroadcastReceiver deliveredReceiver = new SmsSentBroadcastReceiver(
-//                    this, smsSink);
+            // SmsSentBroadcastReceiver deliveredReceiver = new
+            // SmsSentBroadcastReceiver(
+            // this, smsSink);
 
             mContext.registerReceiver(sentReceiver, new IntentFilter(
                     SmsSentBroadcastReceiver.ACTION_SMS_SENT));
-//            mContext.registerReceiver(deliveredReceiver, new IntentFilter(
-//                    SmsSentBroadcastReceiver.ACTION_SMS_DELIVERED));
+            // mContext.registerReceiver(deliveredReceiver, new IntentFilter(
+            // SmsSentBroadcastReceiver.ACTION_SMS_DELIVERED));
             smsSink.sendTextMessage(SmsHelper.getDummyMultiTextMessage());
             // wait until intent is (hopefully) broadcasted, else it won't
             // trigger the desired callback
             Thread.sleep(1000);
 
             mContext.unregisterReceiver(sentReceiver);
-//            mContext.unregisterReceiver(deliveredReceiver);
+            // mContext.unregisterReceiver(deliveredReceiver);
         }
         catch (Exception ex)
         {

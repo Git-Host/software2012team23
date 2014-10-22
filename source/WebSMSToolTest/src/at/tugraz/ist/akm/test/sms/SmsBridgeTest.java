@@ -27,81 +27,105 @@ import at.tugraz.ist.akm.trace.AndroidLogSink;
 import at.tugraz.ist.akm.trace.ILogSink;
 import at.tugraz.ist.akm.trace.TraceService;
 
-public class SmsBridgeTest extends WebSMSToolActivityTestcase {
+public class SmsBridgeTest extends WebSMSToolActivityTestcase
+{
 
-	public SmsBridgeTest() {
-		super(SmsBridgeTest.class.getSimpleName());
-	}
+    public SmsBridgeTest()
+    {
+        super(SmsBridgeTest.class.getSimpleName());
+    }
 
-	public void testSmsBridgeSendSms() 
-	{
-		android.telephony.ServiceState voiceService = new android.telephony.ServiceState();
-		ILogSink oldSink = TraceService.getSink();
-		
-		if ( android.telephony.ServiceState.STATE_IN_SERVICE != voiceService.getState() ) {
-			TraceService.setSink(new AndroidLogSink());
-		}
-		
-		try {
-			SmsBridge smsBridge = new SmsBridge(mContext);
-			smsBridge.start();
-			smsBridge.sendTextMessage(SmsHelper.getDummyTextMessage());
-			Thread.sleep(1000);
-			smsBridge.stop();
-			smsBridge.close();
-		}
-		catch (Exception ex) {
-			ex.printStackTrace();
-			assertTrue(false);
-		}
-		finally {
-			TraceService.setSink(oldSink);
-		}
-	}
 
-	public void testSmsBridgeFetchInbox() {
-		try {
-			SmsBridge smsBridge = new SmsBridge(mContext);
-			smsBridge.start();
-			TextMessageFilter filter = new TextMessageFilter();
-			filter.setBox(SmsContentConstants.Uri.INBOX_URI);
-			List<TextMessage> inMessages = smsBridge.fetchTextMessages(filter);
-			for (TextMessage message : inMessages) {
-				SmsHelper.logTextMessage(message);
-			}
-			smsBridge.stop();
-			smsBridge.close();
-		} catch (Exception ex) {
-			ex.printStackTrace();
-			assertTrue(false);
-		}
-	}
+    public void testSmsBridgeSendSms()
+    {
+        android.telephony.ServiceState voiceService = new android.telephony.ServiceState();
+        ILogSink oldSink = TraceService.getSink();
 
-	public void testSmsBridgeFetchOutbox() {
-		try {
-			SmsBridge smsBridge = new SmsBridge(mContext);
-			smsBridge.start();
-			TextMessageFilter filter = new TextMessageFilter();
-			filter.setBox(SmsContentConstants.Uri.OUTBOX_URI);
-			List<TextMessage> inMessages = smsBridge.fetchTextMessages(filter);
-			for (TextMessage message : inMessages) {
-				SmsHelper.logTextMessage(message);
-			}
-			smsBridge.stop();
-			smsBridge.close();
-		} catch (Exception ex) {
-			ex.printStackTrace();
-			assertTrue(false);
-		}
-	}
+        if (android.telephony.ServiceState.STATE_IN_SERVICE != voiceService
+                .getState())
+        {
+            TraceService.setSink(new AndroidLogSink());
+        }
 
-	@Override
-	protected void setUp() throws Exception {
-		super.setUp();
-	}
+        try
+        {
+            SmsBridge smsBridge = new SmsBridge(mContext);
+            smsBridge.start();
+            smsBridge.sendTextMessage(SmsHelper.getDummyTextMessage());
+            Thread.sleep(1000);
+            smsBridge.stop();
+            smsBridge.close();
+        }
+        catch (Exception ex)
+        {
+            ex.printStackTrace();
+            assertTrue(false);
+        }
+        finally
+        {
+            TraceService.setSink(oldSink);
+        }
+    }
 
-	@Override
-	protected void tearDown() throws Exception {
-		super.tearDown();
-	}
+
+    public void testSmsBridgeFetchInbox()
+    {
+        try
+        {
+            SmsBridge smsBridge = new SmsBridge(mContext);
+            smsBridge.start();
+            TextMessageFilter filter = new TextMessageFilter();
+            filter.setBox(SmsContentConstants.Uri.INBOX_URI);
+            List<TextMessage> inMessages = smsBridge.fetchTextMessages(filter);
+            for (TextMessage message : inMessages)
+            {
+                SmsHelper.logTextMessage(message);
+            }
+            smsBridge.stop();
+            smsBridge.close();
+        }
+        catch (Exception ex)
+        {
+            ex.printStackTrace();
+            assertTrue(false);
+        }
+    }
+
+
+    public void testSmsBridgeFetchOutbox()
+    {
+        try
+        {
+            SmsBridge smsBridge = new SmsBridge(mContext);
+            smsBridge.start();
+            TextMessageFilter filter = new TextMessageFilter();
+            filter.setBox(SmsContentConstants.Uri.OUTBOX_URI);
+            List<TextMessage> inMessages = smsBridge.fetchTextMessages(filter);
+            for (TextMessage message : inMessages)
+            {
+                SmsHelper.logTextMessage(message);
+            }
+            smsBridge.stop();
+            smsBridge.close();
+        }
+        catch (Exception ex)
+        {
+            ex.printStackTrace();
+            assertTrue(false);
+        }
+    }
+
+
+    @Override
+    protected void setUp() throws Exception
+    {
+        super.setUp();
+    }
+
+
+    @Override
+    protected void tearDown() throws Exception
+    {
+        super.tearDown();
+    }
 }

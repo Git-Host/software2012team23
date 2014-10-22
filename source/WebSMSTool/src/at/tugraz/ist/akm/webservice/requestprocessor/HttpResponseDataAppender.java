@@ -28,44 +28,54 @@ import org.json.JSONObject;
 
 import at.tugraz.ist.akm.webservice.WebServerConstants;
 
-public class HttpResponseDataAppender {
+public class HttpResponseDataAppender
+{
 
     private final static String mDefaultEncoding = "UTF8";
-    
-	public void appendHttpResponseData(HttpResponse httpResponse,
-			final JSONObject data) {
-		appendHttpResponseData(httpResponse,
-				WebServerConstants.HTTP.CONTENT_TYPE_JSON, data.toString());
-	}
 
-	public void appendHttpResponseData(HttpResponse httpResponse,
-			final String contentType, final String data) {
 
-		httpResponse.setEntity(new EntityTemplate(new ContentProducer() {
-			@Override
-			public void writeTo(OutputStream outstream) throws IOException {
-				OutputStreamWriter writer = new OutputStreamWriter(outstream, mDefaultEncoding);
-				writer.write(data);
-				writer.flush();
-				writer.close();
-			}
-		}));
-		httpResponse.setHeader(WebServerConstants.HTTP.KEY_CONTENT_TYPE,
-				contentType);
-	}
+    public void appendHttpResponseData(HttpResponse httpResponse,
+            final JSONObject data)
+    {
+        appendHttpResponseData(httpResponse,
+                WebServerConstants.HTTP.CONTENT_TYPE_JSON, data.toString());
+    }
 
-	public void appendHttpResponseMediaType(HttpResponse httpResponse,
-			final String mediaType, final byte[] data) {
 
-		httpResponse.setEntity(new EntityTemplate(new ContentProducer() {
-			@Override
-			public void writeTo(OutputStream outstream) throws IOException {
-				outstream.write(data);
-			}
-		}));
+    public void appendHttpResponseData(HttpResponse httpResponse,
+            final String contentType, final String data)
+    {
 
-		httpResponse
-				.addHeader(WebServerConstants.HTTP.KEY_CONTENT_TYPE, mediaType);
-	}
+        httpResponse.setEntity(new EntityTemplate(new ContentProducer() {
+            @Override
+            public void writeTo(OutputStream outstream) throws IOException
+            {
+                OutputStreamWriter writer = new OutputStreamWriter(outstream,
+                        mDefaultEncoding);
+                writer.write(data);
+                writer.flush();
+                writer.close();
+            }
+        }));
+        httpResponse.setHeader(WebServerConstants.HTTP.KEY_CONTENT_TYPE,
+                contentType);
+    }
+
+
+    public void appendHttpResponseMediaType(HttpResponse httpResponse,
+            final String mediaType, final byte[] data)
+    {
+
+        httpResponse.setEntity(new EntityTemplate(new ContentProducer() {
+            @Override
+            public void writeTo(OutputStream outstream) throws IOException
+            {
+                outstream.write(data);
+            }
+        }));
+
+        httpResponse.addHeader(WebServerConstants.HTTP.KEY_CONTENT_TYPE,
+                mediaType);
+    }
 
 }

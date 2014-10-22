@@ -24,19 +24,25 @@ import at.tugraz.ist.akm.phonebook.contact.ContactReader;
 import at.tugraz.ist.akm.test.base.WebSMSToolActivityTestcase;
 import at.tugraz.ist.akm.test.testdata.PhonebookTestsHelper;
 
-public class ContactReaderTest extends WebSMSToolActivityTestcase {
+public class ContactReaderTest extends WebSMSToolActivityTestcase
+{
 
-	private String[][] mTestContacts = null;
+    private String[][] mTestContacts = null;
 
-	public ContactReaderTest() {
-		super(ContactReaderTest.class.getSimpleName());
-		mTestContacts = new String[][] { { "First", "Last", "123" },
-				{ "Senthon", "L", "12312323" }, { "Therock", "G", "0" },
-				{ "Speedy", "R", "0" }, { "", "Baz", "0" }, { "Bar", "", "0" } };
-	}
 
-    public void testFetchContactsWithPhone() {
-        try {
+    public ContactReaderTest()
+    {
+        super(ContactReaderTest.class.getSimpleName());
+        mTestContacts = new String[][] { { "First", "Last", "123" },
+                { "Senthon", "L", "12312323" }, { "Therock", "G", "0" },
+                { "Speedy", "R", "0" }, { "", "Baz", "0" }, { "Bar", "", "0" } };
+    }
+
+
+    public void testFetchContactsWithPhone()
+    {
+        try
+        {
             PhonebookTestsHelper.storeContacts(mTestContacts, mContentResolver);
             ContactReader contactReader = new ContactReader(mContentResolver);
 
@@ -47,35 +53,47 @@ public class ContactReaderTest extends WebSMSToolActivityTestcase {
                     .fetchContacts(filterWithPhone);
             PhonebookTestsHelper.logContacts(contacts);
 
-            PhonebookTestsHelper.deleteContacts(mTestContacts, mContentResolver);
-        } catch (Throwable throwable) {
+            PhonebookTestsHelper
+                    .deleteContacts(mTestContacts, mContentResolver);
+        }
+        catch (Throwable throwable)
+        {
             throwable.printStackTrace();
             assertTrue(false);
         }
     }
-    
-    public void testFetchContactsWithPhoneAndStarred() {
-        try {
+
+
+    public void testFetchContactsWithPhoneAndStarred()
+    {
+        try
+        {
             PhonebookTestsHelper.storeContacts(mTestContacts, mContentResolver);
             ContactReader contactReader = new ContactReader(mContentResolver);
-
 
             logVerbose("get contacts with phone AND starred");
             ContactFilter filterWithPhoneAndStarred = new ContactFilter();
             filterWithPhoneAndStarred.setWithPhone(true);
             filterWithPhoneAndStarred.setIsStarred(true);
-            List<Contact> contacts = contactReader.fetchContacts(filterWithPhoneAndStarred);
+            List<Contact> contacts = contactReader
+                    .fetchContacts(filterWithPhoneAndStarred);
             PhonebookTestsHelper.logContacts(contacts);
 
-            PhonebookTestsHelper.deleteContacts(mTestContacts, mContentResolver);
-        } catch (Throwable throwable) {
+            PhonebookTestsHelper
+                    .deleteContacts(mTestContacts, mContentResolver);
+        }
+        catch (Throwable throwable)
+        {
             throwable.printStackTrace();
             assertTrue(false);
         }
     }
-    
-    public void testFetchContactsWithStar() {
-        try {
+
+
+    public void testFetchContactsWithStar()
+    {
+        try
+        {
             PhonebookTestsHelper.storeContacts(mTestContacts, mContentResolver);
             ContactReader contactReader = new ContactReader(mContentResolver);
 
@@ -84,17 +102,22 @@ public class ContactReaderTest extends WebSMSToolActivityTestcase {
             filterStarred.setIsStarred(true);
             List<Contact> contacts = contactReader.fetchContacts(filterStarred);
             PhonebookTestsHelper.logContacts(contacts);
-          
-            PhonebookTestsHelper.deleteContacts(mTestContacts, mContentResolver);
-        } catch (Throwable throwable) {
+
+            PhonebookTestsHelper
+                    .deleteContacts(mTestContacts, mContentResolver);
+        }
+        catch (Throwable throwable)
+        {
             throwable.printStackTrace();
             assertTrue(false);
         }
     }
-    
-    
-    public void testFetchContacts() {
-        try {
+
+
+    public void testFetchContacts()
+    {
+        try
+        {
             PhonebookTestsHelper.storeContacts(mTestContacts, mContentResolver);
             ContactReader contactReader = new ContactReader(mContentResolver);
 
@@ -103,8 +126,11 @@ public class ContactReaderTest extends WebSMSToolActivityTestcase {
             List<Contact> contacts = contactReader.fetchContacts(noFilter);
             PhonebookTestsHelper.logContacts(contacts);
 
-            PhonebookTestsHelper.deleteContacts(mTestContacts, mContentResolver);
-        } catch (Throwable throwable) {
+            PhonebookTestsHelper
+                    .deleteContacts(mTestContacts, mContentResolver);
+        }
+        catch (Throwable throwable)
+        {
             throwable.printStackTrace();
             assertTrue(false);
         }
