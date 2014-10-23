@@ -28,6 +28,8 @@ import android.os.Bundle;
 import android.os.Debug;
 import android.os.Messenger;
 import android.preference.PreferenceManager;
+// there are serious issues when using support.v7 if project is referencing to 
+// the support.v7 android library project. we'll sick with v4 vor a long while
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -45,6 +47,7 @@ import at.tugraz.ist.akm.secureRandom.PRNGFixes;
 import at.tugraz.ist.akm.trace.LogClient;
 import at.tugraz.ist.akm.webservice.service.WebSMSToolService;
 
+@SuppressWarnings("deprecation")
 public class MainActivity extends Activity
 {
     private static final String LAST_ACTIVE_NAVIGATION_DRAWER_BUNDLE_KEY = "at.tugraz.ist.akm.LAST_ACTIVE_NAVIGATION_DRAWER_ITEM_KEY";
