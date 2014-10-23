@@ -529,7 +529,8 @@ public class StartServiceFragment extends Fragment implements
 
         LinearLayout statsLayout = (LinearLayout) getView().findViewById(
                 R.id.main_fragment_statistics_linear_layout);
-        statsLayout.setAlpha((float) 0.5);
+        statsLayout.setAlpha((float)(0.5));
+        setUserAuthLayoutAlpha(true);
     }
 
 
@@ -543,6 +544,26 @@ public class StartServiceFragment extends Fragment implements
         LinearLayout statsLayout = (LinearLayout) getView().findViewById(
                 R.id.main_fragment_statistics_linear_layout);
         statsLayout.setAlpha(1);
+        setUserAuthLayoutAlpha();
+    }
+
+
+    private void setUserAuthLayoutAlpha()
+    {
+        WebserverProtocolConfig config = newWebserverConfig();
+        setUserAuthLayoutAlpha(config.isUserAuthEnabled);
+    }
+
+
+    private void setUserAuthLayoutAlpha(boolean activatedState)
+    {
+        if (activatedState)
+        {
+            mAccessRestrictionLayout.setAlpha(1);
+        } else
+        {
+            mAccessRestrictionLayout.setAlpha((float)0.5);
+        }
     }
 
 
@@ -640,10 +661,17 @@ public class StartServiceFragment extends Fragment implements
     {
         if (0 == isEnabled)
         {
-            mAccessRestrictionLayout.setAlpha(1 / 2);
+            onWebServiceHttpAccessRestriction(false);
         } else
         {
-            mAccessRestrictionLayout.setAlpha(1);
+            onWebServiceHttpAccessRestriction(true);
         }
+
+    }
+
+
+    private void onWebServiceHttpAccessRestriction(boolean isEnabled)
+    {
+        setUserAuthLayoutAlpha(isEnabled);
     }
 }

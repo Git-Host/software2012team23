@@ -48,6 +48,12 @@ public class TestableHttpClientBackLog extends HttpClientBackLog
     }
 
 
+    public boolean forgetClient(int clientHash)
+    {
+        return forget(clientHash);
+    }
+
+
     public long expiresAt()
     {
         return System.currentTimeMillis() - mExpiresAfterMs;

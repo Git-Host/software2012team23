@@ -739,17 +739,17 @@ public class WebSMSToolService extends Service implements ISmsIOCallback,
 
 
     @Override
-    public void onLogFailed()
+    public void onLogFailed(String userName)
     {
-        LoginEvent event = new LoginEvent(false);
+        LoginEvent event = new LoginEvent(false, userName);
         onWebServiceLogEventReceived(event.load(mStringLoader));
     }
 
 
     @Override
-    public void onLoginSuccess()
+    public void onLoginSuccess(String userName)
     {
-        LoginEvent event = new LoginEvent(true);
+        LoginEvent event = new LoginEvent(true, userName);
         onWebServiceLogEventReceived(event.load(mStringLoader));
     }
 }

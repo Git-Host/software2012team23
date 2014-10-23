@@ -18,7 +18,8 @@
 
     <string name="event_list_icon_alternative_text"></string>
     <string name="event_list_login_title">login</string>
-    <string name="event_list_login_success"> success</string>
+    <string name="event_list_login_success">success</string>
+    <string name="event_list_login_detail_prefix">Username</string>
     <string name="event_list_login_failed">failed</string>
     <string name="event_list_smssent_title">SMS Sent</string>
     <string name="event_list_smsreceived_title">SMS Received</string>

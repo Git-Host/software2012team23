@@ -21,6 +21,7 @@ import at.tugraz.ist.akm.R;
 public class LoginEvent extends UiEvent
 {
     private boolean mHasSucceeded = true;
+    private String mUserName = null;
 
 
     @SuppressWarnings("unused")
@@ -29,9 +30,10 @@ public class LoginEvent extends UiEvent
     }
 
 
-    public LoginEvent(boolean success)
+    public LoginEvent(boolean success, String userName)
     {
         mHasSucceeded = success;
+        mUserName = new String(userName);   
     }
 
 
@@ -39,6 +41,7 @@ public class LoginEvent extends UiEvent
     {
         setDrawableIconId(R.drawable.ic_action_device_access_accounts);
         setTitle(loader.getLoginTitle());
+        setDetail(loader.getLoginDetailPrefix() + ": '" + mUserName + "'");
         if (mHasSucceeded)
         {
             setDescription(loader.getLoginSuccess());

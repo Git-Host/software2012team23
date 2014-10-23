@@ -208,16 +208,7 @@ public class EventFragment extends Fragment implements IUiLogSink,
 
     private void notifyListAdapterDataSetChanged()
     {
-        mLog.debug("----- data set changed");
-
-        for (HashMap<String, String> logEntry : mEventLogListData)
-        {
-            mLog.debug("t: " + logEntry.get(EVENT_MESSAGE_TIME_KEY)
-                    + "] title:[" + logEntry.get(EVENT_MESSAGE_TITLE_KEY) + "]");
-        }
         mListViewAdapter.notifyDataSetChanged();
-
-        mLog.debug("----- data set changed");
     }
 
 

@@ -121,7 +121,7 @@ public class JsonAPIRequestProcessor extends AbstractHttpRequestProcessor
 
 
     @Override
-    public synchronized void handleRequest(RequestLine requestLine,
+    synchronized public void handleRequest(RequestLine requestLine,
             String requestData, HttpResponse httpResponse,
             HttpContext httpContext) throws HttpException, IOException
     {

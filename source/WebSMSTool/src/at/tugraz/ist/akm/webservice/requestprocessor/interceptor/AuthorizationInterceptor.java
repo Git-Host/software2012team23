@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 
 import my.org.apache.http.Header;
+import my.org.apache.http.HeaderElement;
 import my.org.apache.http.HttpRequest;
 import my.org.apache.http.HttpResponse;
 import my.org.apache.http.protocol.HttpContext;
@@ -52,128 +53,106 @@ public class AuthorizationInterceptor extends AbstractRequestInterceptor
     }
 
 
-    private void tryCallback(boolean authSucceeded)
+    private void tryCallback(boolean authSucceeded, String username)
     {
         if (mAuthCallback != null)
         {
             if (authSucceeded)
             {
-                mAuthCallback.onLoginSuccess();
+                mAuthCallback.onLoginSuccess(username);
             } else
             {
-                mAuthCallback.onLogFailed();
+                mAuthCallback.onLogFailed(username);
             }
         }
     }
 
 
-    // private String toMyString(Header[] headers)
-    // {
-    // StringBuilder sb = new StringBuilder();
-    //
-    // int hidx = 0;
-    // sb.append("{");
-    // for (Header h : headers)
-    // {
-    //
-    // sb.append("h" + (hidx++) + "[" + h.getName() + "]->["
-    // + h.getValue() + "]");
-    //
-    // int heidx = 0;
-    // for (HeaderElement he : h.getElements())
-    // {
-    //
-    // for (int i = 0; i < he.getParameterCount(); i++)
-    // {
-    // sb.append("he" + (heidx++) + "("
-    // + he.getParameter(i).getName() + ")->("
-    // + he.getParameter(i).getValue() + ")");
-    // }
-    // }
-    // }
-    // sb.append("}");
-    // return sb.toString();
-    // }
-
     @Override
-    public boolean process(HttpRequest httpRequest, String requestData,
-            HttpResponse httpResponse, HttpContext httpContext)
+    synchronized public boolean process(HttpRequest httpRequest,
+            String requestData, HttpResponse httpResponse,
+            HttpContext httpContext)
     {
-
-        Header header = httpRequest
-                .getFirstHeader(WebServerConstants.HTTP.HEADER_AUTHENTICATION);
-
-        boolean isPseudoAuthExpired = mBackLog.isAuthExpired(httpContext);
-        mBackLog.memorizeClient(httpContext);
+        boolean authSuccess = false;
+        String userName = "";
 
         if (mServerConfig.isUserAuthEnabled == false)
         {
             httpResponse.setStatusCode(WebServerConstants.HTTP.HTTP_CODE_OK);
-
-            if (isPseudoAuthExpired)
-            {
-                tryCallback(true);
-            }
-            return true;
-        }
-
-        boolean authSuccess = false;
-
-        if (header != null)
+            authSuccess = true;
+        } else
         {
-            mLog.debug("header contains username/password -> checking restricted access");
+            Header header = httpRequest
+                    .getFirstHeader(WebServerConstants.HTTP.HEADER_AUTHENTICATION);
 
-            StringBuffer requestUserName = new StringBuffer(), requestPassword = new StringBuffer();
-            extractCredentialsFromRequestHeader(header, requestUserName,
-                    requestPassword);
-
-            if (requestUserName.toString().compareTo(mServerConfig.username) == 0
-                    && requestPassword.toString().compareTo(
-                            mServerConfig.password) == 0)
+            if (header != null)
             {
-                authSuccess = true;
-                httpResponse
-                        .setStatusCode(WebServerConstants.HTTP.HTTP_CODE_OK);
+                mLog.debug("credential header: " + headerToString(header));
+
+                StringBuffer requestUserName = new StringBuffer();
+                StringBuffer requestPassword = new StringBuffer();
+                extractCredentialsFromRequestHeader(header, requestUserName,
+                        requestPassword);
+                userName = requestUserName.toString();
+
+                if (userName.compareTo(mServerConfig.username) == 0
+                        && requestPassword.toString().compareTo(
+                                mServerConfig.password) == 0)
+                {
+                    authSuccess = true;
+                    httpResponse
+                            .setStatusCode(WebServerConstants.HTTP.HTTP_CODE_OK);
+                }
+            }
+
+            if (authSuccess == false)
+            {
+                appendAuthFailedResponseData(httpResponse);
             }
         }
 
-        if (authSuccess == false)
-        {
-            mLog.info("require authentication");
-            httpResponse
-                    .setStatusCode(WebServerConstants.HTTP.HTTP_CODE_UNAUTHORIZED);
-            httpResponse.setHeader(
-                    WebServerConstants.HTTP.HEADER_WWW_AUTHENTICATE,
-                    String.format("Basic realm=\"%s\"",
-                            WebServerConstants.HTTP.AUTHENTICATION_REALM));
-
-            // display error page
-            FileReader filereader = new FileReader(mContext,
-                    WebServerConstants.RES.UNAUTHORIZED);
-            responseDataAppender.appendHttpResponseData(httpResponse,
-                    WebServerConstants.HTTP.CONTENTY_TYPE_TEXT_HTML,
-                    filereader.read());
-            try
-            {
-                filereader.close();
-            }
-            catch (Throwable e)
-            {
-            }
-            filereader = null;
-        }
+        boolean isPseudoAuthExpired = mBackLog.isAuthExpired(httpRequest,
+                httpContext);
 
         if (authSuccess)
         {
+            mBackLog.memorizeClient(httpRequest, httpContext);
             if (isPseudoAuthExpired)
             {
-                tryCallback(true);
+                tryCallback(true, userName);
             }
         } else
         {
-            tryCallback(false);
+            mBackLog.forgetClient(httpRequest, httpContext);
+            tryCallback(false, userName);
         }
         return authSuccess;
+    }
+
+
+    private void appendAuthFailedResponseData(HttpResponse httpResponse)
+    {
+        mLog.info("require authentication");
+        httpResponse
+                .setStatusCode(WebServerConstants.HTTP.HTTP_CODE_UNAUTHORIZED);
+        httpResponse.setHeader(WebServerConstants.HTTP.HEADER_WWW_AUTHENTICATE,
+                String.format("Basic realm=\"%s\"",
+                        WebServerConstants.HTTP.AUTHENTICATION_REALM));
+
+        // error page
+        FileReader filereader = new FileReader(mContext,
+                WebServerConstants.RES.UNAUTHORIZED);
+        responseDataAppender.appendHttpResponseData(httpResponse,
+                WebServerConstants.HTTP.CONTENTY_TYPE_TEXT_HTML,
+                filereader.read());
+        try
+        {
+            filereader.close();
+        }
+        catch (Throwable e)
+        {
+        }
+        filereader = null;
     }
 
 
@@ -220,5 +199,39 @@ public class AuthorizationInterceptor extends AbstractRequestInterceptor
                         + e.getMessage());
             }
         }
+    }
+
+
+    private String headerToString(Header header)
+    {
+        StringBuilder sb = new StringBuilder();
+        sb.append("h[" + header.getName() + "]->[" + header.getValue() + "]");
+
+        int heidx = 0;
+        for (HeaderElement he : header.getElements())
+        {
+
+            for (int i = 0; i < he.getParameterCount(); i++)
+            {
+                sb.append("he" + (heidx++) + "(" + he.getParameter(i).getName()
+                        + ")->(" + he.getParameter(i).getValue() + ")");
+            }
+        }
+        return sb.toString();
+    }
+
+
+    @SuppressWarnings("unused")
+    private String headerToString(Header[] headers)
+    {
+        StringBuilder sb = new StringBuilder();
+
+        sb.append("{");
+        for (Header h : headers)
+        {
+            sb.append(headerToString(h));
+        }
+        sb.append("}");
+        return sb.toString();
     }
 }

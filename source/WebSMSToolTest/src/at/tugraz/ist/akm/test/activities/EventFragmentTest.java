@@ -273,9 +273,9 @@ public class EventFragmentTest extends
 
         ResourceStringLoader stringLoader = new ResourceStringLoader(
                 getActivity().getApplicationContext());
-        final LoginEvent event1 = new LoginEvent(true);
+        final LoginEvent event1 = new LoginEvent(true, "testuser");
         waitMsecs(mMessageWaitDelayMs);
-        final LoginEvent event2 = new LoginEvent(false);
+        final LoginEvent event2 = new LoginEvent(false, "testuser2");
         event1.load(stringLoader);
         event2.load(stringLoader);
 

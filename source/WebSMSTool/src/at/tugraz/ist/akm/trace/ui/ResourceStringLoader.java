@@ -94,6 +94,12 @@ public class ResourceStringLoader implements Closeable
     }
 
 
+    public String getLoginDetailPrefix()
+    {
+        return loadResourceString(R.string.event_list_login_detail_prefix);
+    }
+
+
     public String getServiceStarted()
     {
         return loadResourceString(R.string.event_list_service_started);

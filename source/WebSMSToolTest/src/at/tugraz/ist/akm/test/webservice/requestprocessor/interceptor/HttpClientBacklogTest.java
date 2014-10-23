@@ -100,4 +100,33 @@ public class HttpClientBacklogTest extends TestCase
         assertEquals((int) backlogCount, backlog.size());
 
     }
+
+
+    public void test_remove_client()
+    {
+        TestableHttpClientBackLog backlog = new TestableHttpClientBackLog();
+        long backlogCount = 5;
+
+        SparseIntArray clientReference = new SparseIntArray();
+
+        for (int i = 0; i < backlogCount; i++)
+        {
+            int client = (Integer.toString(i)+ "xxx").hashCode();
+            backlog.memorizeClient(client);
+            clientReference.put(i, Integer.valueOf(client));
+        }
+
+        for (int idx = 0; idx < clientReference.size(); idx++)
+        {
+            assertFalse("assert failed at client [" + idx + "] now is ["
+                    + System.currentTimeMillis() + "]",
+                    backlog.isAuthExpired(clientReference.get(idx)));
+        }
+        assertEquals((int) backlogCount, backlog.size());
+
+        assertTrue(backlog.forgetClient(clientReference.get(0)));
+        assertEquals(backlogCount - 1, backlog.size());
+        assertFalse(backlog.forgetClient(999));
+        assertFalse(backlog.forgetClient(999));
+    }
 }

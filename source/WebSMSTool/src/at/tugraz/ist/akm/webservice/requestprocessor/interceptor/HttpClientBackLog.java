@@ -23,8 +23,11 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
+import my.org.apache.http.Header;
 import my.org.apache.http.HttpInetConnection;
+import my.org.apache.http.HttpRequest;
 import my.org.apache.http.protocol.ExecutionContext;
+import my.org.apache.http.protocol.HTTP;
 import my.org.apache.http.protocol.HttpContext;
 import android.annotation.SuppressLint;
 import at.tugraz.ist.akm.trace.LogClient;
@@ -47,10 +50,11 @@ public class HttpClientBackLog
     private HashMap<Integer, Long> mClientBacklog = new HashMap<Integer, Long>();
 
 
-    public boolean isAuthExpired(HttpContext httpContext)
+    public boolean isAuthExpired(HttpRequest httpRequest,
+            HttpContext httpContext)
     {
 
-        return isExpired(getClientHash(httpContext));
+        return isExpired(getClientHash(httpRequest, httpContext));
     }
 
 
@@ -66,20 +70,52 @@ public class HttpClientBackLog
     }
 
 
-    private int getClientHash(HttpContext httpContext)
+    private int getClientHash(HttpRequest httpRequest, HttpContext httpContext)
     {
         HttpInetConnection connection = (HttpInetConnection) httpContext
                 .getAttribute(ExecutionContext.HTTP_CONNECTION);
         InetAddress inetAddress = connection.getRemoteAddress();
 
+        Header userAgentHeader = httpRequest.getFirstHeader(HTTP.USER_AGENT);
+
+        if (userAgentHeader != null)
+        {
+            String agentString = userAgentHeader.getValue();
+            return (inetAddress.getHostAddress() + agentString).hashCode();
+        }
         return inetAddress.getHostAddress().hashCode();
     }
 
 
-    public void memorizeClient(HttpContext httpContext)
+    public void memorizeClient(HttpRequest httpRequest, HttpContext httpContext)
     {
-        memorize(getClientHash(httpContext));
+        memorize(getClientHash(httpRequest, httpContext));
 
+    }
+
+
+    public void forgetClient(HttpRequest httpRequest, HttpContext httpContext)
+    {
+        forget(getClientHash(httpRequest, httpContext));
+    }
+
+
+    protected boolean forget(int clientHash)
+    {
+        Long expiration = mClientBacklog.remove(clientHash);
+        boolean removed = false;
+        if (null != expiration)
+        {
+            mLog.debug("forgetting client [" + clientHash
+                    + "] that expires at ["
+                    + mTimeFormatter.format(expiration.longValue()) + "]");
+            removed = true;
+        } else
+        {
+            mLog.debug("no clent [" + clientHash + "] found to forget");
+        }
+
+        return removed;
     }
 
 
@@ -98,12 +134,14 @@ public class HttpClientBackLog
         mWriteAccessCount++;
         if (null != mClientBacklog.put(clientHash, timestamp))
         {
-            mLog.debug("client update at [" + now + "] expires at [" + then
-                    + "] in [" + (timestamp - nowStamp) + "]ms");
+            mLog.debug("client [" + clientHash + "] update at [" + now
+                    + "] expires at [" + then + "] in ["
+                    + (timestamp - nowStamp) + "]ms");
         } else
         {
-            mLog.debug("new client memorized at [" + now + "] expires at ["
-                    + then + "] in [" + (timestamp - nowStamp) + "]ms");
+            mLog.debug("new client [" + clientHash + "] memorized at [" + now
+                    + "] expires at [" + then + "] in ["
+                    + (timestamp - nowStamp) + "]ms");
             if (mClientBacklog.size() > mMaxClientCapacity)
             {
                 mLog.debug("warning, container size [" + mClientBacklog.size()
