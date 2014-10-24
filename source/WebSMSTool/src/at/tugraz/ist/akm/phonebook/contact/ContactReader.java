@@ -73,8 +73,14 @@ public class ContactReader implements IContactReader
         }
         long parseTimestamp = System.currentTimeMillis();
 
-        mLog.debug("fetching took " + (fetchTimestamp - startTimestamp) + " ms");
-        mLog.debug("parsing " + contacts.size() + " contacts took "
+        mLog.debug("fetching took [" + (fetchTimestamp - startTimestamp) + "] ms");
+        
+        int numContacts = 0;
+        if (contacts != null) {
+            numContacts = contacts.size();
+        }
+        
+        mLog.debug("parsing [" + numContacts + "] contacts took "
                 + (parseTimestamp - startTimestamp) + " ms");
 
         return contacts;

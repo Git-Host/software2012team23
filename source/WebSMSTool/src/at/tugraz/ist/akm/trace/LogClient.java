@@ -33,6 +33,30 @@ public class LogClient
     }
 
 
+    public LogClient(String tag, boolean enableDetailedTag)
+    {
+        if (enableDetailedTag)
+        {
+            mTag = new String(tag);
+        } else
+        {
+            mTag = extractClassName(tag);
+        }
+    }
+
+
+    public LogClient(Object o, boolean enableDetailedTag)
+    {
+        if (enableDetailedTag)
+        {
+            mTag = o.getClass().getName();
+        } else
+        {
+            mTag = extractClassName(o.getClass().getName());
+        }
+    }
+
+
     private String extractClassName(String classWithPackagePrefix)
     {
         int lastDotIndex = classWithPackagePrefix.lastIndexOf(".");

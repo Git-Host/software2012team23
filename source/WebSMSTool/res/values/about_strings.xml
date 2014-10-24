@@ -13,7 +13,7 @@
   distributed under the License is distributed on an "AS IS" BASIS,
   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
   See the License for the specific language governing permissions and
-  limitations under the License.
+  limitations under the License.
 -->
 
 <resources>
@@ -27,7 +27,7 @@
     <string name="about_further_information">\nFurther information and contact</string>
     <string name="about_info_googlecode_links">Project-Page:\nhttp://code.google.com/p/software2012team23\n\nE-Mail:\nsoftware2012team23@googlecode.com</string>
     <string name="about_supervisor_title">\nSupervisor</string>
-    <string name="about_supervisor">Wolfgang Slany</string>
+    <string name="about_supervisor">Univ.-Prof. Dipl.-Ing. Dr. Wolfgang Slany</string>
     <string name="about_credits_title">\nCredits</string>
     <string name="about_credits_onlinelogomaker_text">Online Logo Maker \nhttp://www.onlinelogomaker.com\n</string>
     <string name="about_credits_onlinelogomaker_image_description">OnlineLogoMaker</string>
@@ -35,6 +35,10 @@
     <string name="about_credits_android_asset_studio_text">Android Asset Studio \nhttp://romannurik.github.io/AndroidAssetStudio\n</string>
     <string name="about_credits_robotium_text">Robotium \nhttp://code.google.com/p/robotium\n</string>
     <string name="about_credits_robotium_image_description">Robotium</string>
+    <string name="about_credits_qunit_text">QUnit \nhttps://qunitjs.com\n</string>
+    <string name="about_credits_qunit_image_description">QUnit</string>
+    <string name="about_credits_handlebars_text">Handlebars \nhttp://handlebarsjs.com\n</string>
+    <string name="about_credits_handlebars_image_description">Handlebars</string>
     <string name="about_credits_bouncy_castle_text">The Legion of the Bouncy Castle \nhttps://www.bouncycastle.org\n</string>
     <string name="about_credits_bouncy_castle_image_description">The Legion of the Bouncy Castle</string>
     <string name="about_credits_zutubi_text">Zutubi (JUnit Reporter) \nhttp://zutubi.com\n</string>

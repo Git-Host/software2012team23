@@ -32,19 +32,19 @@ public class CachedAsyncPhonebookReader extends Thread implements
         IContactModifiedCallback
 {
 
-    private class ThreadInfo
+    private static class ThreadInfo
     {
         public int breathingPauseMs = 750;
     }
 
-    private class ContactSources
+    private static class ContactSources
     {
         public List<Contact> noContacts = new Vector<Contact>(0);
         public List<Contact> cached = noContacts;
         public List<Contact> contentProvider = noContacts;
     }
 
-    private class TimingInfo
+    private static class TimingInfo
     {
         public long readDBDurationMs = 0;
         public long readContentProvicerDurationMs = 0;
@@ -53,7 +53,7 @@ public class CachedAsyncPhonebookReader extends Thread implements
     private static final long CACHE_READY_MESSAGE_DELAY_MS = 5 * 1000;
 
     private LogClient mLog = new LogClient(
-            CachedAsyncPhonebookReader.class.getCanonicalName());
+            CachedAsyncPhonebookReader.class.getCanonicalName(), true);
     private ContactSources mContactSources = new ContactSources();
     private ContactFilter mContactFilter = null;
     private Context mApplicationContext = null;
@@ -100,13 +100,13 @@ public class CachedAsyncPhonebookReader extends Thread implements
             case ALIVE:
             case STARTED:
             case READ_DB:
-                mLog.debug("requested contacts from uncomplete cache: 0 entries");
+                mLog.debug("requested contacts from uncomplete cache. returning [0] entries");
                 return mContactSources.noContacts;
 
             case READ_DB_DONE:
             case READ_CONTENTPROVIDER:
-                mLog.debug("requested contacts from cache: "
-                        + mContactSources.cached.size() + " entries");
+                mLog.debug("requested contacts from cache: ["
+                        + mContactSources.cached.size() + "] entries");
                 return mContactSources.cached;
 
             case READ_CONTENTPROVIDER_DONE:
@@ -127,6 +127,7 @@ public class CachedAsyncPhonebookReader extends Thread implements
     @Override
     public void run()
     {
+        mLog.debug("started contact catche");
         while (mStateMachine.state() != CacheStates.STOPPED)
         {
             tick();

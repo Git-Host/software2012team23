@@ -33,7 +33,7 @@ public class CacheModifiedHandler extends Handler implements Closeable
     }
 
     private LogClient mLog = new LogClient(
-            CacheModifiedHandler.class.getCanonicalName());
+            CacheModifiedHandler.class.getCanonicalName(), true);
 
     private PhonebookBridge mPhonebook = null;
 
@@ -62,7 +62,6 @@ public class CacheModifiedHandler extends Handler implements Closeable
     {
         Bundle bundle = new Bundle();
         bundle.putString(CacheModified.KEY, CacheModified.VALUE);
-
         Message message = new Message();
         message.setData(bundle);
         return message;

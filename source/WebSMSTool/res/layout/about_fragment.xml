@@ -15,6 +15,7 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 -->
+
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent" >
@@ -133,10 +134,24 @@
             android:src="@raw/robotium_logo" />
 
         <TextView
-            android:id="@+id/about_credits_robotium_id"
+            android:id="@+id/about_credits_qunit_id"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/about_credits_robotium_text" />
+
+        <ImageView
+            android:layout_width="290dp"
+            android:layout_height="wrap_content"
+            android:adjustViewBounds="true"
+            android:background="#390f39"
+            android:contentDescription="@string/about_credits_qunit_image_description"
+            android:src="@raw/qunit_logo" />
+
+        <TextView
+            android:id="@+id/about_credits_robotium_id"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/about_credits_qunit_text" />
 
         <ImageView
             android:layout_width="290dp"
@@ -150,6 +165,20 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/about_credits_bouncy_castle_text" />
+
+        <ImageView
+            android:layout_width="290dp"
+            android:layout_height="wrap_content"
+            android:adjustViewBounds="true"
+            android:background="#e46520"
+            android:contentDescription="@string/about_credits_handlebars_image_description"
+            android:src="@raw/handlebars_logo" />
+
+        <TextView
+            android:id="@+id/about_credits_handlebars_id"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/about_credits_handlebars_text" />
 
         <ImageView
             android:layout_width="290dp"

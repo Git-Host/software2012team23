@@ -12,41 +12,142 @@
   distributed under the License is distributed on an "AS IS" BASIS,
   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
   See the License for the specific language governing permissions and
-  limitations under the License.
-  -->
+  limitations under the License.
+-->
 <webServerConfig>
+
     <requestInterceptors>
-        <interceptor class="at.tugraz.ist.akm.webservice.handler.interceptor.AuthorizationInterceptor"/>
+
+        <interceptor class="at.tugraz.ist.akm.webservice.handler.interceptor.AuthorizationInterceptor" />
     </requestInterceptors>
-	<requestHandler class="at.tugraz.ist.akm.webservice.handler.FileRequestHandler">
-		<request uriPattern="/" dataFile="web/index.html" contentType="text/html"/>
-		<request uriPattern="/index.html" dataFile="web/index.html" contentType="text/html"/>
-		<request uriPattern="/clientTest.html" dataFile="web/clientTest.html" contentType="text/html"/>
-		<request uriPattern="/js/jquery.js" dataFile="web/js/jquery.js" contentType="text/javascript"/>
-		<request uriPattern="/js/client.js" dataFile="web/js/client.js" contentType="text/javascript"/>
-		<request uriPattern="/js/qunit/clientTest.js" dataFile="web/js/qunit/clientTest.js" contentType="text/javascript"/>
-		<request uriPattern="/js/qunit/qunit.js" dataFile="web/js/qunit/qunit.js" contentType="text/javascript"/>
-        <request uriPattern="/js/notifier.js" dataFile="web/js/notifier.js" contentType="text/javascript"/>
-		<request uriPattern="/js/qunit/qunit.css" dataFile="web/js/qunit/qunit.css" contentType="text/css"/>
-		<request uriPattern="/css/css.css" dataFile="web/css/css.css" contentType="text/css"/>
-        <request uriPattern="/js/jquery.blockUI.js" dataFile="web/js/jquery.blockUI.js" contentType="text/javascript"/>
-		<request uriPattern="/js/loader.js" dataFile="web/js/loader.js" contentType="text/javascript"/>
-		<request uriPattern="/js/wst/wstLog.js" dataFile="web/js/wst/wstLog.js" contentType="text/javascript"/>
-		<request uriPattern="/js/wst/wstAPI.js" dataFile="web/js/wst/wstAPI.js" contentType="text/javascript"/>
-		<request uriPattern="/js/handlebars.js" dataFile="web/js/handlebars.js" contentType="text/javascript"/>
-		<request uriPattern="/js/wst/wstTemplate.js" dataFile="web/js/wst/wstTemplate.js" contentType="text/javascript"/>
-        <request uriPattern="/js/wst/wstTab.js" dataFile="web/js/wst/wstTab.js" contentType="text/javascript"/>
-        <request uriPattern="/css/wstTab.css" dataFile="web/css/wstTab.css" contentType="text/css"/>        		
-		<request uriPattern="/js/wst/templates/test.html" dataFile="web/js/wst/templates/test.html" contentType="text/html"/>
-		<request uriPattern="/js/wst/templates/contact_entry.html" dataFile="web/js/wst/templates/contact_entry.html" contentType="text/html"/>
-		<request uriPattern="/js/wst/templates/sms_thread_entry.html" dataFile="web/js/wst/templates/sms_thread_entry.html" contentType="text/html"/>
-        <request uriPattern="/js/wst/templates/contact_tab.html" dataFile="web/js/wst/templates/contact_tab.html" contentType="text/html"/>		
-		
-	</requestHandler>
-    <requestHandler class="at.tugraz.ist.akm.webservice.handler.JsonAPIRequestHandler">
-        <request uriPattern="/api.html" dataFile="web/api.html" contentType="text/html"/>
+
+    <requestHandler class="at.tugraz.ist.akm.webservice.handler.FileRequestHandler" >
+
+        <request
+            contentType="text/html"
+            dataFile="web/index.html"
+            uriPattern="/" />
+
+        <request
+            contentType="text/html"
+            dataFile="web/index.html"
+            uriPattern="/index.html" />
+
+        <request
+            contentType="text/html"
+            dataFile="web/clientTest.html"
+            uriPattern="/clientTest.html" />
+
+        <request
+            contentType="text/javascript"
+            dataFile="web/js/jquery.js"
+            uriPattern="/js/jquery.js" />
+
+        <request
+            contentType="text/javascript"
+            dataFile="web/js/client.js"
+            uriPattern="/js/client.js" />
+
+        <request
+            contentType="text/javascript"
+            dataFile="web/js/qunit/clientTest.js"
+            uriPattern="/js/qunit/clientTest.js" />
+
+        <request
+            contentType="text/javascript"
+            dataFile="web/js/qunit/qunit.js"
+            uriPattern="/js/qunit/qunit.js" />
+
+        <request
+            contentType="text/javascript"
+            dataFile="web/js/notifier.js"
+            uriPattern="/js/notifier.js" />
+
+        <request
+            contentType="text/css"
+            dataFile="web/js/qunit/qunit.css"
+            uriPattern="/js/qunit/qunit.css" />
+
+        <request
+            contentType="text/css"
+            dataFile="web/css/css.css"
+            uriPattern="/css/css.css" />
+
+        <request
+            contentType="text/javascript"
+            dataFile="web/js/jquery.blockUI.js"
+            uriPattern="/js/jquery.blockUI.js" />
+
+        <request
+            contentType="text/javascript"
+            dataFile="web/js/loader.js"
+            uriPattern="/js/loader.js" />
+
+        <request
+            contentType="text/javascript"
+            dataFile="web/js/wst/wstLog.js"
+            uriPattern="/js/wst/wstLog.js" />
+
+        <request
+            contentType="text/javascript"
+            dataFile="web/js/wst/wstAPI.js"
+            uriPattern="/js/wst/wstAPI.js" />
+
+        <request
+            contentType="text/javascript"
+            dataFile="web/js/handlebars.js"
+            uriPattern="/js/handlebars.js" />
+
+        <request
+            contentType="text/javascript"
+            dataFile="web/js/wst/wstTemplate.js"
+            uriPattern="/js/wst/wstTemplate.js" />
+
+        <request
+            contentType="text/javascript"
+            dataFile="web/js/wst/wstTab.js"
+            uriPattern="/js/wst/wstTab.js" />
+
+        <request
+            contentType="text/css"
+            dataFile="web/css/wstTab.css"
+            uriPattern="/css/wstTab.css" />
+
+        <request
+            contentType="text/html"
+            dataFile="web/js/wst/templates/test.html"
+            uriPattern="/js/wst/templates/test.html" />
+
+        <request
+            contentType="text/html"
+            dataFile="web/js/wst/templates/contact_entry.html"
+            uriPattern="/js/wst/templates/contact_entry.html" />
+
+        <request
+            contentType="text/html"
+            dataFile="web/js/wst/templates/sms_thread_entry.html"
+            uriPattern="/js/wst/templates/sms_thread_entry.html" />
+
+        <request
+            contentType="text/html"
+            dataFile="web/js/wst/templates/contact_tab.html"
+            uriPattern="/js/wst/templates/contact_tab.html" />
     </requestHandler>
-    <requestHandler class="at.tugraz.ist.akm.webservice.handler.EchoJsonRequestHandler">  	
-        <request uriPattern="/echo.html" dataFile="web/echo.html" contentType="text/html"/>
+
+    <requestHandler class="at.tugraz.ist.akm.webservice.handler.JsonAPIRequestHandler" >
+
+        <request
+            contentType="text/html"
+            dataFile="web/api.html"
+            uriPattern="/api.html" />
     </requestHandler>
+
+    <requestHandler class="at.tugraz.ist.akm.webservice.handler.EchoJsonRequestHandler" >
+
+        <request
+            contentType="text/html"
+            dataFile="web/echo.html"
+            uriPattern="/echo.html" />
+    </requestHandler>
+
 </webServerConfig>
