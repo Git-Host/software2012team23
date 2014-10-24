@@ -16,6 +16,9 @@
 
 package at.tugraz.ist.akm.activities;
 
+import java.util.LinkedList;
+import java.util.List;
+
 import android.app.Fragment;
 import android.os.Bundle;
 import android.text.util.Linkify;
@@ -44,33 +47,22 @@ public class AboutFragment extends Fragment
     public void onStart()
     {
         super.onStart();
-        Linkify.addLinks((TextView) getView().findViewById(R.id.aboutInfoLink),
-                Linkify.ALL);
 
-        Linkify.addLinks(
-                (TextView) getView().findViewById(
-                        R.id.about_credits_onlinelogomaker_id), Linkify.ALL);
+        List<Integer> toBeLinkified = new LinkedList<Integer>();
+        toBeLinkified.add(R.id.about_projct_info_link);
+        toBeLinkified.add(R.id.about_credits_onlinelogomaker_id);
+        toBeLinkified.add(R.id.about_credits_online_launcher_icon_generator_id);
+        toBeLinkified.add(R.id.about_credits_robotium_id);
+        toBeLinkified.add(R.id.about_credits_qunit_id);
+        toBeLinkified.add(R.id.about_credits_bouncycastle_id);
+        toBeLinkified.add(R.id.about_credits_handlebars_id);
+        toBeLinkified.add(R.id.about_credits_zutubi_id);
+        toBeLinkified.add(R.id.about_credits_apache_id);
 
-        Linkify.addLinks(
-                (TextView) getView().findViewById(
-                        R.id.about_credits_online_launcher_icon_generator_id),
-                Linkify.ALL);
-
-        Linkify.addLinks(
-                (TextView) getView().findViewById(R.id.about_credits_zutubi_id),
-                Linkify.ALL);
-
-        Linkify.addLinks(
-                (TextView) getView().findViewById(
-                        R.id.about_credits_robotium_id), Linkify.ALL);
-
-        Linkify.addLinks(
-                (TextView) getView().findViewById(
-                        R.id.about_credits_bouncycastle_id), Linkify.ALL);
-
-        Linkify.addLinks(
-                (TextView) getView().findViewById(R.id.about_credits_apache_id),
-                Linkify.ALL);
+        for (Integer rId : toBeLinkified)
+        {
+            Linkify.addLinks((TextView) getView().findViewById(rId),
+                    Linkify.ALL);
+        }
     }
-
 }
