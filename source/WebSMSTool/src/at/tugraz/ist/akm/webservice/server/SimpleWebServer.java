@@ -161,7 +161,7 @@ public class SimpleWebServer implements ISmsIOCallback, Closeable
                 stopServer();
             }
         }
-        mLog.info("request handlers read from configuration");
+        mLog.debug("request handlers read from configuration");
     }
 
 
@@ -205,7 +205,7 @@ public class SimpleWebServer implements ISmsIOCallback, Closeable
                 stopServer();
             }
         }
-        mLog.info("request interceptors read from configuration");
+        mLog.debug("request interceptors read from configuration");
     }
 
 

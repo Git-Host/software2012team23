@@ -159,7 +159,7 @@ public class ServerThread extends Thread
                             catch (Exception ex)
                             {
                                 mLog.error(
-                                        "Exception caught while processing HTTP client connection",
+                                        "exception caught while processing HTTP client connection",
                                         ex);
                             }
                         }
@@ -175,7 +175,7 @@ public class ServerThread extends Thread
         }
 
         mRunning = false;
-        mLog.info("Webserver stopped");
+        mLog.info("webserver stopped");
     }
 
 

@@ -85,7 +85,22 @@ public class TestableCachedAsyncPhonebookReader extends
                 }
             }
             super.tick();
-            super.breatingPause();
+            synchronized (mWaitMonitor)
+            {
+                if (mStateMachine.state() == CacheStates.READY_FOR_CHANGES)
+                {
+                    try
+                    {
+                        mWaitMonitor.wait();
+                    }
+                    catch (InterruptedException e)
+                    {
+                        mLog.error(
+                                "failed to wait, ignore interrupted exception",
+                                e);
+                    }
+                }
+            }
         }
     }
 

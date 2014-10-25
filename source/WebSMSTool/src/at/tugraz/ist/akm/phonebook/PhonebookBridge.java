@@ -154,7 +154,7 @@ public class PhonebookBridge implements IContactModifiedCallback,
 
     public List<Contact> fetchContacts(ContactFilter filter)
     {
-        return mCachedContactReader.fetchContacts();
+        return mCachedContactReader.fetchContacts(filter);
     }
 
 

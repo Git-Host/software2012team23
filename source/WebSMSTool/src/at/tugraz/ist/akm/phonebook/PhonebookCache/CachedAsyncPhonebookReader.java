@@ -29,7 +29,7 @@ import at.tugraz.ist.akm.phonebook.contact.IContactReader;
 import at.tugraz.ist.akm.trace.LogClient;
 
 public class CachedAsyncPhonebookReader extends Thread implements
-        IContactModifiedCallback
+        IContactModifiedCallback, IContactReader
 {
 
     private static class ThreadInfo
@@ -61,7 +61,7 @@ public class CachedAsyncPhonebookReader extends Thread implements
     private IContactReader mContentproviderContactReader = null;
     private ThreadInfo mThreadInfo = new ThreadInfo();
     private TimingInfo mTimingInfo = new TimingInfo();
-    private Object mWaitMonitor = new Object();
+    protected Object mWaitMonitor = new Object();
     private CacheModifiedHandler mCacheModifiedHandler = null;
     protected CacheStateMachine mStateMachine = new CacheStateMachine();
     protected CacheStateMachine mBufferedState = new CacheStateMachine();
@@ -91,8 +91,10 @@ public class CachedAsyncPhonebookReader extends Thread implements
     }
 
 
-    public List<Contact> fetchContacts()
+    @Override
+    public List<Contact> fetchContacts(ContactFilter filter)
     {
+        mLog.debug("contact filter not considered yet");
         synchronized (mContactSources)
         {
             switch (mStateMachine.state())
@@ -131,7 +133,22 @@ public class CachedAsyncPhonebookReader extends Thread implements
         while (mStateMachine.state() != CacheStates.STOPPED)
         {
             tick();
-            breatingPause();
+            synchronized (mWaitMonitor)
+            {
+                if (mStateMachine.state() == CacheStates.READY_FOR_CHANGES)
+                {
+                    try
+                    {
+                        mWaitMonitor.wait();
+                    }
+                    catch (InterruptedException e)
+                    {
+                        mLog.error(
+                                "failed to wait, ignore interrupted exception",
+                                e);
+                    }
+                }
+            }
         }
     }
 
@@ -171,26 +188,6 @@ public class CachedAsyncPhonebookReader extends Thread implements
             break;
         }
         mStateMachine.transit();
-    }
-
-
-    protected void breatingPause()
-    {
-        if (mStateMachine.state() == CacheStates.READY_FOR_CHANGES)
-        {
-            synchronized (mWaitMonitor)
-            {
-                try
-                {
-                    mWaitMonitor.wait();
-                }
-                catch (InterruptedException e)
-                {
-                    mLog.error("failed to wait, ignore interrupted exception",
-                            e);
-                }
-            }
-        }
     }
 
 

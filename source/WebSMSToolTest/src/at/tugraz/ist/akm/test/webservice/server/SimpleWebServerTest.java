@@ -51,7 +51,8 @@ public class SimpleWebServerTest extends WebSMSToolActivityTestcase
     }
 
 
-    private void startServer(final boolean useMockServer) throws Exception
+    synchronized private void startServer(final boolean useMockServer)
+            throws Exception
     {
         if (mWebserver != null)
         {
@@ -110,11 +111,14 @@ public class SimpleWebServerTest extends WebSMSToolActivityTestcase
 
         try
         {
-            mWebserver = new SimpleWebServer(mContext, mServerConfig, null);
-            mWebserver.startServer();
+            synchronized (this)
+            {
+                mWebserver = new SimpleWebServer(mContext, mServerConfig, null);
+                mWebserver.startServer();
 
-            waitForServiceBeingStarted(20, 200);
-            assertTrue(mWebserver.isRunning());
+                waitForServiceBeingStarted(20, 200);
+                assertTrue(mWebserver.isRunning());
+            }
         }
         catch (Exception ex)
         {

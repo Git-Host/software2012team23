@@ -75,10 +75,6 @@ class IncomingClientMessageHandler extends Handler
                 mService.onManagementClientRequestStartWEBService();
                 break;
 
-            case ServiceConnectionMessageTypes.Client.Request.CONNECTION_URL:
-                mService.onManagementClientRequestConnectionUrl();
-                break;
-
             case ServiceConnectionMessageTypes.Client.Request.REPUBLISH_STATES:
                 mService.onManagementClientRequestRepublishStates();
                 break;

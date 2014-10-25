@@ -25,8 +25,8 @@ import at.tugraz.ist.akm.content.query.TextMessageFilter;
 import at.tugraz.ist.akm.phonebook.PhonebookBridge;
 import at.tugraz.ist.akm.phonebook.contact.Contact;
 import at.tugraz.ist.akm.phonebook.contact.IContactModifiedCallback;
-import at.tugraz.ist.akm.sms.SmsBridge;
 import at.tugraz.ist.akm.sms.ISmsIOCallback;
+import at.tugraz.ist.akm.sms.SmsBridge;
 import at.tugraz.ist.akm.sms.TextMessage;
 import at.tugraz.ist.akm.texting.reports.VolatileIncomingReport;
 import at.tugraz.ist.akm.texting.reports.VolatileOutgoingReport;
@@ -66,7 +66,7 @@ public class TextingAdapter extends LogClient implements TextingInterface,
 
     public void start()
     {
-        info("starting " + getClass().getSimpleName());
+        debug("starting " + getClass().getSimpleName());
         registerSmsCallbacks();
         registerPhonebookCallbacks();
         mSmsBridge.start();
@@ -76,7 +76,7 @@ public class TextingAdapter extends LogClient implements TextingInterface,
 
     public void stop()
     {
-        info("stopping " + getClass().getSimpleName());
+        debug("stopping " + getClass().getSimpleName());
         mPhoneBook.stop();
         mSmsBridge.stop();
     }
@@ -184,7 +184,7 @@ public class TextingAdapter extends LogClient implements TextingInterface,
     public void smsDeliveredCallback(Context context, List<TextMessage> messages)
     {
         TextMessage message = messages.get(0);
-        info("sms was delivered (to address [" + message.getAddress()
+        info("sms was delivered (to address [" + obfuscateAddress(message.getAddress())
                 + "] on [" + message.getDate() + "] text [" + message.getBody()
                 + "])");
 
@@ -194,6 +194,17 @@ public class TextingAdapter extends LogClient implements TextingInterface,
                     .smsDeliveredCallback(context, messages);
         }
 
+    }
+
+
+    private String obfuscateAddress(String origAddress)
+    {
+        float obfuscationRatio = 4 / 5;
+        int borderIdx = Math.round(origAddress.length()
+                * (1 - obfuscationRatio));
+        StringBuffer obfuscated = new StringBuffer(origAddress).replace(
+                borderIdx, origAddress.length() - 1, "*");
+        return obfuscated.toString();
     }
 
 

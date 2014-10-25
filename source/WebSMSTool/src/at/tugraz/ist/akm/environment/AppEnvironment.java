@@ -17,14 +17,23 @@
 package at.tugraz.ist.akm.environment;
 
 import android.os.Build;
+import at.tugraz.ist.akm.BuildConfig;
 
 public class AppEnvironment
 {
 
-    public static final boolean isRunningOnEmulator()
+    public static boolean isRunningOnEmulator()
     {
         return ("google_sdk".equals(Build.PRODUCT)
                 || "sdk_x86".equals(Build.PRODUCT) || Build.FINGERPRINT
                     .startsWith("generic"));
+    }
+
+
+    public static boolean isDebuggable()
+    {
+        // return (0 != (getApplicationInfo().flags &
+        // ApplicationInfo.FLAG_DEBUGGABLE));
+        return BuildConfig.DEBUG;
     }
 }

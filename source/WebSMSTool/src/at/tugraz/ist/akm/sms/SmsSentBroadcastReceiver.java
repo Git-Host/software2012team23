@@ -29,12 +29,6 @@ import at.tugraz.ist.akm.trace.LogClient;
 public class SmsSentBroadcastReceiver extends BroadcastReceiver
 {
     public static final String ACTION_SMS_SENT = "at.tugraz.ist.akm.sms.SMS_SENT_ACTION";
-    // TODO ACTION_SMS_DELIVERED is never used for intents
-    // public static final String ACTION_SMS_DELIVERED =
-    // "at.tugraz.ist.akm.sms.SMS_DELIVERED_ACTION";
-    // TODO ACTION_SMS_RECEIVED is never used for intents
-    // public static final String ACTION_SMS_RECEIVED =
-    // "android.provider.Telephony.SMS_RECEIVED";
     public static final String EXTRA_BUNDLE_KEY_TEXTMESSAGE = "at.tugraz.ist.akm.sms.EXTRA_BUNDLE_TEXTMESSAGE_KEY";
     public static final String EXTRA_BUNDLE_KEY_TEXTMESSAGE_ID = "at.tugraz.ist.akm.sms.EXTRA_BUNDLE_KEY_TEXTMESSAGE_ID";
     // private static final String EXTRA_BUNDLE_KEY_PDU = "pdus";

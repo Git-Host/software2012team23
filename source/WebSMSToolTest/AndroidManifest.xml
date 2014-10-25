@@ -17,6 +17,7 @@
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="at.tugraz.ist.akm.test"
+    android:sharedUserId="at.tugraz.ist.akm.uid"
     android:versionCode="1"
     android:versionName="1.0" >
 
@@ -24,6 +25,8 @@
         android:maxSdkVersion="19"
         android:minSdkVersion="16"
         android:targetSdkVersion="19" />
+
+    <uses-permission android:name="android.permission.WRITE_CONTACTS" />
 
     <!-- android:name="android.test.InstrumentationTestRunner" -->
     <instrumentation

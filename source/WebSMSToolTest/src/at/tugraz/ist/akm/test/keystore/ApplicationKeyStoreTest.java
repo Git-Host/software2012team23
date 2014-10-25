@@ -32,6 +32,7 @@ public class ApplicationKeyStoreTest extends AndroidTestCase
     @Override
     protected void setUp() throws Exception
     {
+        super.setUp();
         TraceService.setSink(new ExceptionThrowingLogSink());
     }
 

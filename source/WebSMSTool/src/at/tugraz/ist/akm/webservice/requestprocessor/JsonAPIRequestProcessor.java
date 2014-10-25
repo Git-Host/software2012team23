@@ -459,10 +459,10 @@ public class JsonAPIRequestProcessor extends AbstractHttpRequestProcessor
                     resultObject.put("contact_id", contact_id);
                 } else
                 {
-                    mLog.warning("Contact with given id " + contact_id
-                            + " could not be found or is ambiguous.");
+                    mLog.warning("contact with id [" + contact_id
+                            + "] not found or ambiguous");
                     this.setErrorState(resultObject,
-                            "Contact could not be determined.");
+                            "contact not found");
                     return resultObject;
                 }
 

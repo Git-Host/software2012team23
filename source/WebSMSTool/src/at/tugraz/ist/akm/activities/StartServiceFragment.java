@@ -89,6 +89,14 @@ public class StartServiceFragment extends Fragment implements
 
 
     @Override
+    public void onTrimMemory(int level)
+    {
+        super.onTrimMemory(level);
+        mLog.warning("on trim memory");
+    }
+
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState)
     {
@@ -529,7 +537,7 @@ public class StartServiceFragment extends Fragment implements
 
         LinearLayout statsLayout = (LinearLayout) getView().findViewById(
                 R.id.main_fragment_statistics_linear_layout);
-        statsLayout.setAlpha((float)(0.5));
+        statsLayout.setAlpha((float) (0.5));
         setUserAuthLayoutAlpha(true);
     }
 
@@ -562,7 +570,7 @@ public class StartServiceFragment extends Fragment implements
             mAccessRestrictionLayout.setAlpha(1);
         } else
         {
-            mAccessRestrictionLayout.setAlpha((float)0.5);
+            mAccessRestrictionLayout.setAlpha((float) 0.5);
         }
     }
 

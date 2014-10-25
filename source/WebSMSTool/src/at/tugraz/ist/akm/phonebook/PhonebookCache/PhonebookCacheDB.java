@@ -61,21 +61,21 @@ public class PhonebookCacheDB extends SQLiteOpenHelper
             static String DROP = "DROP TABLE IF EXISTS " + NAME;
         }
 
-        public static class InfoTable
-        {
-            static String NAME = "CacheInfos";
-
-            public static class Domain
-            {
-                static String KEY = "Key";
-                static String VALUE = "Value";
-            }
-
-            // key, value
-            static String CREATE = "CREATE TABLE IF NOT EXISTS " + NAME + " ("
-                    + Domain.KEY + " TEXT, " + Domain.VALUE + " TEXT);";
-            static String DROP = "DROP TABLE IF EXISTS " + NAME;
-        }
+        // public static class InfoTable
+        // {
+        // static String NAME = "CacheInfos";
+        //
+        // public static class Domain
+        // {
+        // static String KEY = "Key";
+        // static String VALUE = "Value";
+        // }
+        //
+        // // key, value
+        // static String CREATE = "CREATE TABLE IF NOT EXISTS " + NAME + " ("
+        // + Domain.KEY + " TEXT, " + Domain.VALUE + " TEXT);";
+        // static String DROP = "DROP TABLE IF EXISTS " + NAME;
+        // }
     }
 
     private static class Gson
@@ -216,7 +216,7 @@ public class PhonebookCacheDB extends SQLiteOpenHelper
     private void dropTables()
     {
         getWriteableDatabaseConnection().execSQL(Database.CacheTable.DROP);
-        getWriteableDatabaseConnection().execSQL(Database.InfoTable.DROP);
+        // getWriteableDatabaseConnection().execSQL(Database.InfoTable.DROP);
     }
 
 
@@ -224,7 +224,7 @@ public class PhonebookCacheDB extends SQLiteOpenHelper
     public void onCreate(SQLiteDatabase db)
     {
         db.execSQL(Database.CacheTable.CREATE);
-        db.execSQL(Database.InfoTable.CREATE);
+        // db.execSQL(Database.InfoTable.CREATE);
     }
 
 
@@ -233,7 +233,7 @@ public class PhonebookCacheDB extends SQLiteOpenHelper
     {
         dropTables();
         db.execSQL(Database.CacheTable.CREATE);
-        db.execSQL(Database.InfoTable.CREATE);
+        // db.execSQL(Database.InfoTable.CREATE);
     }
 
 

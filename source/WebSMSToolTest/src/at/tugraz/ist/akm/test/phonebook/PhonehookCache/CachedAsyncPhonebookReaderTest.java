@@ -66,7 +66,7 @@ public class CachedAsyncPhonebookReaderTest extends WebSMSToolActivityTestcase
                 filter, null, null);
 
         assertEquals(reader.state(), CacheStates.ALIVE);
-        reader.fetchContacts();
+        reader.fetchContacts(null);
         assertEquals(reader.state(), CacheStates.ALIVE);
 
         reader.transit();
@@ -109,11 +109,11 @@ public class CachedAsyncPhonebookReaderTest extends WebSMSToolActivityTestcase
 
         reader.state(CacheStates.STOPPED);
         assertTrue(reader.state() == CacheStates.STOPPED);
-        reader.fetchContacts();
+        reader.fetchContacts(null);
         assertTrue(reader.state() == CacheStates.STOPPED);
-        reader.fetchContacts();
+        reader.fetchContacts(null);
         assertTrue(reader.state() == CacheStates.STOPPED);
-        reader.fetchContacts();
+        reader.fetchContacts(null);
         assertTrue(reader.state() == CacheStates.STOPPED);
 
     }
@@ -157,7 +157,7 @@ public class CachedAsyncPhonebookReaderTest extends WebSMSToolActivityTestcase
                 filter, mContext, contactReader);
 
         assertEquals(CacheStates.ALIVE, reader.state());
-        List<Contact> nsaWatchlist = reader.fetchContacts();
+        List<Contact> nsaWatchlist = reader.fetchContacts(null);
         assertEquals(CacheStates.ALIVE, reader.state());
 
         assertEquals(0, nsaWatchlist.size());
@@ -167,7 +167,7 @@ public class CachedAsyncPhonebookReaderTest extends WebSMSToolActivityTestcase
 
         for (int i = 0; i < 20; i++)
         {
-            nsaWatchlist = reader.fetchContacts();
+            nsaWatchlist = reader.fetchContacts(null);
             printContactsAndState(i, reader.state(), nsaWatchlist);
             sleepSilent(20);
         }
@@ -205,7 +205,7 @@ public class CachedAsyncPhonebookReaderTest extends WebSMSToolActivityTestcase
     {
         TestableCachedAsyncPhonebookReader reader = getHaltedReader(CacheStates.READ_DB_DONE);
 
-        List<Contact> dbContacts = reader.fetchContacts();
+        List<Contact> dbContacts = reader.fetchContacts(null);
         String[][] defaultContacts = new DefaultContacts().getDefaultRecords();
 
         assertTrue(defaultContacts.length <= dbContacts.size());
@@ -254,7 +254,7 @@ public class CachedAsyncPhonebookReaderTest extends WebSMSToolActivityTestcase
     {
         TestableCachedAsyncPhonebookReader reader = getHaltedReader(CacheStates.READ_CONTENTPROVIDER_DONE);
 
-        List<Contact> providerContacts = reader.fetchContacts();
+        List<Contact> providerContacts = reader.fetchContacts(null);
         String[][] defaultContacts = new DefaultContacts().getDefaultRecords();
 
         assertTrue(defaultContacts.length <= providerContacts.size());

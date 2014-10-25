@@ -56,6 +56,16 @@ public class SystemMonitorTest extends WebSMSToolActivityTestcase
         {
             mLog.error("failed closing app monitor");
         }
+        finally
+        {
+            try
+            {
+                super.tearDown();
+            }
+            catch (Throwable e)
+            {
+            }
+        }
     }
 
 

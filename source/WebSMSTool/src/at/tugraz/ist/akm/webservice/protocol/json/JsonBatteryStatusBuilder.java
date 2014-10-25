@@ -32,6 +32,7 @@ public class JsonBatteryStatusBuilder implements IJsonBuilder
     public class BatteryLevelValueNames
     {
         public static final String BATTERY_LEVEL = "battery_level";
+        public static final String BATTERY_RATIO = "battery_ratio";
         public static final String BATTERY_LEVEL_ICON = "battery_level_icon";
         public static final String IS_CHARGING = "is_charging";
         public static final String IS_AC_CHARGE = "is_ac_charge";
@@ -51,6 +52,8 @@ public class JsonBatteryStatusBuilder implements IJsonBuilder
         {
             json.put(BatteryLevelValueNames.BATTERY_LEVEL,
                     status.getBatteryLevel());
+            json.put(BatteryLevelValueNames.BATTERY_RATIO,
+                    status.getBatteryRatio());
             json.put(BatteryLevelValueNames.BATTERY_LEVEL_ICON, new String(
                     status.getBatteryIconBytes(), mDefaultEncoding));
             json.put(BatteryLevelValueNames.IS_CHARGING, status.getIsCharging());

@@ -64,10 +64,23 @@ public class PreferencesProviderTest extends AndroidTestCase implements
     @Override
     protected void tearDown() throws Exception
     {
-        mSharedPreferences
-                .unregisterOnSharedPreferenceChangeListener(mPreferenceValidator);
-        mSharedPreferences.unregisterOnSharedPreferenceChangeListener(this);
-        mConfig.close();
+        try
+        {
+            mSharedPreferences
+                    .unregisterOnSharedPreferenceChangeListener(mPreferenceValidator);
+            mSharedPreferences.unregisterOnSharedPreferenceChangeListener(this);
+            mConfig.close();
+        }
+        finally
+        {
+            try
+            {
+                super.tearDown();
+            }
+            catch (Throwable e)
+            {
+            }
+        }
     }
 
 

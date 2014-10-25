@@ -28,8 +28,6 @@ public class ServiceConnectionMessageTypes
             public static final int UNREGISTER_FROM_SERVICE_MANAGEMENT = 3;
             public static final int CURRENT_RUNNING_STATE = 5;
             public static final int STOP_SERVICE = 7;
-            public static final int CONNECTION_URL = 9; // TODO remove unused
-                                                        // call
             public static final int REPUBLISH_STATES = 11;
             public static final int HTTP_USERNAME = 13;
             public static final int HTTP_PASSWORD = 15;

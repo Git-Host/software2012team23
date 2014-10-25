@@ -28,11 +28,13 @@ import android.graphics.BitmapFactory;
 import android.os.BatteryManager;
 import android.util.Base64;
 import at.tugraz.ist.akm.R;
+import at.tugraz.ist.akm.trace.LogClient;
 
 public class BatteryStatus implements Closeable
 {
 
     private int mBatteryLevel = 0;
+    private int mBatteryLevelScale = 0;
     private int mBatteryIconId = 0;
     private boolean mIsCharging = false;
     private boolean mIsFull = false;
@@ -40,6 +42,8 @@ public class BatteryStatus implements Closeable
     private boolean mISUsbCharge = false;
     private boolean mIsAcCharge = false;
     private Context mContext = null;
+    private LogClient mLog = new LogClient(
+            BatteryManager.class.getCanonicalName());
 
 
     public BatteryStatus(Context context, Intent batteryStatus)
@@ -62,12 +66,24 @@ public class BatteryStatus implements Closeable
 
         mBatteryLevel = batteryStatus.getIntExtra(BatteryManager.EXTRA_LEVEL,
                 -1);
+        mBatteryLevelScale = batteryStatus.getIntExtra(
+                BatteryManager.EXTRA_SCALE, -1);
+        float ratio = ((float) mBatteryLevel) / mBatteryLevelScale;
+
+        mLog.debug("battery level [" + (ratio * 100) + "]% [" + mBatteryLevel
+                + "/" + mBatteryLevelScale + "]");
     }
 
 
     public int getBatteryLevel()
     {
         return mBatteryLevel;
+    }
+
+
+    public float getBatteryRatio()
+    {
+        return ((float) mBatteryLevel) / mBatteryLevelScale;
     }
 
 

@@ -315,6 +315,14 @@ public class MainActivity extends Activity
 
 
     @Override
+    public void onTrimMemory(int level)
+    {
+        super.onTrimMemory(level);
+        mLog.warning("on trim memory");
+    }
+
+
+    @Override
     public boolean onCreateOptionsMenu(Menu menu)
     {
         if (Debug.isDebuggerConnected())

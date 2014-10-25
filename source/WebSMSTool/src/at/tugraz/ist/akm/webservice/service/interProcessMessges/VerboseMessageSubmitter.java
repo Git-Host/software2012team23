@@ -104,7 +104,7 @@ public class VerboseMessageSubmitter
             }
         } else
         {
-            mLog.error("failed sending [" + simpleMessageName + "] to " + mTo
+            mLog.debug("failed sending [" + simpleMessageName + "] to " + mTo
                     + " == null");
         }
     }

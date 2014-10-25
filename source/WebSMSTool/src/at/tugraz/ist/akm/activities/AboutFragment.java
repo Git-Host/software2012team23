@@ -44,6 +44,14 @@ public class AboutFragment extends Fragment
 
 
     @Override
+    public void onTrimMemory(int level)
+    {
+        super.onTrimMemory(level);
+        mLog.warning("on trim memory");
+    }
+
+
+    @Override
     public void onStart()
     {
         super.onStart();

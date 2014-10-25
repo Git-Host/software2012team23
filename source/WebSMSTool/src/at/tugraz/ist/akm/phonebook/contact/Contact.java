@@ -306,7 +306,7 @@ public class Contact
 
         if (null != mPhotoBytes)
         {
-            hashCodeBuilder.append(mPhotoBytes.hashCode());
+            hashCodeBuilder.append(java.util.Arrays.hashCode(mPhotoBytes));
         }
 
         if (null != mPhoneNumbers)
