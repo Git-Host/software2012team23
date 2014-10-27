@@ -103,13 +103,13 @@ public class CachedAsyncPhonebookReader extends Thread implements
             case STARTED:
             case READ_DB:
                 mLog.debug("requested contacts from uncomplete cache. returning [0] entries");
-                return mContactSources.noContacts;
+                return new Vector<Contact>(mContactSources.noContacts);
 
             case READ_DB_DONE:
             case READ_CONTENTPROVIDER:
                 mLog.debug("requested contacts from cache: ["
                         + mContactSources.cached.size() + "] entries");
-                return mContactSources.cached;
+                return new Vector<Contact>(mContactSources.cached);
 
             case READ_CONTENTPROVIDER_DONE:
             case READY_FOR_CHANGES:
@@ -117,10 +117,10 @@ public class CachedAsyncPhonebookReader extends Thread implements
             case STOPPED:
                 mLog.debug("requested contacts from content provider: "
                         + mContactSources.contentProvider.size() + " entries");
-                return mContactSources.contentProvider;
+                return new Vector<Contact>(mContactSources.contentProvider);
 
             default:
-                return mContactSources.noContacts;
+                return new Vector<Contact>(mContactSources.noContacts);
             }
         }
     }
