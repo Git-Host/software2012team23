@@ -365,4 +365,177 @@ public class CachedAsyncPhonebookReaderTest extends WebSMSToolActivityTestcase
         waitForReaderToBeReady(reader);
 
     }
+
+
+    public void test_filter_conditions_is_starred()
+    {
+        ContactFilter filter = new ContactFilter();
+        ContactReader contactReader = new ContactReader(mContentResolver);
+        TestableCachedAsyncPhonebookReader reader = new TestableCachedAsyncPhonebookReader(
+                filter, mContext, contactReader);
+
+        DefaultContacts contactGenerator = new DefaultContacts();
+        Vector<Contact> contacts = contactGenerator.toContacts(contactGenerator
+                .getDefaultRecords());
+
+        assertNotNull(contacts);
+        assertTrue(contacts.size() > 0);
+
+        filter.setIsStarred(false);
+        assertEquals(0, reader.extract(contacts, filter).size());
+
+        filter.setIsStarred(true);
+        assertEquals(contacts.size(), reader.extract(contacts, filter).size());
+    }
+
+
+    public void test_filter_conditions_with_id()
+    {
+        ContactFilter filter = new ContactFilter();
+        ContactReader contactReader = new ContactReader(mContentResolver);
+        TestableCachedAsyncPhonebookReader reader = new TestableCachedAsyncPhonebookReader(
+                filter, mContext, contactReader);
+
+        DefaultContacts contactGenerator = new DefaultContacts();
+        Vector<Contact> contacts = contactGenerator.toContacts(contactGenerator
+                .getDefaultRecords());
+
+        assertNotNull(contacts);
+        assertTrue(contacts.size() > 0);
+
+        filter.setId(1);
+        assertEquals(1, reader.extract(contacts, filter).size());
+
+        int idDoesNotExist = contacts.size() + 1;
+        filter.setId(idDoesNotExist);
+        assertEquals(0, reader.extract(contacts, filter).size());
+    }
+
+
+    public void test_filter_conditions_with_phone()
+    {
+        ContactFilter filter = new ContactFilter();
+        ContactReader contactReader = new ContactReader(mContentResolver);
+        TestableCachedAsyncPhonebookReader reader = new TestableCachedAsyncPhonebookReader(
+                filter, mContext, contactReader);
+
+        DefaultContacts contactGenerator = new DefaultContacts();
+        Vector<Contact> contacts = contactGenerator.toContacts(contactGenerator
+                .getDefaultRecords());
+
+        assertNotNull(contacts);
+        assertTrue(contacts.size() > 0);
+
+        filter.setWithPhone(true);
+        assertEquals(contacts.size(), reader.extract(contacts, filter).size());
+
+        filter.setWithPhone(false);
+        assertEquals(0, reader.extract(contacts, filter).size());
+    }
+
+
+    public void test_filter_conditions_with_phone_and_id()
+    {
+        ContactFilter filter = new ContactFilter();
+        ContactReader contactReader = new ContactReader(mContentResolver);
+        TestableCachedAsyncPhonebookReader reader = new TestableCachedAsyncPhonebookReader(
+                filter, mContext, contactReader);
+
+        DefaultContacts contactGenerator = new DefaultContacts();
+        Vector<Contact> contacts = contactGenerator.toContacts(contactGenerator
+                .getDefaultRecords());
+
+        assertNotNull(contacts);
+        assertTrue(contacts.size() > 0);
+
+        filter.setWithPhone(true);
+        filter.setId(1);
+        assertEquals(1, reader.extract(contacts, filter).size());
+
+        int idDoesNotExist = contacts.size() + 1;
+        filter.setId(idDoesNotExist);
+        assertEquals(0, reader.extract(contacts, filter).size());
+    }
+
+
+    public void test_filter_conditions_starred_and_id()
+    {
+        ContactFilter filter = new ContactFilter();
+        ContactReader contactReader = new ContactReader(mContentResolver);
+        TestableCachedAsyncPhonebookReader reader = new TestableCachedAsyncPhonebookReader(
+                filter, mContext, contactReader);
+
+        DefaultContacts contactGenerator = new DefaultContacts();
+        Vector<Contact> contacts = contactGenerator.toContacts(contactGenerator
+                .getDefaultRecords());
+
+        assertNotNull(contacts);
+        assertTrue(contacts.size() > 0);
+
+        filter.setIsStarred(true);
+        filter.setId(1);
+        assertEquals(1, reader.extract(contacts, filter).size());
+
+        int idDoesNotExist = contacts.size() + 1;
+        filter.setId(idDoesNotExist);
+        assertEquals(0, reader.extract(contacts, filter).size());
+
+        filter.setIsStarred(false);
+        filter.setId(1);
+        assertEquals(0, reader.extract(contacts, filter).size());
+
+        filter.setId(idDoesNotExist);
+        assertEquals(0, reader.extract(contacts, filter).size());
+    }
+
+
+    public void test_filter_conditions_starred_and_phone()
+    {
+        ContactFilter filter = new ContactFilter();
+        ContactReader contactReader = new ContactReader(mContentResolver);
+        TestableCachedAsyncPhonebookReader reader = new TestableCachedAsyncPhonebookReader(
+                filter, mContext, contactReader);
+
+        DefaultContacts contactGenerator = new DefaultContacts();
+        Vector<Contact> contacts = contactGenerator.toContacts(contactGenerator
+                .getDefaultRecords());
+
+        assertNotNull(contacts);
+        assertTrue(contacts.size() > 0);
+
+        filter.setIsStarred(true);
+        filter.setWithPhone(true);
+        assertEquals(contacts.size(), reader.extract(contacts, filter).size());
+
+        for (Contact c : contacts)
+        {
+            c.setStarred(false);
+        }
+        contacts.get(0).setStarred(true);
+        assertEquals(1, reader.extract(contacts, filter).size());
+    }
+
+
+    public void test_filter_conditions_starred_phone_and_id()
+    {
+        ContactFilter filter = new ContactFilter();
+        ContactReader contactReader = new ContactReader(mContentResolver);
+        TestableCachedAsyncPhonebookReader reader = new TestableCachedAsyncPhonebookReader(
+                filter, mContext, contactReader);
+
+        DefaultContacts contactGenerator = new DefaultContacts();
+        Vector<Contact> contacts = contactGenerator.toContacts(contactGenerator
+                .getDefaultRecords());
+
+        assertNotNull(contacts);
+        assertTrue(contacts.size() > 0);
+
+        filter.setId(1);
+        filter.setIsStarred(true);
+        filter.setWithPhone(true);
+        assertEquals(1, reader.extract(contacts, filter).size());
+
+        contacts.get(1).setStarred(false);
+        assertEquals(0, reader.extract(contacts, filter).size());
+    }
 }

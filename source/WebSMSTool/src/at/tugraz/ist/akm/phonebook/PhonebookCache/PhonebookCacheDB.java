@@ -60,22 +60,6 @@ public class PhonebookCacheDB extends SQLiteOpenHelper
                     + " TEXT, " + Domain.IMAGE + " BLOB);";
             static String DROP = "DROP TABLE IF EXISTS " + NAME;
         }
-
-        // public static class InfoTable
-        // {
-        // static String NAME = "CacheInfos";
-        //
-        // public static class Domain
-        // {
-        // static String KEY = "Key";
-        // static String VALUE = "Value";
-        // }
-        //
-        // // key, value
-        // static String CREATE = "CREATE TABLE IF NOT EXISTS " + NAME + " ("
-        // + Domain.KEY + " TEXT, " + Domain.VALUE + " TEXT);";
-        // static String DROP = "DROP TABLE IF EXISTS " + NAME;
-        // }
     }
 
     private static class Gson
@@ -233,7 +217,6 @@ public class PhonebookCacheDB extends SQLiteOpenHelper
     {
         dropTables();
         db.execSQL(Database.CacheTable.CREATE);
-        // db.execSQL(Database.InfoTable.CREATE);
     }
 
 

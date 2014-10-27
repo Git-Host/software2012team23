@@ -103,13 +103,13 @@ public class CachedAsyncPhonebookReader extends Thread implements
             case STARTED:
             case READ_DB:
                 mLog.debug("requested contacts from uncomplete cache. returning [0] entries");
-                return new Vector<Contact>(mContactSources.noContacts);
+                return extract(mContactSources.noContacts, filter);
 
             case READ_DB_DONE:
             case READ_CONTENTPROVIDER:
                 mLog.debug("requested contacts from cache: ["
                         + mContactSources.cached.size() + "] entries");
-                return new Vector<Contact>(mContactSources.cached);
+                return extract(mContactSources.cached, filter);
 
             case READ_CONTENTPROVIDER_DONE:
             case READY_FOR_CHANGES:
@@ -117,12 +117,85 @@ public class CachedAsyncPhonebookReader extends Thread implements
             case STOPPED:
                 mLog.debug("requested contacts from content provider: "
                         + mContactSources.contentProvider.size() + " entries");
-                return new Vector<Contact>(mContactSources.contentProvider);
+                return extract(mContactSources.contentProvider, filter);
 
             default:
-                return new Vector<Contact>(mContactSources.noContacts);
+                return extract(mContactSources.noContacts, filter);
             }
         }
+    }
+
+
+    protected List<Contact> extract(List<Contact> source, ContactFilter filter)
+    {
+        if (filter == null)
+        {
+            return new Vector<Contact>(source);
+        }
+
+        Vector<Contact> filtered = new Vector<Contact>();
+
+        for (Contact contact : source)
+        {
+            if (isConditionSatisfied(contact, filter))
+            {
+                filtered.add(contact);
+            }
+        }
+
+        mLog.debug("filtered [" + source.size() + "] contacts ["
+                + filtered.size() + "] satisfied");
+        return filtered;
+    }
+
+
+    private boolean isConditionSatisfied(Contact contact, ContactFilter filter)
+    {
+        boolean isIdSatisfied = false, isStarredSatisfied = false, isWithFoneSatisfied = false;
+
+        if (filter.getIsIdActive())
+        {
+            if (filter.getId() == contact.getId())
+            {
+                isIdSatisfied = true;
+            }
+        } else
+        {
+            isIdSatisfied = true;
+        }
+
+        if (filter.getIsStarredActive())
+        {
+            if (filter.isStarred() == contact.isStarred())
+            {
+                isStarredSatisfied = true;
+            }
+        } else
+        {
+            isStarredSatisfied = true;
+        }
+
+        if (filter.getIsWithPhoneActive())
+        {
+            if (filter.getWithPhone() == true)
+            {
+                if (null != contact.getPhoneNumbers())
+                {
+                    isWithFoneSatisfied = true;
+                }
+            } else if (filter.getWithPhone() == false)
+            {
+                if (null == contact.getPhoneNumbers())
+                {
+                    isWithFoneSatisfied = true;
+                }
+            }
+        } else
+        {
+            isWithFoneSatisfied = true;
+        }
+
+        return (isIdSatisfied && isStarredSatisfied && isWithFoneSatisfied);
     }
 
 

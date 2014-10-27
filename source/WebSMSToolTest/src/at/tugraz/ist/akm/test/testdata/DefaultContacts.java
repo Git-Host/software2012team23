@@ -16,6 +16,10 @@
 
 package at.tugraz.ist.akm.test.testdata;
 
+import java.util.Vector;
+
+import at.tugraz.ist.akm.phonebook.contact.Contact;
+
 public class DefaultContacts
 {
 
@@ -57,5 +61,25 @@ public class DefaultContacts
                     + Integer.toString(idx);
         }
         return records;
+    }
+
+
+    public Vector<Contact> toContacts(String[][] records)
+    {
+        Vector<Contact> contacts = new Vector<Contact>();
+
+        for (int idx = 0; idx < records.length; idx++)
+        {
+            Contact c = new Contact();
+
+            c.setDisplayName(records[idx][0] + " " + records[idx][1]);
+            Vector<Contact.Number> numbers = new Vector<Contact.Number>();
+            numbers.add(new Contact.Number(records[idx][2], 1));
+            c.setPhoneNumbers(numbers);
+            c.setStarred(true);
+            c.setId(idx);
+            contacts.add(c);
+        }
+        return contacts;
     }
 }

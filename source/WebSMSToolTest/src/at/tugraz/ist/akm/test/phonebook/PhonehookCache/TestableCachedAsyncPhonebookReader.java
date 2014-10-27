@@ -16,10 +16,13 @@
 
 package at.tugraz.ist.akm.test.phonebook.PhonehookCache;
 
+import java.util.List;
+
 import android.content.Context;
 import at.tugraz.ist.akm.content.query.ContactFilter;
 import at.tugraz.ist.akm.phonebook.PhonebookCache.CacheStates;
 import at.tugraz.ist.akm.phonebook.PhonebookCache.CachedAsyncPhonebookReader;
+import at.tugraz.ist.akm.phonebook.contact.Contact;
 import at.tugraz.ist.akm.phonebook.contact.IContactReader;
 import at.tugraz.ist.akm.trace.LogClient;
 
@@ -120,5 +123,12 @@ public class TestableCachedAsyncPhonebookReader extends
     public CacheStates transit()
     {
         return mStateMachine.transit();
+    }
+
+
+    @Override
+    public List<Contact> extract(List<Contact> source, ContactFilter filter)
+    {
+        return super.extract(source, filter);
     }
 }

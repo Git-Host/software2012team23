@@ -72,7 +72,7 @@ public class ContactQueryBuilder
         if (mFilter.getIsStarredActive())
         {
             appendWhereQueryString(ContactsContract.Contacts.STARRED + " = ? ");
-            if (mFilter.getIsStarred())
+            if (mFilter.isStarred())
             {
                 mLikeArgs.add("1");
             } else

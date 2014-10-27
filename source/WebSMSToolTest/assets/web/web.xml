@@ -12,16 +12,35 @@
   distributed under the License is distributed on an "AS IS" BASIS,
   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
   See the License for the specific language governing permissions and
-  limitations under the License.
+  limitations under the License.
 -->
+
 <webServerConfig>
 
     <requestInterceptors>
 
-        <interceptor class="at.tugraz.ist.akm.webservice.handler.interceptor.AuthorizationInterceptor" />
+        <interceptor class="at.tugraz.ist.akm.webservice.requestprocessor.interceptor.AuthorizationInterceptor" />
     </requestInterceptors>
 
-    <requestHandler class="at.tugraz.ist.akm.webservice.handler.FileRequestHandler" >
+    <requestHandler class="at.tugraz.ist.akm.webservice.requestprocessor.TestfileRequestProcessor" >
+
+        <request
+            contentType="text/javascript"
+            dataFile="web/js/qunit/clientTest.js"
+            uriPattern="/js/qunit/clientTest.js" />
+
+        <request
+            contentType="text/html"
+            dataFile="web/js/wst/templates/test.html"
+            uriPattern="/js/wst/templates/test.html" />
+
+        <request
+            contentType="text/html"
+            dataFile="web/clientTest.html"
+            uriPattern="/clientTest.html" />
+    </requestHandler>
+
+    <requestHandler class="at.tugraz.ist.akm.webservice.requestprocessor.FileRequestProcessor" >
 
         <request
             contentType="text/html"
@@ -34,11 +53,6 @@
             uriPattern="/index.html" />
 
         <request
-            contentType="text/html"
-            dataFile="web/clientTest.html"
-            uriPattern="/clientTest.html" />
-
-        <request
             contentType="text/javascript"
             dataFile="web/js/jquery.js"
             uriPattern="/js/jquery.js" />
@@ -47,11 +61,6 @@
             contentType="text/javascript"
             dataFile="web/js/client.js"
             uriPattern="/js/client.js" />
-
-        <request
-            contentType="text/javascript"
-            dataFile="web/js/qunit/clientTest.js"
-            uriPattern="/js/qunit/clientTest.js" />
 
         <request
             contentType="text/javascript"
@@ -115,11 +124,6 @@
 
         <request
             contentType="text/html"
-            dataFile="web/js/wst/templates/test.html"
-            uriPattern="/js/wst/templates/test.html" />
-
-        <request
-            contentType="text/html"
             dataFile="web/js/wst/templates/contact_entry.html"
             uriPattern="/js/wst/templates/contact_entry.html" />
 
@@ -134,7 +138,7 @@
             uriPattern="/js/wst/templates/contact_tab.html" />
     </requestHandler>
 
-    <requestHandler class="at.tugraz.ist.akm.webservice.handler.JsonAPIRequestHandler" >
+    <requestHandler class="at.tugraz.ist.akm.webservice.requestprocessor.JsonAPIRequestProcessor" >
 
         <request
             contentType="text/html"
@@ -142,12 +146,20 @@
             uriPattern="/api.html" />
     </requestHandler>
 
-    <requestHandler class="at.tugraz.ist.akm.webservice.handler.EchoJsonRequestHandler" >
+    <requestHandler class="at.tugraz.ist.akm.webservice.requestprocessor.EchoJsonRequestProcessor" >
 
         <request
             contentType="text/html"
             dataFile="web/echo.html"
             uriPattern="/echo.html" />
+    </requestHandler>
+
+    <requestHandler class="at.tugraz.ist.akm.webservice.requestprocessor.FaviconLoadRequestProcessor" >
+
+        <request
+            contentType="text/html"
+            dataFile="web/favicon.png"
+            uriPattern="/favicon.png" />
     </requestHandler>
 
 </webServerConfig>

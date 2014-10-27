@@ -60,7 +60,7 @@ public class ContactFilter
     }
 
 
-    public boolean getIsStarred()
+    public boolean isStarred()
     {
         return mStarred;
     }

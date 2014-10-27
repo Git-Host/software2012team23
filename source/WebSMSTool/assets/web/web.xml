@@ -12,14 +12,33 @@
   distributed under the License is distributed on an "AS IS" BASIS,
   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
   See the License for the specific language governing permissions and
-  limitations under the License.
+  limitations under the License.
 -->
+
 <webServerConfig>
 
     <requestInterceptors>
 
         <interceptor class="at.tugraz.ist.akm.webservice.requestprocessor.interceptor.AuthorizationInterceptor" />
     </requestInterceptors>
+
+    <requestHandler class="at.tugraz.ist.akm.webservice.requestprocessor.TestfileRequestProcessor" >
+
+        <request
+            contentType="text/javascript"
+            dataFile="web/js/qunit/clientTest.js"
+            uriPattern="/js/qunit/clientTest.js" />
+
+        <request
+            contentType="text/html"
+            dataFile="web/js/wst/templates/test.html"
+            uriPattern="/js/wst/templates/test.html" />
+
+        <request
+            contentType="text/html"
+            dataFile="web/clientTest.html"
+            uriPattern="/clientTest.html" />
+    </requestHandler>
 
     <requestHandler class="at.tugraz.ist.akm.webservice.requestprocessor.FileRequestProcessor" >
 
@@ -34,11 +53,6 @@
             uriPattern="/index.html" />
 
         <request
-            contentType="text/html"
-            dataFile="web/clientTest.html"
-            uriPattern="/clientTest.html" />
-
-        <request
             contentType="text/javascript"
             dataFile="web/js/jquery.js"
             uriPattern="/js/jquery.js" />
@@ -47,11 +61,6 @@
             contentType="text/javascript"
             dataFile="web/js/client.js"
             uriPattern="/js/client.js" />
-
-        <request
-            contentType="text/javascript"
-            dataFile="web/js/qunit/clientTest.js"
-            uriPattern="/js/qunit/clientTest.js" />
 
         <request
             contentType="text/javascript"
@@ -112,11 +121,6 @@
             contentType="text/css"
             dataFile="web/css/wstTab.css"
             uriPattern="/css/wstTab.css" />
-
-        <request
-            contentType="text/html"
-            dataFile="web/js/wst/templates/test.html"
-            uriPattern="/js/wst/templates/test.html" />
 
         <request
             contentType="text/html"

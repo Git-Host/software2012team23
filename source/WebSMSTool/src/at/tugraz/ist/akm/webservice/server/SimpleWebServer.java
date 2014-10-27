@@ -35,6 +35,7 @@ import android.content.Context;
 import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
 import at.tugraz.ist.akm.R;
+import at.tugraz.ist.akm.environment.AppEnvironment;
 import at.tugraz.ist.akm.io.xml.XmlNode;
 import at.tugraz.ist.akm.io.xml.XmlReader;
 import at.tugraz.ist.akm.keystore.ApplicationKeyStore;
@@ -47,6 +48,7 @@ import at.tugraz.ist.akm.trace.LogClient;
 import at.tugraz.ist.akm.webservice.WebServerConstants;
 import at.tugraz.ist.akm.webservice.requestprocessor.AbstractHttpRequestProcessor;
 import at.tugraz.ist.akm.webservice.requestprocessor.JsonAPIRequestProcessor;
+import at.tugraz.ist.akm.webservice.requestprocessor.TestfileRequestProcessor;
 import at.tugraz.ist.akm.webservice.requestprocessor.interceptor.IRequestInterceptor;
 
 public class SimpleWebServer implements ISmsIOCallback, Closeable
@@ -130,6 +132,7 @@ public class SimpleWebServer implements ISmsIOCallback, Closeable
                         + "] no corresponding class to load found");
                 continue;
             }
+
             try
             {
 
@@ -138,6 +141,13 @@ public class SimpleWebServer implements ISmsIOCallback, Closeable
                         XmlNode.class, HttpRequestHandlerRegistry.class);
 
                 AbstractHttpRequestProcessor newHandler = null;
+
+                if (clazz == TestfileRequestProcessor.class
+                        && AppEnvironment.isDebuggable() == false)
+                {
+                    mLog.debug("ignoring web ui test file handler");
+                    continue;
+                }
 
                 if (className.equals(JsonAPIRequestProcessor.class
                         .getCanonicalName()))
