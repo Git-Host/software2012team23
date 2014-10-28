@@ -234,7 +234,7 @@ public class OnSharedPreferenceEventListenValidator implements
             mLog.debug("clicked username");
         } else
         {
-            mLog.debug(" -->> clicked " + preferenceKey);
+            mLog.debug("clicked " + preferenceKey);
         }
 
         return false;

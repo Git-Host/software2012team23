@@ -21,6 +21,7 @@ import java.util.Map;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.Preference;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import at.tugraz.ist.akm.R;
@@ -59,9 +60,12 @@ public class PrefsFragment extends PreferenceFragment
         Map<String, ?> keys = sp.getAll();
         for (Map.Entry<String, ?> entry : keys.entrySet())
         {
-            String p = entry.getKey();
-            findPreference(p).setOnPreferenceClickListener(
-                    mPreferenceChangedListener);
+            Preference pr = findPreference(entry.getKey());
+            if (pr != null)
+            {
+
+                pr.setOnPreferenceClickListener(mPreferenceChangedListener);
+            }
         }
 
     }
@@ -77,8 +81,11 @@ public class PrefsFragment extends PreferenceFragment
         Map<String, ?> keys = sp.getAll();
         for (Map.Entry<String, ?> entry : keys.entrySet())
         {
-            String p = entry.getKey();
-            findPreference(p).setOnPreferenceClickListener(null);
+            Preference pr = findPreference(entry.getKey());
+            if (pr != null)
+            {
+                pr.setOnPreferenceClickListener(null);
+            }
         }
     }
 

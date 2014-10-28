@@ -58,6 +58,24 @@ public class SharedPreferencesProvider implements Closeable
     }
 
 
+    public boolean isFirstLaunch()
+    {
+        boolean isFirstLaunched = mSharedPreferences
+                .getBoolean(
+                        resourceIdString(R.string.preferences_is_fist_launch_key),
+                        true);
+        if (isFirstLaunched)
+        {
+            mSharedPreferences
+                    .edit()
+                    .putBoolean(
+                            resourceIdString(R.string.preferences_is_fist_launch_key),
+                            false).commit();
+        }
+        return isFirstLaunched;
+    }
+
+
     public String getUsername()
     {
         return mSharedPreferences.getString(

@@ -37,6 +37,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 import at.tugraz.ist.akm.R;
+import at.tugraz.ist.akm.keystore.ApplicationKeyStore;
 import at.tugraz.ist.akm.preferences.SharedPreferencesProvider;
 import at.tugraz.ist.akm.trace.LogClient;
 import at.tugraz.ist.akm.webservice.server.WebserverProtocolConfig;
@@ -85,6 +86,50 @@ public class StartServiceFragment extends Fragment implements
     {
         super.onCreate(savedInstanceState);
         mLog.debug("on create");
+
+        if (isFirstLaunch())
+        {
+            mLog.debug("first launch, creating certificate");
+            createNewCertificate();
+        }
+    }
+
+
+    private void createNewCertificate()
+    {
+
+        SharedPreferencesProvider preferences = new SharedPreferencesProvider(
+                getActivity().getApplicationContext());
+        ApplicationKeyStore appKeystore = new ApplicationKeyStore();
+
+        String keystoreFilePath = getActivity().getApplicationContext()
+                .getFilesDir().getPath().toString()
+                + "/"
+                + getActivity()
+                        .getApplicationContext()
+                        .getResources()
+                        .getString(R.string.preferences_keystore_store_filename);
+
+        appKeystore.loadKeystore(preferences.getKeyStorePassword(),
+                keystoreFilePath);
+
+        try
+        {
+            preferences.close();
+        }
+        catch (Throwable e)
+        {
+            mLog.error("failed closing preferences provider");
+        }
+
+        try
+        {
+            appKeystore.close();
+        }
+        catch (Throwable e)
+        {
+            mLog.error("failed closing keystore");
+        }
     }
 
 
@@ -499,6 +544,25 @@ public class StartServiceFragment extends Fragment implements
     private void askWebServiceForServerStopAsync()
     {
         mMessageSender.submit(ServiceMessageBuilder.newStopServiceMessage());
+    }
+
+
+    private boolean isFirstLaunch()
+    {
+        SharedPreferencesProvider preferences = new SharedPreferencesProvider(
+                getActivity().getApplicationContext());
+
+        boolean isFistLaunced = preferences.isFirstLaunch();
+
+        try
+        {
+            preferences.close();
+        }
+        catch (Throwable e)
+        {
+            mLog.error("failed closing preferences provider");
+        }
+        return isFistLaunced;
     }
 
 
